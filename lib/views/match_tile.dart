@@ -37,9 +37,11 @@ class MatchTile extends StatelessWidget {
         child: ExpansionTile(
           title: Row(
             children: [
-              SizedBox(
-                width: 20,
-                child: Center(
+              // Logo ligue
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 16),
+                child: SizedBox(
+                  width: 30,
                   child: CircleAvatar(
                     radius: 16,
                     backgroundColor: Colors.transparent,
@@ -51,9 +53,13 @@ class MatchTile extends StatelessWidget {
                 ),
               ),
 
+              // Équipe domicile
               Expanded(
-                child: Center(
+                child: Align(
+                  alignment: Alignment
+                      .centerRight, // alignement à droite vers le score
                   child: FittedBox(
+                    fit: BoxFit.scaleDown,
                     child: Text(
                       match.equipeDomicile.nom,
                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -64,23 +70,28 @@ class MatchTile extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(
-                width: 80,
-                child: Center(
-                  child: Text(
-                    "${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+              // Score
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  "${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
 
+              // Équipe extérieur
               Expanded(
-                child: Center(
-                  child: Text(
-                    match.equipeExterieur.nom,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.right,
+                child: Align(
+                  alignment:
+                      Alignment.centerLeft, // alignement à gauche vers le score
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      match.equipeExterieur.nom,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   ),
                 ),
               ),
