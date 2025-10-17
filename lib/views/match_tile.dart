@@ -5,7 +5,7 @@ import '../models/match.dart';
 
 class MatchTile extends StatelessWidget {
   final Match match;
-  const MatchTile({required this.match, Key? key}) : super(key: key);
+  const MatchTile({required this.match, super.key});
 
   List<String> getLignesButeurs(List<But> buts, bool domicile) {
     Map<Joueur, List<String>> butsMap = {};

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import '../views/match_tile.dart';
 import '../services/repositories/i_match_repository.dart';
 import '../models/match.dart';
+import 'add_match.dart';
 
 class AllMatchesView extends StatefulWidget {
   final IMatchRepository repository;
-  const AllMatchesView({Key? key, required this.repository}) : super(key: key);
+  const AllMatchesView({super.key, required this.repository});
 
   @override
   State<AllMatchesView> createState() => _AllMatchesViewState();
@@ -66,11 +67,24 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: navigation vers le formulaire d'ajout
+        onPressed: () async {
+          final newMatch = await Navigator.push<Match>(
+            context,
+            MaterialPageRoute(builder: (context) => const AddMatchView()),
+          );
+
+          if (newMatch != null) {
+            // Appel au repository pour ajouter le match
+            await widget.repository.addMatch(newMatch);
+
+            // Et on met à jour l'affichage
+            setState(() {
+              _futureMatches = widget.repository.fetchAllMatches();
+            });
+          }
         },
-        child: Icon(Icons.add),
         backgroundColor: Theme.of(context).secondaryHeaderColor,
+        child: Icon(Icons.add),
       ),
     );
   }
