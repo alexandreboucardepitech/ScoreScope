@@ -1,23 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:scorescope/models/but.dart';
+import 'package:scorescope/services/repositories/equipe/i_equipe_repository.dart';
+import 'package:scorescope/services/repositories/equipe/mock_equipe_repository.dart';
+import 'package:scorescope/utils/joueur_name_parser.dart';
 import '../models/match.dart';
 import '../models/equipe.dart';
 
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+
 class AddMatchView extends StatefulWidget {
-  const AddMatchView({super.key});
+  ///////// REPOSITORY /////////
+  final IEquipeRepository equipeRepository = MockEquipeRepository();
+
+  AddMatchView({super.key});
 
   @override
   State<AddMatchView> createState() => _AddMatchViewState();
 }
 
 class _AddMatchViewState extends State<AddMatchView> {
+  ///////// FORM CONTROLLERS /////////
   final _formKey = GlobalKey<FormState>();
-  final _domicileController = TextEditingController();
-  final _exterieurController = TextEditingController();
+  final _equipeDomicileController = TextEditingController();
+  final _equipeExterieurController = TextEditingController();
   final _scoreDomController = TextEditingController();
   final _scoreExtController = TextEditingController();
   final _competitionController = TextEditingController();
   final _dateController = TextEditingController();
+  final List<TextEditingController> _buteursDom = [];
+  final List<TextEditingController> _buteursExt = [];
+
+  //////// VALEURS STOCKÉES /////////
+  final List<String> _buteursDomString = [];
+  final List<String> _buteursExtString = [];
   DateTime _matchDate = DateTime.now();
+  Equipe? _selectedEquipeDomicile;
+  Equipe? _selectedEquipeExterieur;
+
+  //////// VALUE NOTIFIERS /////////
+  final ValueNotifier<bool> _equipeDomicileHasFocus = ValueNotifier(false);
+  final ValueNotifier<bool> _equipeExterieurHasFocus = ValueNotifier(false);
+  final Map<FocusNode, VoidCallback> _focusListeners = {};
 
   @override
   void initState() {
@@ -27,18 +51,152 @@ class _AddMatchViewState extends State<AddMatchView> {
 
   @override
   void dispose() {
-    _domicileController.dispose();
-    _exterieurController.dispose();
+    _equipeDomicileController.dispose();
+    _equipeExterieurController.dispose();
     _scoreDomController.dispose();
     _scoreExtController.dispose();
     _competitionController.dispose();
     _dateController.dispose();
+
+    for (final entry in _focusListeners.entries) {
+      entry.key.removeListener(entry.value);
+    }
+    _focusListeners.clear();
+
+    _equipeDomicileHasFocus.dispose();
+    _equipeExterieurHasFocus.dispose();
     super.dispose();
   }
 
   String _formatDate(DateTime dt) {
-    final two = (int n) => n.toString().padLeft(2, '0');
+    String two(int n) => n.toString().padLeft(2, '0');
     return '${two(dt.day)}/${two(dt.month)}/${dt.year}';
+  }
+
+  TextEditingController _createControllerWithSync(
+    List<String> storageList,
+    int index,
+  ) {
+    final initialText = index < storageList.length ? storageList[index] : '';
+    final controller = TextEditingController(text: initialText);
+
+    if (index >= storageList.length) {
+      storageList.add(initialText);
+    }
+
+    controller.addListener(() {
+      if (index < storageList.length) {
+        storageList[index] = controller.text;
+      } else {
+        storageList.add(controller.text);
+      }
+    });
+
+    return controller;
+  }
+
+  void _updateButeurs() {
+    final scoreDom = int.tryParse(_scoreDomController.text) ?? 0;
+    final scoreExt = int.tryParse(_scoreExtController.text) ?? 0;
+
+    while (_buteursDom.length < scoreDom) {
+      final idx = _buteursDom.length;
+      final ctrl = _createControllerWithSync(_buteursDomString, idx);
+      _buteursDom.add(ctrl);
+    }
+
+    while (_buteursDom.length > scoreDom) {
+      final removed = _buteursDom.removeLast();
+      removed.dispose();
+    }
+
+    while (_buteursExt.length < scoreExt) {
+      final idx = _buteursExt.length;
+      final ctrl = _createControllerWithSync(_buteursExtString, idx);
+      _buteursExt.add(ctrl);
+    }
+    while (_buteursExt.length > scoreExt) {
+      final removed = _buteursExt.removeLast();
+      removed.dispose();
+    }
+
+    setState(() {});
+  }
+
+  Widget buildEquipeTypeAhead(
+      {required TextEditingController controller,
+      required void Function(Equipe) onSuggestionSelected,
+      required ThemeData theme,
+      required ValueNotifier<bool> focusNotifier}) {
+    return TypeAheadField<Equipe>(
+      builder: (context, taController, focusNode) {
+        if (!_focusListeners.containsKey(focusNode)) {
+          void listener() {
+            focusNotifier.value = focusNode.hasFocus;
+          }
+
+          focusNode.addListener(listener);
+          _focusListeners[focusNode] = listener;
+
+          focusNotifier.value = focusNode.hasFocus;
+        }
+        return ValueListenableBuilder<bool>(
+          valueListenable: focusNotifier,
+          builder: (context, hasFocus, _) {
+            return TextField(
+              controller: taController,
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                labelText: 'Équipe',
+                filled: true,
+                fillColor: theme.secondaryHeaderColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: hasFocus ? Radius.zero : Radius.circular(10),
+                    bottomRight: hasFocus ? Radius.zero : Radius.circular(10),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      suggestionsCallback: (pattern) async {
+        if (pattern.length < 3) {
+          return [];
+        }
+        return await widget.equipeRepository.searchTeams(pattern);
+      },
+      itemBuilder: (context, Equipe suggestion) => ListTile(
+        title: Text(suggestion.nom),
+        subtitle: Text(suggestion.code ?? ''),
+      ),
+      emptyBuilder: (context) => SizedBox.shrink(),
+      offset: const Offset(0, -2),
+      onSelected: onSuggestionSelected,
+      decorationBuilder: (context, suggestionsBox) {
+        return ValueListenableBuilder<bool>(
+          valueListenable: focusNotifier,
+          builder: (context, hasFocus, _) {
+            return Container(
+              decoration: hasFocus
+                  ? BoxDecoration(
+                      color: theme.secondaryHeaderColor,
+                      border: Border.all(color: const Color(0xFF6750A4)),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(10),
+                        bottomRight: Radius.circular(10),
+                      ),
+                    )
+                  : const BoxDecoration(),
+              child: suggestionsBox,
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -46,6 +204,7 @@ class _AddMatchViewState extends State<AddMatchView> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Nouveau match"),
         backgroundColor: theme.primaryColor,
@@ -58,25 +217,19 @@ class _AddMatchViewState extends State<AddMatchView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Équipe domicile
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Équipe domicile
                   Expanded(
-                    child: TextFormField(
-                      controller: _domicileController,
-                      decoration: InputDecoration(
-                        labelText: "Domicile",
-                        filled: true,
-                        fillColor: theme.secondaryHeaderColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Entrez une équipe'
-                          : null,
+                    child: buildEquipeTypeAhead(
+                      controller: _equipeDomicileController,
+                      theme: theme,
+                      onSuggestionSelected: (equipe) {
+                        _equipeDomicileController.text = equipe.nom;
+                        _selectedEquipeDomicile = equipe;
+                      },
+                      focusNotifier: _equipeDomicileHasFocus,
                     ),
                   ),
 
@@ -86,14 +239,17 @@ class _AddMatchViewState extends State<AddMatchView> {
                   SizedBox(
                     width: 45,
                     child: TextFormField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(2),
+                      ],
+                      onChanged: (_) => _updateButeurs(),
                       controller: _scoreDomController,
                       decoration: InputDecoration(
                         hintText: "0",
                         filled: true,
                         fillColor: theme.secondaryHeaderColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        border: OutlineInputBorder(),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 8,
@@ -119,14 +275,17 @@ class _AddMatchViewState extends State<AddMatchView> {
                   SizedBox(
                     width: 45,
                     child: TextFormField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(2),
+                      ],
+                      onChanged: (_) => _updateButeurs(),
                       controller: _scoreExtController,
                       decoration: InputDecoration(
                         hintText: "0",
                         filled: true,
                         fillColor: theme.secondaryHeaderColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        border: OutlineInputBorder(),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 8,
@@ -141,29 +300,23 @@ class _AddMatchViewState extends State<AddMatchView> {
 
                   // Équipe extérieure
                   Expanded(
-                    child: TextFormField(
-                      controller: _exterieurController,
-                      decoration: InputDecoration(
-                        labelText: "Extérieur",
-                        filled: true,
-                        fillColor: theme.secondaryHeaderColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Entrez une équipe'
-                          : null,
+                    child: buildEquipeTypeAhead(
+                      controller: _equipeExterieurController,
+                      theme: theme,
+                      onSuggestionSelected: (equipe) {
+                        _equipeExterieurController.text = equipe.nom;
+                        _selectedEquipeExterieur = equipe;
+                      },
+                      focusNotifier: _equipeExterieurHasFocus,
                     ),
                   ),
                 ],
               ),
 
               const SizedBox(height: 12),
-              // Row : Competition (large) + Date (petit, readOnly)
               Row(
                 children: [
-                  // Champ Compétition (prend le reste de la largeur)
+                  // Compétition
                   Expanded(
                     child: TextFormField(
                       controller: _competitionController,
@@ -171,9 +324,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         labelText: 'Compétition',
                         filled: true,
                         fillColor: theme.secondaryHeaderColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                       validator: (v) => v == null || v.isEmpty
                           ? 'Entrez une compétition'
@@ -183,9 +334,8 @@ class _AddMatchViewState extends State<AddMatchView> {
 
                   const SizedBox(width: 12),
 
-                  // Petit champ Date (lecture seule) : ouvre le DatePicker au tap
                   SizedBox(
-                    width: 120, // petite largeur pour afficher "17/10/2025"
+                    width: 120,
                     child: TextFormField(
                       controller: _dateController,
                       readOnly: true,
@@ -194,9 +344,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         labelText: 'Date',
                         filled: true,
                         fillColor: theme.secondaryHeaderColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                       onTap: () async {
                         final picked = await showDatePicker(
@@ -204,7 +352,6 @@ class _AddMatchViewState extends State<AddMatchView> {
                           initialDate: _matchDate,
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2100),
-                          // optional: helpText, locale, etc.
                         );
                         if (picked != null) {
                           setState(() {
@@ -213,6 +360,83 @@ class _AddMatchViewState extends State<AddMatchView> {
                           });
                         }
                       },
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 280,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: _buteursDom
+                              .map(
+                                (c) => TextFormField(
+                                  textCapitalization: TextCapitalization.words,
+                                  onChanged: (value) {
+                                    final index = _buteursDom.indexOf(c);
+                                    if (index >= 0) {
+                                      if (index < _buteursDomString.length) {
+                                        _buteursDomString[index] = value;
+                                      } else {
+                                        _buteursDomString.add(value);
+                                      }
+                                    }
+                                  },
+                                  controller: c,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        'Buteur ${_buteursDom.indexOf(c) + 1}',
+                                    filled: true,
+                                    fillColor: theme.secondaryHeaderColor,
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: SizedBox(
+                      height: 280,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: _buteursExt
+                              .map(
+                                (c) => TextFormField(
+                                  textCapitalization: TextCapitalization.words,
+                                  onChanged: (value) {
+                                    final index = _buteursExt.indexOf(c);
+                                    if (index >= 0) {
+                                      if (index < _buteursExtString.length) {
+                                        _buteursExtString[index] = value;
+                                      } else {
+                                        _buteursExtString.add(value);
+                                      }
+                                    }
+                                  },
+                                  controller: c,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        'Buteur ${_buteursExt.indexOf(c) + 1}',
+                                    filled: true,
+                                    fillColor: theme.secondaryHeaderColor,
+                                    border: OutlineInputBorder(),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -231,21 +455,37 @@ class _AddMatchViewState extends State<AddMatchView> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     final newMatch = Match(
-                      id: '', // à remplir côté repo
-                      equipeDomicile: Equipe(
-                        nom: _domicileController.text,
-                        id: '',
-                      ),
-                      equipeExterieur: Equipe(
-                        nom: _exterieurController.text,
-                        id: '',
-                      ),
+                      id: '',
+                      equipeDomicile: _selectedEquipeDomicile ??
+                          Equipe(nom: _equipeDomicileController.text, id: ''),
+                      equipeExterieur: _selectedEquipeExterieur ??
+                          Equipe(nom: _equipeExterieurController.text, id: ''),
                       scoreEquipeDomicile:
                           int.tryParse(_scoreDomController.text) ?? 0,
                       scoreEquipeExterieur:
                           int.tryParse(_scoreExtController.text) ?? 0,
                       competition: _competitionController.text,
-                      date: DateTime.now(),
+                      date: _matchDate,
+                      butsEquipeDomicile: _buteursDom
+                          .map(
+                            (controller) => But(
+                              buteur: parseNomJoueur(
+                                capitalizeNomComplet(controller.text),
+                              ),
+                              minute: '1',
+                            ),
+                          )
+                          .toList(),
+                      butsEquipeExterieur: _buteursExt
+                          .map(
+                            (controller) => But(
+                              buteur: parseNomJoueur(
+                                capitalizeNomComplet(controller.text),
+                              ),
+                              minute: '1',
+                            ),
+                          )
+                          .toList(),
                     );
                     Navigator.pop(context, newMatch);
                   }

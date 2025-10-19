@@ -46,7 +46,7 @@ class MatchTile extends StatelessWidget {
                     radius: 16,
                     backgroundColor: Colors.transparent,
                     child: Image.asset(
-                      'assets/ligue1.jpg',
+                      'assets/competitions/ligue1.jpg',
                       fit: BoxFit.contain,
                     ),
                   ),

@@ -1,4 +1,4 @@
-import '../../models/match.dart';
+import '../../../models/match.dart';
 
 abstract class IMatchRepository {
   Future<List<Match>> fetchAllMatches();

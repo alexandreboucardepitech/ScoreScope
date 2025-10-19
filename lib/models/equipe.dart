@@ -1,20 +1,23 @@
 class Equipe {
-  final String? id;
+  final String id;
   final String nom;
-  final String? code; // optionnel : abbréviation, ex "PSG"
+  final String? code;
+  final String? logoPath;
 
-  Equipe({this.id, required this.nom, this.code});
+  Equipe({this.id = '1', required this.nom, this.code, this.logoPath});
 
   Map<String, dynamic> toJson() => {
-        if (id != null) 'id': id,
+        'id': id,
         'nom': nom,
         if (code != null) 'code': code,
+        if (logoPath != null) 'logoPath': logoPath,
       };
 
   factory Equipe.fromJson(Map<String, dynamic> json) => Equipe(
-        id: json['id'] as String?,
+        id: json['id'] as String? ?? '',
         nom: json['nom'] as String? ?? '',
         code: json['code'] as String?,
+        logoPath: json['logoPath'] as String?,
       );
 
   @override

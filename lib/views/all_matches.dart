@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/services/repositories/match/mock_match_repository.dart';
 import '../views/match_tile.dart';
-import '../services/repositories/i_match_repository.dart';
+import '../services/repositories/match/i_match_repository.dart';
 import '../models/match.dart';
 import 'add_match.dart';
 
 class AllMatchesView extends StatefulWidget {
-  final IMatchRepository repository;
-  const AllMatchesView({super.key, required this.repository});
+  final IMatchRepository matchRepository = MockMatchRepository();
+  AllMatchesView({super.key});
 
   @override
   State<AllMatchesView> createState() => _AllMatchesViewState();
@@ -22,7 +23,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
   }
 
   void _load() {
-    _futureMatches = widget.repository.fetchAllMatches();
+    _futureMatches = widget.matchRepository.fetchAllMatches();
   }
 
   @override
@@ -70,16 +71,16 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         onPressed: () async {
           final newMatch = await Navigator.push<Match>(
             context,
-            MaterialPageRoute(builder: (context) => const AddMatchView()),
+            MaterialPageRoute(builder: (context) => AddMatchView()),
           );
 
           if (newMatch != null) {
-            // Appel au repository pour ajouter le match
-            await widget.repository.addMatch(newMatch);
+            // Appel au matchRepository pour ajouter le match
+            await widget.matchRepository.addMatch(newMatch);
 
             // Et on met à jour l'affichage
             setState(() {
-              _futureMatches = widget.repository.fetchAllMatches();
+              _futureMatches = widget.matchRepository.fetchAllMatches();
             });
           }
         },
