@@ -169,10 +169,53 @@ class _AddMatchViewState extends State<AddMatchView> {
         }
         return await widget.equipeRepository.searchTeams(pattern);
       },
-      itemBuilder: (context, Equipe suggestion) => ListTile(
-        title: Text(suggestion.nom),
-        subtitle: Text(suggestion.code ?? ''),
-      ),
+      itemBuilder: (context, Equipe suggestion) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.black, width: 1)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        suggestion.nom,
+                        style: const TextStyle(color: Colors.black),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (suggestion.code != null)
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          suggestion.code!,
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (suggestion.logoPath != null)
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: Image.asset(suggestion.logoPath!, fit: BoxFit.contain),
+                ),
+            ],
+          ),
+        );
+      },
       emptyBuilder: (context) => SizedBox.shrink(),
       offset: const Offset(0, -2),
       onSelected: onSuggestionSelected,
@@ -372,33 +415,37 @@ class _AddMatchViewState extends State<AddMatchView> {
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 280,
+                      height: 290,
                       child: SingleChildScrollView(
                         child: Column(
                           children: _buteursDom
-                              .map(
-                                (c) => TextFormField(
-                                  textCapitalization: TextCapitalization.words,
-                                  onChanged: (value) {
-                                    final index = _buteursDom.indexOf(c);
-                                    if (index >= 0) {
-                                      if (index < _buteursDomString.length) {
-                                        _buteursDomString[index] = value;
-                                      } else {
-                                        _buteursDomString.add(value);
-                                      }
-                                    }
-                                  },
-                                  controller: c,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        'Buteur ${_buteursDom.indexOf(c) + 1}',
-                                    filled: true,
-                                    fillColor: theme.secondaryHeaderColor,
-                                    border: OutlineInputBorder(),
-                                  ),
-                                ),
-                              )
+                              .map((c) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 1.0),
+                                    child: TextFormField(
+                                      textCapitalization:
+                                          TextCapitalization.words,
+                                      onChanged: (value) {
+                                        final index = _buteursDom.indexOf(c);
+                                        if (index >= 0) {
+                                          if (index <
+                                              _buteursDomString.length) {
+                                            _buteursDomString[index] = value;
+                                          } else {
+                                            _buteursDomString.add(value);
+                                          }
+                                        }
+                                      },
+                                      controller: c,
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            'Buteur ${_buteursDom.indexOf(c) + 1}',
+                                        filled: true,
+                                        fillColor: theme.secondaryHeaderColor,
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                  ))
                               .toList(),
                         ),
                       ),
@@ -407,33 +454,37 @@ class _AddMatchViewState extends State<AddMatchView> {
                   SizedBox(width: 10),
                   Expanded(
                     child: SizedBox(
-                      height: 280,
+                      height: 290,
                       child: SingleChildScrollView(
                         child: Column(
                           children: _buteursExt
-                              .map(
-                                (c) => TextFormField(
-                                  textCapitalization: TextCapitalization.words,
-                                  onChanged: (value) {
-                                    final index = _buteursExt.indexOf(c);
-                                    if (index >= 0) {
-                                      if (index < _buteursExtString.length) {
-                                        _buteursExtString[index] = value;
-                                      } else {
-                                        _buteursExtString.add(value);
-                                      }
-                                    }
-                                  },
-                                  controller: c,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        'Buteur ${_buteursExt.indexOf(c) + 1}',
-                                    filled: true,
-                                    fillColor: theme.secondaryHeaderColor,
-                                    border: OutlineInputBorder(),
-                                  ),
-                                ),
-                              )
+                              .map((c) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 1.0),
+                                    child: TextFormField(
+                                      textCapitalization:
+                                          TextCapitalization.words,
+                                      onChanged: (value) {
+                                        final index = _buteursExt.indexOf(c);
+                                        if (index >= 0) {
+                                          if (index <
+                                              _buteursExtString.length) {
+                                            _buteursExtString[index] = value;
+                                          } else {
+                                            _buteursExtString.add(value);
+                                          }
+                                        }
+                                      },
+                                      controller: c,
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            'Buteur ${_buteursExt.indexOf(c) + 1}',
+                                        filled: true,
+                                        fillColor: theme.secondaryHeaderColor,
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                  ))
                               .toList(),
                         ),
                       ),
