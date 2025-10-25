@@ -13,7 +13,7 @@ class MatchTile extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MatchDetailsPage(match: match),
+          builder: (context) => MatchDetailsPage(match: match), // faire en sorte de n'ouvrir cette page quand on clique sur la tile, et de la dérouler uniquement si on clique sur la flèche
         ),
       ),
       child: Card(
@@ -99,7 +99,7 @@ class MatchTile extends StatelessWidget {
                         children: getLignesButeurs(
                           buts: match.butsEquipeDomicile,
                           domicile: true,
-                          fullName: true,
+                          fullName: false,
                         ).map((line) => Text(line)).toList(),
                       ),
                     ),
@@ -114,7 +114,7 @@ class MatchTile extends StatelessWidget {
                         children: getLignesButeurs(
                           buts: match.butsEquipeExterieur,
                           domicile: false,
-                          fullName: true,
+                          fullName: false,
                         ).map((line) => Text(line)).toList(),
                       ),
                     ),

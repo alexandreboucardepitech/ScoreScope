@@ -1,160 +1,213 @@
-// /lib/views/match_details.dart
-// A simple details page for a Match object.
-// Adjust the import and field names to match your existing Match class.
-
 import 'package:flutter/material.dart';
 import '../models/match.dart';
 import '../utils/get_lignes_buteurs.dart';
 
-class MatchDetailsPage extends StatelessWidget {
+class MatchDetailsPage extends StatefulWidget {
   final Match match;
 
   const MatchDetailsPage({super.key, required this.match});
 
   @override
+  State<MatchDetailsPage> createState() => _MatchDetailsPageState();
+}
+
+class _MatchDetailsPageState extends State<MatchDetailsPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this); // 3 onglets
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    // si tu as modifié toolbarHeight ailleurs, remplace par la même valeur
+    const double toolbarHeight = 50; // valeur que tu avais dans l'appBar
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: toolbarHeight,
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context)),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.black),
+            onSelected: (value) {},
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'partager', child: Text('Partager')),
+            ],
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          // --- Partie haute colorée ---
           Container(
-            height: screenHeight / 3,
-            color: Theme.of(context).primaryColor,
-            padding: const EdgeInsets.all(16),
-
-            // --> Centrer verticalement tout le contenu dans la zone bleue
+            color: Colors.green.shade400,
+            padding: EdgeInsets.fromLTRB(
+                16,
+                statusBarHeight + toolbarHeight,
+                16,
+                0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // --- Ligne principale : équipes + score ---
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Équipe à domicile
-                    Expanded(
-                      flex: 1, // 1/3
-                      child: Column(
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // logos + score (réduis si besoin)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(
-                            width: 64,
-                            height: 64,
-                            child: Image.asset(match.equipeDomicile.logoPath!,
-                                fit: BoxFit.contain),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                    width: 48,
+                                    height: 48,
+                                    child: Image.asset(
+                                        widget.match.equipeDomicile.logoPath!,
+                                        fit: BoxFit.contain)),
+                                const SizedBox(height: 6),
+                                Text(widget.match.equipeDomicile.nom,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black)),
+                              ],
+                            ),
                           ),
-                          Text(
-                            match.equipeDomicile.nom,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Text(
+                              '${widget.match.scoreEquipeDomicile} - ${widget.match.scoreEquipeExterieur}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                    width: 48,
+                                    height: 48,
+                                    child: Image.asset(
+                                        widget.match.equipeExterieur.logoPath!,
+                                        fit: BoxFit.contain)),
+                                const SizedBox(height: 6),
+                                Text(widget.match.equipeExterieur.nom,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black)),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
 
-                    // Score
-                    Expanded(
-                      flex: 1, // 1/3
-                      child: Text(
-                        '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                      const SizedBox(height: 8),
 
-                    // Équipe à l’extérieur
-                    Expanded(
-                      flex: 1, // 1/3
-                      child: Column(
+                      // buteurs (texte compact)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Bloc domicile
                           SizedBox(
-                            width: 64,
-                            height: 64,
-                            child: Image.asset(match.equipeExterieur.logoPath!,
-                                fit: BoxFit.contain),
+                            width: 160, // largeur fixe pour la colonne domicile
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: getLignesButeurs(
+                                      buts: widget.match.butsEquipeDomicile,
+                                      domicile: true,
+                                      fullName: false)
+                                  .map((line) => Text(line,
+                                      style: const TextStyle(fontSize: 12)))
+                                  .toList(),
+                            ),
                           ),
-                          Text(
-                            match.equipeExterieur.nom,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+
+                          // Bloc score / ballon
+                          SizedBox(
+                            width: 40, // largeur fixe du bloc central
+                            child: Column(
+                              children: const [
+                                Icon(Icons.sports_soccer, size: 14),
+                                SizedBox(height: 4),
+                                // Tu peux mettre le score ici si tu veux
+                              ],
+                            ),
+                          ),
+
+                          // Bloc extérieur
+                          SizedBox(
+                            width:
+                                160, // largeur fixe pour la colonne extérieur
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: getLignesButeurs(
+                                      buts: widget.match.butsEquipeExterieur,
+                                      domicile: false,
+                                      fullName: false)
+                                  .map((line) => Text(line,
+                                      style: const TextStyle(fontSize: 12)))
+                                  .toList(),
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ],
+                      )
+                    ],
+                  ),
                 ),
 
-                const SizedBox(height: 8), // espace entre les lignes
-
-                // --- Ligne des buteurs ---
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Buteurs équipe domicile
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: getLignesButeurs(
-                          buts: match.butsEquipeDomicile,
-                          domicile: true,
-                          fullName: false,
-                        )
-                            .map((line) => Text(
-                                  line,
-                                  style: const TextStyle(color: Colors.black),
-                                ))
-                            .toList(),
-                      ),
-                    ),
-
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Icon(Icons.sports_soccer,
-                          color: Colors.black, size: 16),
-                    ),
-
-                    // Buteurs équipe extérieure
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: getLignesButeurs(
-                          buts: match.butsEquipeExterieur,
-                          domicile: false,
-                          fullName: false,
-                        )
-                            .map((line) => Text(
-                                  line,
-                                  style: const TextStyle(color: Colors.black),
-                                ))
-                            .toList(),
-                      ),
-                    ),
+                // --- TabBar collée juste en dessous du bloc central ---
+                // Comme tout est dans la même Column (mainAxisSize.min), la hauteur totale
+                // du Container est : contenu central + hauteur du TabBar.
+                const SizedBox(height: 12),
+                TabBar(
+                  controller: _tabController,
+                  indicatorColor: Colors.black,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.black54,
+                  tabs: const [
+                    Tab(text: "Infos"),
+                    Tab(text: "Stats"),
+                    Tab(text: "Comments"),
                   ],
                 ),
               ],
             ),
           ),
 
-          // --- Contenu du reste de la page ---
+          // --- Contenu dessous (tab views) ---
           Expanded(
-            child: Container(
-              color: Colors.grey.shade100,
-              child: const Center(
-                child: Text('Détails du match ici...'),
-              ),
+            child: TabBarView(
+              controller: _tabController,
+              children: const [
+                Center(child: Text("Contenu Infos")),
+                Center(child: Text("Contenu Statistiques")),
+                Center(child: Text("Contenu Commentaires")),
+              ],
             ),
           ),
         ],
