@@ -7,11 +7,16 @@ class Joueur {
   final Equipe? equipe;
   final Equipe? equipeNationale;
 
-  Joueur({this.id, required this.prenom, required this.nom, this.equipe, this.equipeNationale});
+  Joueur(
+      {this.id,
+      required this.prenom,
+      required this.nom,
+      this.equipe,
+      this.equipeNationale});
 
-  String get fullName {
-    return '$prenom $nom'.trim();
-  }
+  String get fullName => '$prenom $nom'.trim();
+
+  String get shortName => prenom.isEmpty ? nom : '${prenom[0]}. $nom';
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
