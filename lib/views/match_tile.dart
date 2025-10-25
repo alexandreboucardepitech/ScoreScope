@@ -9,20 +9,23 @@ class MatchTile extends StatelessWidget {
 
   List<String> getLignesButeurs(List<But> buts, bool domicile) {
     Map<Joueur, List<String>> butsMap = {};
+
     for (But but in buts) {
-      if (butsMap.containsKey(but.buteur)) {
-        butsMap[but.buteur]!.add(but.minute);
-      } else {
-        butsMap[but.buteur] = [but.minute];
+      final minute = but.minute ?? "-1";
+      if (!butsMap.containsKey(but.buteur)) {
+        butsMap[but.buteur] = [];
+      }
+      if (minute != "-1") {
+        butsMap[but.buteur]!.add(minute);
       }
     }
     return butsMap.entries.map((e) {
-      String minutes = e.value.join("', ");
-      if (domicile) {
-        return "${e.key.prenom} ${e.key.nom} $minutes'";
-      } else {
-        return "$minutes' ${e.key.prenom} ${e.key.nom}";
+      final minutesList = e.value;
+      if (minutesList.isEmpty) {
+        return e.key.fullName;
       }
+      final minutes = minutesList.map((m) => "${m}'").join(", ");
+      return domicile ? "${e.key.fullName} $minutes" : "$minutes ${e.key.fullName}";
     }).toList();
   }
 

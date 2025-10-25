@@ -6,5 +6,5 @@ abstract class IEquipeRepository {
   Future<void> addEquipe(Equipe e);
   Future<void> updateEquipe(Equipe e);
   Future<void> deleteEquipe(Equipe e);
-  Future<List<Equipe>> searchTeams(String query, {int limit = 8});
+  Future<List<Equipe>> searchEquipes(String query, {int limit = 8});
 }

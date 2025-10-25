@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:scorescope/services/repositories/equipe/mock_equipe_repository.dart';
+import 'package:scorescope/services/repositories/joueur/i_joueur_repository.dart';
+import 'package:scorescope/services/repositories/joueur/mock_joueur_repository.dart';
 
 import '../../../models/match.dart';
-import '../../../models/joueur.dart';
 import '../../../models/but.dart';
 import 'i_match_repository.dart';
 import '../equipe/i_equipe_repository.dart';
@@ -23,22 +24,30 @@ class MockMatchRepository implements IMatchRepository {
 
   final List<Match> _matches = [];
   final IEquipeRepository equipeRepository = MockEquipeRepository();
+  final IJoueurRepository joueurRepository = MockJoueurRepository();
 
-  Future<void> _seed() async { // { changed code }
-    final abline = Joueur(prenom: "Matthis", nom: "Abline");
-    final benhattab = Joueur(prenom: "Yassine", nom: "Benhattab");
-    final leroux = Joueur(prenom: "Louis", nom: "Leroux");
-    final yamal = Joueur(prenom: "Lamine", nom: "Yamal");
-    final pedri = Joueur(prenom: "", nom: "Pedri");
-    final mbappe = Joueur(prenom: "Kylian", nom: "Mbappé");
-    final mastantuono = Joueur(prenom: "Franco", nom: "Mastantuono");
+  Future<void> _seed() async {
+    await MockJoueurRepository().ready;
+    await MockEquipeRepository().ready;
+
+    final abline = await joueurRepository.fetchJoueurById("1");
+    final benhattab = await joueurRepository.fetchJoueurById("2");
+    final leroux = await joueurRepository.fetchJoueurById("3");
+    final yamal = await joueurRepository.fetchJoueurById("4");
+    final pedri = await joueurRepository.fetchJoueurById("5");
+    final mbappe = await joueurRepository.fetchJoueurById("6");
+    final mastantuono = await joueurRepository.fetchJoueurById("7");
 
     final psg = await equipeRepository.fetchEquipeById("1");
     final fcnantes = await equipeRepository.fetchEquipeById("2");
     final barca = await equipeRepository.fetchEquipeById("3");
     final realmadrid = await equipeRepository.fetchEquipeById("4");
 
-    if (psg != null && fcnantes != null) {
+    if (psg != null &&
+        fcnantes != null &&
+        abline != null &&
+        benhattab != null &&
+        leroux != null) {
       _matches.add(
         Match(
           id: "1",
@@ -60,9 +69,13 @@ class MockMatchRepository implements IMatchRepository {
         ),
       );
     }
-      
-    if (barca != null && realmadrid != null) {
 
+    if (barca != null &&
+        realmadrid != null &&
+        yamal != null &&
+        pedri != null &&
+        mbappe != null &&
+        mastantuono != null) {
       _matches.add(
         Match(
           id: "2",
@@ -118,7 +131,6 @@ class MockMatchRepository implements IMatchRepository {
 
   @override
   Future<void> updateMatch(Match m) async {
-    // naive : remplace par égalité d'instance ou implémente id
     final idx = _matches.indexWhere((x) => x == m);
     if (idx >= 0) _matches[idx] = m;
     await Future.delayed(const Duration(milliseconds: 50));
