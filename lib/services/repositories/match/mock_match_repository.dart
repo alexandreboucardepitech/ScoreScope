@@ -66,6 +66,7 @@ class MockMatchRepository implements IMatchRepository {
             But(buteur: leroux, minute: "63"),
             But(buteur: leroux, minute: "90+1"),
           ],
+          mvp: abline,
         ),
       );
     }
@@ -94,6 +95,7 @@ class MockMatchRepository implements IMatchRepository {
             But(buteur: mbappe, minute: "4"),
             But(buteur: mastantuono, minute: "17"),
           ],
+          mvp: pedri,
         ),
       );
     }

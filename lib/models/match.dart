@@ -1,3 +1,5 @@
+import 'package:scorescope/models/joueur.dart';
+
 import 'equipe.dart';
 import 'but.dart';
 
@@ -11,6 +13,7 @@ class Match {
   final int scoreEquipeExterieur;
   final List<But> butsEquipeDomicile;
   final List<But> butsEquipeExterieur;
+  final Joueur? mvp;
 
   Match({
     this.id,
@@ -22,6 +25,7 @@ class Match {
     required this.scoreEquipeExterieur,
     List<But>? butsEquipeDomicile,
     List<But>? butsEquipeExterieur,
+    this.mvp,
   })  : butsEquipeDomicile = butsEquipeDomicile ?? [],
         butsEquipeExterieur = butsEquipeExterieur ?? [];
 
@@ -35,6 +39,7 @@ class Match {
         'scoreEquipeExterieur': scoreEquipeExterieur,
         'butsEquipeDomicile': butsEquipeDomicile.map((b) => b.toJson()).toList(),
         'butsEquipeExterieur': butsEquipeExterieur.map((b) => b.toJson()).toList(),
+        if (mvp != null) 'mvp': mvp,
       };
 
   factory Match.fromJson(Map<String, dynamic> json) => Match(
@@ -53,6 +58,7 @@ class Match {
                 ?.map((e) => But.fromJson(Map<String, dynamic>.from(e as Map)))
                 .toList() ??
             [],
+        mvp: json['mvp'] as Joueur?,
       );
 
   @override

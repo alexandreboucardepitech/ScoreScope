@@ -33,13 +33,13 @@ class MockJoueurRepository implements IJoueurRepository {
     final realmadrid = await equipeRepository.fetchEquipeById("4");
 
     _joueurs.addAll([
-      Joueur(prenom: "Matthis", nom: "Abline", id: "1", equipe: fcnantes),
-      Joueur(prenom: "Yassine", nom: "Benhattab", id: "2", equipe: fcnantes),
-      Joueur(prenom: "Louis", nom: "Leroux", id: "3", equipe: fcnantes),
-      Joueur(prenom: "Lamine", nom: "Yamal", id: "4", equipe: barca),
-      Joueur(prenom: "", nom: "Pedri", id: "5", equipe: barca),
-      Joueur(prenom: "Kylian", nom: "Mbappé", id: "6", equipe: realmadrid),
-      Joueur(prenom: "Franco", nom: "Mastantuono", id: "7", equipe: realmadrid),
+      Joueur(prenom: "Matthis", nom: "Abline", id: "1", equipe: fcnantes, picture: "assets/joueurs/abline.png"),
+      Joueur(prenom: "Yassine", nom: "Benhattab", id: "2", equipe: fcnantes, picture: "assets/joueurs/default.png"),
+      Joueur(prenom: "Louis", nom: "Leroux", id: "3", equipe: fcnantes, picture: "assets/joueurs/default.png"),
+      Joueur(prenom: "Lamine", nom: "Yamal", id: "4", equipe: barca, picture: "assets/joueurs/default.png"),
+      Joueur(prenom: "", nom: "Pedri", id: "5", equipe: barca, picture: "assets/joueurs/default.png"),
+      Joueur(prenom: "Kylian", nom: "Mbappé", id: "6", equipe: realmadrid, picture: "assets/joueurs/default.png"),
+      Joueur(prenom: "Franco", nom: "Mastantuono", id: "7", equipe: realmadrid, picture: "assets/joueurs/default.png"),
     ]);
   }
 

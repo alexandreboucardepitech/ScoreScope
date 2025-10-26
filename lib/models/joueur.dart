@@ -6,13 +6,15 @@ class Joueur {
   final String nom;
   final Equipe? equipe;
   final Equipe? equipeNationale;
+  final String picture;
 
   Joueur(
       {this.id,
       required this.prenom,
       required this.nom,
       this.equipe,
-      this.equipeNationale});
+      this.equipeNationale,
+      this.picture = "assets/joueurs/default.png"});
 
   String get fullName => '$prenom $nom'.trim();
 
@@ -24,6 +26,7 @@ class Joueur {
         'nom': nom,
         if (equipe != null) 'equipe': equipe,
         if (equipeNationale != null) 'equipeNationale': equipeNationale,
+        'picture': picture,
       };
 
   factory Joueur.fromJson(Map<String, dynamic> json) => Joueur(
@@ -32,6 +35,7 @@ class Joueur {
         nom: json['nom'] as String? ?? '',
         equipe: json['equipe'] as Equipe?,
         equipeNationale: json['equipeNationale'] as Equipe?,
+        picture: json['picture'] as String? ?? 'assets/joueurs/default.png',
       );
 
   @override

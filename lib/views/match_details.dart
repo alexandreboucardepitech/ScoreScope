@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/widgets/match_details_tabs/infos.dart';
 import '../models/match.dart';
 import '../utils/get_lignes_buteurs.dart';
 
@@ -203,8 +204,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: const [
-                Center(child: Text("Contenu Infos")),
+              children: [
+                InfosTab(match: widget.match),
                 Center(child: Text("Contenu Statistiques")),
                 Center(child: Text("Contenu Commentaires")),
               ],

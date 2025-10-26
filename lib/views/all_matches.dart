@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/services/repositories/match/mock_match_repository.dart';
-import '../views/match_tile.dart';
+import '../widgets/match_tile.dart';
 import '../services/repositories/match/i_match_repository.dart';
 import '../models/match.dart';
 import 'add_match.dart';
