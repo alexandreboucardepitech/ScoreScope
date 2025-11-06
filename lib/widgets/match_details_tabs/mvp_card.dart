@@ -1,6 +1,6 @@
 // lib/widgets/mvp_card.dart
 import 'package:flutter/material.dart';
-import '../models/joueur.dart';
+import '../../models/joueur.dart';
 
 class MvpCard extends StatelessWidget {
   final Joueur? mvp; // MVP élu par la communauté (peut être null)

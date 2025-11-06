@@ -18,6 +18,7 @@ class Match {
   Joueur?
       mvp; // à changer : actuellement c'est le vote actuel de l'utilisateur mais ça ne doit pas être stocké là
   Map<Joueur, int> mvpVotes;
+  Map<String, int> notesDuMatch;
 
   Match({
     this.id,
@@ -38,7 +39,22 @@ class Match {
           for (final j in [...joueursEquipeDomicile, ...joueursEquipeExterieur])
             j: 0,
           if (mvp != null) mvp: 1,
-        };
+        },
+        notesDuMatch = {};
+
+  double getNoteMoyenne() {
+    if (notesDuMatch.isEmpty) return -1.0;
+
+    final notes = notesDuMatch.values;
+    final somme = notes.reduce((a, b) => a + b);
+    final moyenne = somme / notes.length;
+
+    return moyenne;
+  }
+
+  void noterMatch({required String username, required int? note}) {
+    if (note != null) notesDuMatch[username] = note;
+  }
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
@@ -58,6 +74,8 @@ class Match {
             butsEquipeExterieur.map((b) => b.toJson()).toList(),
         if (mvp != null) 'mvp': mvp!.toJson(),
         'mvpVotes': mvpVotes.map((joueur, votes) => MapEntry(joueur.id, votes)),
+        'notesDuMatch':
+            notesDuMatch.map((username, note) => MapEntry(username, note)),
       };
 
   factory Match.fromJson(Map<String, dynamic> json) {
@@ -71,7 +89,7 @@ class Match {
             .toList() ??
         [];
 
-    // ✅ Désérialisation de mvpVotes
+    // --- reconstruction des votes MVP ---
     final rawVotes = Map<String, dynamic>.from(json['mvpVotes'] ?? {});
     final allPlayers = [...joueursDomicile, ...joueursExterieur];
     final mvpVotes = <Joueur, int>{};
@@ -83,6 +101,12 @@ class Match {
         mvpVotes[joueur] = (entry.value as num).toInt();
       }
     }
+
+    // --- reconstruction des notes du match ---
+    final rawNotes = Map<String, dynamic>.from(json['notesDuMatch'] ?? {});
+    final notesDuMatch = rawNotes.map(
+      (username, note) => MapEntry(username, (note as num).toInt()),
+    );
 
     return Match(
       id: json['id'] as String?,
@@ -109,7 +133,9 @@ class Match {
       mvp: json['mvp'] != null
           ? Joueur.fromJson(Map<String, dynamic>.from(json['mvp'] as Map))
           : null,
-    )..mvpVotes = mvpVotes; // ✅ on réinjecte la map reconstruite
+    )
+      ..mvpVotes = mvpVotes
+      ..notesDuMatch = notesDuMatch;
   }
 
   @override
