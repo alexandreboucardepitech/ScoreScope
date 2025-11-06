@@ -28,6 +28,7 @@ class MockJoueurRepository implements IJoueurRepository {
   Future<void> _seed() async {
     await MockEquipeRepository().ready;
 
+    final psg = await equipeRepository.fetchEquipeById("1");
     final fcnantes = await equipeRepository.fetchEquipeById("2");
     final barca = await equipeRepository.fetchEquipeById("3");
     final realmadrid = await equipeRepository.fetchEquipeById("4");
@@ -40,6 +41,7 @@ class MockJoueurRepository implements IJoueurRepository {
       Joueur(prenom: "", nom: "Pedri", id: "5", equipe: barca, picture: "assets/joueurs/default.png"),
       Joueur(prenom: "Kylian", nom: "Mbappé", id: "6", equipe: realmadrid, picture: "assets/joueurs/default.png"),
       Joueur(prenom: "Franco", nom: "Mastantuono", id: "7", equipe: realmadrid, picture: "assets/joueurs/default.png"),
+      Joueur(prenom: "Achraf", nom: "Hakimi", id: "8", equipe: psg, picture: "assets/joueurs/default.png"),
     ]);
   }
 

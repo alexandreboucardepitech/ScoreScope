@@ -18,7 +18,7 @@ import 'package:scorescope/models/joueur.dart';
     if (minutesList.isEmpty) {
       return fullName ? e.key.fullName : e.key.shortName;
     }
-    final minutes = minutesList.map((m) => "${m}'").join(", ");
+    final minutes = minutesList.map((m) => "$m'").join(", ");
     return domicile
         ? "${fullName ? e.key.fullName : e.key.shortName} $minutes"
         : "$minutes ${fullName ? e.key.fullName : e.key.shortName}";

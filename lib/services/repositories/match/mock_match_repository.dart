@@ -37,6 +37,7 @@ class MockMatchRepository implements IMatchRepository {
     final pedri = await joueurRepository.fetchJoueurById("5");
     final mbappe = await joueurRepository.fetchJoueurById("6");
     final mastantuono = await joueurRepository.fetchJoueurById("7");
+    final hakimi = await joueurRepository.fetchJoueurById("8");
 
     final psg = await equipeRepository.fetchEquipeById("1");
     final fcnantes = await equipeRepository.fetchEquipeById("2");
@@ -47,7 +48,8 @@ class MockMatchRepository implements IMatchRepository {
         fcnantes != null &&
         abline != null &&
         benhattab != null &&
-        leroux != null) {
+        leroux != null &&
+        hakimi != null) {
       _matches.add(
         Match(
           id: "1",
@@ -66,6 +68,8 @@ class MockMatchRepository implements IMatchRepository {
             But(buteur: leroux, minute: "63"),
             But(buteur: leroux, minute: "90+1"),
           ],
+          joueursEquipeDomicile: [hakimi],
+          joueursEquipeExterieur: [abline, benhattab, leroux],
           mvp: abline,
         ),
       );
@@ -95,6 +99,8 @@ class MockMatchRepository implements IMatchRepository {
             But(buteur: mbappe, minute: "4"),
             But(buteur: mastantuono, minute: "17"),
           ],
+          joueursEquipeDomicile: [yamal, pedri],
+          joueursEquipeExterieur: [mbappe, mastantuono],
           mvp: pedri,
         ),
       );

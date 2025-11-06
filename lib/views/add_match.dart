@@ -994,6 +994,12 @@ class _AddMatchViewState extends State<AddMatchView> {
                           _buteursExtCount,
                           _selectedButeursExterieur,
                         ),
+                        joueursEquipeDomicile: _selectedButeursDomicile
+                            .whereType<Joueur>()
+                            .toList(),
+                        joueursEquipeExterieur: _selectedButeursExterieur
+                            .whereType<Joueur>()
+                            .toList(),
                       );
                       Navigator.pop(context, newMatch);
                     }
