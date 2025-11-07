@@ -25,10 +25,10 @@ class VoteBottomSheetContent extends StatefulWidget {
   final Match match;
   final Joueur? initialUserVote;
   const VoteBottomSheetContent({
-    Key? key,
+    super.key,
     required this.match,
     this.initialUserVote,
-  }) : super(key: key);
+  });
 
   @override
   State<VoteBottomSheetContent> createState() => _VoteBottomSheetContentState();

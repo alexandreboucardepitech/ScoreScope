@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "437874551355",
+    "project_id": "scorescope-5a12b",
+    "storage_bucket": "scorescope-5a12b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437874551355:android:747a62c5854af83cc80a1e",
+        "android_client_info": {
+          "package_name": "com.example.scorescope"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "437874551355-atqqoc1l42ih1qkosmr7p4d88pjimfn8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwIrIscOSlFZy_bcmGyxpctvZywwJq_RE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "437874551355-atqqoc1l42ih1qkosmr7p4d88pjimfn8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

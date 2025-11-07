@@ -49,7 +49,6 @@ class _InfosTabState extends State<InfosTab> {
           MatchRatingCard(
             noteMoyenne: widget.match.getNoteMoyenne(),
             onChanged: (nouvelleValeur) {
-              print('Nouvelle valeur: $nouvelleValeur');
             },
             onConfirm: (valeurConfirmee) {
               widget.match.noterMatch(username: 'username', note: valeurConfirmee);

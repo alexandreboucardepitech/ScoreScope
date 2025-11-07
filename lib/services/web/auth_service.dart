@@ -1,0 +1,125 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_sign_in/google_sign_in.dart';
+
+class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+
+  bool _isGoogleSignInInitialized = false;
+  GoogleSignInAccount? _currentGoogleUser;
+
+  AuthService();
+
+  /// ⚡ Initialisation à appeler avant d'utiliser GoogleSignIn
+  Future<void> initialize() async {
+    if (!_isGoogleSignInInitialized) {
+      try {
+        await _googleSignIn.initialize();
+        _isGoogleSignInInitialized = true;
+      } catch (e, st) {
+        print('GoogleSignIn initialization failed: $e\n$st');
+        _isGoogleSignInInitialized = false;
+      }
+    }
+  }
+
+  Future<void> _ensureInitialized() async {
+    if (!_isGoogleSignInInitialized) await initialize();
+  }
+
+  // -------------------- Email / Password --------------------
+  Future<User?> signUp(String email, String password) async {
+    final cred = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return cred.user;
+  }
+
+  Future<User?> signIn(String email, String password) async {
+    final cred = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return cred.user;
+  }
+
+  // -------------------- Google Sign-In --------------------
+  Future<User?> signInWithGoogle() async {
+    if (kIsWeb) {
+      final googleProvider = GoogleAuthProvider();
+      final userCredential = await _auth.signInWithPopup(googleProvider);
+      return userCredential.user;
+    }
+
+    // Mobile
+    await _ensureInitialized();
+
+    if (!_googleSignIn.supportsAuthenticate()) {
+      throw UnsupportedError(
+          'GoogleSignIn.authenticate() is not supported on this platform');
+    }
+
+    final googleUser = await _googleSignIn.authenticate(
+      scopeHint: ['email', 'openid', 'profile'],
+    );
+
+    final authClient = _googleSignIn.authorizationClient;
+    final authorization =
+        await authClient.authorizationForScopes(['email', 'openid', 'profile']);
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: authorization?.accessToken,
+      idToken: googleUser.authentication.idToken,
+    );
+
+    final userCredential = await _auth.signInWithCredential(credential);
+    _currentGoogleUser = googleUser;
+
+    return userCredential.user;
+  }
+
+  Future<GoogleSignInAccount?> attemptSilentSignIn() async {
+    await _ensureInitialized();
+    try {
+      final result = _googleSignIn.attemptLightweightAuthentication();
+      if (result is Future<GoogleSignInAccount?>) return await result;
+      return result as GoogleSignInAccount?;
+    } catch (e) {
+      print('Silent sign-in failed: $e');
+      return null;
+    }
+  }
+
+  Future<String?> getAccessTokenForScopes(List<String> scopes) async {
+    await _ensureInitialized();
+    try {
+      final authClient = _googleSignIn.authorizationClient;
+      var authorization = await authClient.authorizationForScopes(scopes);
+      authorization ??= await authClient.authorizeScopes(scopes);
+      return authorization.accessToken;
+    } catch (e) {
+      print('Failed to get access token for scopes: $e');
+      return null;
+    }
+  }
+
+  // -------------------- Déconnexion --------------------
+  Future<void> signOut() async {
+    if (!kIsWeb) {
+      try {
+        await _googleSignIn.signOut();
+      } catch (e) {
+        try {
+          await _googleSignIn.disconnect();
+        } catch (_) {}
+      }
+    }
+    await _auth.signOut();
+    _currentGoogleUser = null;
+  }
+
+  Stream<User?> get userChanges => _auth.userChanges();
+  GoogleSignInAccount? get currentGoogleUser => _currentGoogleUser;
+}
