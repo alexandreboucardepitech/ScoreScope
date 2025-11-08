@@ -11,7 +11,19 @@ class WebMatchRepository implements IMatchRepository {
     final snapshot = await _collection.get();
 
     final futures = snapshot.docs.map((doc) async {
-      return await Match.fromJson(json: doc.data(), matchId: doc.id);
+      final data = doc.data();
+
+      final mvpVotesSnapshot =
+          await _collection.doc(doc.id).collection('mvpVotes').get();
+
+      data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
+
+      final notesSnapshot =
+          await _collection.doc(doc.id).collection('notes').get();
+
+      data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
+
+      return await Match.fromJson(json: data, matchId: doc.id);
     }).toList();
 
     return await Future.wait(futures);

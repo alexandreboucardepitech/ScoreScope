@@ -116,7 +116,8 @@ class Match {
         'notesDuMatch': notesDuMatch,
       };
 
-  static Future<Match> fromJson({required Map<String, dynamic> json, String? matchId}) async {
+  static Future<Match> fromJson(
+      {required Map<String, dynamic> json, String? matchId}) async {
     final equipeDomicile =
         await WebEquipeRepository().fetchEquipeById(json['equipeDomicileId']);
     final equipeExterieur =
@@ -133,6 +134,18 @@ class Match {
       final joueur = await WebJoueurRepository().fetchJoueurById(id);
       if (joueur != null) joueursExterieur.add(joueur);
     }
+
+    final mvpVotesList = json['mvpVotes'] as List<dynamic>? ?? [];
+    final mvpVotes = {
+      for (var doc in mvpVotesList)
+        doc['userId'] as String: doc['joueurId'] as String
+    };
+
+    final notesList = json['notesDuMatch'] as List<dynamic>? ?? [];
+    final notesDuMatch = {
+      for (var doc in notesList)
+        doc['userId'] as String: (doc['note'] as num).toInt()
+    };
 
     Future<List<But>> reconstructButs(List<dynamic>? butsList) async {
       if (butsList == null) return [];
@@ -152,28 +165,26 @@ class Match {
     }
 
     return Match(
-      id: matchId ?? json['id'],
-      competition: json['competition'] as String? ?? '',
-      date: (json['date'] is Timestamp)
-          ? (json['date'] as Timestamp).toDate()
-          : DateTime.parse(
-              json['date'] as String? ?? DateTime.now().toIso8601String()),
-      scoreEquipeDomicile: (json['scoreEquipeDomicile'] as num?)?.toInt() ?? 0,
-      scoreEquipeExterieur:
-          (json['scoreEquipeExterieur'] as num?)?.toInt() ?? 0,
-      equipeDomicile: equipeDomicile!,
-      equipeExterieur: equipeExterieur!,
-      joueursEquipeDomicile: joueursDomicile,
-      joueursEquipeExterieur: joueursExterieur,
-      butsEquipeDomicile:
-          await reconstructButs(json['butsEquipeDomicile'] as List?),
-      butsEquipeExterieur:
-          await reconstructButs(json['butsEquipeExterieur'] as List?),
-    )
-      ..mvpVotes = Map<String, String>.from(json['mvpVotes'] ?? {})
-      ..notesDuMatch = Map<String, int>.from(
-          (json['notesDuMatch'] as Map<String, dynamic>? ?? {})
-              .map((k, v) => MapEntry(k, (v as num).toInt())));
+        id: matchId ?? json['id'],
+        competition: json['competition'] as String? ?? '',
+        date: (json['date'] is Timestamp)
+            ? (json['date'] as Timestamp).toDate()
+            : DateTime.parse(
+                json['date'] as String? ?? DateTime.now().toIso8601String()),
+        scoreEquipeDomicile:
+            (json['scoreEquipeDomicile'] as num?)?.toInt() ?? 0,
+        scoreEquipeExterieur:
+            (json['scoreEquipeExterieur'] as num?)?.toInt() ?? 0,
+        equipeDomicile: equipeDomicile!,
+        equipeExterieur: equipeExterieur!,
+        joueursEquipeDomicile: joueursDomicile,
+        joueursEquipeExterieur: joueursExterieur,
+        butsEquipeDomicile:
+            await reconstructButs(json['butsEquipeDomicile'] as List?),
+        butsEquipeExterieur:
+            await reconstructButs(json['butsEquipeExterieur'] as List?),
+        mvpVotes: mvpVotes,
+        notesDuMatch: notesDuMatch);
   }
 
   @override
