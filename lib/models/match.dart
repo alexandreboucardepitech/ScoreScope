@@ -40,6 +40,11 @@ class Match {
         mvpVotes = mvpVotes ?? {},
         notesDuMatch = notesDuMatch ?? {};
 
+  final CollectionReference<Map<String, dynamic>> _matchesCollection =
+      FirebaseFirestore.instance.collection('matchs');
+
+  //////////////////// NOTE DU MATCH ////////////////////
+
   double getNoteMoyenne() {
     if (notesDuMatch.isEmpty) return -1.0;
 
@@ -50,16 +55,39 @@ class Match {
     return moyenne;
   }
 
-  void noterMatch({required String userId, required int? note}) {
-    if (note != null) notesDuMatch[userId] = note;
+  Future<void> noterMatch({required String userId, required int? note}) async {
+    if (note != null) {
+      notesDuMatch[userId] = note;
+
+      await _matchesCollection.doc(id).collection('notes').doc(userId).set({
+        'userId': userId,
+        'note': note,
+      });
+    }
   }
 
-  void voterPourMVP({required String userId, required String? joueurId}) {
-    if (joueurId != null) mvpVotes[userId] = joueurId;
+  ///////////////////////// MVP /////////////////////////
+
+  Future<void> voterPourMVP(
+      {required String userId, required String? joueurId}) async {
+    if (joueurId != null) {
+      mvpVotes[userId] = joueurId;
+
+      await _matchesCollection.doc(id).collection('mvpVotes').doc(userId).set({
+        'userId': userId,
+        'joueurId': joueurId,
+      });
+    }
   }
 
-  void enleverVote({required String userId}) {
+  Future<void> enleverVote({required String userId}) async {
     mvpVotes.remove(userId);
+
+    await _matchesCollection
+        .doc(id)
+        .collection('mvpVotes')
+        .doc(userId)
+        .delete();
   }
 
   Map<String, int> getAllVoteCounts() {

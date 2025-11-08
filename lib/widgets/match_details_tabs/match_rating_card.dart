@@ -24,7 +24,7 @@ class MatchRatingCard extends StatefulWidget {
   final ValueChanged<int>? onChanged;
   final ValueChanged<int?>? onConfirm;
 
-  const MatchRatingCard({
+  MatchRatingCard({
     super.key,
     required this.noteMoyenne,
     this.userVote,
@@ -37,8 +37,8 @@ class MatchRatingCard extends StatefulWidget {
 }
 
 class _MatchRatingCardState extends State<MatchRatingCard> {
-  late int? rating;
-  double get ratingDouble => (rating ?? 0).toDouble();
+  late int? _rating;
+  double get ratingDouble => (_rating ?? 0).toDouble();
   final List<String> emojis = [
     '😴',
     '🥶',
@@ -56,13 +56,23 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
   @override
   void initState() {
     super.initState();
-    rating = widget.userVote;
+    _rating = widget.userVote;
   }
 
   void _updateFromDouble(double value) {
     final int intValue = value.round();
-    setState(() => rating = intValue);
+    setState(() => _rating = intValue);
     widget.onChanged?.call(intValue);
+  }
+
+  @override
+  void didUpdateWidget(covariant MatchRatingCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.userVote != widget.userVote) {
+      setState(() {
+        _rating = widget.userVote;
+      });
+    }
   }
 
   @override
@@ -77,7 +87,6 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // titre
             Text(
               'Note du match',
               style: theme.textTheme.titleSmall?.copyWith(
@@ -128,7 +137,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: List.generate(11, (i) {
-                          final isSelected = rating == i;
+                          final isSelected = _rating == i;
                           return Text(
                             '$i',
                             style: TextStyle(
@@ -154,18 +163,18 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: (rating != null)
+                    color: (_rating != null)
                         ? theme.colorScheme.primary.withValues(alpha: 0.08)
                         : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: Text(
-                      rating != null ? emojis[rating!] : '-',
+                      _rating != null ? emojis[_rating!] : '-',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: rating != null
+                        color: _rating != null
                             ? theme.colorScheme.primary
                             : Colors.grey.shade600,
                       ),
@@ -183,7 +192,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                 // Partie gauche : note moyenne
                 if (widget.noteMoyenne != -1)
                   Text(
-                    'Note moyenne : ${widget.noteMoyenne}',
+                    'Note moyenne : ${widget.noteMoyenne.toStringAsPrecision(3)}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Theme.of(context).colorScheme.primary,
@@ -196,14 +205,14 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                 // Boutons Vider + Valider
                 TextButton(
                   onPressed: () {
-                    setState(() => rating = null);
+                    setState(() => _rating = null);
                     widget.onChanged?.call(0);
                   },
                   child: const Text('Vider'),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () => widget.onConfirm?.call(rating),
+                  onPressed: () => widget.onConfirm?.call(_rating),
                   child: const Text('Valider'),
                 ),
               ],

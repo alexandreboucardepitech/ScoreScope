@@ -54,7 +54,6 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
     return nbVotes;
   }
 
-  // Copie ici ta méthode playerTile (adapte si besoin pour accéder à currentUserVote)
   Widget playerTile(Joueur joueur, VoidCallback onTap) {
     final isUserVote =
         currentUserVote != null && currentUserVote!.id == joueur.id;
