@@ -1,4 +1,3 @@
-// Dans ton MatchDetailsPage, remplace l'enfant de l'onglet "Infos" par :
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
@@ -17,28 +16,54 @@ class InfosTab extends StatefulWidget {
 
 class _InfosTabState extends State<InfosTab> {
   Joueur? currentMvp;
+  bool _loadingMvp = false;
 
   @override
   void initState() {
     super.initState();
-    currentMvp = widget.match.mvp;
+    _loadMvp(); // lance l'opération asynchrone sans rendre initState async
   }
 
-  void _onPlusPressed() async {
-    int oldVote =
-        (currentMvp != null ? widget.match.mvpVotes[currentMvp] : 1) ?? 1;
-    Joueur? newJoueurSelected = await showVoteBottomSheet(
-        context: context, match: widget.match, initialUserVote: currentMvp);
-    widget.match.mvp = newJoueurSelected;
-    if (currentMvp != null) {
-      widget.match.mvpVotes[currentMvp!] = oldVote - 1;
+  Future<void> _loadMvp() async {
+    setState(() => _loadingMvp = true);
+    try {
+      final mvp = await widget.match.getMvp();
+      if (!mounted) return;
+      setState(() {
+        currentMvp = mvp;
+      });
+    } catch (e) {
+      // optionnel : logger l'erreur
+      debugPrint('Erreur lors du chargement du MVP: $e');
+    } finally {
+      if (!mounted) return;
+      setState(() => _loadingMvp = false);
     }
+  }
+
+  Future<void> _onPlusPressed() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // utilisateur non connecté — si besoin afficher message
+      return;
+    }
+    final userId = user.uid;
+
+    // ouvre la bottom sheet et attend la sélection
+    final Joueur? newJoueurSelected = await showVoteBottomSheet(
+      context: context,
+      match: widget.match,
+      initialUserVote: currentMvp,
+    );
+
     if (newJoueurSelected != null) {
-      int newJoueurNbVotes = widget.match.mvpVotes[newJoueurSelected] ?? 0;
-      widget.match.mvpVotes[newJoueurSelected] = newJoueurNbVotes + 1;
+      widget.match.voterPourMVP(userId: userId, joueurId: newJoueurSelected.id);
+    } else {
+      widget.match.enleverVote(userId: userId);
     }
-    currentMvp = newJoueurSelected;
-    setState(() {});
+
+    // recharger le MVP (ou recalculer localement si tu as l'info)
+    await _loadMvp();
   }
 
   @override
@@ -49,18 +74,25 @@ class _InfosTabState extends State<InfosTab> {
         children: [
           MatchRatingCard(
             noteMoyenne: widget.match.getNoteMoyenne(),
-            onChanged: (nouvelleValeur) {
-            },
+            onChanged: (nouvelleValeur) {},
             onConfirm: (valeurConfirmee) async {
               final uid = FirebaseAuth.instance.currentUser!.uid;
               widget.match.noterMatch(userId: uid, note: valeurConfirmee);
               setState(() {});
             },
           ),
-          MvpCard(
-              mvp: currentMvp,
-              userVote: currentMvp,
-              onVotePressed: _onPlusPressed),
+          const SizedBox(height: 12),
+          // Si tu veux afficher un loader pour le MVP, utilise _loadingMvp
+          _loadingMvp
+              ? const SizedBox(
+                  height: 80,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : MvpCard(
+                  mvp: currentMvp,
+                  userVote: currentMvp,
+                  onVotePressed: _onPlusPressed,
+                ),
           const SizedBox(height: 16),
         ],
       ),

@@ -84,19 +84,15 @@ class AuthService {
             'GoogleSignIn.authenticate() is not supported on this platform');
       }
 
-      final GoogleSignInAccount? googleUser = await _googleSignIn
+      final GoogleSignInAccount googleUser = await _googleSignIn
           .authenticate(scopeHint: ['email', 'openid', 'profile']);
-
-      if (googleUser == null) {
-        return null;
-      }
 
       final authClient = _googleSignIn.authorizationClient;
       final authorization = await authClient
           .authorizationForScopes(['email', 'openid', 'profile']);
 
       final String? accessToken = authorization?.accessToken;
-      final googleAuth = await googleUser.authentication;
+      final googleAuth = googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       if (accessToken == null && idToken == null) {

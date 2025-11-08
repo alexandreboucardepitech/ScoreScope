@@ -70,7 +70,6 @@ class MockMatchRepository implements IMatchRepository {
           ],
           joueursEquipeDomicile: [hakimi],
           joueursEquipeExterieur: [abline, benhattab, leroux],
-          mvp: abline,
         ),
       );
     }
@@ -101,7 +100,6 @@ class MockMatchRepository implements IMatchRepository {
           ],
           joueursEquipeDomicile: [yamal, pedri],
           joueursEquipeExterieur: [mbappe, mastantuono],
-          mvp: pedri,
         ),
       );
     }

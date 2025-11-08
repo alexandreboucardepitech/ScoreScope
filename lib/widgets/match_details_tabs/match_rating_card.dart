@@ -14,7 +14,8 @@ Color getThumbColor(double value) {
   final n = gradientColors.length - 1;
   final segment = (t * n).floor().clamp(0, n - 1);
   final localT = (t * n) - segment;
-  return Color.lerp(gradientColors[segment], gradientColors[segment + 1], localT)!;
+  return Color.lerp(
+      gradientColors[segment], gradientColors[segment + 1], localT)!;
 }
 
 class MatchRatingCard extends StatefulWidget {
@@ -154,7 +155,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                   height: 64,
                   decoration: BoxDecoration(
                     color: (rating != null)
-                        ? theme.colorScheme.primary.withOpacity(0.08)
+                        ? theme.colorScheme.primary.withValues(alpha: 0.08)
                         : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),

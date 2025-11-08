@@ -461,7 +461,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                               final q = buteursControllers[index].text;
                               if (q.length < 3) return [];
                               return await widget.joueurRepository
-                                  .searchJoueurs(q, equipe: selectedEquipe);
+                                  .searchJoueurs(q, equipeId: selectedEquipe?.id);
                             },
                             itemBuilder: (context, Joueur suggestion) {
                               return Container(

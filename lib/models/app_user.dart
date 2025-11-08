@@ -30,7 +30,7 @@ class AppUser {
               ? DateTime.tryParse(json['createdAt']) ?? DateTime.now()
               : DateTime.now()),
       equipePreferees: (json['equipePreferees'] as List?)
-              ?.map((e) => e != null ? Equipe.fromJson(e as Map<String, dynamic>) : null)
+              ?.map((e) => e != null ? Equipe.fromJson(json: e as Map<String, dynamic>) : null)
               .toList() ??
           [],
     );

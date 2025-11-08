@@ -15,7 +15,7 @@ class But {
 
   factory But.fromJson(Map<String, dynamic> json) => But(
         id: json['id'] as String?,
-        buteur: Joueur.fromJson(Map<String, dynamic>.from(json['buteur'] as Map)),
+        buteur: Joueur.fromJson(json: Map<String, dynamic>.from(json['buteur'] as Map)),
         minute: json['minute'] as String?,
       );
 

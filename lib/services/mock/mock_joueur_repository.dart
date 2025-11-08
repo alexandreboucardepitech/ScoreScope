@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repositories/equipe/i_equipe_repository.dart';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
 
@@ -28,20 +27,55 @@ class MockJoueurRepository implements IJoueurRepository {
   Future<void> _seed() async {
     await MockEquipeRepository().ready;
 
-    final psg = await equipeRepository.fetchEquipeById("1");
-    final fcnantes = await equipeRepository.fetchEquipeById("2");
-    final barca = await equipeRepository.fetchEquipeById("3");
-    final realmadrid = await equipeRepository.fetchEquipeById("4");
-
     _joueurs.addAll([
-      Joueur(prenom: "Matthis", nom: "Abline", id: "1", equipe: fcnantes, picture: "assets/joueurs/abline.png"),
-      Joueur(prenom: "Yassine", nom: "Benhattab", id: "2", equipe: fcnantes, picture: "assets/joueurs/default.png"),
-      Joueur(prenom: "Louis", nom: "Leroux", id: "3", equipe: fcnantes, picture: "assets/joueurs/default.png"),
-      Joueur(prenom: "Lamine", nom: "Yamal", id: "4", equipe: barca, picture: "assets/joueurs/default.png"),
-      Joueur(prenom: "", nom: "Pedri", id: "5", equipe: barca, picture: "assets/joueurs/default.png"),
-      Joueur(prenom: "Kylian", nom: "Mbappé", id: "6", equipe: realmadrid, picture: "assets/joueurs/default.png"),
-      Joueur(prenom: "Franco", nom: "Mastantuono", id: "7", equipe: realmadrid, picture: "assets/joueurs/default.png"),
-      Joueur(prenom: "Achraf", nom: "Hakimi", id: "8", equipe: psg, picture: "assets/joueurs/default.png"),
+      Joueur(
+          prenom: "Matthis",
+          nom: "Abline",
+          id: "1",
+          equipeId: "2",
+          picture: "assets/joueurs/abline.png"),
+      Joueur(
+          prenom: "Yassine",
+          nom: "Benhattab",
+          id: "2",
+          equipeId: "2",
+          picture: "assets/joueurs/default.png"),
+      Joueur(
+          prenom: "Louis",
+          nom: "Leroux",
+          id: "3",
+          equipeId: "2",
+          picture: "assets/joueurs/default.png"),
+      Joueur(
+          prenom: "Lamine",
+          nom: "Yamal",
+          id: "4",
+          equipeId: "3",
+          picture: "assets/joueurs/default.png"),
+      Joueur(
+          prenom: "",
+          nom: "Pedri",
+          id: "5",
+          equipeId: "3",
+          picture: "assets/joueurs/default.png"),
+      Joueur(
+          prenom: "Kylian",
+          nom: "Mbappé",
+          id: "6",
+          equipeId: "4",
+          picture: "assets/joueurs/default.png"),
+      Joueur(
+          prenom: "Franco",
+          nom: "Mastantuono",
+          id: "7",
+          equipeId: "4",
+          picture: "assets/joueurs/default.png"),
+      Joueur(
+          prenom: "Achraf",
+          nom: "Hakimi",
+          id: "8",
+          equipeId: "1",
+          picture: "assets/joueurs/default.png"),
     ]);
   }
 
@@ -84,14 +118,14 @@ class MockJoueurRepository implements IJoueurRepository {
 
   @override
   Future<List<Joueur>> searchJoueurs(String query,
-      {Equipe? equipe, int limit = 8}) async {
+      {String? equipeId, int limit = 8}) async {
     final q = normalize(query);
     if (q.isEmpty) return [];
     final starts = _joueurs.where((j) {
       final normPrenom = normalize(j.prenom);
       final normNom = normalize(j.nom);
       return (normPrenom.startsWith(q) || normNom.startsWith(q)) &&
-          (equipe == null || j.equipe == equipe);
+          (equipeId == null || j.equipeId == equipeId);
     }).toList();
 
     final contains = _joueurs.where((j) {
@@ -99,7 +133,7 @@ class MockJoueurRepository implements IJoueurRepository {
       final normNom = normalize(j.nom);
       return !(normPrenom.startsWith(q) || normNom.startsWith(q)) &&
           (normPrenom.contains(q) || normNom.contains(q)) &&
-          (equipe == null || j.equipe == equipe);
+          (equipeId == null || j.equipeId == equipeId);
     }).toList();
     final result = <Joueur>[];
     result.addAll(starts);

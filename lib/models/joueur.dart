@@ -1,19 +1,17 @@
-import 'package:scorescope/models/equipe.dart';
-
 class Joueur {
   final String? id;
   final String prenom;
   final String nom;
-  final Equipe? equipe;
-  final Equipe? equipeNationale;
+  final String equipeId;
+  final String? equipeNationaleId;
   final String picture;
 
   Joueur(
       {this.id,
       required this.prenom,
       required this.nom,
-      this.equipe,
-      this.equipeNationale,
+      required this.equipeId,
+      this.equipeNationaleId,
       this.picture = "assets/joueurs/default.png"});
 
   String get fullName => '$prenom $nom'.trim();
@@ -24,20 +22,30 @@ class Joueur {
         if (id != null) 'id': id,
         'prenom': prenom,
         'nom': nom,
-        if (equipe != null) 'equipe': equipe,
-        if (equipeNationale != null) 'equipeNationale': equipeNationale,
+        'equipeId': equipeId,
+        if (equipeNationaleId != null) 'equipeNationaleId': equipeNationaleId,
         'picture': picture,
       };
 
-  factory Joueur.fromJson(Map<String, dynamic> json) => Joueur(
-        id: json['id'] as String?,
+  factory Joueur.fromJson(
+          {required Map<String, dynamic> json, String? joueurId}) =>
+      Joueur(
+        id: joueurId ?? json['id'],
         prenom: json['prenom'] as String? ?? '',
         nom: json['nom'] as String? ?? '',
-        equipe: json['equipe'] as Equipe?,
-        equipeNationale: json['equipeNationale'] as Equipe?,
+        equipeId: json['equipeId'],
+        equipeNationaleId: json['equipeNationaleId'] as String?,
         picture: json['picture'] as String? ?? 'assets/joueurs/default.png',
       );
 
   @override
   String toString() => fullName;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Joueur && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

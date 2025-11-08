@@ -108,10 +108,8 @@ class _SignUpViewState extends State<SignUpView> {
                         labelText: 'Confirmer le mot de passe'),
                     obscureText: true,
                     validator: (v) {
-                      if (v == null || v.isEmpty)
-                        return 'Confirmer le mot de passe';
-                      if (v != _passwordController.text)
-                        return 'Les mots de passe ne correspondent pas';
+                      if (v == null || v.isEmpty) return 'Confirmer le mot de passe';
+                      if (v != _passwordController.text) return 'Les mots de passe ne correspondent pas';
                       return null;
                     },
                   ),

@@ -13,8 +13,8 @@ class Equipe {
         if (logoPath != null) 'logoPath': logoPath,
       };
 
-  factory Equipe.fromJson(Map<String, dynamic> json) => Equipe(
-        id: json['id'] as String? ?? '',
+  factory Equipe.fromJson({required Map<String, dynamic> json, String? equipeId}) => Equipe(
+        id: equipeId ?? json['id'],
         nom: json['nom'] as String? ?? '',
         code: json['code'] as String?,
         logoPath: json['logoPath'] as String?,

@@ -1,11 +1,12 @@
 // lib/widgets/mvp_card.dart
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/equipe.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import '../../models/joueur.dart';
 
-class MvpCard extends StatelessWidget {
-  final Joueur? mvp; // MVP élu par la communauté (peut être null)
-  final Joueur?
-      userVote; // Le joueur pour lequel l'utilisateur courant a voté (nullable)
+class MvpCard extends StatefulWidget {
+  final Joueur? mvp;
+  final Joueur? userVote;
   final VoidCallback? onVotePressed;
 
   const MvpCard({
@@ -14,6 +15,68 @@ class MvpCard extends StatelessWidget {
     this.userVote,
     this.onVotePressed,
   });
+
+  @override
+  State<MvpCard> createState() => _MvpCardState();
+}
+
+class _MvpCardState extends State<MvpCard> {
+  Equipe? mvpEquipe;
+  bool _loadingEquipe = false;
+  Object? _loadError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEquipeIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(covariant MvpCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Si le MVP a changé, recharger l'équipe
+    if (widget.mvp?.equipeId != oldWidget.mvp?.equipeId) {
+      _loadEquipeIfNeeded();
+    }
+  }
+
+  Future<void> _loadEquipeIfNeeded() async {
+    // Reset state if no mvp
+    if (widget.mvp == null) {
+      if (mounted) {
+        setState(() {
+          mvpEquipe = null;
+          _loadingEquipe = false;
+          _loadError = null;
+        });
+      }
+      return;
+    }
+
+    final id = widget.mvp!.equipeId;
+    // Si on a déjà l'équipe et que c'est la même, pas besoin de recharger
+    if (mvpEquipe != null && mvpEquipe!.id == id) return;
+
+    setState(() {
+      _loadingEquipe = true;
+      _loadError = null;
+    });
+
+    try {
+      final e = await RepositoryProvider.equipeRepository.fetchEquipeById(id);
+      if (!mounted) return;
+      setState(() {
+        mvpEquipe = e;
+        _loadingEquipe = false;
+      });
+    } catch (err) {
+      if (!mounted) return;
+      setState(() {
+        _loadingEquipe = false;
+        _loadError = err;
+      });
+    }
+  }
 
   String _initiales(Joueur j) {
     final p = j.prenom.trim();
@@ -25,12 +88,11 @@ class MvpCard extends StatelessWidget {
   }
 
   Widget _buildAvatar({Joueur? player, double radius = 28}) {
-    // On essaie d'afficher la photo du MVP s'il y en a une, sinon initiales / placeholder.
     final picture = player?.picture;
     if (picture != null && picture.isNotEmpty) {
-      // Si c'est une ressource locale :
-      // return CircleAvatar(radius: radius, backgroundImage: AssetImage(picture));
-      // Si c'est une URL depuis le réseau utilisez NetworkImage :
+      final provider = picture.startsWith('http')
+          ? NetworkImage(picture)
+          : AssetImage(picture) as ImageProvider;
       return CircleAvatar(
         radius: radius,
         backgroundColor: Colors.transparent,
@@ -38,10 +100,8 @@ class MvpCard extends StatelessWidget {
           padding: const EdgeInsets.all(2),
           child: ClipOval(
             child: Image(
-              image: picture.startsWith('http')
-                  ? NetworkImage(picture) as ImageProvider
-                  : AssetImage(picture),
-              fit: BoxFit.contain,
+              image: provider,
+              fit: BoxFit.cover,
               width: radius * 2,
               height: radius * 2,
             ),
@@ -69,10 +129,9 @@ class MvpCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasUserVoted = userVote != null;
+    final mvp = widget.mvp;
+    final hasUserVoted = widget.userVote != null;
     final buttonLabel = hasUserVoted ? 'Changer' : 'Voter';
-    final displayedPlayer =
-        mvp; // joueur affiché comme "MVP élu" (peut être null)
 
     return Card(
       elevation: 4,
@@ -97,7 +156,7 @@ class MvpCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Avatar du MVP (ou placeholder)
-                _buildAvatar(player: displayedPlayer, radius: 28),
+                _buildAvatar(player: mvp, radius: 28),
 
                 const SizedBox(width: 12),
 
@@ -106,15 +165,48 @@ class MvpCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (displayedPlayer != null) ...[
+                      if (mvp != null) ...[
                         Text(
-                          displayedPlayer.fullName,
+                          mvp.fullName,
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w600),
                         ),
-                        if (displayedPlayer.equipe != null)
+                        const SizedBox(height: 4),
+                        if (_loadingEquipe)
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 14,
+                                height: 14,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Chargement équipe...',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
+                          )
+                        else if (_loadError != null)
                           Text(
-                            displayedPlayer.equipe!.nom,
+                            'Équipe indisponible',
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.error),
+                          )
+                        else if (mvpEquipe != null)
+                          Text(
+                            mvpEquipe!.nom,
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey.shade700),
+                          )
+                        else
+                          Text(
+                            'Sois le premier à voter !',
                             style: TextStyle(
                                 fontSize: 13, color: Colors.grey.shade700),
                           ),
@@ -132,7 +224,7 @@ class MvpCard extends StatelessWidget {
                       // Affichage du vote de l'utilisateur (si présent)
                       if (hasUserVoted)
                         Text(
-                          'Votre vote : ${userVote!.fullName}',
+                          'Votre vote : ${widget.userVote!.fullName}',
                           style: TextStyle(
                               fontSize: 13,
                               color: Theme.of(context).colorScheme.primary),
@@ -143,7 +235,7 @@ class MvpCard extends StatelessWidget {
 
                 // Bouton Voter / Changer mon vote
                 ElevatedButton.icon(
-                  onPressed: onVotePressed ?? () {},
+                  onPressed: widget.onVotePressed ?? () {},
                   icon: Icon(hasUserVoted ? Icons.refresh : Icons.how_to_vote,
                       size: 18),
                   label: Text(buttonLabel),

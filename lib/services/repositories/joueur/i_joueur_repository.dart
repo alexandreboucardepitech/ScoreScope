@@ -1,5 +1,3 @@
-import 'package:scorescope/models/equipe.dart';
-
 import '../../../models/joueur.dart';
 
 abstract class IJoueurRepository {
@@ -8,5 +6,5 @@ abstract class IJoueurRepository {
   Future<void> addJoueur(Joueur e);
   Future<void> updateJoueur(Joueur e);
   Future<void> deleteJoueur(Joueur e);
-  Future<List<Joueur>> searchJoueurs(String query, {Equipe? equipe, int limit = 8});
+  Future<List<Joueur>> searchJoueurs(String query, {String? equipeId, int limit = 8});
 }

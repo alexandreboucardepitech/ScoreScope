@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/services/Web/Web_joueur_repository.dart';
+import 'package:scorescope/services/web/web_equipe_repository.dart';
 
 import 'equipe.dart';
 import 'but.dart';
@@ -15,32 +18,27 @@ class Match {
   final List<But> butsEquipeExterieur;
   final List<Joueur> joueursEquipeDomicile;
   final List<Joueur> joueursEquipeExterieur;
-  Joueur?
-      mvp; // à changer : actuellement c'est le vote actuel de l'utilisateur mais ça ne doit pas être stocké là
-  Map<Joueur, int> mvpVotes;
+  Map<String, String> mvpVotes;
   Map<String, int> notesDuMatch;
 
-  Match({
-    this.id,
-    required this.equipeDomicile,
-    required this.equipeExterieur,
-    required this.competition,
-    required this.date,
-    required this.scoreEquipeDomicile,
-    required this.scoreEquipeExterieur,
-    required this.joueursEquipeDomicile,
-    required this.joueursEquipeExterieur,
-    List<But>? butsEquipeDomicile,
-    List<But>? butsEquipeExterieur,
-    this.mvp,
-  })  : butsEquipeDomicile = butsEquipeDomicile ?? [],
+  Match(
+      {this.id,
+      required this.equipeDomicile,
+      required this.equipeExterieur,
+      required this.competition,
+      required this.date,
+      required this.scoreEquipeDomicile,
+      required this.scoreEquipeExterieur,
+      required this.joueursEquipeDomicile,
+      required this.joueursEquipeExterieur,
+      List<But>? butsEquipeDomicile,
+      List<But>? butsEquipeExterieur,
+      Map<String, String>? mvpVotes,
+      Map<String, int>? notesDuMatch})
+      : butsEquipeDomicile = butsEquipeDomicile ?? [],
         butsEquipeExterieur = butsEquipeExterieur ?? [],
-        mvpVotes = {
-          for (final j in [...joueursEquipeDomicile, ...joueursEquipeExterieur])
-            j: 0,
-          if (mvp != null) mvp: 1,
-        },
-        notesDuMatch = {};
+        mvpVotes = mvpVotes ?? {},
+        notesDuMatch = notesDuMatch ?? {};
 
   double getNoteMoyenne() {
     if (notesDuMatch.isEmpty) return -1.0;
@@ -56,86 +54,126 @@ class Match {
     if (note != null) notesDuMatch[userId] = note;
   }
 
+  void voterPourMVP({required String userId, required String? joueurId}) {
+    if (joueurId != null) mvpVotes[userId] = joueurId;
+  }
+
+  void enleverVote({required String userId}) {
+    mvpVotes.remove(userId);
+  }
+
+  Map<String, int> getAllVoteCounts() {
+    Map<String, int> voteCounts = <String, int>{};
+    for (final playerId in mvpVotes.values) {
+      voteCounts[playerId] = (voteCounts[playerId] ?? 0) + 1;
+    }
+    return voteCounts;
+  }
+
+  Future<Joueur?> getMvp() async {
+    if (mvpVotes.isEmpty) return null;
+
+    Map<String, int> voteCounts = getAllVoteCounts();
+
+    String? mvpId;
+    int maxVotes = -1;
+    voteCounts.forEach((playerId, count) {
+      if (count > maxVotes) {
+        maxVotes = count;
+        mvpId = playerId;
+      }
+    });
+
+    if (mvpId == null) return null;
+
+    return await WebJoueurRepository().fetchJoueurById(mvpId!);
+  }
+
+  int getNbVotesById(String id) {
+    Map<String, int> voteCounts = getAllVoteCounts();
+    return voteCounts[id] ?? 0;
+  }
+
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        'equipeDomicile': equipeDomicile.toJson(),
-        'equipeExterieur': equipeExterieur.toJson(),
         'competition': competition,
         'date': date.toIso8601String(),
         'scoreEquipeDomicile': scoreEquipeDomicile,
         'scoreEquipeExterieur': scoreEquipeExterieur,
+        'equipeDomicileId': equipeDomicile.id,
+        'equipeExterieurId': equipeExterieur.id,
         'joueursEquipeDomicile':
-            joueursEquipeDomicile.map((j) => j.toJson()).toList(),
+            joueursEquipeDomicile.map((j) => j.id).toList(),
         'joueursEquipeExterieur':
-            joueursEquipeExterieur.map((j) => j.toJson()).toList(),
-        'butsEquipeDomicile':
-            butsEquipeDomicile.map((b) => b.toJson()).toList(),
-        'butsEquipeExterieur':
-            butsEquipeExterieur.map((b) => b.toJson()).toList(),
-        if (mvp != null) 'mvp': mvp!.toJson(),
-        'mvpVotes': mvpVotes.map((joueur, votes) => MapEntry(joueur.id, votes)),
-        'notesDuMatch':
-            notesDuMatch.map((username, note) => MapEntry(username, note)),
+            joueursEquipeExterieur.map((j) => j.id).toList(),
+        'butsEquipeDomicile': butsEquipeDomicile
+            .map((b) => {'joueurId': b.buteur.id, 'minute': b.minute})
+            .toList(),
+        'butsEquipeExterieur': butsEquipeExterieur
+            .map((b) => {'joueurId': b.buteur.id, 'minute': b.minute})
+            .toList(),
+        'mvpVotes': mvpVotes,
+        'notesDuMatch': notesDuMatch,
       };
 
-  factory Match.fromJson(Map<String, dynamic> json) {
-    final joueursDomicile = (json['joueursEquipeDomicile'] as List?)
-            ?.map((j) => Joueur.fromJson(Map<String, dynamic>.from(j as Map)))
-            .toList() ??
-        [];
+  static Future<Match> fromJson({required Map<String, dynamic> json, String? matchId}) async {
+    final equipeDomicile =
+        await WebEquipeRepository().fetchEquipeById(json['equipeDomicileId']);
+    final equipeExterieur =
+        await WebEquipeRepository().fetchEquipeById(json['equipeExterieurId']);
 
-    final joueursExterieur = (json['joueursEquipeExterieur'] as List?)
-            ?.map((j) => Joueur.fromJson(Map<String, dynamic>.from(j as Map)))
-            .toList() ??
-        [];
-
-    // --- reconstruction des votes MVP ---
-    final rawVotes = Map<String, dynamic>.from(json['mvpVotes'] ?? {});
-    final allPlayers = [...joueursDomicile, ...joueursExterieur];
-    final mvpVotes = <Joueur, int>{};
-
-    for (final entry in rawVotes.entries) {
-      final matching = allPlayers.where((j) => j.id == entry.key);
-      if (matching.isNotEmpty) {
-        final joueur = matching.first;
-        mvpVotes[joueur] = (entry.value as num).toInt();
-      }
+    final joueursDomicile = <Joueur>[];
+    for (final id in (json['joueursEquipeDomicileId'] as List? ?? [])) {
+      final joueur = await WebJoueurRepository().fetchJoueurById(id);
+      if (joueur != null) joueursDomicile.add(joueur);
     }
 
-    // --- reconstruction des notes du match ---
-    final rawNotes = Map<String, dynamic>.from(json['notesDuMatch'] ?? {});
-    final notesDuMatch = rawNotes.map(
-      (username, note) => MapEntry(username, (note as num).toInt()),
-    );
+    final joueursExterieur = <Joueur>[];
+    for (final id in (json['joueursEquipeExterieurId'] as List? ?? [])) {
+      final joueur = await WebJoueurRepository().fetchJoueurById(id);
+      if (joueur != null) joueursExterieur.add(joueur);
+    }
+
+    Future<List<But>> reconstructButs(List<dynamic>? butsList) async {
+      if (butsList == null) return [];
+
+      final buts = <But>[];
+      for (final b in butsList) {
+        final joueurId = b['buteurId'] as String?;
+        Joueur? joueur;
+        if (joueurId != null) {
+          joueur = await WebJoueurRepository().fetchJoueurById(joueurId);
+        }
+        if (joueur != null) {
+          buts.add(But(buteur: joueur, minute: b['minute']));
+        }
+      }
+      return buts;
+    }
 
     return Match(
-      id: json['id'] as String?,
-      equipeDomicile: Equipe.fromJson(
-          Map<String, dynamic>.from(json['equipeDomicile'] as Map)),
-      equipeExterieur: Equipe.fromJson(
-          Map<String, dynamic>.from(json['equipeExterieur'] as Map)),
+      id: matchId ?? json['id'],
       competition: json['competition'] as String? ?? '',
-      date: DateTime.parse(
-          json['date'] as String? ?? DateTime.now().toIso8601String()),
+      date: (json['date'] is Timestamp)
+          ? (json['date'] as Timestamp).toDate()
+          : DateTime.parse(
+              json['date'] as String? ?? DateTime.now().toIso8601String()),
       scoreEquipeDomicile: (json['scoreEquipeDomicile'] as num?)?.toInt() ?? 0,
       scoreEquipeExterieur:
           (json['scoreEquipeExterieur'] as num?)?.toInt() ?? 0,
+      equipeDomicile: equipeDomicile!,
+      equipeExterieur: equipeExterieur!,
       joueursEquipeDomicile: joueursDomicile,
       joueursEquipeExterieur: joueursExterieur,
-      butsEquipeDomicile: (json['butsEquipeDomicile'] as List?)
-              ?.map((e) => But.fromJson(Map<String, dynamic>.from(e as Map)))
-              .toList() ??
-          [],
-      butsEquipeExterieur: (json['butsEquipeExterieur'] as List?)
-              ?.map((e) => But.fromJson(Map<String, dynamic>.from(e as Map)))
-              .toList() ??
-          [],
-      mvp: json['mvp'] != null
-          ? Joueur.fromJson(Map<String, dynamic>.from(json['mvp'] as Map))
-          : null,
+      butsEquipeDomicile:
+          await reconstructButs(json['butsEquipeDomicile'] as List?),
+      butsEquipeExterieur:
+          await reconstructButs(json['butsEquipeExterieur'] as List?),
     )
-      ..mvpVotes = mvpVotes
-      ..notesDuMatch = notesDuMatch;
+      ..mvpVotes = Map<String, String>.from(json['mvpVotes'] ?? {})
+      ..notesDuMatch = Map<String, int>.from(
+          (json['notesDuMatch'] as Map<String, dynamic>? ?? {})
+              .map((k, v) => MapEntry(k, (v as num).toInt())));
   }
 
   @override

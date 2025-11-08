@@ -48,7 +48,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
       required Joueur joueur,
       Joueur? initialUserVote,
       Joueur? currentUserVote}) {
-    int nbVotes = match.mvpVotes[joueur] ?? 0;
+    int nbVotes = joueur.id != null ? match.getNbVotesById(joueur.id!) : 0;
     if (joueur == initialUserVote) nbVotes--;
     if (joueur == currentUserVote) nbVotes++;
     return nbVotes;
@@ -214,8 +214,10 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                           getNbVotesWithUserVote(
                                                   match: widget.match,
                                                   joueur: currentUserVote!,
-                                                  initialUserVote: widget.initialUserVote,
-                                                  currentUserVote: currentUserVote)
+                                                  initialUserVote:
+                                                      widget.initialUserVote,
+                                                  currentUserVote:
+                                                      currentUserVote)
                                               .toString(),
                                           style: TextStyle(
                                               fontSize: 13,

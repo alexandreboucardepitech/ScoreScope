@@ -1,105 +1,51 @@
-import 'dart:async';
-import '../../models/equipe.dart';
-import '../repositories/equipe/i_equipe_repository.dart';
-import '../../utils/string_helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scorescope/services/repositories/equipe/i_equipe_repository.dart';
+import '../../../models/equipe.dart';
 
 class WebEquipeRepository implements IEquipeRepository {
-  static final WebEquipeRepository _instance =
-      WebEquipeRepository._internal();
-
-  late final Future<void> _seedingFuture;
-
-  WebEquipeRepository._internal() {
-    _seedingFuture = _seed();
-  }
-
-  factory WebEquipeRepository() => _instance;
-
-  Future<void> get ready => _seedingFuture;
-
-  final List<Equipe> _equipes = [];
-
-  Future<void> _seed() async {
-    _equipes.addAll([
-      Equipe(
-          nom: 'Marseille',
-          code: 'OM',
-          id: "1",
-          logoPath: "assets/equipes/fcnantes.png"),
-      Equipe(
-          nom: 'FC Nantes',
-          code: 'FCN',
-          id: "2",
-          logoPath: "assets/equipes/fcnantes.png"),
-      Equipe(
-          nom: 'FC Barcelona',
-          code: 'BAR',
-          id: "3",
-          logoPath: "assets/equipes/fcnantes.png"),
-      Equipe(
-          nom: 'Real Madrid',
-          code: 'RMA',
-          id: "4",
-          logoPath: "assets/equipes/fcnantes.png"),
-    ]);
-  }
+  final CollectionReference<Map<String, dynamic>> _collection =
+      FirebaseFirestore.instance.collection('equipes');
 
   @override
   Future<List<Equipe>> fetchAllEquipes() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return List<Equipe>.from(_equipes);
+    final snapshot = await _collection.get();
+    return snapshot.docs.map((doc) => Equipe.fromJson(json: doc.data(), equipeId: doc.id)).toList();
   }
 
   @override
   Future<Equipe?> fetchEquipeById(String id) async {
-    await Future.delayed(Duration(milliseconds: 200));
-
-    try {
-      final equipe = _equipes.firstWhere((e) => e.id == id);
-      return equipe;
-    } catch (error) {
-      return null;
-    }
+    final doc = await _collection.doc(id).get();
+    if (!doc.exists) return null;
+    return Equipe.fromJson(json: doc.data()!, equipeId: doc.id);
   }
 
   @override
   Future<void> addEquipe(Equipe e) async {
-    _equipes.add(e);
-    await Future.delayed(const Duration(milliseconds: 50));
+    await _collection.doc(e.id).set(e.toJson());
   }
 
   @override
   Future<void> updateEquipe(Equipe e) async {
-    final idx = _equipes.indexWhere((x) => x == e);
-    if (idx >= 0) _equipes[idx] = e;
-    await Future.delayed(const Duration(milliseconds: 50));
+    await _collection.doc(e.id).update(e.toJson());
   }
 
   @override
   Future<void> deleteEquipe(Equipe e) async {
-    _equipes.remove(e);
-    await Future.delayed(const Duration(milliseconds: 50));
+    await _collection.doc(e.id).delete();
   }
 
   @override
   Future<List<Equipe>> searchEquipes(String query, {int limit = 8}) async {
-    final q = normalize(query);
-    if (q.isEmpty) return [];
-    final starts = _equipes.where((e) {
-      final normNom = normalize(e.nom);
-      final normCode = normalize(e.code ?? '');
-      return normNom.startsWith(q) || normCode.startsWith(q);
-    }).toList();
+    final snapshot = await _collection.get();
+    final allEquipes = snapshot.docs.map((doc) => Equipe.fromJson(json: doc.data(), equipeId: doc.id)).toList();
+    final q = query.toLowerCase();
+    final starts = allEquipes.where((e) => e.nom.toLowerCase().startsWith(q) || (e.code?.toLowerCase().startsWith(q) ?? false)).toList();
+    final contains = allEquipes.where((e) =>
+        !(e.nom.toLowerCase().startsWith(q) || (e.code?.toLowerCase().startsWith(q) ?? false)) &&
+        (e.nom.toLowerCase().contains(q) || (e.code?.toLowerCase().contains(q) ?? false))
+    ).toList();
 
-    final contains = _equipes.where((e) {
-      final normNom = normalize(e.nom);
-      final normCode = normalize(e.code ?? '');
-      return !(normNom.startsWith(q) || normCode.startsWith(q)) &&
-          (normNom.contains(q) || normCode.contains(q));
-    }).toList();
-    final result = <Equipe>[];
-    result.addAll(starts);
-    result.addAll(contains);
+    final result = [...starts, ...contains];
     return result.take(limit).toList();
   }
 }
