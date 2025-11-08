@@ -1,19 +1,19 @@
 import 'dart:async';
-import '../../../models/equipe.dart';
-import 'i_equipe_repository.dart';
-import '../../../utils/string_helper.dart';
+import '../../models/equipe.dart';
+import '../repositories/equipe/i_equipe_repository.dart';
+import '../../utils/string_helper.dart';
 
-class MockEquipeRepository implements IEquipeRepository {
-  static final MockEquipeRepository _instance =
-      MockEquipeRepository._internal();
+class WebEquipeRepository implements IEquipeRepository {
+  static final WebEquipeRepository _instance =
+      WebEquipeRepository._internal();
 
   late final Future<void> _seedingFuture;
 
-  MockEquipeRepository._internal() {
+  WebEquipeRepository._internal() {
     _seedingFuture = _seed();
   }
 
-  factory MockEquipeRepository() => _instance;
+  factory WebEquipeRepository() => _instance;
 
   Future<void> get ready => _seedingFuture;
 
@@ -22,8 +22,8 @@ class MockEquipeRepository implements IEquipeRepository {
   Future<void> _seed() async {
     _equipes.addAll([
       Equipe(
-          nom: 'Paris Saint-Germain',
-          code: 'PSG',
+          nom: 'Marseille',
+          code: 'OM',
           id: "1",
           logoPath: "assets/equipes/fcnantes.png"),
       Equipe(

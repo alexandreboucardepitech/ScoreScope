@@ -31,13 +31,15 @@ class _LoginViewState extends State<LoginView> {
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-      if (user != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
-      } else {
-        _showError('Connexion annulée ou impossible.');
+      if (mounted) {
+        if (user != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
+        } else {
+          _showError('Connexion annulée ou impossible.');
+        }
       }
     } on FirebaseAuthException catch (e) {
       _showError(e.message ?? 'Erreur d\'authentification');
@@ -145,7 +147,13 @@ class _LoginViewState extends State<LoginView> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => SignUpView()),
+                                builder: (context) => SignUpView(
+                                  prefilledEmail:
+                                      _emailController.text.isNotEmpty
+                                          ? _emailController.text.trim()
+                                          : null,
+                                ),
+                              ),
                             );
                           },
                     child: const Text("Créer un compte"),

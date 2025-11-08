@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/views/login/login.dart';
 import 'firebase_options.dart';
@@ -12,8 +13,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Initialiser GoogleSignIn avant runApp
+  // Initialiser AuthService (et GoogleSignIn) avant runApp
   final authService = AuthService();
+  await authService.initialize();
+
+  // Déconnexion automatique au début pour test :
+  await GoogleSignIn.instance.disconnect();
+  await FirebaseAuth.instance.signOut();
 
   runApp(MyApp(authService: authService));
 }
@@ -26,19 +32,35 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'ScoreScope',
       theme: ThemeData(
-          primaryColor: Colors.green, secondaryHeaderColor: Colors.lightGreen),
-      home: StreamBuilder<User?>(
-        stream: authService.userChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          return snapshot.hasData ? HomePage() : const LoginView();
-        },
+        primaryColor: Colors.green,
+        secondaryHeaderColor: Colors.lightGreen,
       ),
+      home: AuthGate(authService: authService),
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  final AuthService authService;
+
+  const AuthGate({super.key, required this.authService});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: authService.userChanges,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final user = snapshot.data;
+        return user == null ? const LoginView() : const HomePage();
+      },
     );
   }
 }
@@ -68,7 +90,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.lightGreen,
         selectedItemColor: Colors.green,
         currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed, // pour 4 onglets
+        type: BottomNavigationBarType.fixed,
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(

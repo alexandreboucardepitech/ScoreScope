@@ -52,8 +52,8 @@ class Match {
     return moyenne;
   }
 
-  void noterMatch({required String username, required int? note}) {
-    if (note != null) notesDuMatch[username] = note;
+  void noterMatch({required String userId, required int? note}) {
+    if (note != null) notesDuMatch[userId] = note;
   }
 
   Map<String, dynamic> toJson() => {

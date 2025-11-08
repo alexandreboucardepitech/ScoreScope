@@ -4,7 +4,9 @@ import 'package:scorescope/main.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 
 class SignUpView extends StatefulWidget {
-  const SignUpView({super.key});
+  final String? prefilledEmail; // <-- nouvel argument
+
+  const SignUpView({super.key, this.prefilledEmail});
 
   @override
   State<SignUpView> createState() => _SignUpViewState();
@@ -17,6 +19,15 @@ class _SignUpViewState extends State<SignUpView> {
   final _formKey = GlobalKey<FormState>();
   final AuthService _authService = AuthService();
   bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Si un email est passé, on le met dans le champ
+    if (widget.prefilledEmail != null) {
+      _emailController.text = widget.prefilledEmail!;
+    }
+  }
 
   void _showError(String message) {
     ScaffoldMessenger.of(context)

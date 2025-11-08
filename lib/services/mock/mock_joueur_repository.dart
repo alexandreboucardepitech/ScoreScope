@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repositories/equipe/i_equipe_repository.dart';
-import 'package:scorescope/services/repositories/equipe/mock_equipe_repository.dart';
+import 'package:scorescope/services/mock/mock_equipe_repository.dart';
 
-import '../../../models/joueur.dart';
-import 'i_joueur_repository.dart';
-import '../../../utils/string_helper.dart';
+import '../../models/joueur.dart';
+import '../repositories/joueur/i_joueur_repository.dart';
+import '../../utils/string_helper.dart';
 
 class MockJoueurRepository implements IJoueurRepository {
   static final MockJoueurRepository _instance =

@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repositories/equipe/i_equipe_repository.dart';
-import 'package:scorescope/services/repositories/equipe/mock_equipe_repository.dart';
 import 'package:scorescope/services/repositories/joueur/i_joueur_repository.dart';
-import 'package:scorescope/services/repositories/joueur/mock_joueur_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/joueur_name_parser.dart';
 import '../models/match.dart';
 import '../models/equipe.dart';
@@ -15,8 +14,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class AddMatchView extends StatefulWidget {
   ///////// REPOSITORY /////////
-  final IEquipeRepository equipeRepository = MockEquipeRepository();
-  final IJoueurRepository joueurRepository = MockJoueurRepository();
+  final IEquipeRepository equipeRepository = RepositoryProvider.equipeRepository;
+  final IJoueurRepository joueurRepository = RepositoryProvider.joueurRepository;
 
   AddMatchView({super.key});
 

@@ -9,11 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:scorescope/main.dart';
+import 'package:scorescope/services/web/auth_service.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    final authService = AuthService();
+    await authService.initialize();
+    await tester.pumpWidget(MyApp(authService: authService));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

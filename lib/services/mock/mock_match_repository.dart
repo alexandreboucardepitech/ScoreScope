@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'package:scorescope/services/repositories/equipe/mock_equipe_repository.dart';
+import 'package:scorescope/services/mock/mock_equipe_repository.dart';
 import 'package:scorescope/services/repositories/joueur/i_joueur_repository.dart';
-import 'package:scorescope/services/repositories/joueur/mock_joueur_repository.dart';
+import 'package:scorescope/services/mock/mock_joueur_repository.dart';
 
-import '../../../models/match.dart';
-import '../../../models/but.dart';
-import 'i_match_repository.dart';
-import '../equipe/i_equipe_repository.dart';
+import '../../models/match.dart';
+import '../../models/but.dart';
+import '../repositories/match/i_match_repository.dart';
+import '../repositories/equipe/i_equipe_repository.dart';
 // import 'package:uuid/uuid.dart';
 
 class MockMatchRepository implements IMatchRepository {

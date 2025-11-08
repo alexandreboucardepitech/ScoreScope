@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:scorescope/services/web/firestore_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -11,7 +12,6 @@ class AuthService {
 
   AuthService();
 
-  /// ⚡ Initialisation à appeler avant d'utiliser GoogleSignIn
   Future<void> initialize() async {
     if (!_isGoogleSignInInitialized) {
       try {
@@ -30,54 +30,101 @@ class AuthService {
 
   // -------------------- Email / Password --------------------
   Future<User?> signUp(String email, String password) async {
-    final cred = await _auth.createUserWithEmailAndPassword(
+    final credentials = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
-    return cred.user;
+    if (credentials.user != null) {
+      await FirestoreService().createUserIfNotExists(
+        uid: credentials.user!.uid,
+        email: credentials.user!.email,
+        displayName: credentials.user!.displayName,
+        photoUrl: credentials.user!.photoURL,
+      );
+    }
+    return credentials.user;
   }
 
   Future<User?> signIn(String email, String password) async {
-    final cred = await _auth.signInWithEmailAndPassword(
+    final credentials = await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
-    return cred.user;
+    if (credentials.user != null) {
+      await FirestoreService().createUserIfNotExists(
+        uid: credentials.user!.uid,
+        email: credentials.user!.email,
+        displayName: credentials.user!.displayName,
+        photoUrl: credentials.user!.photoURL,
+      );
+    }
+    return credentials.user;
   }
 
-  // -------------------- Google Sign-In --------------------
   Future<User?> signInWithGoogle() async {
-    if (kIsWeb) {
-      final googleProvider = GoogleAuthProvider();
-      final userCredential = await _auth.signInWithPopup(googleProvider);
+    try {
+      if (kIsWeb) {
+        final googleProvider = GoogleAuthProvider();
+        final userCredential = await _auth.signInWithPopup(googleProvider);
+        if (userCredential.user != null) {
+          await FirestoreService().createUserIfNotExists(
+            uid: userCredential.user!.uid,
+            email: userCredential.user!.email,
+            displayName: userCredential.user!.displayName,
+            photoUrl: userCredential.user!.photoURL,
+          );
+        }
+        return userCredential.user;
+      }
+
+      await _ensureInitialized();
+
+      if (!_googleSignIn.supportsAuthenticate()) {
+        throw UnsupportedError(
+            'GoogleSignIn.authenticate() is not supported on this platform');
+      }
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn
+          .authenticate(scopeHint: ['email', 'openid', 'profile']);
+
+      if (googleUser == null) {
+        return null;
+      }
+
+      final authClient = _googleSignIn.authorizationClient;
+      final authorization = await authClient
+          .authorizationForScopes(['email', 'openid', 'profile']);
+
+      final String? accessToken = authorization?.accessToken;
+      final googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      if (accessToken == null && idToken == null) {
+        return null;
+      }
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: accessToken,
+        idToken: idToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      _currentGoogleUser = googleUser;
+
+      if (userCredential.user != null) {
+        await FirestoreService().createUserIfNotExists(
+          uid: userCredential.user!.uid,
+          email: userCredential.user!.email,
+          displayName: userCredential.user!.displayName,
+          photoUrl: userCredential.user!.photoURL,
+        );
+      }
+
       return userCredential.user;
+    } catch (e, st) {
+      print('signInWithGoogle error: $e\n$st');
+      return null;
     }
-
-    // Mobile
-    await _ensureInitialized();
-
-    if (!_googleSignIn.supportsAuthenticate()) {
-      throw UnsupportedError(
-          'GoogleSignIn.authenticate() is not supported on this platform');
-    }
-
-    final googleUser = await _googleSignIn.authenticate(
-      scopeHint: ['email', 'openid', 'profile'],
-    );
-
-    final authClient = _googleSignIn.authorizationClient;
-    final authorization =
-        await authClient.authorizationForScopes(['email', 'openid', 'profile']);
-
-    final credential = GoogleAuthProvider.credential(
-      accessToken: authorization?.accessToken,
-      idToken: googleUser.authentication.idToken,
-    );
-
-    final userCredential = await _auth.signInWithCredential(credential);
-    _currentGoogleUser = googleUser;
-
-    return userCredential.user;
   }
 
   Future<GoogleSignInAccount?> attemptSilentSignIn() async {
@@ -105,7 +152,6 @@ class AuthService {
     }
   }
 
-  // -------------------- Déconnexion --------------------
   Future<void> signOut() async {
     if (!kIsWeb) {
       try {

@@ -1,4 +1,5 @@
 // Dans ton MatchDetailsPage, remplace l'enfant de l'onglet "Infos" par :
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/widgets/match_details_tabs/mvp_vote_bottom_sheet.dart';
@@ -50,8 +51,9 @@ class _InfosTabState extends State<InfosTab> {
             noteMoyenne: widget.match.getNoteMoyenne(),
             onChanged: (nouvelleValeur) {
             },
-            onConfirm: (valeurConfirmee) {
-              widget.match.noterMatch(username: 'username', note: valeurConfirmee);
+            onConfirm: (valeurConfirmee) async {
+              final uid = FirebaseAuth.instance.currentUser!.uid;
+              widget.match.noterMatch(userId: uid, note: valeurConfirmee);
               setState(() {});
             },
           ),

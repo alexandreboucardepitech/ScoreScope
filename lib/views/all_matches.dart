@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/services/repositories/match/mock_match_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import '../widgets/match_tile.dart';
 import '../services/repositories/match/i_match_repository.dart';
 import '../models/match.dart';
 import 'add_match.dart';
 
 class AllMatchesView extends StatefulWidget {
-  final IMatchRepository matchRepository = MockMatchRepository();
+  final IMatchRepository matchRepository = RepositoryProvider.matchRepository;
   AllMatchesView({super.key});
 
   @override
