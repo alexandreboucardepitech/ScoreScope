@@ -83,12 +83,14 @@ class _HomePageState extends State<HomePage> {
     AllMatchesView(),
     AllMatchesView(),
     FutureBuilder<AppUser?>(
-    future: RepositoryProvider.userRepository.getCurrentUser(),
-    builder: (context, snapshot) {
-      if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-      return ProfileView(user: snapshot.data!);
-    },
-  ),
+      future: RepositoryProvider.userRepository.getCurrentUser(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return ProfileView(user: snapshot.data!);
+      },
+    ),
   ];
 
   @override

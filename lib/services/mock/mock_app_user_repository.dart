@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
 import 'package:scorescope/services/mock/mock_match_repository.dart';
 import 'package:scorescope/services/repositories/i_app_user_repository.dart';
@@ -120,6 +121,23 @@ class MockAppUserRepository implements IAppUserRepository {
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
     return user.matchsUserData.length;
+  }
+
+  @override
+  Future<int> getUserNbButs(String userId) async {
+    await _seedingFuture;
+    final user = _users.firstWhere((u) => u.uid == userId,
+        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    int nbButs = 0;
+    Match? match;
+    for (MatchUserData data in user.matchsUserData) {
+      match = await MockMatchRepository().fetchMatchById(data.matchId);
+      if (match != null) {
+        nbButs =
+            nbButs + match.scoreEquipeDomicile + match.scoreEquipeExterieur;
+      }
+    }
+    return nbButs;
   }
 
   @override

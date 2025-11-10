@@ -6,7 +6,8 @@ import 'package:scorescope/services/repository_provider.dart';
 class MatchsFavoris extends StatefulWidget {
   final List<String>? matchsFavorisId;
   final bool isLoading; // true = on charge les IDs
-  const MatchsFavoris({super.key, required this.matchsFavorisId, this.isLoading = false});
+  const MatchsFavoris(
+      {super.key, required this.matchsFavorisId, this.isLoading = false});
 
   @override
   State<MatchsFavoris> createState() => _MatchsFavorisState();
@@ -37,7 +38,10 @@ class _MatchsFavorisState extends State<MatchsFavoris> {
       _fetchMatch(id);
     }
     // retirer les IDs qui ne sont plus dans la liste
-    _loaded.keys.where((k) => !ids.contains(k)).toList().forEach(_loaded.remove);
+    _loaded.keys
+        .where((k) => !ids.contains(k))
+        .toList()
+        .forEach(_loaded.remove);
   }
 
   Future<void> _fetchMatch(String id) async {

@@ -6,7 +6,8 @@ import 'package:scorescope/services/repository_provider.dart';
 class EquipesPreferees extends StatefulWidget {
   final List<String>? teamsId;
   final bool isLoading; // true => on charge les ids
-  const EquipesPreferees({super.key, required this.teamsId, this.isLoading = false});
+  const EquipesPreferees(
+      {super.key, required this.teamsId, this.isLoading = false});
 
   @override
   State<EquipesPreferees> createState() => _EquipesPrefereesState();
@@ -37,7 +38,10 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
       if (_loaded.containsKey(id) || _fetching.contains(id)) continue;
       _fetchEquipe(id);
     }
-    _loaded.keys.where((k) => !ids.contains(k)).toList().forEach(_loaded.remove);
+    _loaded.keys
+        .where((k) => !ids.contains(k))
+        .toList()
+        .forEach(_loaded.remove);
   }
 
   Future<void> _fetchEquipe(String id) async {
@@ -80,7 +84,8 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Équipes préférées'),
-            if (ids.length > 6) TextButton(onPressed: () {}, child: const Text('Voir tout'))
+            if (ids.length > 6)
+              TextButton(onPressed: () {}, child: const Text('Voir tout'))
           ],
         ),
         const SizedBox(height: 8),
@@ -155,7 +160,11 @@ class _EquipeCellShimmer extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(width: 24, height: 24, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white)),
+          Container(
+              width: 24,
+              height: 24,
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.white)),
           const SizedBox(width: 8),
           Expanded(child: Container(height: 12, color: Colors.white)),
         ],
@@ -182,7 +191,14 @@ class EquipePrefereeTile extends StatelessWidget {
         child: Row(
           children: [
             if (equipe.logoPath != null)
-              CircleAvatar(radius: 12, backgroundImage: NetworkImage(equipe.logoPath!))
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: Image.asset(
+                  equipe.logoPath!,
+                  fit: BoxFit.contain,
+                ),
+              )
             else
               const CircleAvatar(radius: 12, child: Icon(Icons.shield)),
             const SizedBox(width: 8),

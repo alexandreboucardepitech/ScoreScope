@@ -127,8 +127,8 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> _loadUserNbButs(String uid) async {
     try {
-      final nbButs = await userRepository.getUserNbMatchsRegardes(
-          uid); // remplacer par une nouvelle fonction "get Nb Buts"
+      final nbButs = await userRepository.getUserNbButs(
+          uid);
       if (!mounted) return;
       setState(() {
         userNbButs = nbButs;
