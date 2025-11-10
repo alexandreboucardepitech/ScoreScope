@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
-import 'package:scorescope/services/repositories/joueur/i_joueur_repository.dart';
+import 'package:scorescope/services/repositories/i_joueur_repository.dart';
 import 'package:scorescope/services/mock/mock_joueur_repository.dart';
 
 import '../../models/match.dart';
 import '../../models/but.dart';
-import '../repositories/match/i_match_repository.dart';
-import '../repositories/equipe/i_equipe_repository.dart';
+import '../repositories/i_match_repository.dart';
+import '../repositories/i_equipe_repository.dart';
 // import 'package:uuid/uuid.dart';
 
 class MockMatchRepository implements IMatchRepository {
@@ -21,6 +21,8 @@ class MockMatchRepository implements IMatchRepository {
   factory MockMatchRepository() {
     return _instance;
   }
+
+  Future<void> get ready => _seedingFuture;
 
   final List<Match> _matches = [];
   final IEquipeRepository equipeRepository = MockEquipeRepository();

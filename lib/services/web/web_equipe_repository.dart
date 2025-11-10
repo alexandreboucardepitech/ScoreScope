@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:scorescope/services/repositories/equipe/i_equipe_repository.dart';
+import 'package:scorescope/services/repositories/i_equipe_repository.dart';
 import '../../../models/equipe.dart';
 
 class WebEquipeRepository implements IEquipeRepository {

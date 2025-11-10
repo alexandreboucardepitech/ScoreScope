@@ -1,38 +1,47 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:scorescope/models/equipe.dart';
+import 'package:scorescope/models/match_user_data.dart';
 
 class AppUser {
   final String uid;
   final String? email;
   final String? displayName;
+  final String? bio;
   final String? photoUrl;
   final DateTime createdAt;
-  final List<Equipe?> equipePreferees;
+  final List<String> equipesPrefereesId;
+  final List<MatchUserData> matchsUserData;
 
   AppUser({
     required this.uid,
     this.email,
     this.displayName,
+    this.bio,
     this.photoUrl,
     required this.createdAt,
-    this.equipePreferees = const [],
+    this.equipesPrefereesId = const [],
+    this.matchsUserData = const [],
   });
 
-  factory AppUser.fromJson(Map<String, dynamic> json) {
+  factory AppUser.fromJson({
+    required Map<String, dynamic> json,
+    String? userId,
+  }) {
     return AppUser(
-      uid: json['uid'] as String,
+      uid: userId ?? json['uid'] as String,
       email: json['email'] as String?,
       displayName: json['displayName'] as String?,
+      bio: json['bio'] as String?,
       photoUrl: json['photoUrl'] as String?,
       createdAt: (json['createdAt'] is Timestamp)
           ? (json['createdAt'] as Timestamp).toDate()
           : (json['createdAt'] is String
               ? DateTime.tryParse(json['createdAt']) ?? DateTime.now()
               : DateTime.now()),
-      equipePreferees: (json['equipePreferees'] as List?)
-              ?.map((e) => e != null ? Equipe.fromJson(json: e as Map<String, dynamic>) : null)
+      equipesPrefereesId: (json['equipesPrefereesId'] as List<dynamic>?)
+              ?.map((e) => e as String)
               .toList() ??
           [],
+      matchsUserData: json['matchsUserData'] ?? [],
     );
   }
 
@@ -41,11 +50,11 @@ class AppUser {
       'uid': uid,
       'email': email,
       'displayName': displayName,
+      'bio': bio,
       'photoUrl': photoUrl,
       'createdAt': createdAt,
-      'equipePreferees': equipePreferees
-          .map((e) => e?.toJson())
-          .toList(),
+      'equipesPrefereesId': equipesPrefereesId,
+      'matchsUserData': matchsUserData,
     };
   }
 }

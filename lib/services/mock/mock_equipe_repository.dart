@@ -1,6 +1,6 @@
 import 'dart:async';
 import '../../models/equipe.dart';
-import '../repositories/equipe/i_equipe_repository.dart';
+import '../repositories/i_equipe_repository.dart';
 import '../../utils/string_helper.dart';
 
 class MockEquipeRepository implements IEquipeRepository {

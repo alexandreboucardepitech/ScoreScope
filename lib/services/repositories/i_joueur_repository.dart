@@ -1,4 +1,4 @@
-import '../../../models/joueur.dart';
+import '../../models/joueur.dart';
 
 abstract class IJoueurRepository {
   Future<List<Joueur>> fetchAllJoueurs();

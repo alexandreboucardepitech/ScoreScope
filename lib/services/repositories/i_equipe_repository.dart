@@ -1,4 +1,4 @@
-import '../../../models/equipe.dart';
+import '../../models/equipe.dart';
 
 abstract class IEquipeRepository {
   Future<List<Equipe>> fetchAllEquipes();

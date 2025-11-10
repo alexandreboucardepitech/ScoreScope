@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:scorescope/services/repositories/joueur/i_joueur_repository.dart';
+import 'package:scorescope/services/repositories/i_joueur_repository.dart';
 import '../../../models/joueur.dart';
 
 class WebJoueurRepository implements IJoueurRepository {

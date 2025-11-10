@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:scorescope/services/repositories/match/i_match_repository.dart';
+import 'package:scorescope/services/repositories/i_match_repository.dart';
 import '../../../models/match.dart';
 
 class WebMatchRepository implements IMatchRepository {

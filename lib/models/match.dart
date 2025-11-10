@@ -105,9 +105,9 @@ class Match {
 
     String? mvpId;
     int maxVotes = -1;
-    voteCounts.forEach((playerId, count) {
-      if (count > maxVotes) {
-        maxVotes = count;
+    voteCounts.forEach((playerId, voteCount) {
+      if (voteCount > maxVotes) {
+        maxVotes = voteCount;
         mvpId = playerId;
       }
     });

@@ -1,8 +1,11 @@
+import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/mock/mock_joueur_repository.dart';
 import 'package:scorescope/services/mock/mock_match_repository.dart';
-import 'package:scorescope/services/repositories/equipe/i_equipe_repository.dart';
-import 'package:scorescope/services/repositories/joueur/i_joueur_repository.dart';
-import 'package:scorescope/services/repositories/match/i_match_repository.dart';
+import 'package:scorescope/services/repositories/i_equipe_repository.dart';
+import 'package:scorescope/services/repositories/i_joueur_repository.dart';
+import 'package:scorescope/services/repositories/i_match_repository.dart';
+import 'package:scorescope/services/repositories/i_app_user_repository.dart';
+import 'package:scorescope/services/web/web_app_user_repository.dart';
 import 'package:scorescope/services/web/web_equipe_repository.dart';
 import 'package:scorescope/services/web/web_joueur_repository.dart';
 import 'package:scorescope/services/web/web_match_repository.dart';
@@ -41,6 +44,15 @@ class RepositoryProvider {
         return MockJoueurRepository();
       case Environment.web:
         return WebJoueurRepository();
+    }
+  }
+
+  static IAppUserRepository get userRepository {
+    switch (environment) {
+      case Environment.mock:
+        return MockAppUserRepository();
+      case Environment.web:
+        return WebAppUserRepository();
     }
   }
 }
