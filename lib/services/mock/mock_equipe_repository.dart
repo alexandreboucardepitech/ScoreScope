@@ -22,25 +22,37 @@ class MockEquipeRepository implements IEquipeRepository {
   Future<void> _seed() async {
     _equipes.addAll([
       Equipe(
-          nom: 'Paris Saint-Germain',
-          code: 'PSG',
-          id: "1",
-          logoPath: "assets/equipes/fcnantes.png"),
+        nom: 'Paris Saint-Germain',
+        code: 'PSG',
+        id: "1",
+        logoPath: "assets/equipes/fcnantes.png",
+        couleurPrincipale: "004170",
+        couleurSecondaire: "DA291C",
+      ),
       Equipe(
-          nom: 'FC Nantes',
-          code: 'FCN',
-          id: "2",
-          logoPath: "assets/equipes/fcnantes.png"),
+        nom: 'FC Nantes',
+        code: 'FCN',
+        id: "2",
+        logoPath: "assets/equipes/fcnantes.png",
+        couleurPrincipale: "FFE600",
+        couleurSecondaire: "007A33",
+      ),
       Equipe(
-          nom: 'FC Barcelona',
-          code: 'BAR',
-          id: "3",
-          logoPath: "assets/equipes/fcnantes.png"),
+        nom: 'FC Barcelona',
+        code: 'BAR',
+        id: "3",
+        logoPath: "assets/equipes/fcnantes.png",
+        couleurPrincipale: "A50044",
+        couleurSecondaire: "004D98",
+      ),
       Equipe(
-          nom: 'Real Madrid',
-          code: 'RMA',
-          id: "4",
-          logoPath: "assets/equipes/fcnantes.png"),
+        nom: 'Real Madrid',
+        code: 'RMA',
+        id: "4",
+        logoPath: "assets/equipes/fcnantes.png",
+        couleurPrincipale: "FFFFFF",
+        couleurSecondaire: "FEBE10",
+      ),
     ]);
   }
 

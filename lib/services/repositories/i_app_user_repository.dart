@@ -7,6 +7,7 @@ abstract class IAppUserRepository {
   Future<List<String>> getUserMatchsRegardesId(String userId);
   Future<int> getUserNbMatchsRegardes(String userId);
   Future<int> getUserNbButs(String userId);
+  Future<int> getUserNbMatchsRegardesParEquipe(String userId, String equipeId);
   Future<List<String>> getUserMatchsFavorisId(String userId);
   Future<AppUser?> getCurrentUser();
 }

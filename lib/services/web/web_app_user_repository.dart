@@ -78,6 +78,34 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
+  Future<int> getUserNbMatchsRegardesParEquipe(
+      String userId, String equipeId) async {
+    int nbMatchsRegardes = 0;
+    List<String> matchsRegardesId = await getUserMatchsRegardesId(userId);
+
+    if (matchsRegardesId.isEmpty) return 0;
+
+    final matchsCollection = FirebaseFirestore.instance.collection('matchs');
+
+    for (final matchId in matchsRegardesId) {
+      final doc = await matchsCollection.doc(matchId).get();
+      if (!doc.exists) continue;
+
+      final data = doc.data();
+      if (data == null) continue;
+
+      final String equipeDomicileId = data['equipeDomicile'] as String;
+      final String equipeExterieurId = data['equipeExterieur'] as String;
+
+      if (equipeDomicileId == equipeId || equipeExterieurId == equipeId) {
+        nbMatchsRegardes++;
+      }
+    }
+
+    return nbMatchsRegardes;
+  }
+
+  @override
   Future<List<String>> getUserMatchsFavorisId(String userId) async {
     final matchUserDataSnapshot =
         await _usersCollection.doc(userId).collection('matchUserData').get();

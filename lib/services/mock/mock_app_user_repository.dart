@@ -37,7 +37,8 @@ class MockAppUserRepository implements IAppUserRepository {
         uid: 'u_alex',
         displayName: 'alex_foot',
         email: 'alex@example.com',
-        equipesPrefereesId: ["2", "3"], // fc nantes / barça
+        bio: "coucou moi c'est alex et j'aime le foot (bah oui c'est mon nom t con)",
+        equipesPrefereesId: ["1", "2", "3", "4", "1", "2", "3", "4", "1", "2"], // fc nantes / barça
         matchsUserData: [
           MatchUserData(matchId: "1", favourite: true, mvpVoteId: "1", note: 8),
           MatchUserData(matchId: "2", mvpVoteId: "5", note: 3),
@@ -138,6 +139,33 @@ class MockAppUserRepository implements IAppUserRepository {
       }
     }
     return nbButs;
+  }
+
+  @override
+  Future<int> getUserNbMatchsRegardesParEquipe(
+      String userId, String equipeId) async {
+    await _seedingFuture;
+
+    final List<String> matchsRegardesId = await getUserMatchsRegardesId(userId);
+    if (matchsRegardesId.isEmpty) return 0;
+
+    final matchesRepo = MockMatchRepository();
+
+    final futures =
+        matchsRegardesId.map((id) => matchesRepo.fetchMatchById(id));
+    final List<Match?> matches = await Future.wait(futures);
+
+    int nbMatchs = 0;
+
+    for (final match in matches) {
+      if (match == null) continue;
+
+      if (match.equipeDomicile.id == equipeId || match.equipeExterieur.id == equipeId) {
+        nbMatchs++;
+      }
+    }
+
+    return nbMatchs;
   }
 
   @override

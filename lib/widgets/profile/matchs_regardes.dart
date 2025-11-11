@@ -77,7 +77,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Derniers matchs'),
+            Text('Derniers matchs ajoutés'),
             TextButton(onPressed: () {}, child: const Text('Voir plus'))
           ],
         ),
