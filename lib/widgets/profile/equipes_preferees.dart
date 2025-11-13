@@ -207,7 +207,6 @@ class _EquipeCellShimmer extends StatelessWidget {
   }
 }
 
-// Tuile qui affiche l'équipe une fois chargée (nbMatchsRegardes peut être null si encore en cours)
 class EquipePrefereeTile extends StatelessWidget {
   final Equipe equipe;
   final AppUser user;
@@ -229,44 +228,50 @@ class EquipePrefereeTile extends StatelessWidget {
         ? fromHex(equipe.couleurSecondaire!)
         : Colors.grey;
 
+    final Color textColor =
+        primary.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+
     return InkWell(
       onTap: () {},
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: primary,
-          border: Border.all(color: secondary, width: 2),
+          border: Border.all(color: secondary, width: 3),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
             if (equipe.logoPath != null)
               SizedBox(
-                  width: 24,
-                  height: 24,
+                  width: 28,
+                  height: 28,
                   child: Image.asset(equipe.logoPath!, fit: BoxFit.contain))
             else
-              const CircleAvatar(radius: 12, child: Icon(Icons.shield)),
-            const SizedBox(width: 8),
+              CircleAvatar(radius: 14, child: Icon(Icons.shield, size: 16)),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    equipe.nom,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: secondary, fontWeight: FontWeight.w600),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      equipe.nom,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: textColor, fontWeight: FontWeight.w600),
+                    ),
                   ),
-                  const SizedBox(height: 2),
-                  // si nbMatchsRegardes == null -> petit shimmer local
+                  const SizedBox(height: 4),
                   if (nbMatchsRegardes == null)
                     SizedBox(
                       width: 80,
-                      height: 12,
+                      height: 14,
                       child: Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
@@ -274,10 +279,15 @@ class EquipePrefereeTile extends StatelessWidget {
                       ),
                     )
                   else
-                    Text(
-                      '$nbMatchsRegardes matchs regardés',
-                      style: TextStyle(
-                          fontSize: 12, color: secondary.withOpacity(0.9)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '$nbMatchsRegardes matchs regardés',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: textColor.withValues(alpha: 0.85)),
+                      ),
                     ),
                 ],
               ),

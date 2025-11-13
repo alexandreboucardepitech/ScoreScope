@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import '../widgets/match_tile.dart';
+import 'package:scorescope/widgets/match_list/match_list.dart';
 import '../services/repositories/i_match_repository.dart';
 import '../models/match.dart';
 import 'add_match.dart';
@@ -34,38 +34,30 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         title: Text("Matchs regardés"),
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black), // contour noir
-          borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).secondaryHeaderColor,
-        ),
-        child: FutureBuilder<List<Match>>(
-          future: _futureMatches,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Erreur: ${snapshot.error}'));
-            } else {
-              final matches = snapshot.data ?? [];
-              if (matches.isEmpty) {
-                return const Center(child: Text('Aucun match enregistré'));
-              }
-              return ListView.separated(
-                itemCount: matches.length,
-                itemBuilder: (context, index) {
-                  return MatchTile(match: matches[index]);
-                },
-                separatorBuilder: (context, index) =>
-                    Divider(color: Colors.black),
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-              );
-            }
-          },
-        ),
+      body: FutureBuilder<List<Match>>(
+        future: _futureMatches,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur: ${snapshot.error}'));
+          } else {
+            final matches = snapshot.data ?? [];
+            return MatchList(
+              matches: matches,
+              header: Row(
+                children: [
+                  Icon(Icons.star, color: Colors.amber),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Matchs favoris',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
+            );
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -75,10 +67,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
           );
 
           if (newMatch != null) {
-            // Appel au matchRepository pour ajouter le match
             await widget.matchRepository.addMatch(newMatch);
-
-            // Et on met à jour l'affichage
             setState(() {
               _futureMatches = widget.matchRepository.fetchAllMatches();
             });

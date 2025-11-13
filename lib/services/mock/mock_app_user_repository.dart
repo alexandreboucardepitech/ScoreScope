@@ -38,7 +38,7 @@ class MockAppUserRepository implements IAppUserRepository {
         displayName: 'alex_foot',
         email: 'alex@example.com',
         bio: "coucou moi c'est alex et j'aime le foot (bah oui c'est mon nom t con)",
-        equipesPrefereesId: ["1", "2", "3", "4", "1", "2", "3", "4", "1", "2"], // fc nantes / barça
+        equipesPrefereesId: ["2", "3"], // fc nantes / barça
         matchsUserData: [
           MatchUserData(matchId: "1", favourite: true, mvpVoteId: "1", note: 8),
           MatchUserData(matchId: "2", mvpVoteId: "5", note: 3),

@@ -105,30 +105,39 @@ class MockMatchRepository implements IMatchRepository {
         ),
       );
     }
-    return; // ensure Future completes (optional) { changed code }
+    return;
   }
 
   @override
   Future<List<Match>> fetchAllMatches() async {
-    await _seedingFuture; // wait for seed to finish { changed code }
+    await _seedingFuture;
     await Future.delayed(const Duration(milliseconds: 300));
     return List<Match>.from(_matches);
   }
 
   @override
   Future<Match?> fetchMatchById(String id) async {
-    // Simuler un délai comme si on faisait un appel réseau
-    await _seedingFuture; // wait for seed to finish { changed code }
+    await _seedingFuture;
     await Future.delayed(Duration(milliseconds: 200));
 
-    // Cherche le match correspondant à l'id
     try {
       final match = _matches.firstWhere((m) => m.id == id);
       return match;
     } catch (e) {
-      // Si aucun match trouvé, retourne null
       return null;
     }
+  }
+
+  @override
+  Future<List<Match>> fetchMatchesListById(List<String> ids) async {
+    List<Match> matches = [];
+    for (String id in ids) {
+      Match? match = await fetchMatchById(id);
+      if (match != null) {
+        matches.add(match);
+      }
+    }
+    return matches;
   }
 
   @override

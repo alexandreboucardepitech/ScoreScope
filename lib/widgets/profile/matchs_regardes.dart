@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/widgets/match_tile.dart';
+import 'package:scorescope/widgets/match_list/match_list.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
@@ -7,7 +7,8 @@ import 'package:scorescope/services/repository_provider.dart';
 class MatchsRegardes extends StatefulWidget {
   final List<String>? matchesId;
   final bool isLoading; // true = on charge les IDs
-  const MatchsRegardes({super.key, required this.matchesId, this.isLoading = false});
+  const MatchsRegardes(
+      {super.key, required this.matchesId, this.isLoading = false});
 
   @override
   State<MatchsRegardes> createState() => _MatchsRegardesState();
@@ -38,7 +39,10 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
       _fetchMatch(id);
     }
     // retirer les IDs qui ne sont plus dans la liste
-    _loaded.keys.where((k) => !ids.contains(k)).toList().forEach(_loaded.remove);
+    _loaded.keys
+        .where((k) => !ids.contains(k))
+        .toList()
+        .forEach(_loaded.remove);
   }
 
   Future<void> _fetchMatch(String id) async {
@@ -82,11 +86,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
           ],
         ),
         const SizedBox(height: 8),
-        ...display.map((id) {
-          final match = _loaded[id];
-          if (match == null) return const _MatchShimmerTile();
-          return MatchTile(match: match);
-        }),
+        MatchList(ids: display),
       ],
     );
   }

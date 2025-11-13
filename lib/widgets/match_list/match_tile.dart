@@ -1,7 +1,8 @@
+// lib/widgets/match/match_tile.dart
 import 'package:flutter/material.dart';
 import 'package:scorescope/views/match_details.dart';
-import '../models/match.dart';
-import '../utils/get_lignes_buteurs.dart';
+import 'package:scorescope/models/match.dart';
+import 'package:scorescope/utils/get_lignes_buteurs.dart';
 
 class MatchTile extends StatefulWidget {
   final Match match;
@@ -11,16 +12,18 @@ class MatchTile extends StatefulWidget {
   State<MatchTile> createState() => _MatchTileState();
 }
 
-class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMixin {
+class _MatchTileState extends State<MatchTile>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final Animation<double> _arrowAnim; // rotation de la flèche
-  late final Animation<double> _heightFactor; // pour l'ouverture verticale
+  late final Animation<double> _arrowAnim;
+  late final Animation<double> _heightFactor;
   bool _isExpanded = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
+    _controller =
+        AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
     _arrowAnim = Tween<double>(begin: 0.0, end: 0.5).animate(_controller);
     _heightFactor = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
@@ -155,9 +158,7 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
                       turns: _arrowAnim,
                       child: const Icon(Icons.expand_more),
                     ),
-                    onPressed: () {
-                      _toggleExpanded();
-                    },
+                    onPressed: _toggleExpanded,
                   ),
                 ],
               ),
@@ -177,7 +178,6 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                 child: InkWell(
-                  // si tu veux que cliquer n'importe où dans la zone déroulée ouvre aussi la page
                   onTap: _navigateToDetails,
                   child: Row(
                     children: [

@@ -37,6 +37,18 @@ class WebMatchRepository implements IMatchRepository {
   }
 
   @override
+  Future<List<Match>> fetchMatchesListById(List<String> ids) async {
+    List<Match> matches = [];
+    for (String id in ids) {
+      Match? match = await fetchMatchById(id);
+      if (match != null) {
+        matches.add(match);
+      }
+    }
+    return matches;
+  }
+
+  @override
   Future<void> addMatch(Match m) async {
     await _collection.doc(m.id).set(m.toJson());
   }
