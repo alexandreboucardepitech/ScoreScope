@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/main.dart';
 import 'package:scorescope/services/web/auth_service.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 
 class SignUpView extends StatefulWidget {
   final String? prefilledEmail; // <-- nouvel argument
@@ -70,7 +71,14 @@ class _SignUpViewState extends State<SignUpView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Créer un compte')),
+      appBar: AppBar(
+        title: Text(
+          'Créer un compte',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
@@ -108,8 +116,10 @@ class _SignUpViewState extends State<SignUpView> {
                         labelText: 'Confirmer le mot de passe'),
                     obscureText: true,
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Confirmer le mot de passe';
-                      if (v != _passwordController.text) return 'Les mots de passe ne correspondent pas';
+                      if (v == null || v.isEmpty)
+                        return 'Confirmer le mot de passe';
+                      if (v != _passwordController.text)
+                        return 'Les mots de passe ne correspondent pas';
                       return null;
                     },
                   ),
@@ -124,7 +134,12 @@ class _SignUpViewState extends State<SignUpView> {
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text('Créer mon compte'),
+                          : Text(
+                              'Créer mon compte',
+                              style: TextStyle(
+                                color: ColorPalette.textPrimary(context),
+                              ),
+                            ),
                     ),
                   ),
                 ],

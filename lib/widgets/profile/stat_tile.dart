@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 
 class ProfileStatTile extends StatelessWidget {
   final String label;
@@ -22,7 +23,10 @@ class ProfileStatTile extends StatelessWidget {
           height: labelHeight,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(
+              fontSize: 12,
+              color: ColorPalette.textSecondary(context),
+            ),
           ),
         ),
       ],

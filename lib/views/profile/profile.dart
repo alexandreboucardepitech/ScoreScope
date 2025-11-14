@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
 import 'package:scorescope/widgets/profile/matchs_favoris.dart';
 import 'package:scorescope/widgets/profile/matchs_regardes.dart';
@@ -28,6 +29,8 @@ class _ProfileViewState extends State<ProfileView> {
   bool _isLoadingNbMatchsRegardes = true;
   bool _isLoadingNbButs = true;
 
+  bool _isScrolled = false;
+
   List<String>? userEquipesPrefereesId;
   List<String>? userMatchsRegardesId;
   List<String>? userMatchsFavorisId;
@@ -47,14 +50,23 @@ class _ProfileViewState extends State<ProfileView> {
     super.initState();
     _loadCurrentUser();
 
+    double headerHeightTemp = 300;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final context = _headerKey.currentContext;
       if (context != null) {
         final box = context.findRenderObject() as RenderBox;
         setState(() {
           _headerHeight = box.size.height;
+          headerHeightTemp = box.size.height;
         });
       }
+      _scrollController.addListener(() {
+        final isScrolledNow = _scrollController.offset > headerHeightTemp;
+        if (isScrolledNow != _isScrolled) {
+          setState(() => _isScrolled = isScrolledNow);
+        }
+      });
     });
   }
 
@@ -172,7 +184,7 @@ class _ProfileViewState extends State<ProfileView> {
           SliverAppBar(
             pinned: true,
             expandedHeight: _headerHeight > 0 ? _headerHeight : 300,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: ColorPalette.background(context),
             elevation: 0,
             leading: Padding(
               padding: const EdgeInsets.only(left: 10),
@@ -198,7 +210,7 @@ class _ProfileViewState extends State<ProfileView> {
                       ),
               ),
             ),
-            title: innerBoxIsScrolled
+            title: _isScrolled
                 ? ProfileScrolledTitle(
                     username: widget.user.displayName ?? 'Utilisateur',
                     nbAmis: 'PAS FAIT',
@@ -209,7 +221,7 @@ class _ProfileViewState extends State<ProfileView> {
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.grey[100],
+              color: ColorPalette.primary(context),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -219,7 +231,12 @@ class _ProfileViewState extends State<ProfileView> {
                       onPressed: () => _scrollToSection(_equipesKey),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: const Text('Équipes préférées'),
+                        child: Text(
+                          'Équipes préférées',
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -228,7 +245,12 @@ class _ProfileViewState extends State<ProfileView> {
                       onPressed: () => _scrollToSection(_matchsRegardesKey),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: const Text('Derniers matchs'),
+                        child: Text(
+                          'Derniers matchs',
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -237,7 +259,12 @@ class _ProfileViewState extends State<ProfileView> {
                       onPressed: () => _scrollToSection(_matchsFavorisKey),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: const Text('Matchs favoris'),
+                        child: Text(
+                          'Matchs favoris',
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -275,7 +302,6 @@ class _ProfileViewState extends State<ProfileView> {
                   isLoading: _isLoadingMatchsFavoris,
                 ),
               ),
-              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -316,7 +342,10 @@ class _Header extends StatelessWidget {
               user.photoUrl == null && (user.displayName?.isNotEmpty ?? false)
                   ? Text(
                       user.displayName!.substring(0, 1).toUpperCase(),
-                      style: const TextStyle(fontSize: 36),
+                      style: TextStyle(
+                        fontSize: 36,
+                        color: ColorPalette.textAccent(context),
+                      ),
                     )
                   : null,
         ),
@@ -328,10 +357,10 @@ class _Header extends StatelessWidget {
               child: Text(
                 user.displayName ?? 'Utilisateur',
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalette.textAccent(context),
+                    ),
               ),
             ),
             const SizedBox(width: 4),
@@ -345,7 +374,10 @@ class _Header extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               user.bio!,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 14,
+                color: ColorPalette.textSecondary(context),
+              ),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -353,40 +385,52 @@ class _Header extends StatelessWidget {
           ),
         const SizedBox(height: 16),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Flexible(
-              child: ProfileStatTile(
-                label: 'Amis',
-                labelHeight: statsLabelHeight,
-                valueWidget: const Text(
-                  'PAS FAIT',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+            Expanded(
+              child: Align(
+                alignment: Alignment.center,
+                child: ProfileStatTile(
+                  label: 'Amis',
+                  labelHeight: statsLabelHeight,
+                  valueWidget: Text(
+                    'PAS FAIT',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalette.textPrimary(context),
+                    ),
+                  ),
                 ),
               ),
             ),
-            Flexible(
-              child: ProfileStatTile(
-                label: 'Matchs',
-                labelHeight: statsLabelHeight,
-                valueWidget: isLoadingNbMatchsRegardes
-                    ? const _ShimmerBox(width: 24, height: 12)
-                    : Text(
-                        userNbMatchsRegardes?.toString() ?? '0',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+            ProfileStatTile(
+              label: 'Matchs',
+              labelHeight: statsLabelHeight,
+              valueWidget: isLoadingNbMatchsRegardes
+                  ? const _ShimmerBox(width: 24, height: 12)
+                  : Text(
+                      userNbMatchsRegardes?.toString() ?? '0',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: ColorPalette.textPrimary(context),
                       ),
-              ),
+                    ),
             ),
-            Flexible(
-              child: ProfileStatTile(
-                label: 'Buts',
-                labelHeight: statsLabelHeight,
-                valueWidget: isLoadingNbButs
-                    ? const _ShimmerBox(width: 24, height: 12)
-                    : Text(
-                        userNbButs?.toString() ?? '0',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.center,
+                child: ProfileStatTile(
+                  label: 'Buts',
+                  labelHeight: statsLabelHeight,
+                  valueWidget: isLoadingNbButs
+                      ? const _ShimmerBox(width: 24, height: 12)
+                      : Text(
+                          userNbButs?.toString() ?? '0',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
+                ),
               ),
             ),
           ],
@@ -405,8 +449,8 @@ class _HeaderShimmer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
+        baseColor: ColorPalette.primary(context),
+        highlightColor: ColorPalette.secondary(context),
         child: Column(
           children: [
             Row(
@@ -414,8 +458,10 @@ class _HeaderShimmer extends StatelessWidget {
                 Container(
                   width: 88,
                   height: 88,
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.white),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: ColorPalette.tertiary(context),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -423,19 +469,36 @@ class _HeaderShimmer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                          height: 20,
-                          width: double.infinity,
-                          color: Colors.white),
+                        height: 20,
+                        width: double.infinity,
+                        color: ColorPalette.primary(context),
+                      ),
                       const SizedBox(height: 8),
-                      Container(height: 14, width: 150, color: Colors.white),
+                      Container(
+                        height: 14,
+                        width: 150,
+                        color: ColorPalette.primary(context),
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Container(width: 62, height: 40, color: Colors.white),
+                          Container(
+                            width: 62,
+                            height: 40,
+                            color: ColorPalette.primary(context),
+                          ),
                           const SizedBox(width: 8),
-                          Container(width: 62, height: 40, color: Colors.white),
+                          Container(
+                            width: 62,
+                            height: 40,
+                            color: ColorPalette.primary(context),
+                          ),
                           const SizedBox(width: 8),
-                          Container(width: 62, height: 40, color: Colors.white),
+                          Container(
+                            width: 62,
+                            height: 40,
+                            color: ColorPalette.primary(context),
+                          ),
                         ],
                       )
                     ],
@@ -458,12 +521,12 @@ class _ShimmerBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: ColorPalette.primary(context),
+      highlightColor: ColorPalette.secondary(context),
       child: Container(
         width: width,
         height: height,
-        color: Colors.white,
+        color: ColorPalette.tertiary(context),
       ),
     );
   }
@@ -478,7 +541,9 @@ class _FriendBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
-        color: isFriend ? Colors.green : Colors.blue,
+        color: isFriend
+            ? ColorPalette.primary(context)
+            : ColorPalette.accent(context),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -487,13 +552,13 @@ class _FriendBadge extends StatelessWidget {
           Icon(
             isFriend ? Icons.person : Icons.add,
             size: 14,
-            color: Colors.white,
+            color: ColorPalette.primary(context),
           ),
           if (isFriend)
-            const Icon(
+            Icon(
               Icons.check,
               size: 12,
-              color: Colors.white,
+              color: ColorPalette.primary(context),
             ),
         ],
       ),

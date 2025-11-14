@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 
 class MatchsFavoris extends StatelessWidget {
   final List<String>? matchsFavorisId;
   final bool isLoading;
 
-  const MatchsFavoris({super.key, required this.matchsFavorisId, this.isLoading = false});
+  const MatchsFavoris(
+      {super.key, required this.matchsFavorisId, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +27,13 @@ class MatchsFavoris extends StatelessWidget {
       children: [
         Text(
           'Matchs favoris',
-          style: Theme.of(context).textTheme.titleMedium,
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
         ),
         const SizedBox(height: 8),
         MatchList(
           ids: ids,
-          // Pas de header ici
         ),
       ],
     );

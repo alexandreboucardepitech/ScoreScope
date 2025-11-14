@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 
 class ProfileScrolledTitle extends StatelessWidget {
   final String username;
@@ -24,34 +25,70 @@ class ProfileScrolledTitle extends StatelessWidget {
           child: Text(
             username,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(
+              fontSize: 16,
+              color: ColorPalette.textPrimary(context),
+            ),
           ),
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(nbAmis, style: const TextStyle(fontSize: 16)),
+            Text(
+              nbAmis,
+              style: TextStyle(
+                fontSize: 16,
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
             const SizedBox(width: 4),
-            const Text('amis',
-                style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Text(
+              'amis',
+              style: TextStyle(
+                fontSize: 14,
+                color: ColorPalette.textSecondary(context),
+              ),
+            ),
           ],
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(nbMatchs, style: const TextStyle(fontSize: 16)),
+            Text(
+              nbMatchs,
+              style: TextStyle(
+                fontSize: 16,
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
             const SizedBox(width: 4),
-            const Text('matchs',
-                style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Text(
+              'matchs',
+              style: TextStyle(
+                fontSize: 14,
+                color: ColorPalette.textSecondary(context),
+              ),
+            ),
           ],
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(nbButs, style: const TextStyle(fontSize: 16)),
+            Text(
+              nbButs,
+              style: TextStyle(
+                fontSize: 16,
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
             const SizedBox(width: 4),
-            const Text('buts',
-                style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Text(
+              'buts',
+              style: TextStyle(
+                fontSize: 14,
+                color: ColorPalette.textSecondary(context),
+              ),
+            ),
           ],
         ),
       ],

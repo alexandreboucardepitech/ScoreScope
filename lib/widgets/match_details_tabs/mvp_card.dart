@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import '../../models/joueur.dart';
 
 class MvpCard extends StatefulWidget {
@@ -111,18 +112,20 @@ class _MvpCardState extends State<MvpCard> {
     } else if (player != null) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.grey.shade200,
+        backgroundColor: ColorPalette.tertiary(context),
         child: Text(
           _initiales(player),
-          style:
-              const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: ColorPalette.textPrimary(context),
+          ),
         ),
       );
     } else {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.grey.shade200,
-        child: Icon(Icons.person, color: Colors.grey.shade700),
+        backgroundColor: ColorPalette.tertiary(context),
+        child: Icon(Icons.person, color: ColorPalette.accent(context)),
       );
     }
   }
@@ -141,11 +144,11 @@ class _MvpCardState extends State<MvpCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // TITRE
             Text(
               'MVP du match',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: ColorPalette.textPrimary(context),
                   ),
             ),
 
@@ -168,8 +171,11 @@ class _MvpCardState extends State<MvpCard> {
                       if (mvp != null) ...[
                         Text(
                           mvp.fullName,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: ColorPalette.textAccent(context),
+                          ),
                         ),
                         const SizedBox(height: 4),
                         if (_loadingEquipe)
@@ -186,7 +192,7 @@ class _MvpCardState extends State<MvpCard> {
                                 'Chargement équipe...',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.grey.shade700,
+                                  color: ColorPalette.tertiary(context),
                                 ),
                               ),
                             ],
@@ -195,28 +201,40 @@ class _MvpCardState extends State<MvpCard> {
                           Text(
                             'Équipe indisponible',
                             style: TextStyle(
-                                fontSize: 13,
-                                color: Theme.of(context).colorScheme.error),
+                              fontSize: 13,
+                              color: Colors.red,
+                            ),
                           )
                         else if (mvpEquipe != null)
                           Text(
                             mvpEquipe!.nom,
                             style: TextStyle(
-                                fontSize: 13, color: Colors.grey.shade700),
+                              fontSize: 13,
+                              color: ColorPalette.accent(context),
+                            ),
                           )
                         else
                           Text(
                             'Sois le premier à voter !',
                             style: TextStyle(
-                                fontSize: 13, color: Colors.grey.shade700),
+                              fontSize: 13,
+                              color: ColorPalette.textAccent(context),
+                            ),
                           ),
                       ] else ...[
-                        const Text('Aucun MVP élu',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600)),
-                        Text('Sois le premier à voter !',
-                            style: TextStyle(
-                                fontSize: 13, color: Colors.grey.shade700)),
+                        Text(
+                          'Aucun MVP élu',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: ColorPalette.textPrimary(context)),
+                        ),
+                        Text(
+                          'Sois le premier à voter !',
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: ColorPalette.textSecondary(context)),
+                        ),
                       ],
 
                       const SizedBox(height: 6),
@@ -226,8 +244,9 @@ class _MvpCardState extends State<MvpCard> {
                         Text(
                           'Votre vote : ${widget.userVote!.fullName}',
                           style: TextStyle(
-                              fontSize: 13,
-                              color: Theme.of(context).colorScheme.primary),
+                            fontSize: 13,
+                            color: ColorPalette.accent(context),
+                          ),
                         ),
                     ],
                   ),
@@ -238,7 +257,12 @@ class _MvpCardState extends State<MvpCard> {
                   onPressed: widget.onVotePressed ?? () {},
                   icon: Icon(hasUserVoted ? Icons.refresh : Icons.how_to_vote,
                       size: 18),
-                  label: Text(buttonLabel),
+                  label: Text(
+                    buttonLabel,
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(context),
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

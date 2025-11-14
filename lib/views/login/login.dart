@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/main.dart';
 import 'package:scorescope/services/web/auth_service.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/views/login/sign_up.dart';
 
 class LoginView extends StatefulWidget {
@@ -19,8 +20,16 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _handleEmailSignIn() async {
@@ -85,7 +94,14 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Connexion')),
+      appBar: AppBar(
+        title: Text(
+          'Connexion',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
@@ -127,7 +143,12 @@ class _LoginViewState extends State<LoginView> {
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text('Se connecter'),
+                          : Text(
+                              'Se connecter',
+                              style: TextStyle(
+                                color: ColorPalette.textPrimary(context),
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -135,7 +156,12 @@ class _LoginViewState extends State<LoginView> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       icon: Icon(Icons.calculate),
-                      label: const Text('Se connecter avec Google'),
+                      label: Text(
+                        'Se connecter avec Google',
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                        ),
+                      ),
                       onPressed: _loading ? null : _handleGoogleSignIn,
                     ),
                   ),
@@ -156,7 +182,12 @@ class _LoginViewState extends State<LoginView> {
                               ),
                             );
                           },
-                    child: const Text("Créer un compte"),
+                    child: Text(
+                      "Créer un compte",
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(context),
+                      ),
+                    ),
                   ),
                 ],
               ),

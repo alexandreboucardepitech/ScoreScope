@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_tile.dart';
 
 class MatchList extends StatefulWidget {
@@ -133,7 +134,14 @@ class _MatchListState extends State<MatchList> {
     } else if (_error != null) {
       content = Center(child: Text('Erreur: $_error'));
     } else if (items == null || items.isEmpty) {
-      content = const Center(child: Text('Aucun match enregistré'));
+      content = Center(
+        child: Text(
+          'Aucun match enregistré',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+      );
     } else {
       final totalCount = items.length + (hasHeader ? 1 : 0);
       content = MediaQuery.removePadding(
@@ -145,7 +153,7 @@ class _MatchListState extends State<MatchList> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: totalCount,
           separatorBuilder: (_, __) =>
-              const Divider(color: Colors.black12, height: 1),
+              Divider(color: ColorPalette.border(context), height: 1),
           itemBuilder: (ctx, idx) {
             if (hasHeader && idx == 0) {
               return _buildHeaderTile(context, child: widget.header);
@@ -160,21 +168,20 @@ class _MatchListState extends State<MatchList> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
+        border: Border.all(color: ColorPalette.border(context)),
         borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).secondaryHeaderColor,
+        color: ColorPalette.background(context),
       ),
       child: content,
     );
   }
 
   Widget _buildHeaderTile(BuildContext context, {Widget? child}) {
-    final bg = Theme.of(context).secondaryHeaderColor;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       decoration: BoxDecoration(
-        color: bg,
+        color: ColorPalette.background(context),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

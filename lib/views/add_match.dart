@@ -5,6 +5,7 @@ import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repositories/i_equipe_repository.dart';
 import 'package:scorescope/services/repositories/i_joueur_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/utils/joueur_name_parser.dart';
 import '../models/match.dart';
 import '../models/equipe.dart';
@@ -14,8 +15,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class AddMatchView extends StatefulWidget {
   ///////// REPOSITORY /////////
-  final IEquipeRepository equipeRepository = RepositoryProvider.equipeRepository;
-  final IJoueurRepository joueurRepository = RepositoryProvider.joueurRepository;
+  final IEquipeRepository equipeRepository =
+      RepositoryProvider.equipeRepository;
+  final IJoueurRepository joueurRepository =
+      RepositoryProvider.joueurRepository;
 
   AddMatchView({super.key});
 
@@ -273,7 +276,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                 errorStyle: const TextStyle(height: 0),
                 labelText: labelText,
                 filled: true,
-                fillColor: theme.secondaryHeaderColor,
+                fillColor: ColorPalette.secondary(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
@@ -296,9 +299,9 @@ class _AddMatchViewState extends State<AddMatchView> {
       itemBuilder: (context, Equipe suggestion) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.black, width: 1)),
-          ),
+          // decoration: BoxDecoration(
+          //   border: Border(bottom: BorderSide(color: ColorPalette.border(context), width: 1)),
+          // ),
           child: Row(
             children: [
               Expanded(
@@ -310,7 +313,8 @@ class _AddMatchViewState extends State<AddMatchView> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         suggestion.nom,
-                        style: const TextStyle(color: Colors.black),
+                        style:
+                            TextStyle(color: ColorPalette.textPrimary(context)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -321,8 +325,9 @@ class _AddMatchViewState extends State<AddMatchView> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           suggestion.code!,
-                          style: const TextStyle(
-                              color: Colors.black, fontSize: 12),
+                          style: TextStyle(
+                              color: ColorPalette.textPrimary(context),
+                              fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -350,8 +355,8 @@ class _AddMatchViewState extends State<AddMatchView> {
             return Container(
               decoration: hasFocus
                   ? BoxDecoration(
-                      color: theme.secondaryHeaderColor,
-                      border: Border.all(color: const Color(0xFF6750A4)),
+                      color: ColorPalette.secondary(context),
+                      border: Border.all(color: ColorPalette.border(context)),
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(10),
                         bottomRight: Radius.circular(10),
@@ -381,8 +386,8 @@ class _AddMatchViewState extends State<AddMatchView> {
         msg: "Le nombre de buts ne peut pas dépasser le score ! ($score)",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.black54,
-        textColor: Colors.white,
+        backgroundColor: ColorPalette.background(context),
+        textColor: ColorPalette.textPrimary(context),
       );
       _formFocusScopeNode.unfocus();
     }
@@ -450,7 +455,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                                   errorStyle: const TextStyle(height: 0),
                                   labelText: 'Buteur ${index + 1}',
                                   filled: true,
-                                  fillColor: theme.secondaryHeaderColor,
+                                  fillColor: ColorPalette.secondary(context),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -461,16 +466,20 @@ class _AddMatchViewState extends State<AddMatchView> {
                               final q = buteursControllers[index].text;
                               if (q.length < 3) return [];
                               return await widget.joueurRepository
-                                  .searchJoueurs(q, equipeId: selectedEquipe?.id);
+                                  .searchJoueurs(q,
+                                      equipeId: selectedEquipe?.id);
                             },
                             itemBuilder: (context, Joueur suggestion) {
                               return Container(
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 6, horizontal: 8),
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   border: Border(
-                                      bottom: BorderSide(
-                                          color: Colors.black, width: 1)),
+                                    bottom: BorderSide(
+                                      color: ColorPalette.border(context),
+                                      width: 1,
+                                    ),
+                                  ),
                                 ),
                                 child: Row(
                                   children: [
@@ -492,8 +501,11 @@ class _AddMatchViewState extends State<AddMatchView> {
                                             alignment: Alignment.centerLeft,
                                             child: Text(
                                               suggestion.fullName,
-                                              style: const TextStyle(
-                                                  color: Colors.black),
+                                              style: TextStyle(
+                                                color: ColorPalette.textPrimary(
+                                                  context,
+                                                ),
+                                              ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
@@ -529,9 +541,9 @@ class _AddMatchViewState extends State<AddMatchView> {
                             //       return Container(
                             //         decoration: hasFocus
                             //             ? BoxDecoration(
-                            //                 color: theme.secondaryHeaderColor,
+                            //                 color: ColorPalette.secondary(context),
                             //                 border: Border.all(
-                            //                     color: const Color(0xFF6750A4)),
+                            //                     color: ColorPalette.border(context)),
                             //                 borderRadius:
                             //                     const BorderRadius.only(
                             //                   bottomLeft: Radius.circular(10),
@@ -579,7 +591,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                               },
                               decoration: InputDecoration(
                                 filled: true,
-                                fillColor: theme.secondaryHeaderColor,
+                                fillColor: ColorPalette.secondary(context),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10)),
                               ),
@@ -625,10 +637,15 @@ class _AddMatchViewState extends State<AddMatchView> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text("Nouveau match"),
-        backgroundColor: theme.primaryColor,
+        title: Text(
+          "Nouveau match",
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+        backgroundColor: ColorPalette.background(context),
       ),
-      backgroundColor: theme.primaryColor,
+      backgroundColor: ColorPalette.background(context),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -641,7 +658,6 @@ class _AddMatchViewState extends State<AddMatchView> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Équipe domicile
                     Expanded(
                       child: buildEquipeTypeAhead(
                         controller: _equipeDomicileController,
@@ -660,7 +676,6 @@ class _AddMatchViewState extends State<AddMatchView> {
 
                     const SizedBox(width: 8),
 
-                    // Score domicile
                     SizedBox(
                       width: 45,
                       child: TextFormField(
@@ -682,7 +697,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         decoration: InputDecoration(
                           hintText: "0",
                           filled: true,
-                          fillColor: theme.secondaryHeaderColor,
+                          fillColor: ColorPalette.secondary(context),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(
@@ -695,13 +710,14 @@ class _AddMatchViewState extends State<AddMatchView> {
                       ),
                     ),
 
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: 6),
                       child: Text(
                         "-",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
+                          color: ColorPalette.textPrimary(context),
                         ),
                       ),
                     ),
@@ -724,7 +740,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         decoration: InputDecoration(
                           hintText: "0",
                           filled: true,
-                          fillColor: theme.secondaryHeaderColor,
+                          fillColor: ColorPalette.secondary(context),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(
@@ -773,7 +789,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         decoration: InputDecoration(
                           labelText: 'Compétition',
                           filled: true,
-                          fillColor: theme.secondaryHeaderColor,
+                          fillColor: ColorPalette.secondary(context),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
@@ -797,7 +813,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         decoration: InputDecoration(
                           labelText: 'Date',
                           filled: true,
-                          fillColor: theme.secondaryHeaderColor,
+                          fillColor: ColorPalette.secondary(context),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
@@ -811,18 +827,19 @@ class _AddMatchViewState extends State<AddMatchView> {
                               return Theme(
                                 data: Theme.of(context).copyWith(
                                   colorScheme: ColorScheme.light(
-                                    primary: theme.primaryColor,
-                                    onPrimary: Colors
-                                        .white, // couleur du texte du header
-                                    onSurface: Colors
-                                        .black, // couleur du texte du calendrier
+                                    primary: ColorPalette.primary(context),
+                                    onPrimary:
+                                        ColorPalette.textPrimary(context),
+                                    onSurface: ColorPalette.opposite(context),
                                   ),
                                   textButtonTheme: TextButtonThemeData(
                                     style: TextButton.styleFrom(
-                                      foregroundColor: theme.primaryColor,
+                                      foregroundColor:
+                                          ColorPalette.primary(context),
                                     ),
                                   ),
-                                  scaffoldBackgroundColor: theme.primaryColor,
+                                  scaffoldBackgroundColor:
+                                      ColorPalette.background(context),
                                 ),
                                 child: child!,
                               );
@@ -851,10 +868,11 @@ class _AddMatchViewState extends State<AddMatchView> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: _showDom
-                              ? theme.focusColor
-                              : theme.secondaryHeaderColor,
+                              ? ColorPalette.primary(context)
+                              : ColorPalette.secondary(context),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black),
+                          border:
+                              Border.all(color: ColorPalette.border(context)),
                         ),
                         child: TextButton(
                           onPressed: () {
@@ -881,7 +899,10 @@ class _AddMatchViewState extends State<AddMatchView> {
                                 _equipeDomicileController.text.isNotEmpty
                                     ? "Buteurs ${_equipeDomicileController.text}"
                                     : "Buteurs domicile",
-                                style: const TextStyle(fontSize: 16),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ColorPalette.textPrimary(context),
+                                ),
                                 maxLines: 1,
                               ),
                             ),
@@ -894,10 +915,11 @@ class _AddMatchViewState extends State<AddMatchView> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: _showExt
-                              ? theme.focusColor
-                              : theme.secondaryHeaderColor,
+                              ? ColorPalette.primary(context)
+                              : ColorPalette.secondary(context),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black),
+                          border:
+                              Border.all(color: ColorPalette.border(context)),
                         ),
                         child: TextButton(
                           onPressed: () {
@@ -923,7 +945,10 @@ class _AddMatchViewState extends State<AddMatchView> {
                                 _equipeExterieurController.text.isNotEmpty
                                     ? "Buteurs ${_equipeExterieurController.text}"
                                     : "Buteurs extérieur",
-                                style: const TextStyle(fontSize: 16),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ColorPalette.textPrimary(context),
+                                ),
                                 maxLines: 1,
                               ),
                             ),
@@ -963,7 +988,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                 // Bouton valider
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.secondaryHeaderColor,
+                    backgroundColor: ColorPalette.secondary(context),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1003,11 +1028,14 @@ class _AddMatchViewState extends State<AddMatchView> {
                       Navigator.pop(context, newMatch);
                     }
                   },
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Text(
                       "Ajouter le match",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: ColorPalette.textPrimary(context),
+                      ),
                     ),
                   ),
                 ),

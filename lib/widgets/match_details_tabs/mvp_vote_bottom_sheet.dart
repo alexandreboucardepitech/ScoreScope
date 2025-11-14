@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import '../../models/match.dart';
 import '../../models/joueur.dart';
 
@@ -10,7 +11,7 @@ Future<Joueur?> showVoteBottomSheet({
   return showModalBottomSheet<Joueur?>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.white,
+    backgroundColor: ColorPalette.background(context),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
@@ -64,15 +65,18 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: isUserVote
             ? BoxDecoration(
-                color: Colors.blue.withAlpha(15),
+                color: ColorPalette.primary(context).withAlpha(15),
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.blue.withAlpha(10),
+                      color: ColorPalette.secondary(context).withAlpha(10),
                       blurRadius: 6,
                       offset: Offset(0, 2))
                 ],
-                border: Border.all(color: Colors.blue.withAlpha(38)))
+                border: Border.all(
+                  color: ColorPalette.border(context).withAlpha(38),
+                ),
+              )
             : null,
         child: Row(
           children: [
@@ -83,7 +87,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                   tag: 'avatar-${joueur.id}',
                   child: CircleAvatar(
                     radius: 20,
-                    backgroundColor: Colors.grey.shade200,
+                    backgroundColor: ColorPalette.tertiary(context),
                     backgroundImage: joueur.picture.startsWith('http')
                         ? NetworkImage(joueur.picture) as ImageProvider
                         : AssetImage(joueur.picture),
@@ -95,14 +99,24 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
+                      color: ColorPalette.tertiary(context),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
-                      children: const [
-                        Icon(Icons.star, size: 12, color: Colors.green),
+                      children: [
+                        Icon(
+                          Icons.star,
+                          size: 12,
+                          color: ColorPalette.accent(context),
+                        ),
                         SizedBox(width: 4),
-                        Text('Voté', style: TextStyle(fontSize: 11)),
+                        Text(
+                          'Voté',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: ColorPalette.textAccent(context),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -113,14 +127,19 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(joueur.fullName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(
+                    joueur.fullName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: ColorPalette.textAccent(context),
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
                       Icon(Icons.emoji_events,
-                          size: 16, color: Colors.amber.shade700),
+                          size: 16, color: ColorPalette.accent(context)),
                       const SizedBox(width: 6),
                       Text(
                         getNbVotesWithUserVote(
@@ -130,7 +149,9 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 currentUserVote: currentUserVote)
                             .toString(),
                         style: TextStyle(
-                            fontSize: 13, color: Colors.grey.shade700),
+                          fontSize: 13,
+                          color: ColorPalette.secondary(context),
+                        ),
                       ),
                     ],
                   ),
@@ -156,11 +177,13 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
           children: [
             const SizedBox(height: 8),
             Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2))),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: ColorPalette.background(context),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             const SizedBox(height: 12),
             // Animated currentUserVote en haut (même code que toi, mais utilise currentUserVote d'ici)
             Padding(
@@ -185,7 +208,8 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 tag: 'avatar-${currentUserVote!.id}',
                                 child: CircleAvatar(
                                   radius: 28,
-                                  backgroundColor: Colors.grey.shade200,
+                                  backgroundColor:
+                                      ColorPalette.tertiary(context),
                                   backgroundImage: currentUserVote!.picture
                                           .startsWith('http')
                                       ? NetworkImage(currentUserVote!.picture)
@@ -198,16 +222,22 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(currentUserVote!.fullName,
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
+                                    Text(
+                                      currentUserVote!.fullName,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: ColorPalette.textAccent(context),
+                                      ),
+                                    ),
                                     const SizedBox(height: 6),
                                     Row(
                                       children: [
-                                        Icon(Icons.emoji_events,
-                                            size: 16,
-                                            color: Colors.amber.shade700),
+                                        Icon(
+                                          Icons.emoji_events,
+                                          size: 16,
+                                          color: ColorPalette.accent(context),
+                                        ),
                                         const SizedBox(width: 6),
                                         Text(
                                           getNbVotesWithUserVote(
@@ -220,7 +250,8 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                               .toString(),
                                           style: TextStyle(
                                               fontSize: 13,
-                                              color: Colors.grey.shade700),
+                                              color: ColorPalette.tertiary(
+                                                  context)),
                                         ),
                                       ],
                                     )
@@ -231,7 +262,12 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 onPressed: () =>
                                     Navigator.of(context).pop(currentUserVote),
                                 icon: const Icon(Icons.how_to_vote),
-                                label: const Text('Valider'),
+                                label: Text(
+                                  'Valider',
+                                  style: TextStyle(
+                                    color: ColorPalette.textAccent(context),
+                                  ),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
@@ -246,11 +282,16 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
-                            children: const [
+                            children: [
                               SizedBox(width: 8),
                               Expanded(
-                                  child: Text('Aucun joueur sélectionné',
-                                      style: TextStyle(color: Colors.grey))),
+                                child: Text(
+                                  'Aucun joueur sélectionné',
+                                  style: TextStyle(
+                                    color: ColorPalette.tertiary(context),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -260,11 +301,17 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(children: const [
+              child: Row(children: [
                 Expanded(
-                    child: Text('Sélectionnez un joueur pour voter',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold))),
+                  child: Text(
+                    'Sélectionnez un joueur pour voter',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalette.textPrimary(context),
+                    ),
+                  ),
+                ),
               ]),
             ),
             const SizedBox(height: 12),
@@ -278,11 +325,16 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Text(widget.match.equipeDomicile.nom,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold))),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              widget.match.equipeDomicile.nom,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ColorPalette.textPrimary(context),
+                              ),
+                            ),
+                          ),
                           const Divider(height: 1),
                           Expanded(
                             child: ListView.separated(
@@ -302,19 +354,25 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                       ),
                     ),
                     Container(
-                        width: 1,
-                        height: double.infinity,
-                        color: Colors.grey.shade300),
+                      width: 1,
+                      height: double.infinity,
+                      color: ColorPalette.background(context),
+                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Text(widget.match.equipeExterieur.nom,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold))),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              widget.match.equipeExterieur.nom,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ColorPalette.textPrimary(context),
+                              ),
+                            ),
+                          ),
                           const Divider(height: 1),
                           Expanded(
                             child: ListView.separated(
@@ -343,13 +401,26 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
               child: Row(
                 children: [
                   Expanded(
-                      child: OutlinedButton(
-                          onPressed: () => Navigator.of(context).pop(null),
-                          child: const Text('Annuler'))),
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(null),
+                      child: Text(
+                        'Annuler',
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 12),
                   TextButton(
-                      onPressed: () => setState(() => currentUserVote = null),
-                      child: const Text('Vider')),
+                    onPressed: () => setState(() => currentUserVote = null),
+                    child: Text(
+                      'Vider',
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(context),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

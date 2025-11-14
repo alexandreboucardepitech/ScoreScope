@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:scorescope/models/match.dart';
@@ -81,8 +82,21 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Derniers matchs ajoutés'),
-            TextButton(onPressed: () {}, child: const Text('Voir plus'))
+            Text(
+              'Derniers matchs ajoutés',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                'Voir plus',
+                style: TextStyle(
+                  color: ColorPalette.textSecondary(context),
+                ),
+              ),
+            )
           ],
         ),
         const SizedBox(height: 8),
@@ -96,8 +110,8 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
+          baseColor: ColorPalette.primary(context),
+          highlightColor: ColorPalette.secondary(context),
           child: Column(
             children: List.generate(
               5,
@@ -123,21 +137,25 @@ class _MatchShimmerTile extends StatelessWidget {
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: ColorPalette.primary(context),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          Container(width: 40, height: 40, color: Colors.white),
+          Container(
+              width: 40, height: 40, color: ColorPalette.background(context)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(height: 12, color: Colors.white),
+                Container(height: 12, color: ColorPalette.background(context)),
                 const SizedBox(height: 6),
-                Container(height: 12, width: 80, color: Colors.white),
+                Container(
+                    height: 12,
+                    width: 80,
+                    color: ColorPalette.background(context)),
               ],
             ),
           ),

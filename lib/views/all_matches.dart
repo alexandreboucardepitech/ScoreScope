@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 import '../services/repositories/i_match_repository.dart';
 import '../models/match.dart';
@@ -29,10 +30,15 @@ class _AllMatchesViewState extends State<AllMatchesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: ColorPalette.background(context),
       appBar: AppBar(
-        title: Text("Matchs regardés"),
-        backgroundColor: Theme.of(context).primaryColor,
+        title: Text(
+          "Matchs regardés",
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+        backgroundColor: ColorPalette.background(context),
       ),
       body: FutureBuilder<List<Match>>(
         future: _futureMatches,
@@ -47,11 +53,13 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               matches: matches,
               header: Row(
                 children: [
-                  Icon(Icons.star, color: Colors.amber),
+                  Icon(Icons.star, color: ColorPalette.accent(context)),
                   const SizedBox(width: 8),
                   Text(
                     'Matchs favoris',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(context),
+                    ),
                   ),
                 ],
               ),
@@ -73,7 +81,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             });
           }
         },
-        backgroundColor: Theme.of(context).secondaryHeaderColor,
+        backgroundColor: ColorPalette.secondary(context),
         child: Icon(Icons.add),
       ),
     );

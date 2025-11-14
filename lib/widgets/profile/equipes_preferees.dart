@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/utils/couleur_from_hexa.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -126,7 +127,12 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Équipes préférées'),
+        Text(
+          'Équipes préférées',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -155,12 +161,13 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
+        baseColor: ColorPalette.primary(context),
+        highlightColor: ColorPalette.secondary(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 16, width: 160, color: Colors.white),
+            Container(
+                height: 16, width: 160, color: ColorPalette.primary(context)),
             const SizedBox(height: 8),
             GridView.builder(
               itemCount: 4,
@@ -190,17 +197,25 @@ class _EquipeCellShimmer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).cardColor,
+        color: ColorPalette.primary(context),
       ),
       child: Row(
         children: [
           Container(
-              width: 24,
-              height: 24,
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Colors.white)),
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: ColorPalette.background(context),
+            ),
+          ),
           const SizedBox(width: 8),
-          Expanded(child: Container(height: 12, color: Colors.white)),
+          Expanded(
+            child: Container(
+              height: 12,
+              color: ColorPalette.background(context),
+            ),
+          ),
         ],
       ),
     );
@@ -221,15 +236,16 @@ class EquipePrefereeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primary = equipe.couleurPrincipale != null
+    final Color equipePrimary = equipe.couleurPrincipale != null
         ? fromHex(equipe.couleurPrincipale!)
-        : Theme.of(context).cardColor;
-    final Color secondary = equipe.couleurSecondaire != null
+        : ColorPalette.primary(context);
+    final Color equipeSecondary = equipe.couleurSecondaire != null
         ? fromHex(equipe.couleurSecondaire!)
-        : Colors.grey;
+        : ColorPalette.secondary(context);
 
-    final Color textColor =
-        primary.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+    final Color equipeTextColor = equipePrimary.computeLuminance() > 0.5
+        ? ColorPalette.textPrimaryLight
+        : ColorPalette.textPrimaryDark;
 
     return InkWell(
       onTap: () {},
@@ -237,8 +253,8 @@ class EquipePrefereeTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: primary,
-          border: Border.all(color: secondary, width: 3),
+          color: equipePrimary,
+          border: Border.all(color: equipeSecondary, width: 3),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -264,7 +280,9 @@ class EquipePrefereeTile extends StatelessWidget {
                       equipe.nom,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                          color: textColor, fontWeight: FontWeight.w600),
+                        color: equipeTextColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -273,9 +291,11 @@ class EquipePrefereeTile extends StatelessWidget {
                       width: 80,
                       height: 14,
                       child: Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(color: Colors.white),
+                        baseColor: ColorPalette.primary(context),
+                        highlightColor: ColorPalette.secondary(context),
+                        child: Container(
+                          color: ColorPalette.background(context),
+                        ),
                       ),
                     )
                   else
@@ -285,8 +305,9 @@ class EquipePrefereeTile extends StatelessWidget {
                       child: Text(
                         '$nbMatchsRegardes matchs regardés',
                         style: TextStyle(
-                            fontSize: 12,
-                            color: textColor.withValues(alpha: 0.85)),
+                          fontSize: 12,
+                          color: equipeTextColor.withValues(alpha: 0.85),
+                        ),
                       ),
                     ),
                 ],

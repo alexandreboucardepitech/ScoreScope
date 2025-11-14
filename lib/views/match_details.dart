@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/Color_palette.dart';
 import 'package:scorescope/widgets/match_details_tabs/infos.dart';
 import '../models/match.dart';
 import '../utils/get_lignes_buteurs.dart';
@@ -41,14 +42,22 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         elevation: 0,
         toolbarHeight: toolbarHeight,
         leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back, color: ColorPalette.primary(context)),
             onPressed: () => Navigator.pop(context)),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.black),
+            icon: Icon(Icons.more_vert, color: ColorPalette.primary(context)),
             onSelected: (value) {},
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'partager', child: Text('Partager')),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'partager',
+                child: Text(
+                  'Partager',
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -56,12 +65,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       body: Column(
         children: [
           Container(
-            color: Colors.green.shade400,
-            padding: EdgeInsets.fromLTRB(
-                16,
-                statusBarHeight + toolbarHeight,
-                16,
-                0),
+            color: ColorPalette.primary(context),
+            padding:
+                EdgeInsets.fromLTRB(16, statusBarHeight + toolbarHeight, 16, 0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -84,12 +90,15 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                         widget.match.equipeDomicile.logoPath!,
                                         fit: BoxFit.contain)),
                                 const SizedBox(height: 6),
-                                Text(widget.match.equipeDomicile.nom,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black)),
+                                Text(
+                                  widget.match.equipeDomicile.nom,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -97,10 +106,11 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                             child: Text(
                               '${widget.match.scoreEquipeDomicile} - ${widget.match.scoreEquipeExterieur}',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: ColorPalette.textPrimary(context),
+                              ),
                             ),
                           ),
                           Expanded(
@@ -114,12 +124,15 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                         widget.match.equipeExterieur.logoPath!,
                                         fit: BoxFit.contain)),
                                 const SizedBox(height: 6),
-                                Text(widget.match.equipeExterieur.nom,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black)),
+                                Text(
+                                  widget.match.equipeExterieur.nom,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -142,8 +155,16 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                       buts: widget.match.butsEquipeDomicile,
                                       domicile: true,
                                       fullName: false)
-                                  .map((line) => Text(line,
-                                      style: const TextStyle(fontSize: 12)))
+                                  .map(
+                                    (line) => Text(
+                                      line,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color:
+                                            ColorPalette.textSecondary(context),
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                             ),
                           ),
@@ -170,8 +191,16 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                       buts: widget.match.butsEquipeExterieur,
                                       domicile: false,
                                       fullName: false)
-                                  .map((line) => Text(line,
-                                      style: const TextStyle(fontSize: 12)))
+                                  .map(
+                                    (line) => Text(
+                                      line,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color:
+                                            ColorPalette.textSecondary(context),
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                             ),
                           ),
@@ -187,9 +216,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                 const SizedBox(height: 12),
                 TabBar(
                   controller: _tabController,
-                  indicatorColor: Colors.black,
-                  labelColor: Colors.black,
-                  unselectedLabelColor: Colors.black54,
+                  indicatorColor: ColorPalette.primary(context),
+                  labelColor: ColorPalette.secondary(context),
+                  unselectedLabelColor: ColorPalette.tertiary(context),
                   tabs: const [
                     Tab(text: "Infos"),
                     Tab(text: "Stats"),
