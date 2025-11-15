@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
 import 'package:scorescope/widgets/profile/matchs_favoris.dart';
 import 'package:scorescope/widgets/profile/matchs_regardes.dart';
@@ -184,7 +184,7 @@ class _ProfileViewState extends State<ProfileView> {
           SliverAppBar(
             pinned: true,
             expandedHeight: _headerHeight > 0 ? _headerHeight : 300,
-            backgroundColor: ColorPalette.background(context),
+            // backgroundColor: ColorPalette.background(context),
             elevation: 0,
             leading: Padding(
               padding: const EdgeInsets.only(left: 10),
@@ -221,7 +221,7 @@ class _ProfileViewState extends State<ProfileView> {
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: ColorPalette.primary(context),
+              color: ColorPalette.background(context),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -273,36 +273,39 @@ class _ProfileViewState extends State<ProfileView> {
             ),
           ),
         ],
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                key: _equipesKey,
-                child: EquipesPreferees(
-                  teamsId: userEquipesPrefereesId,
-                  user: widget.user,
-                  isLoading: _isLoadingEquipesPreferees,
+        body: Container(
+          color: ColorPalette.background(context),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  key: _equipesKey,
+                  child: EquipesPreferees(
+                    teamsId: userEquipesPrefereesId,
+                    user: widget.user,
+                    isLoading: _isLoadingEquipesPreferees,
+                  ),
                 ),
-              ),
-              const Divider(height: 32),
-              Container(
-                key: _matchsRegardesKey,
-                child: MatchsRegardes(
-                  matchesId: userMatchsRegardesId,
-                  isLoading: _isLoadingMatchsRegardes,
+                const Divider(height: 32),
+                Container(
+                  key: _matchsRegardesKey,
+                  child: MatchsRegardes(
+                    matchesId: userMatchsRegardesId,
+                    isLoading: _isLoadingMatchsRegardes,
+                  ),
                 ),
-              ),
-              const Divider(height: 32),
-              Container(
-                key: _matchsFavorisKey,
-                child: MatchsFavoris(
-                  matchsFavorisId: userMatchsFavorisId,
-                  isLoading: _isLoadingMatchsFavoris,
+                const Divider(height: 32),
+                Container(
+                  key: _matchsFavorisKey,
+                  child: MatchsFavoris(
+                    matchsFavorisId: userMatchsFavorisId,
+                    isLoading: _isLoadingMatchsFavoris,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -359,7 +362,7 @@ class _Header extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: ColorPalette.textAccent(context),
+                      color: ColorPalette.textPrimary(context),
                     ),
               ),
             ),
@@ -449,8 +452,8 @@ class _HeaderShimmer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Shimmer.fromColors(
-        baseColor: ColorPalette.primary(context),
-        highlightColor: ColorPalette.secondary(context),
+        baseColor: ColorPalette.shimmerPrimary(context),
+        highlightColor: ColorPalette.shimmerSecondary(context),
         child: Column(
           children: [
             Row(
@@ -460,7 +463,7 @@ class _HeaderShimmer extends StatelessWidget {
                   height: 88,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: ColorPalette.tertiary(context),
+                    color: ColorPalette.surface(context),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -471,13 +474,13 @@ class _HeaderShimmer extends StatelessWidget {
                       Container(
                         height: 20,
                         width: double.infinity,
-                        color: ColorPalette.primary(context),
+                        color: ColorPalette.surface(context),
                       ),
                       const SizedBox(height: 8),
                       Container(
                         height: 14,
                         width: 150,
-                        color: ColorPalette.primary(context),
+                        color: ColorPalette.surface(context),
                       ),
                       const SizedBox(height: 12),
                       Row(
@@ -485,19 +488,19 @@ class _HeaderShimmer extends StatelessWidget {
                           Container(
                             width: 62,
                             height: 40,
-                            color: ColorPalette.primary(context),
+                            color: ColorPalette.surface(context),
                           ),
                           const SizedBox(width: 8),
                           Container(
                             width: 62,
                             height: 40,
-                            color: ColorPalette.primary(context),
+                            color: ColorPalette.surface(context),
                           ),
                           const SizedBox(width: 8),
                           Container(
                             width: 62,
                             height: 40,
-                            color: ColorPalette.primary(context),
+                            color: ColorPalette.surface(context),
                           ),
                         ],
                       )
@@ -521,12 +524,12 @@ class _ShimmerBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: ColorPalette.primary(context),
-      highlightColor: ColorPalette.secondary(context),
+      baseColor: ColorPalette.shimmerPrimary(context),
+      highlightColor: ColorPalette.shimmerSecondary(context),
       child: Container(
         width: width,
         height: height,
-        color: ColorPalette.tertiary(context),
+        color: ColorPalette.surface(context),
       ),
     );
   }
@@ -542,7 +545,7 @@ class _FriendBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
         color: isFriend
-            ? ColorPalette.primary(context)
+            ? ColorPalette.accentVariant(context)
             : ColorPalette.accent(context),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -552,13 +555,13 @@ class _FriendBadge extends StatelessWidget {
           Icon(
             isFriend ? Icons.person : Icons.add,
             size: 14,
-            color: ColorPalette.primary(context),
+            color: ColorPalette.textPrimary(context),
           ),
           if (isFriend)
             Icon(
               Icons.check,
               size: 12,
-              color: ColorPalette.primary(context),
+              color: ColorPalette.textPrimary(context),
             ),
         ],
       ),

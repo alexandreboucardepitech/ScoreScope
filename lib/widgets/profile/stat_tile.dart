@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class ProfileStatTile extends StatelessWidget {
   final String label;

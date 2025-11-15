@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class ProfileScrolledTitle extends StatelessWidget {
   final String username;

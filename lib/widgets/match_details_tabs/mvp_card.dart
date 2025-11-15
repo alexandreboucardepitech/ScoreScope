@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 import '../../models/joueur.dart';
 
 class MvpCard extends StatefulWidget {
@@ -112,7 +112,7 @@ class _MvpCardState extends State<MvpCard> {
     } else if (player != null) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: ColorPalette.tertiary(context),
+        backgroundColor: ColorPalette.pictureBackground(context),
         child: Text(
           _initiales(player),
           style: TextStyle(
@@ -124,7 +124,7 @@ class _MvpCardState extends State<MvpCard> {
     } else {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: ColorPalette.tertiary(context),
+        backgroundColor: ColorPalette.pictureBackground(context),
         child: Icon(Icons.person, color: ColorPalette.accent(context)),
       );
     }
@@ -192,7 +192,7 @@ class _MvpCardState extends State<MvpCard> {
                                 'Chargement équipe...',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: ColorPalette.tertiary(context),
+                                  color: ColorPalette.textSecondary(context),
                                 ),
                               ),
                             ],
@@ -227,7 +227,7 @@ class _MvpCardState extends State<MvpCard> {
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: ColorPalette.textPrimary(context)),
+                              color: ColorPalette.textSecondary(context)),
                         ),
                         Text(
                           'Sois le premier à voter !',

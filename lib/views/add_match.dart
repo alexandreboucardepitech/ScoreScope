@@ -5,8 +5,8 @@ import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repositories/i_equipe_repository.dart';
 import 'package:scorescope/services/repositories/i_joueur_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/Color_palette.dart';
-import 'package:scorescope/utils/joueur_name_parser.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/string/joueur_name_parser.dart';
 import '../models/match.dart';
 import '../models/equipe.dart';
 
@@ -275,8 +275,11 @@ class _AddMatchViewState extends State<AddMatchView> {
               decoration: InputDecoration(
                 errorStyle: const TextStyle(height: 0),
                 labelText: labelText,
+                labelStyle: TextStyle(
+                  color: ColorPalette.textPrimary(context),
+                ),
                 filled: true,
-                fillColor: ColorPalette.secondary(context),
+                fillColor: ColorPalette.tileBackground(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
@@ -355,7 +358,7 @@ class _AddMatchViewState extends State<AddMatchView> {
             return Container(
               decoration: hasFocus
                   ? BoxDecoration(
-                      color: ColorPalette.secondary(context),
+                      color: ColorPalette.tileBackground(context),
                       border: Border.all(color: ColorPalette.border(context)),
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(10),
@@ -455,7 +458,8 @@ class _AddMatchViewState extends State<AddMatchView> {
                                   errorStyle: const TextStyle(height: 0),
                                   labelText: 'Buteur ${index + 1}',
                                   filled: true,
-                                  fillColor: ColorPalette.secondary(context),
+                                  fillColor:
+                                      ColorPalette.tileBackground(context),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -591,9 +595,10 @@ class _AddMatchViewState extends State<AddMatchView> {
                               },
                               decoration: InputDecoration(
                                 filled: true,
-                                fillColor: ColorPalette.secondary(context),
+                                fillColor: ColorPalette.tileBackground(context),
                                 border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
                             ),
                           ),
@@ -697,7 +702,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         decoration: InputDecoration(
                           hintText: "0",
                           filled: true,
-                          fillColor: ColorPalette.secondary(context),
+                          fillColor: ColorPalette.tileBackground(context),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(
@@ -740,7 +745,10 @@ class _AddMatchViewState extends State<AddMatchView> {
                         decoration: InputDecoration(
                           hintText: "0",
                           filled: true,
-                          fillColor: ColorPalette.secondary(context),
+                          fillColor: ColorPalette.tileBackground(context),
+                          labelStyle: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                          ),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(
@@ -788,8 +796,11 @@ class _AddMatchViewState extends State<AddMatchView> {
                         controller: _competitionController,
                         decoration: InputDecoration(
                           labelText: 'Compétition',
+                          labelStyle: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                          ),
                           filled: true,
-                          fillColor: ColorPalette.secondary(context),
+                          fillColor: ColorPalette.tileBackground(context),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
@@ -813,7 +824,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         decoration: InputDecoration(
                           labelText: 'Date',
                           filled: true,
-                          fillColor: ColorPalette.secondary(context),
+                          fillColor: ColorPalette.tileBackground(context),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
                         ),
@@ -827,7 +838,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                               return Theme(
                                 data: Theme.of(context).copyWith(
                                   colorScheme: ColorScheme.light(
-                                    primary: ColorPalette.primary(context),
+                                    primary: ColorPalette.background(context),
                                     onPrimary:
                                         ColorPalette.textPrimary(context),
                                     onSurface: ColorPalette.opposite(context),
@@ -835,7 +846,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                                   textButtonTheme: TextButtonThemeData(
                                     style: TextButton.styleFrom(
                                       foregroundColor:
-                                          ColorPalette.primary(context),
+                                          ColorPalette.buttonPrimary(context),
                                     ),
                                   ),
                                   scaffoldBackgroundColor:
@@ -868,8 +879,8 @@ class _AddMatchViewState extends State<AddMatchView> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: _showDom
-                              ? ColorPalette.primary(context)
-                              : ColorPalette.secondary(context),
+                              ? ColorPalette.buttonPrimary(context)
+                              : ColorPalette.buttonSecondary(context),
                           borderRadius: BorderRadius.circular(10),
                           border:
                               Border.all(color: ColorPalette.border(context)),
@@ -915,8 +926,8 @@ class _AddMatchViewState extends State<AddMatchView> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: _showExt
-                              ? ColorPalette.primary(context)
-                              : ColorPalette.secondary(context),
+                              ? ColorPalette.buttonPrimary(context)
+                              : ColorPalette.buttonSecondary(context),
                           borderRadius: BorderRadius.circular(10),
                           border:
                               Border.all(color: ColorPalette.border(context)),
@@ -988,7 +999,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                 // Bouton valider
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorPalette.secondary(context),
+                    backgroundColor: ColorPalette.accent(context),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

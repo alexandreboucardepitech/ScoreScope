@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 import '../../models/match.dart';
 import '../../models/joueur.dart';
 
@@ -11,7 +11,7 @@ Future<Joueur?> showVoteBottomSheet({
   return showModalBottomSheet<Joueur?>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: ColorPalette.background(context),
+    backgroundColor: ColorPalette.tileBackground(context),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
@@ -65,11 +65,12 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: isUserVote
             ? BoxDecoration(
-                color: ColorPalette.primary(context).withAlpha(15),
+                color: ColorPalette.surface(context).withAlpha(15),
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                      color: ColorPalette.secondary(context).withAlpha(10),
+                      color:
+                          ColorPalette.buttonSecondary(context).withAlpha(10),
                       blurRadius: 6,
                       offset: Offset(0, 2))
                 ],
@@ -87,7 +88,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                   tag: 'avatar-${joueur.id}',
                   child: CircleAvatar(
                     radius: 20,
-                    backgroundColor: ColorPalette.tertiary(context),
+                    backgroundColor: ColorPalette.pictureBackground(context),
                     backgroundImage: joueur.picture.startsWith('http')
                         ? NetworkImage(joueur.picture) as ImageProvider
                         : AssetImage(joueur.picture),
@@ -99,7 +100,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: ColorPalette.tertiary(context),
+                      color: ColorPalette.surface(context),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -132,7 +133,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: ColorPalette.textAccent(context),
+                      color: ColorPalette.textPrimary(context),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -150,7 +151,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                             .toString(),
                         style: TextStyle(
                           fontSize: 13,
-                          color: ColorPalette.secondary(context),
+                          color: ColorPalette.textSecondary(context),
                         ),
                       ),
                     ],
@@ -209,7 +210,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 child: CircleAvatar(
                                   radius: 28,
                                   backgroundColor:
-                                      ColorPalette.tertiary(context),
+                                      ColorPalette.pictureBackground(context),
                                   backgroundImage: currentUserVote!.picture
                                           .startsWith('http')
                                       ? NetworkImage(currentUserVote!.picture)
@@ -227,7 +228,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: ColorPalette.textAccent(context),
+                                        color: ColorPalette.textPrimary(context),
                                       ),
                                     ),
                                     const SizedBox(height: 6),
@@ -249,29 +250,40 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                                       currentUserVote)
                                               .toString(),
                                           style: TextStyle(
-                                              fontSize: 13,
-                                              color: ColorPalette.tertiary(
-                                                  context)),
+                                            fontSize: 13,
+                                            color: ColorPalette.textSecondary(
+                                              context,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     )
                                   ],
                                 ),
                               ),
-                              ElevatedButton.icon(
+                              OutlinedButton.icon(
                                 onPressed: () =>
                                     Navigator.of(context).pop(currentUserVote),
-                                icon: const Icon(Icons.how_to_vote),
+                                icon: Icon(
+                                  Icons.how_to_vote,
+                                  color: ColorPalette.textSecondary(context),
+                                ),
                                 label: Text(
                                   'Valider',
                                   style: TextStyle(
-                                    color: ColorPalette.textAccent(context),
+                                    color: ColorPalette.textPrimary(context),
                                   ),
                                 ),
-                                style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8))),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: ColorPalette.border(context),
+                                  ),
+                                  overlayColor: ColorPalette.highlight(context),
+                                  // backgroundColor:
+                                  //     ColorPalette.buttonPrimary(context),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                ),
                               ),
                             ],
                           ),
@@ -288,7 +300,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 child: Text(
                                   'Aucun joueur sélectionné',
                                   style: TextStyle(
-                                    color: ColorPalette.tertiary(context),
+                                    color: ColorPalette.textSecondary(context),
                                   ),
                                 ),
                               ),
@@ -356,7 +368,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                     Container(
                       width: 1,
                       height: double.infinity,
-                      color: ColorPalette.background(context),
+                      color: ColorPalette.surface(context),
                     ),
                     Expanded(
                       child: Column(

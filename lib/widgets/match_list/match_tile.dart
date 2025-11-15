@@ -1,9 +1,9 @@
 // lib/widgets/match/match_tile.dart
 import 'package:flutter/material.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/match_details.dart';
 import 'package:scorescope/models/match.dart';
-import 'package:scorescope/utils/get_lignes_buteurs.dart';
+import 'package:scorescope/utils/string/get_lignes_buteurs.dart';
 
 class MatchTile extends StatefulWidget {
   final Match match;
@@ -78,164 +78,161 @@ class _MatchTileState extends State<MatchTile>
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: ColorPalette.secondary(context),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: Column(
-          children: [
-            Material(
-              color: Colors.transparent,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: _navigateToDetails,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 16.0),
-                        child: Row(
-                          children: [
-                            // Logo ligue
-                            Padding(
-                              padding:
-                                  const EdgeInsetsDirectional.only(end: 16),
-                              child: SizedBox(
-                                width: 30,
-                                child: CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: Colors.transparent,
-                                  child: Image.asset(
-                                    'assets/competitions/ligue1.jpg',
-                                    fit: BoxFit.contain,
+      color: ColorPalette.tileBackground(context),
+      child: Column(
+        children: [
+          Material(
+            color: ColorPalette.tileBackground(context),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: _navigateToDetails,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 16.0),
+                      child: Row(
+                        children: [
+                          // Logo ligue
+                          Padding(
+                            padding:
+                                const EdgeInsetsDirectional.only(end: 16),
+                            child: SizedBox(
+                              width: 30,
+                              child: CircleAvatar(
+                                radius: 16,
+                                backgroundColor: Colors.transparent,
+                                child: Image.asset(
+                                  'assets/competitions/ligue1.jpg',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ),
+      
+                          // Équipe domicile
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  match.equipeDomicile.nom,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorPalette.textPrimary(context),
                                   ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                 ),
                               ),
                             ),
-
-                            // Équipe domicile
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    match.equipeDomicile.nom,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
+                          ),
+      
+                          // Score
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              "${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ColorPalette.textPrimary(context),
+                              ),
+                            ),
+                          ),
+      
+                          // Équipe extérieur
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  match.equipeExterieur.nom,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorPalette.textPrimary(context),
                                   ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                 ),
                               ),
                             ),
-
-                            // Score
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                "${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: ColorPalette.textPrimary(context),
-                                ),
-                              ),
-                            ),
-
-                            // Équipe extérieur
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    match.equipeExterieur.nom,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-
-                  // Flèche : uniquement elle contrôle l'expansion
-                  IconButton(
-                    splashRadius: 20,
-                    icon: RotationTransition(
-                      turns: _arrowAnim,
-                      child: const Icon(Icons.expand_more),
-                    ),
-                    onPressed: _toggleExpanded,
+                ),
+      
+                // Flèche : uniquement elle contrôle l'expansion
+                IconButton(
+                  splashRadius: 20,
+                  icon: RotationTransition(
+                    turns: _arrowAnim,
+                    child: const Icon(Icons.expand_more),
                   ),
-                ],
-              ),
+                  onPressed: _toggleExpanded,
+                ),
+              ],
             ),
-
-            // Contenu déroulé : animé. Les taps sur les enfants naviguent aussi.
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return ClipRect(
-                  child: Align(
-                    heightFactor: _heightFactor.value,
-                    child: child,
-                  ),
-                );
-              },
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                child: InkWell(
-                  onTap: _navigateToDetails,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: _buildClickableButeurs(
-                            getLignesButeurs(
-                              buts: match.butsEquipeDomicile,
-                              domicile: true,
-                              fullName: false,
-                            ),
-                            alignRight: true,
+          ),
+      
+          // Contenu déroulé : animé. Les taps sur les enfants naviguent aussi.
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return ClipRect(
+                child: Align(
+                  heightFactor: _heightFactor.value,
+                  child: child,
+                ),
+              );
+            },
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              child: InkWell(
+                onTap: _navigateToDetails,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: _buildClickableButeurs(
+                          getLignesButeurs(
+                            buts: match.butsEquipeDomicile,
+                            domicile: true,
+                            fullName: false,
                           ),
+                          alignRight: true,
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsetsDirectional.only(end: 20, start: 20),
-                        child: Icon(Icons.sports_soccer, size: 16),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _buildClickableButeurs(
-                            getLignesButeurs(
-                              buts: match.butsEquipeExterieur,
-                              domicile: false,
-                              fullName: false,
-                            ),
-                            alignRight: false,
+                    ),
+                    const Padding(
+                      padding: EdgeInsetsDirectional.only(end: 20, start: 20),
+                      child: Icon(Icons.sports_soccer, size: 16),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _buildClickableButeurs(
+                          getLignesButeurs(
+                            buts: match.butsEquipeExterieur,
+                            domicile: false,
+                            fullName: false,
                           ),
+                          alignRight: false,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

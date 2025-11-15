@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_tile.dart';
 
 class MatchList extends StatefulWidget {
@@ -146,8 +146,7 @@ class _MatchListState extends State<MatchList> {
       final totalCount = items.length + (hasHeader ? 1 : 0);
       content = MediaQuery.removePadding(
         context: context,
-        removeTop:
-            true, // retire tout padding supérieur hérité (SafeArea / scaffold etc.)
+        removeTop: true,
         child: ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -170,9 +169,12 @@ class _MatchListState extends State<MatchList> {
       decoration: BoxDecoration(
         border: Border.all(color: ColorPalette.border(context)),
         borderRadius: BorderRadius.circular(8),
-        color: ColorPalette.background(context),
+        color: ColorPalette.listHeader(context),
       ),
-      child: content,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: content,
+      ),
     );
   }
 
@@ -181,7 +183,7 @@ class _MatchListState extends State<MatchList> {
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       decoration: BoxDecoration(
-        color: ColorPalette.background(context),
+        color: ColorPalette.listHeader(context),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

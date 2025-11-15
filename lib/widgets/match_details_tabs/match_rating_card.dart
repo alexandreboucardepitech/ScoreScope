@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/utils/Color_palette.dart';
-import 'package:scorescope/utils/slider_degrade_couleur.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/slider_degrade_couleur.dart';
 
 Color getThumbColor(double value) {
   final t = value / 10; // normalise 0..1
@@ -92,7 +92,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
               'Note du match',
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: ColorPalette.textSecondary(context),
+                color: ColorPalette.textPrimary(context),
               ),
             ),
             const SizedBox(height: 10),
@@ -148,7 +148,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                                   ? FontWeight.bold
                                   : FontWeight.w400,
                               color: isSelected
-                                  ? ColorPalette.primary(context)
+                                  ? ColorPalette.accent(context)
                                   : Colors.grey.shade600,
                             ),
                           );
@@ -166,8 +166,8 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                   height: 64,
                   decoration: BoxDecoration(
                     color: (_rating != null)
-                        ? ColorPalette.tertiary(context).withValues(alpha: 0.8)
-                        : ColorPalette.primary(context),
+                        ? ColorPalette.surface(context).withValues(alpha: 0.8)
+                        : ColorPalette.surface(context),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -177,8 +177,8 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: _rating != null
-                              ? ColorPalette.primary(context)
-                              : ColorPalette.secondary(context)),
+                              ? ColorPalette.textPrimary(context)
+                              : ColorPalette.textSecondary(context)),
                     ),
                   ),
                 ),
@@ -196,7 +196,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                     'Note moyenne : ${widget.noteMoyenne.toStringAsPrecision(3)}',
                     style: TextStyle(
                       fontSize: 13,
-                      color: ColorPalette.primary(context),
+                      color: ColorPalette.textAccent(context),
                     ),
                   ),
 

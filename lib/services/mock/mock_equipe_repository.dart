@@ -1,7 +1,7 @@
 import 'dart:async';
 import '../../models/equipe.dart';
 import '../repositories/i_equipe_repository.dart';
-import '../../utils/string_helper.dart';
+import '../../utils/string/string_helper.dart';
 
 class MockEquipeRepository implements IEquipeRepository {
   static final MockEquipeRepository _instance =

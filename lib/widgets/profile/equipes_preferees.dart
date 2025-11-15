@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/Color_palette.dart';
-import 'package:scorescope/utils/couleur_from_hexa.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
 import 'package:shimmer/shimmer.dart';
 
 class EquipesPreferees extends StatefulWidget {
@@ -161,13 +161,16 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Shimmer.fromColors(
-        baseColor: ColorPalette.primary(context),
-        highlightColor: ColorPalette.secondary(context),
+        baseColor: ColorPalette.shimmerPrimary(context),
+        highlightColor: ColorPalette.shimmerSecondary(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-                height: 16, width: 160, color: ColorPalette.primary(context)),
+              height: 16,
+              width: 160,
+              color: ColorPalette.surface(context),
+            ),
             const SizedBox(height: 8),
             GridView.builder(
               itemCount: 4,
@@ -197,7 +200,7 @@ class _EquipeCellShimmer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: ColorPalette.primary(context),
+        color: ColorPalette.surface(context),
       ),
       child: Row(
         children: [
@@ -206,14 +209,14 @@ class _EquipeCellShimmer extends StatelessWidget {
             height: 24,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: ColorPalette.background(context),
+              color: ColorPalette.pictureBackground(context),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Container(
               height: 12,
-              color: ColorPalette.background(context),
+              color: ColorPalette.pictureBackground(context),
             ),
           ),
         ],
@@ -238,10 +241,10 @@ class EquipePrefereeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color equipePrimary = equipe.couleurPrincipale != null
         ? fromHex(equipe.couleurPrincipale!)
-        : ColorPalette.primary(context);
+        : ColorPalette.buttonPrimary(context);
     final Color equipeSecondary = equipe.couleurSecondaire != null
         ? fromHex(equipe.couleurSecondaire!)
-        : ColorPalette.secondary(context);
+        : ColorPalette.buttonSecondary(context);
 
     final Color equipeTextColor = equipePrimary.computeLuminance() > 0.5
         ? ColorPalette.textPrimaryLight
@@ -291,10 +294,10 @@ class EquipePrefereeTile extends StatelessWidget {
                       width: 80,
                       height: 14,
                       child: Shimmer.fromColors(
-                        baseColor: ColorPalette.primary(context),
-                        highlightColor: ColorPalette.secondary(context),
+                        baseColor: ColorPalette.shimmerPrimary(context),
+                        highlightColor: ColorPalette.shimmerSecondary(context),
                         child: Container(
-                          color: ColorPalette.background(context),
+                          color: ColorPalette.surface(context),
                         ),
                       ),
                     )

@@ -5,7 +5,8 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorescope/services/web/auth_service.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/app_theme.dart';
+import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/login/login.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'firebase_options.dart';
@@ -36,6 +37,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
       title: 'ScoreScope',
       home: AuthGate(authService: authService),
     );
@@ -96,7 +100,7 @@ class _HomePageState extends State<HomePage> {
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ColorPalette.background(context),
-        selectedItemColor: ColorPalette.primary(context),
+        selectedItemColor: ColorPalette.accent(context),
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
         onTap: (index) => setState(() => _currentIndex = index),

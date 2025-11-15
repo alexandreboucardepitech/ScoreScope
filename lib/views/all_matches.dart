@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 import '../services/repositories/i_match_repository.dart';
 import '../models/match.dart';
@@ -81,7 +81,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             });
           }
         },
-        backgroundColor: ColorPalette.secondary(context),
+        backgroundColor: ColorPalette.buttonSecondary(context),
         child: Icon(Icons.add),
       ),
     );

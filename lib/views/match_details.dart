@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_details_tabs/infos.dart';
 import '../models/match.dart';
-import '../utils/get_lignes_buteurs.dart';
+import '../utils/string/get_lignes_buteurs.dart';
 
 class MatchDetailsPage extends StatefulWidget {
   final Match match;
@@ -42,11 +42,11 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         elevation: 0,
         toolbarHeight: toolbarHeight,
         leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: ColorPalette.primary(context)),
+            icon: Icon(Icons.arrow_back, color: ColorPalette.opposite(context)),
             onPressed: () => Navigator.pop(context)),
         actions: [
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: ColorPalette.primary(context)),
+            icon: Icon(Icons.more_vert, color: ColorPalette.opposite(context)),
             onSelected: (value) {},
             itemBuilder: (context) => [
               PopupMenuItem(
@@ -65,7 +65,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       body: Column(
         children: [
           Container(
-            color: ColorPalette.primary(context),
+            color: ColorPalette.background(context),
             padding:
                 EdgeInsets.fromLTRB(16, statusBarHeight + toolbarHeight, 16, 0),
             child: Column(
@@ -216,9 +216,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                 const SizedBox(height: 12),
                 TabBar(
                   controller: _tabController,
-                  indicatorColor: ColorPalette.primary(context),
-                  labelColor: ColorPalette.secondary(context),
-                  unselectedLabelColor: ColorPalette.tertiary(context),
+                  indicatorColor: ColorPalette.accent(context),
+                  labelColor: ColorPalette.textAccent(context),
+                  unselectedLabelColor: ColorPalette.textPrimary(context),
                   tabs: const [
                     Tab(text: "Infos"),
                     Tab(text: "Stats"),

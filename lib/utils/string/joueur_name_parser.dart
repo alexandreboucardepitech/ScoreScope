@@ -1,4 +1,4 @@
-import '../models/joueur.dart';
+import '../../models/joueur.dart';
 
 Joueur parseNomJoueur(String input) {
   // On nettoie un peu la chaîne

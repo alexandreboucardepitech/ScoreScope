@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/main.dart';
 import 'package:scorescope/services/web/auth_service.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class SignUpView extends StatefulWidget {
   final String? prefilledEmail; // <-- nouvel argument

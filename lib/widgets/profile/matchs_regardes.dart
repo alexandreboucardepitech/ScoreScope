@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/utils/Color_palette.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:scorescope/models/match.dart';
@@ -110,8 +110,8 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Shimmer.fromColors(
-          baseColor: ColorPalette.primary(context),
-          highlightColor: ColorPalette.secondary(context),
+          baseColor: ColorPalette.shimmerPrimary(context),
+          highlightColor: ColorPalette.shimmerSecondary(context),
           child: Column(
             children: List.generate(
               5,
@@ -127,7 +127,6 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
   }
 }
 
-// Petite tuile shimmer pour un match
 class _MatchShimmerTile extends StatelessWidget {
   const _MatchShimmerTile();
 
@@ -137,25 +136,25 @@ class _MatchShimmerTile extends StatelessWidget {
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: ColorPalette.primary(context),
+        color: ColorPalette.surface(context),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
           Container(
-              width: 40, height: 40, color: ColorPalette.background(context)),
+              width: 40, height: 40, color: ColorPalette.surface(context)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(height: 12, color: ColorPalette.background(context)),
+                Container(height: 12, color: ColorPalette.surface(context)),
                 const SizedBox(height: 6),
                 Container(
                     height: 12,
                     width: 80,
-                    color: ColorPalette.background(context)),
+                    color: ColorPalette.surface(context)),
               ],
             ),
           ),
