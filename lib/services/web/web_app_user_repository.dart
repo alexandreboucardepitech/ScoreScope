@@ -94,8 +94,8 @@ class WebAppUserRepository implements IAppUserRepository {
       final data = doc.data();
       if (data == null) continue;
 
-      final String equipeDomicileId = data['equipeDomicile'] as String;
-      final String equipeExterieurId = data['equipeExterieur'] as String;
+      final String equipeDomicileId = data['equipeDomicileId'] as String;
+      final String equipeExterieurId = data['equipeExterieurId'] as String;
 
       if (equipeDomicileId == equipeId || equipeExterieurId == equipeId) {
         nbMatchsRegardes++;
@@ -126,7 +126,7 @@ class WebAppUserRepository implements IAppUserRepository {
     final matchUserDataSnapshot =
         await _usersCollection.doc(doc.id).collection('matchUserData').get();
 
-    data['matchUserData'] =
+    data['matchsUserData'] =
         matchUserDataSnapshot.docs.map((d) => d.data()).toList();
 
     return AppUser.fromJson(json: data, userId: firebaseUser.uid);

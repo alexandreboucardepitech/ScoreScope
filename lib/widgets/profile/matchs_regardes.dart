@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 import 'package:shimmer/shimmer.dart';
@@ -8,8 +9,13 @@ import 'package:scorescope/services/repository_provider.dart';
 class MatchsRegardes extends StatefulWidget {
   final List<String>? matchesId;
   final bool isLoading; // true = on charge les IDs
-  const MatchsRegardes(
-      {super.key, required this.matchesId, this.isLoading = false});
+  final AppUser? user;
+  const MatchsRegardes({
+    super.key,
+    required this.matchesId,
+    this.isLoading = false,
+    this.user,
+  });
 
   @override
   State<MatchsRegardes> createState() => _MatchsRegardesState();
@@ -100,7 +106,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
           ],
         ),
         const SizedBox(height: 8),
-        MatchList(ids: display),
+        MatchList(ids: display, user: widget.user),
       ],
     );
   }

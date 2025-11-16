@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
 import 'package:scorescope/services/repositories/i_joueur_repository.dart';
 import 'package:scorescope/services/mock/mock_joueur_repository.dart';
@@ -156,6 +157,63 @@ class MockMatchRepository implements IMatchRepository {
   @override
   Future<void> deleteMatch(Match m) async {
     _matches.remove(m);
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> noterMatch(String matchId, String userId, int? note) async {
+    final idx = _matches.indexWhere((m) => m.id == matchId);
+    if (idx < 0) return;
+
+    final m = _matches[idx];
+
+    if (note != null) {
+      // ne pas réinitialiser : on écrit directement dans la map existante
+      m.notesDuMatch[userId] = note;
+    } else {
+      m.notesDuMatch.remove(userId);
+    }
+
+    // mettre à jour le mock AppUser.matchsUserData
+    await MockAppUserRepository().setNoteForMatch(userId, matchId, note);
+
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> voterPourMVP(
+      String matchId, String userId, String? joueurId) async {
+    final idx = _matches.indexWhere((m) => m.id == matchId);
+    if (idx < 0) return;
+
+    final m = _matches[idx];
+
+    if (joueurId != null) {
+      // ajouter / mettre à jour le vote
+      m.mvpVotes[userId] = joueurId;
+    } else {
+      // suppression du vote si null
+      m.mvpVotes.remove(userId);
+    }
+
+    // mettre à jour le mock AppUser.matchsUserData
+    await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, joueurId);
+
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> enleverVote(String matchId, String userId) async {
+    final idx = _matches.indexWhere((m) => m.id == matchId);
+    if (idx < 0) return;
+
+    final m = _matches[idx];
+
+    m.mvpVotes.remove(userId);
+
+    // supprimer le mvpVoteId dans l'user data (en le mettant à null)
+    await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, null);
+
     await Future.delayed(const Duration(milliseconds: 50));
   }
 }

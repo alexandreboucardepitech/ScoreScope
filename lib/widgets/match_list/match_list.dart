@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
@@ -10,12 +11,14 @@ class MatchList extends StatefulWidget {
   final List<Match>? matches;
   final List<String>? ids;
   final Widget? header;
+  final AppUser? user;
 
   const MatchList({
     super.key,
     this.matches,
     this.ids,
     this.header,
+    this.user,
   }) : assert(matches != null || ids != null, 'Provide either matches or ids');
 
   @override
@@ -100,7 +103,7 @@ class _MatchListState extends State<MatchList> {
       await Future.wait(List.generate(concurrency, (_) => worker()));
 
       for (final m in fetchedList) {
-        if (m.id != null) _globalCache[m.id!] = m;
+        _globalCache[m.id] = m;
       }
 
       final merged = <Match>[];
@@ -125,7 +128,7 @@ class _MatchListState extends State<MatchList> {
   @override
   Widget build(BuildContext context) {
     final hasHeader = widget.header != null;
-    final items = widget.matches ?? _loaded;
+    final List<Match>? items = widget.matches ?? _loaded;
 
     Widget content;
 
@@ -158,7 +161,10 @@ class _MatchListState extends State<MatchList> {
               return _buildHeaderTile(context, child: widget.header);
             }
             final match = items[hasHeader ? idx - 1 : idx];
-            return MatchTile(match: match);
+            return MatchTile(
+              match: match,
+              userData: widget.user?.getMatchUserDataByMatch(match: match),
+            );
           },
         ),
       );

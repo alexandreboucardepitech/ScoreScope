@@ -38,7 +38,7 @@ class _InfosTabState extends State<InfosTab> {
         final joueurId = widget.match.mvpVotes[user.uid];
         if (joueurId != null) {
           userVoteMVP = await RepositoryProvider.joueurRepository
-              .fetchJoueurById(joueurId); // Peut lancer une exception
+              .fetchJoueurById(joueurId);
         }
         userVoteNoteMatch = widget.match.notesDuMatch[user.uid];
       }
@@ -59,7 +59,6 @@ class _InfosTabState extends State<InfosTab> {
   Future<void> _onPlusPressed() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      // utilisateur non connecté — si besoin afficher message
       return;
     }
 

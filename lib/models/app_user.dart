@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/models/match.dart';
 
 class AppUser {
   final String uid;
@@ -22,6 +23,16 @@ class AppUser {
     this.matchsUserData = const [],
   });
 
+  MatchUserData? getMatchUserDataByMatch({Match? match, String? matchId}) {
+    for (MatchUserData matchData in matchsUserData) {
+      if (matchData.matchId == matchId ||
+          (match != null && matchData.matchId == match.id)) {
+        return matchData;
+      }
+    }
+    return null;
+  }
+
   factory AppUser.fromJson({
     required Map<String, dynamic> json,
     String? userId,
@@ -41,7 +52,10 @@ class AppUser {
               ?.map((e) => e as String)
               .toList() ??
           [],
-      matchsUserData: json['matchsUserData'] ?? [],
+      matchsUserData: (json['matchsUserData'] as List<dynamic>?)
+              ?.map((e) => MatchUserData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 

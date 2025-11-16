@@ -33,7 +33,16 @@ class WebMatchRepository implements IMatchRepository {
   Future<Match?> fetchMatchById(String id) async {
     final doc = await _collection.doc(id).get();
     if (!doc.exists) return null;
-    return Match.fromJson(json: doc.data()!, matchId: doc.id);
+
+    final data = doc.data()!;
+    final mvpVotesSnapshot =
+        await _collection.doc(id).collection('mvpVotes').get();
+    data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
+
+    final notesSnapshot = await _collection.doc(id).collection('notes').get();
+    data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
+
+    return Match.fromJson(json: data, matchId: doc.id);
   }
 
   @override
@@ -49,17 +58,94 @@ class WebMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> addMatch(Match m) async {
-    await _collection.doc(m.id).set(m.toJson());
+  Future<void> addMatch(Match match) async {
+    await _collection.doc(match.id).set(match.toJson());
   }
 
   @override
-  Future<void> updateMatch(Match m) async {
-    await _collection.doc(m.id).update(m.toJson());
+  Future<void> updateMatch(Match match) async {
+    await _collection.doc(match.id).update(match.toJson());
   }
 
   @override
-  Future<void> deleteMatch(Match m) async {
-    await _collection.doc(m.id).delete();
+  Future<void> deleteMatch(Match match) async {
+    await _collection.doc(match.id).delete();
+  }
+
+  @override
+  Future<void> noterMatch(String matchId, String userId, int? note) async {
+    await _collection.doc(matchId).collection('notes').doc(userId).set({
+      'userId': userId,
+      'note': note,
+    });
+
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+
+    if (docSnapshot.exists) {
+      await userMatchDocRef.update({
+        'note': note,
+      });
+    } else {
+      await userMatchDocRef.set({
+        'matchId': matchId,
+        'note': note,
+        'mvpVoteId': null,
+        'favourite': false,
+      });
+    }
+  }
+
+  @override
+  Future<void> voterPourMVP(
+      String matchId, String userId, String? joueurId) async {
+    await _collection.doc(matchId).collection('mvpVotes').doc(userId).set({
+      'userId': userId,
+      'joueurId': joueurId,
+    });
+
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+
+    if (docSnapshot.exists) {
+      await userMatchDocRef.update({
+        'mvpVoteId': joueurId,
+      });
+    } else {
+      await userMatchDocRef.set({
+        'matchId': matchId,
+        'mvpVoteId': joueurId,
+        'favourite': false,
+      });
+    }
+  }
+
+  @override
+  Future<void> enleverVote(String matchId, String userId) async {
+    await _collection.doc(matchId).collection('mvpVotes').doc(userId).delete();
+
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+
+    if (docSnapshot.exists) {
+      await userMatchDocRef.update({
+        'mvpVoteId': FieldValue.delete(),
+      });
+    }
   }
 }

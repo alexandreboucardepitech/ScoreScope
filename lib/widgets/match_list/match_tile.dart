@@ -3,21 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/match_details.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/get_lignes_buteurs.dart';
 
 class MatchTile extends StatefulWidget {
   final Match match;
-  const MatchTile({required this.match, super.key});
+  final MatchUserData? userData;
+
+  const MatchTile({required this.match, this.userData, super.key});
 
   @override
   State<MatchTile> createState() => _MatchTileState();
 }
 
-class _MatchTileState extends State<MatchTile>
-    with SingleTickerProviderStateMixin {
+class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _arrowAnim;
   late final Animation<double> _heightFactor;
+  Joueur? _mvpJoueur;
+
+  // simple shimmer controller for placeholders
+  late final AnimationController _shimmerController;
+
   bool _isExpanded = false;
 
   @override
@@ -28,12 +37,34 @@ class _MatchTileState extends State<MatchTile>
     _arrowAnim = Tween<double>(begin: 0.0, end: 0.5).animate(_controller);
     _heightFactor =
         CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+
+    if (widget.userData?.mvpVoteId != null) {
+      _fetchMvpJoueur(widget.userData!.mvpVoteId!);
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _shimmerController.dispose();
     super.dispose();
+  }
+
+  void _fetchMvpJoueur(String joueurId) async {
+    try {
+      final joueur =
+          await RepositoryProvider.joueurRepository.fetchJoueurById(joueurId);
+      if (mounted) {
+        setState(() {
+          _mvpJoueur = joueur;
+        });
+      }
+    } catch (_) {}
   }
 
   void _toggleExpanded() {
@@ -71,13 +102,75 @@ class _MatchTileState extends State<MatchTile>
     }).toList();
   }
 
+  Widget _buildNoteBadge(int note) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: ColorPalette.buttonSecondary(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.stars, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            '$note/10',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: ColorPalette.textPrimary(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMvpWidget() {
+    final joueur = _mvpJoueur;
+
+    if (joueur == null) {
+      return FadeTransition(
+        opacity: Tween(begin: 0.4, end: 1.0).animate(_shimmerController),
+        child: Container(
+          width: 120,
+          height: 28,
+          decoration: BoxDecoration(
+            color: ColorPalette.buttonSecondary(context),
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: ColorPalette.buttonSecondary(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min, // prend juste la taille nécessaire
+        children: [
+          Flexible(
+            child: Text(
+              joueur.fullName,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: ColorPalette.textPrimary(context)),
+            ),
+          ),
+          const SizedBox(width: 6),
+          const Icon(Icons.how_to_vote, size: 14),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final match = widget.match;
+    final MatchUserData? userData = widget.userData;
 
-    return Card(
-      elevation: 0,
-      margin: EdgeInsets.zero,
+    return Container(
       color: ColorPalette.tileBackground(context),
       child: Column(
         children: [
@@ -95,8 +188,7 @@ class _MatchTileState extends State<MatchTile>
                         children: [
                           // Logo ligue
                           Padding(
-                            padding:
-                                const EdgeInsetsDirectional.only(end: 16),
+                            padding: const EdgeInsetsDirectional.only(end: 16),
                             child: SizedBox(
                               width: 30,
                               child: CircleAvatar(
@@ -109,7 +201,7 @@ class _MatchTileState extends State<MatchTile>
                               ),
                             ),
                           ),
-      
+
                           // Équipe domicile
                           Expanded(
                             child: Align(
@@ -128,11 +220,10 @@ class _MatchTileState extends State<MatchTile>
                               ),
                             ),
                           ),
-      
+
                           // Score
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               "${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}",
                               style: TextStyle(
@@ -141,7 +232,7 @@ class _MatchTileState extends State<MatchTile>
                               ),
                             ),
                           ),
-      
+
                           // Équipe extérieur
                           Expanded(
                             child: Align(
@@ -165,7 +256,7 @@ class _MatchTileState extends State<MatchTile>
                     ),
                   ),
                 ),
-      
+
                 // Flèche : uniquement elle contrôle l'expansion
                 IconButton(
                   splashRadius: 20,
@@ -178,8 +269,6 @@ class _MatchTileState extends State<MatchTile>
               ],
             ),
           ),
-      
-          // Contenu déroulé : animé. Les taps sur les enfants naviguent aussi.
           AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
@@ -232,6 +321,22 @@ class _MatchTileState extends State<MatchTile>
               ),
             ),
           ),
+          if (userData != null)
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (userData.note != null) _buildNoteBadge(userData.note!),
+                    const Spacer(),
+                    if (userData.mvpVoteId != null) _buildMvpWidget(),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

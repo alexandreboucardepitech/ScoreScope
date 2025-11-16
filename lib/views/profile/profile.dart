@@ -294,6 +294,7 @@ class _ProfileViewState extends State<ProfileView> {
                   child: MatchsRegardes(
                     matchesId: userMatchsRegardesId,
                     isLoading: _isLoadingMatchsRegardes,
+                    user: widget.user,
                   ),
                 ),
                 const Divider(height: 32),

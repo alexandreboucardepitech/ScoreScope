@@ -210,7 +210,7 @@ class _MvpCardState extends State<MvpCard> {
                             mvpEquipe!.nom,
                             style: TextStyle(
                               fontSize: 13,
-                              color: ColorPalette.accent(context),
+                              color: ColorPalette.textPrimary(context),
                             ),
                           )
                         else
@@ -241,11 +241,14 @@ class _MvpCardState extends State<MvpCard> {
 
                       // Affichage du vote de l'utilisateur (si présent)
                       if (hasUserVoted)
-                        Text(
-                          'Votre vote : ${widget.userVote!.fullName}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: ColorPalette.accent(context),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Votre vote : ${widget.userVote!.fullName}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: ColorPalette.textSecondary(context),
+                            ),
                           ),
                         ),
                     ],

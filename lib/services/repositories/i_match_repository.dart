@@ -4,7 +4,10 @@ abstract class IMatchRepository {
   Future<List<Match>> fetchAllMatches();
   Future<Match?> fetchMatchById(String id);
   Future<List<Match>> fetchMatchesListById(List<String> ids);
-  Future<void> addMatch(Match m);
-  Future<void> updateMatch(Match m);
-  Future<void> deleteMatch(Match m);
+  Future<void> addMatch(Match match);
+  Future<void> updateMatch(Match match);
+  Future<void> deleteMatch(Match match);
+  Future<void> noterMatch(String matchId, String userId, int? note);
+  Future<void> voterPourMVP(String matchId, String userId, String? joueurId);
+  Future<void> enleverVote(String matchId, String userId);
 }

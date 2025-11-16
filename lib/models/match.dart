@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/joueur.dart';
-import 'package:scorescope/services/Web/Web_joueur_repository.dart';
-import 'package:scorescope/services/web/web_equipe_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
 
 import 'equipe.dart';
 import 'but.dart';
 
 class Match {
-  final String? id;
+  final String id;
   final Equipe equipeDomicile;
   final Equipe equipeExterieur;
   final String competition;
@@ -22,7 +21,7 @@ class Match {
   Map<String, int> notesDuMatch;
 
   Match(
-      {this.id,
+      {required this.id,
       required this.equipeDomicile,
       required this.equipeExterieur,
       required this.competition,
@@ -40,9 +39,6 @@ class Match {
         mvpVotes = mvpVotes ?? {},
         notesDuMatch = notesDuMatch ?? {};
 
-  final CollectionReference<Map<String, dynamic>> _matchesCollection =
-      FirebaseFirestore.instance.collection('matchs');
-
   //////////////////// NOTE DU MATCH ////////////////////
 
   double getNoteMoyenne() {
@@ -55,39 +51,31 @@ class Match {
     return moyenne;
   }
 
-  Future<void> noterMatch({required String userId, required int? note}) async {
+  Future<void> noterMatch({
+    required String userId,
+    required int? note,
+  }) async {
     if (note != null) {
       notesDuMatch[userId] = note;
-
-      await _matchesCollection.doc(id).collection('notes').doc(userId).set({
-        'userId': userId,
-        'note': note,
-      });
+      RepositoryProvider.matchRepository.noterMatch(id, userId, note);
     }
   }
 
   ///////////////////////// MVP /////////////////////////
 
-  Future<void> voterPourMVP(
-      {required String userId, required String? joueurId}) async {
+  Future<void> voterPourMVP({
+    required String userId,
+    required String? joueurId,
+  }) async {
     if (joueurId != null) {
       mvpVotes[userId] = joueurId;
-
-      await _matchesCollection.doc(id).collection('mvpVotes').doc(userId).set({
-        'userId': userId,
-        'joueurId': joueurId,
-      });
+      RepositoryProvider.matchRepository.voterPourMVP(id, userId, joueurId);
     }
   }
 
   Future<void> enleverVote({required String userId}) async {
     mvpVotes.remove(userId);
-
-    await _matchesCollection
-        .doc(id)
-        .collection('mvpVotes')
-        .doc(userId)
-        .delete();
+    RepositoryProvider.matchRepository.enleverVote(id, userId);
   }
 
   Map<String, int> getAllVoteCounts() {
@@ -114,7 +102,7 @@ class Match {
 
     if (mvpId == null) return null;
 
-    return await WebJoueurRepository().fetchJoueurById(mvpId!);
+    return await RepositoryProvider.joueurRepository.fetchJoueurById(mvpId!);
   }
 
   int getNbVotesById(String id) {
@@ -123,7 +111,7 @@ class Match {
   }
 
   Map<String, dynamic> toJson() => {
-        if (id != null) 'id': id,
+        'id': id,
         'competition': competition,
         'date': date.toIso8601String(),
         'scoreEquipeDomicile': scoreEquipeDomicile,
@@ -146,20 +134,22 @@ class Match {
 
   static Future<Match> fromJson(
       {required Map<String, dynamic> json, String? matchId}) async {
-    final equipeDomicile =
-        await WebEquipeRepository().fetchEquipeById(json['equipeDomicileId']);
-    final equipeExterieur =
-        await WebEquipeRepository().fetchEquipeById(json['equipeExterieurId']);
+    final equipeDomicile = await RepositoryProvider.equipeRepository
+        .fetchEquipeById(json['equipeDomicileId']);
+    final equipeExterieur = await RepositoryProvider.equipeRepository
+        .fetchEquipeById(json['equipeExterieurId']);
 
     final joueursDomicile = <Joueur>[];
     for (final id in (json['joueursEquipeDomicileId'] as List? ?? [])) {
-      final joueur = await WebJoueurRepository().fetchJoueurById(id);
+      final joueur =
+          await RepositoryProvider.joueurRepository.fetchJoueurById(id);
       if (joueur != null) joueursDomicile.add(joueur);
     }
 
     final joueursExterieur = <Joueur>[];
     for (final id in (json['joueursEquipeExterieurId'] as List? ?? [])) {
-      final joueur = await WebJoueurRepository().fetchJoueurById(id);
+      final joueur =
+          await RepositoryProvider.joueurRepository.fetchJoueurById(id);
       if (joueur != null) joueursExterieur.add(joueur);
     }
 
@@ -183,7 +173,8 @@ class Match {
         final joueurId = b['buteurId'] as String?;
         Joueur? joueur;
         if (joueurId != null) {
-          joueur = await WebJoueurRepository().fetchJoueurById(joueurId);
+          joueur = await RepositoryProvider.joueurRepository
+              .fetchJoueurById(joueurId);
         }
         if (joueur != null) {
           buts.add(But(buteur: joueur, minute: b['minute']));

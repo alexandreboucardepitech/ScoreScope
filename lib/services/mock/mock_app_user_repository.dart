@@ -37,8 +37,20 @@ class MockAppUserRepository implements IAppUserRepository {
         uid: 'u_alex',
         displayName: 'alex_foot',
         email: 'alex@example.com',
-        bio: "coucou moi c'est alex et j'aime le foot (bah oui c'est mon nom t con)",
-        equipesPrefereesId: ["2", "3", "2", "3", "2", "3", "2", "3", "2", "3"], // fc nantes / barça
+        bio:
+            "coucou moi c'est alex et j'aime le foot (bah oui c'est mon nom t con)",
+        equipesPrefereesId: [
+          "2",
+          "3",
+          "2",
+          "3",
+          "2",
+          "3",
+          "2",
+          "3",
+          "2",
+          "3"
+        ], // fc nantes / barça
         matchsUserData: [
           MatchUserData(matchId: "1", favourite: true, mvpVoteId: "1", note: 8),
           MatchUserData(matchId: "2", mvpVoteId: "5", note: 3),
@@ -85,7 +97,7 @@ class MockAppUserRepository implements IAppUserRepository {
 
     await Future.delayed(const Duration(milliseconds: 300));
 
-    return List<AppUser>.from(_users);
+    return _users;
   }
 
   @override
@@ -160,7 +172,8 @@ class MockAppUserRepository implements IAppUserRepository {
     for (final match in matches) {
       if (match == null) continue;
 
-      if (match.equipeDomicile.id == equipeId || match.equipeExterieur.id == equipeId) {
+      if (match.equipeDomicile.id == equipeId ||
+          match.equipeExterieur.id == equipeId) {
         nbMatchs++;
       }
     }
@@ -187,5 +200,94 @@ class MockAppUserRepository implements IAppUserRepository {
     final found = _users.firstWhere((u) => u.uid == _currentUserId,
         orElse: () => _users.first);
     return found;
+  }
+
+  Future<void> setNoteForMatch(String userId, String matchId, int? note) async {
+    await _seedingFuture;
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final List<MatchUserData> updated = List.from(user.matchsUserData);
+
+    final muIdx = updated.indexWhere((m) => m.matchId == matchId);
+
+    if (muIdx >= 0) {
+      final old = updated[muIdx];
+      updated[muIdx] = MatchUserData(
+        matchId: old.matchId,
+        favourite: old.favourite,
+        mvpVoteId: old.mvpVoteId,
+        note: note,
+      );
+    } else {
+      updated.add(MatchUserData(
+        matchId: matchId,
+        favourite: false,
+        mvpVoteId: null,
+        note: note,
+      ));
+    }
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      matchsUserData: updated,
+    );
+
+    _users[userIdx] = newUser;
+
+    await Future.delayed(const Duration(milliseconds: 30));
+  }
+
+  Future<void> setMvpVoteForMatch(
+      String userId, String matchId, String? joueurId) async {
+    await _seedingFuture;
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final List<MatchUserData> updated = List.from(user.matchsUserData);
+
+    final muIdx = updated.indexWhere((m) => m.matchId == matchId);
+
+    if (muIdx >= 0) {
+      final old = updated[muIdx];
+      updated[muIdx] = MatchUserData(
+        matchId: old.matchId,
+        favourite: old.favourite,
+        mvpVoteId: joueurId,
+        note: old.note,
+      );
+    } else {
+      updated.add(MatchUserData(
+        matchId: matchId,
+        favourite: false,
+        mvpVoteId: joueurId,
+        note: null,
+      ));
+    }
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      matchsUserData: updated,
+    );
+
+    _users[userIdx] = newUser;
+
+    await Future.delayed(const Duration(milliseconds: 30));
   }
 }

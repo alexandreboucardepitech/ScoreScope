@@ -18,7 +18,7 @@ enum Environment {
 }
 
 class RepositoryProvider {
-  static Environment environment = Environment.mock;
+  static Environment environment = Environment.web;
 
   static IEquipeRepository get equipeRepository {
     switch (environment) {
