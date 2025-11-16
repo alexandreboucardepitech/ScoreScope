@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_details_tabs/infos.dart';
 import '../models/match.dart';
@@ -16,24 +18,71 @@ class MatchDetailsPage extends StatefulWidget {
 class _MatchDetailsPageState extends State<MatchDetailsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isFavori = false;
+  bool _isUpdatingFavori = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // 3 onglets
+    _tabController = TabController(length: 3, vsync: this);
+    _loadFavoriStatus();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  Future<void> _loadFavoriStatus() async {
+    try {
+      final currentUser =
+          await RepositoryProvider.userRepository.getCurrentUser();
+      if (currentUser != null) {
+        final favori = await RepositoryProvider.userRepository
+            .isMatchFavori(currentUser.uid, widget.match.id);
+        if (!mounted) return;
+        setState(() => _isFavori = favori);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _toggleFavori() async {
+    if (_isUpdatingFavori) return;
+    setState(() => _isUpdatingFavori = true);
+
+    final newFavori = !_isFavori;
+
+    try {
+      AppUser? currentUser =
+          await RepositoryProvider.userRepository.getCurrentUser();
+      if (currentUser != null) {
+        await RepositoryProvider.matchRepository
+            .matchFavori(widget.match.id, currentUser.uid, newFavori);
+      }
+      setState(() {
+        _isFavori = newFavori;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            newFavori ? 'Match ajouté aux favoris' : 'Match retiré des favoris',
+          ),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    } catch (e) {
+      // erreur lors de la mise à jour
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la mise à jour du favori'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    } finally {
+      setState(() => _isUpdatingFavori = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
-    // si tu as modifié toolbarHeight ailleurs, remplace par la même valeur
-    const double toolbarHeight = 50; // valeur que tu avais dans l'appBar
+    const double toolbarHeight = 50;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -42,9 +91,29 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         elevation: 0,
         toolbarHeight: toolbarHeight,
         leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: ColorPalette.opposite(context)),
-            onPressed: () => Navigator.pop(context)),
+          icon: Icon(Icons.arrow_back, color: ColorPalette.opposite(context)),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
+          // bouton favori
+          IconButton(
+            icon: _isUpdatingFavori
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: ColorPalette.opposite(context),
+                    ),
+                  )
+                : Icon(
+                    _isFavori ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavori
+                        ? ColorPalette.accent(context)
+                        : ColorPalette.opposite(context),
+                  ),
+            onPressed: _toggleFavori,
+          ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: ColorPalette.opposite(context)),
             onSelected: (value) {},
@@ -209,10 +278,6 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                     ],
                   ),
                 ),
-
-                // --- TabBar collée juste en dessous du bloc central ---
-                // Comme tout est dans la même Column (mainAxisSize.min), la hauteur totale
-                // du Container est : contenu central + hauteur du TabBar.
                 const SizedBox(height: 12),
                 TabBar(
                   controller: _tabController,

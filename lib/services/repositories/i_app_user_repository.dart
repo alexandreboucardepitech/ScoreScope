@@ -9,5 +9,6 @@ abstract class IAppUserRepository {
   Future<int> getUserNbButs(String userId);
   Future<int> getUserNbMatchsRegardesParEquipe(String userId, String equipeId);
   Future<List<String>> getUserMatchsFavorisId(String userId);
+  Future<bool> isMatchFavori(String userId, String matchId);
   Future<AppUser?> getCurrentUser();
 }

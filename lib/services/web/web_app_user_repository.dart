@@ -131,4 +131,10 @@ class WebAppUserRepository implements IAppUserRepository {
 
     return AppUser.fromJson(json: data, userId: firebaseUser.uid);
   }
+
+  @override
+  Future<bool> isMatchFavori(String userId, String matchId) async {
+    List<String> matchsFavoris = await getUserMatchsFavorisId(userId);
+    return matchsFavoris.contains(matchId);
+  }
 }

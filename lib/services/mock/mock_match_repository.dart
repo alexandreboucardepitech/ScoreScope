@@ -189,14 +189,11 @@ class MockMatchRepository implements IMatchRepository {
     final m = _matches[idx];
 
     if (joueurId != null) {
-      // ajouter / mettre à jour le vote
       m.mvpVotes[userId] = joueurId;
     } else {
-      // suppression du vote si null
       m.mvpVotes.remove(userId);
     }
 
-    // mettre à jour le mock AppUser.matchsUserData
     await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, joueurId);
 
     await Future.delayed(const Duration(milliseconds: 50));
@@ -213,6 +210,13 @@ class MockMatchRepository implements IMatchRepository {
 
     // supprimer le mvpVoteId dans l'user data (en le mettant à null)
     await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, null);
+
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> matchFavori(String matchId, String userId, bool favori) async {
+    await MockAppUserRepository().setMatchFavori(userId, matchId, favori);
 
     await Future.delayed(const Duration(milliseconds: 50));
   }

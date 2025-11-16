@@ -39,18 +39,7 @@ class MockAppUserRepository implements IAppUserRepository {
         email: 'alex@example.com',
         bio:
             "coucou moi c'est alex et j'aime le foot (bah oui c'est mon nom t con)",
-        equipesPrefereesId: [
-          "2",
-          "3",
-          "2",
-          "3",
-          "2",
-          "3",
-          "2",
-          "3",
-          "2",
-          "3"
-        ], // fc nantes / barça
+        equipesPrefereesId: ["2", "3"], // fc nantes / barça
         matchsUserData: [
           MatchUserData(matchId: "1", favourite: true, mvpVoteId: "1", note: 8),
           MatchUserData(matchId: "2", mvpVoteId: "5", note: 3),
@@ -223,11 +212,7 @@ class MockAppUserRepository implements IAppUserRepository {
       );
     } else {
       updated.add(MatchUserData(
-        matchId: matchId,
-        favourite: false,
-        mvpVoteId: null,
-        note: note,
-      ));
+          matchId: matchId, favourite: false, mvpVoteId: null, note: note));
     }
 
     final newUser = AppUser(
@@ -268,11 +253,7 @@ class MockAppUserRepository implements IAppUserRepository {
       );
     } else {
       updated.add(MatchUserData(
-        matchId: matchId,
-        favourite: false,
-        mvpVoteId: joueurId,
-        note: null,
-      ));
+          matchId: matchId, favourite: false, mvpVoteId: joueurId, note: null));
     }
 
     final newUser = AppUser(
@@ -289,5 +270,52 @@ class MockAppUserRepository implements IAppUserRepository {
     _users[userIdx] = newUser;
 
     await Future.delayed(const Duration(milliseconds: 30));
+  }
+
+  Future<void> setMatchFavori(
+      String userId, String matchId, bool favori) async {
+    await _seedingFuture;
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final List<MatchUserData> updated = List.from(user.matchsUserData);
+
+    final muIdx = updated.indexWhere((m) => m.matchId == matchId);
+
+    if (muIdx >= 0) {
+      final old = updated[muIdx];
+      updated[muIdx] = MatchUserData(
+        matchId: old.matchId,
+        favourite: favori,
+        mvpVoteId: old.mvpVoteId,
+        note: old.note,
+      );
+    } else {
+      updated.add(MatchUserData(
+          matchId: matchId, favourite: favori, mvpVoteId: null, note: null));
+    }
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      matchsUserData: updated,
+    );
+
+    _users[userIdx] = newUser;
+
+    await Future.delayed(const Duration(milliseconds: 30));
+  }
+
+  @override
+  Future<bool> isMatchFavori(String userId, String matchId) async {
+    List<String> matchsFavoris = await getUserMatchsFavorisId(userId);
+    return matchsFavoris.contains(matchId);
   }
 }
