@@ -271,6 +271,7 @@ class _MvpCardState extends State<MvpCard> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     textStyle: const TextStyle(fontSize: 14),
+                    backgroundColor: ColorPalette.buttonSecondary(context),
                   ),
                 )
               ],

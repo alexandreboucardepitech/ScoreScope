@@ -97,7 +97,6 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
               ),
             ),
             const SizedBox(height: 10),
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -185,10 +184,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                 ),
               ],
             ),
-
             const SizedBox(height: 12),
-
-            // Footer : Note moyenne / Vider / Valider
             Row(
               children: [
                 // Partie gauche : note moyenne
@@ -201,10 +197,8 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                     ),
                   ),
 
-                // Spacer pour pousser la suite à droite
                 const Spacer(),
 
-                // Boutons Vider + Valider
                 TextButton(
                   onPressed: () {
                     setState(() => _rating = null);
@@ -219,6 +213,9 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorPalette.buttonSecondary(context),
+                  ),
                   onPressed: () => widget.onConfirm?.call(_rating),
                   child: Text(
                     'Valider',
