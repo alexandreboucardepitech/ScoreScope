@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/widgets/match_details_tabs/match_infos_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/mvp_vote_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_details_tabs/mvp_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/match_rating_card.dart';
+import 'package:scorescope/widgets/match_details_tabs/visionnage_match_card.dart';
 import '../../../models/match.dart';
 
 class InfosTab extends StatefulWidget {
@@ -106,6 +108,23 @@ class _InfosTabState extends State<InfosTab> {
                   userVote: userVoteMVP,
                   onVotePressed: _onPlusPressed,
                 ),
+          const SizedBox(height: 12),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: VisionnageMatchCard(matchId: widget.match.id),
+                ),
+                const SizedBox(width: 6), // espace horizontal
+                Expanded(
+                  flex: 1,
+                  child: MatchInfosCard(),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 16),
         ],
       ),

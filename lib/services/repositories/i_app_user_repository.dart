@@ -1,4 +1,5 @@
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/enum/visionnage_match.dart';
 
 abstract class IAppUserRepository {
   Future<List<AppUser>> fetchAllUsers();
@@ -9,6 +10,9 @@ abstract class IAppUserRepository {
   Future<int> getUserNbButs(String userId);
   Future<int> getUserNbMatchsRegardesParEquipe(String userId, String equipeId);
   Future<List<String>> getUserMatchsFavorisId(String userId);
+  Future<void> matchFavori(String matchId, String userId, bool favori);
   Future<bool> isMatchFavori(String userId, String matchId);
+  Future<void> setVisionnageMatch(String matchId, String userId, VisionnageMatch visionnageMatch);
+  Future<VisionnageMatch> getVisionnageMatch(String userId, String matchId);
   Future<AppUser?> getCurrentUser();
 }

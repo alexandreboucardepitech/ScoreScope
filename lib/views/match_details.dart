@@ -51,7 +51,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       AppUser? currentUser =
           await RepositoryProvider.userRepository.getCurrentUser();
       if (currentUser != null) {
-        await RepositoryProvider.matchRepository
+        await RepositoryProvider.userRepository
             .matchFavori(widget.match.id, currentUser.uid, newFavori);
       }
       setState(() {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
@@ -272,8 +273,8 @@ class MockAppUserRepository implements IAppUserRepository {
     await Future.delayed(const Duration(milliseconds: 30));
   }
 
-  Future<void> setMatchFavori(
-      String userId, String matchId, bool favori) async {
+  @override
+  Future<void> matchFavori(String userId, String matchId, bool favori) async {
     await _seedingFuture;
     final userIdx = _users.indexWhere((u) => u.uid == userId);
     if (userIdx < 0) return;
@@ -317,5 +318,68 @@ class MockAppUserRepository implements IAppUserRepository {
   Future<bool> isMatchFavori(String userId, String matchId) async {
     List<String> matchsFavoris = await getUserMatchsFavorisId(userId);
     return matchsFavoris.contains(matchId);
+  }
+
+  @override
+  Future<VisionnageMatch> getVisionnageMatch(
+      String userId, String matchId) async {
+    await _seedingFuture;
+    final user = _users.firstWhere((u) => u.uid == userId,
+        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    if (user.uid.isEmpty) return VisionnageMatch.tele;
+    final matchData = user.matchsUserData.firstWhere(
+        (m) => m.matchId == matchId,
+        orElse: () => MatchUserData(matchId: matchId));
+    return matchData.visionnageMatch;
+  }
+
+  @override
+  Future<void> setVisionnageMatch(
+      String matchId, String userId, VisionnageMatch visionnageMatch) async {
+    await _seedingFuture;
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final List<MatchUserData> updated = List.from(user.matchsUserData);
+
+    final muIdx = updated.indexWhere((m) => m.matchId == matchId);
+
+    if (muIdx >= 0) {
+      final old = updated[muIdx];
+      updated[muIdx] = MatchUserData(
+        matchId: old.matchId,
+        favourite: old.favourite,
+        mvpVoteId: old.mvpVoteId,
+        note: old.note,
+        visionnageMatch: visionnageMatch,
+      );
+    } else {
+      updated.add(
+        MatchUserData(
+          matchId: matchId,
+          favourite: false,
+          mvpVoteId: null,
+          note: null,
+          visionnageMatch: visionnageMatch,
+        ),
+      );
+    }
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      matchsUserData: updated,
+    );
+
+    _users[userIdx] = newUser;
+
+    await Future.delayed(const Duration(milliseconds: 30));
   }
 }

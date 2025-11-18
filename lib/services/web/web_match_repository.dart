@@ -148,28 +148,4 @@ class WebMatchRepository implements IMatchRepository {
       });
     }
   }
-
-  @override
-  Future<void> matchFavori(String matchId, String userId, bool favori) async {
-    final userMatchDocRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('matchUserData')
-        .doc(matchId);
-
-    final docSnapshot = await userMatchDocRef.get();
-
-    if (docSnapshot.exists) {
-      await userMatchDocRef.update({
-        'favourite': favori,
-      });
-    } else {
-      await userMatchDocRef.set({
-        'matchId': matchId,
-        'note': null,
-        'mvpVoteId': null,
-        'favourite': favori,
-      });
-    }
-  }
 }

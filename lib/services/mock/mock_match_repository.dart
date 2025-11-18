@@ -213,11 +213,4 @@ class MockMatchRepository implements IMatchRepository {
 
     await Future.delayed(const Duration(milliseconds: 50));
   }
-
-  @override
-  Future<void> matchFavori(String matchId, String userId, bool favori) async {
-    await MockAppUserRepository().setMatchFavori(userId, matchId, favori);
-
-    await Future.delayed(const Duration(milliseconds: 50));
-  }
 }

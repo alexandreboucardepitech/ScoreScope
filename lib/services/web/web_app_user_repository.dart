@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:scorescope/models/enum/visionnage_match.dart';
 
 import '../../models/app_user.dart';
 import '../repositories/i_app_user_repository.dart';
@@ -136,5 +137,77 @@ class WebAppUserRepository implements IAppUserRepository {
   Future<bool> isMatchFavori(String userId, String matchId) async {
     List<String> matchsFavoris = await getUserMatchsFavorisId(userId);
     return matchsFavoris.contains(matchId);
+  }
+
+  @override
+  Future<void> matchFavori(String matchId, String userId, bool favori) async {
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+
+    if (docSnapshot.exists) {
+      await userMatchDocRef.update({
+        'favourite': favori,
+      });
+    } else {
+      await userMatchDocRef.set({
+        'matchId': matchId,
+        'note': null,
+        'mvpVoteId': null,
+        'favourite': favori,
+      });
+    }
+  }
+
+  @override
+  Future<VisionnageMatch> getVisionnageMatch(
+      String userId, String matchId) async {
+    final matchUserDataSnapshot =
+        await _usersCollection.doc(userId).collection('matchUserData').get();
+    for (var doc in matchUserDataSnapshot.docs) {
+      final data = doc.data();
+      if (data['matchId'] == matchId) {
+        final visionnageValue = data['visionnageMatch'];
+        if (visionnageValue != null) {
+          try {
+            return VisionnageMatch.values.firstWhere(
+                (e) => e.label == visionnageValue);
+          } on StateError {
+            return VisionnageMatch.tele;
+          }
+        }
+      }
+    }
+    return VisionnageMatch.tele;
+  }
+
+  @override
+  Future<void> setVisionnageMatch(
+      String matchId, String userId, VisionnageMatch visionnageMatch) async {
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+
+    if (docSnapshot.exists) {
+      await userMatchDocRef.update({
+        'visionnageMatch': visionnageMatch.label,
+      });
+    } else {
+      await userMatchDocRef.set({
+        'matchId': matchId,
+        'note': null,
+        'mvpVoteId': null,
+        'favourite': false,
+        'visionnageMatch': visionnageMatch.label,
+      });
+    }
   }
 }
