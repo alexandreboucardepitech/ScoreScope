@@ -81,6 +81,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
     final theme = Theme.of(context);
 
     return Card(
+      color: ColorPalette.tileBackground(context),
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(

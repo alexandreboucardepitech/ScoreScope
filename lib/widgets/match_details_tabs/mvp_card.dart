@@ -137,6 +137,7 @@ class _MvpCardState extends State<MvpCard> {
     final buttonLabel = hasUserVoted ? 'Changer' : 'Voter';
 
     return Card(
+      color: ColorPalette.tileBackground(context),
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
