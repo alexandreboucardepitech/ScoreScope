@@ -7,6 +7,7 @@ import 'package:scorescope/widgets/profile/profile_scrolled_title.dart';
 import 'package:scorescope/widgets/profile/stat_tile.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repositories/i_app_user_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
 
@@ -20,8 +21,12 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   final IAppUserRepository userRepository = RepositoryProvider.userRepository;
+
   AppUser? currentUser;
-  bool _isLoadingUser = true;
+  bool _isLoadingCurrentUser = true;
+
+  AppUser? _displayedUser;
+  bool _isLoadingMatchUserData = true;
 
   bool _isLoadingEquipesPreferees = true;
   bool _isLoadingMatchsRegardes = true;
@@ -37,7 +42,6 @@ class _ProfileViewState extends State<ProfileView> {
   int? userNbMatchsRegardes;
   int? userNbButs;
 
-  // ScrollController pour scroll vers sections
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _equipesKey = GlobalKey();
   final GlobalKey _matchsRegardesKey = GlobalKey();
@@ -48,14 +52,19 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   void initState() {
     super.initState();
+
+    _displayedUser = widget.user;
+
     _loadCurrentUser();
+
+    _loadProfileData();
 
     double headerHeightTemp = 300;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final context = _headerKey.currentContext;
-      if (context != null) {
-        final box = context.findRenderObject() as RenderBox;
+      final ctx = _headerKey.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox;
         setState(() {
           _headerHeight = box.size.height;
           headerHeightTemp = box.size.height;
@@ -71,28 +80,69 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _loadCurrentUser() async {
+    setState(() => _isLoadingCurrentUser = true);
     try {
       final user = await userRepository.getCurrentUser();
       if (!mounted) return;
       setState(() {
         currentUser = user;
-        _isLoadingUser = false;
+        _isLoadingCurrentUser = false;
       });
-
-      if (user != null) {
-        _loadTeams(user.uid);
-        _loadMatchsRegardes(user.uid);
-        _loadFavoris(user.uid);
-        _loadUserNbMatchsRegardes(user.uid);
-        _loadUserNbButs(user.uid);
-      }
     } catch (_) {
       if (!mounted) return;
-      setState(() => _isLoadingUser = false);
+      setState(() {
+        currentUser = null;
+        _isLoadingCurrentUser = false;
+      });
+    }
+  }
+
+  void _loadProfileData() {
+    final uid = widget.user.uid;
+    _loadTeams(uid);
+    _loadMatchsRegardes(uid);
+    _loadFavoris(uid);
+    _loadUserNbMatchsRegardes(uid);
+    _loadUserNbButs(uid);
+
+    _loadMatchUserData(uid);
+  }
+
+  Future<void> _loadMatchUserData(String uid) async {
+    setState(() => _isLoadingMatchUserData = true);
+    try {
+      final List<MatchUserData> data =
+          await userRepository.fetchUserMatchUserData(uid);
+
+      if (!mounted) return;
+
+      final base = widget.user;
+      final updatedUser = AppUser(
+        uid: base.uid,
+        email: base.email,
+        displayName: base.displayName,
+        bio: base.bio,
+        photoUrl: base.photoUrl,
+        createdAt: base.createdAt,
+        equipesPrefereesId: base.equipesPrefereesId,
+        matchsUserData: data,
+      );
+
+      setState(() {
+        _displayedUser = updatedUser;
+        _isLoadingMatchUserData = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _displayedUser = widget.user;
+        _isLoadingMatchUserData = false;
+      });
     }
   }
 
   Future<void> _loadTeams(String uid) async {
+    setState(() => _isLoadingEquipesPreferees = true);
     try {
       final teams = await userRepository.getUserEquipesPrefereesId(uid);
       if (!mounted) return;
@@ -107,6 +157,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _loadMatchsRegardes(String uid) async {
+    setState(() => _isLoadingMatchsRegardes = true);
     try {
       final matchs = await userRepository.getUserMatchsRegardesId(uid);
       if (!mounted) return;
@@ -121,6 +172,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _loadFavoris(String uid) async {
+    setState(() => _isLoadingMatchsFavoris = true);
     try {
       final favs = await userRepository.getUserMatchsFavorisId(uid);
       if (!mounted) return;
@@ -135,6 +187,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _loadUserNbMatchsRegardes(String uid) async {
+    setState(() => _isLoadingNbMatchsRegardes = true);
     try {
       final nbMatchs = await userRepository.getUserNbMatchsRegardes(uid);
       if (!mounted) return;
@@ -149,6 +202,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _loadUserNbButs(String uid) async {
+    setState(() => _isLoadingNbButs = true);
     try {
       final nbButs = await userRepository.getUserNbButs(uid);
       if (!mounted) return;
@@ -174,8 +228,16 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isMe = widget.user.uid == currentUser?.uid;
+
+    final userToUse = _displayedUser ?? widget.user;
 
     return Scaffold(
       body: NestedScrollView(
@@ -184,7 +246,6 @@ class _ProfileViewState extends State<ProfileView> {
           SliverAppBar(
             pinned: true,
             expandedHeight: _headerHeight > 0 ? _headerHeight : 300,
-            // backgroundColor: ColorPalette.background(context),
             elevation: 0,
             leading: Padding(
               padding: const EdgeInsets.only(left: 10),
@@ -196,23 +257,26 @@ class _ProfileViewState extends State<ProfileView> {
             leadingWidth: 40,
             flexibleSpace: FlexibleSpaceBar(
               background: Padding(
+                key: _headerKey,
                 padding: const EdgeInsets.only(
                     top: 48, left: 16, right: 16, bottom: 16),
-                child: _isLoadingUser
+                child: _isLoadingCurrentUser
                     ? const _HeaderShimmer()
                     : _Header(
-                        user: widget.user,
+                        user: userToUse,
                         isMe: isMe,
-                        isLoadingNbMatchsRegardes: _isLoadingNbMatchsRegardes,
+                        isLoadingNbMatchsRegardes: _isLoadingNbMatchsRegardes ||
+                            _isLoadingMatchUserData,
                         userNbMatchsRegardes: userNbMatchsRegardes,
-                        isLoadingNbButs: _isLoadingNbButs,
+                        isLoadingNbButs:
+                            _isLoadingNbButs || _isLoadingMatchUserData,
                         userNbButs: userNbButs,
                       ),
               ),
             ),
             title: _isScrolled
                 ? ProfileScrolledTitle(
-                    username: widget.user.displayName ?? 'Utilisateur',
+                    username: userToUse.displayName ?? 'Utilisateur',
                     nbAmis: 'PAS FAIT',
                     nbButs: userNbButs?.toString() ?? '0',
                     nbMatchs: userNbMatchsRegardes?.toString() ?? '0',
@@ -284,7 +348,7 @@ class _ProfileViewState extends State<ProfileView> {
                   key: _equipesKey,
                   child: EquipesPreferees(
                     teamsId: userEquipesPrefereesId,
-                    user: widget.user,
+                    user: userToUse,
                     isLoading: _isLoadingEquipesPreferees,
                   ),
                 ),
@@ -293,8 +357,9 @@ class _ProfileViewState extends State<ProfileView> {
                   key: _matchsRegardesKey,
                   child: MatchsRegardes(
                     matchesId: userMatchsRegardesId,
-                    isLoading: _isLoadingMatchsRegardes,
-                    user: widget.user,
+                    isLoading:
+                        _isLoadingMatchsRegardes || _isLoadingMatchUserData,
+                    user: userToUse,
                   ),
                 ),
                 const Divider(height: 32),

@@ -146,26 +146,22 @@ class _MatchListState extends State<MatchList> {
         ),
       );
     } else {
-      final totalCount = items.length + (hasHeader ? 1 : 0);
-      content = MediaQuery.removePadding(
-        context: context,
-        removeTop: true,
-        child: ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: totalCount,
-          separatorBuilder: (_, __) =>
-              Divider(color: ColorPalette.border(context), height: 1),
-          itemBuilder: (ctx, idx) {
-            if (hasHeader && idx == 0) {
-              return _buildHeaderTile(context, child: widget.header);
-            }
-            final match = items[hasHeader ? idx - 1 : idx];
-            return MatchTile(
-              match: match,
-              userData: widget.user?.getMatchUserDataByMatch(match: match),
-            );
-          },
+      content = Padding(
+        padding: EdgeInsets.zero,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (hasHeader)
+              _buildHeaderTile(context, child: widget.header),
+            for (int i = 0; i < items.length; i++) ...[
+              MatchTile(
+                match: items[i],
+                userData: widget.user?.getMatchUserDataByMatch(match: items[i]),
+              ),
+              if (i != items.length - 1)
+                Divider(color: ColorPalette.border(context), height: 1),
+            ],
+          ],
         ),
       );
     }
@@ -179,18 +175,24 @@ class _MatchListState extends State<MatchList> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: content,
+        child: ColoredBox(
+          color: ColorPalette.surface(context),
+          child: content,
+        ),
       ),
     );
   }
 
   Widget _buildHeaderTile(BuildContext context, {Widget? child}) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
       decoration: BoxDecoration(
         color: ColorPalette.listHeader(context),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
+        ),
       ),
       child: Row(
         children: [

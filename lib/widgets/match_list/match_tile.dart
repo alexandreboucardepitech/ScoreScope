@@ -125,7 +125,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildMvpWidget() {
+  Widget _buildMvpBadge() {
     final joueur = _mvpJoueur;
 
     if (joueur == null) {
@@ -332,7 +332,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                   children: [
                     if (userData.note != null) _buildNoteBadge(userData.note!),
                     const Spacer(),
-                    if (userData.mvpVoteId != null) _buildMvpWidget(),
+                    if (userData.mvpVoteId != null) _buildMvpBadge(),
                   ],
                 ),
               ),

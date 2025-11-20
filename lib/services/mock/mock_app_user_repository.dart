@@ -382,4 +382,31 @@ class MockAppUserRepository implements IAppUserRepository {
 
     await Future.delayed(const Duration(milliseconds: 30));
   }
+
+  @override
+  Future<List<AppUser>> searchUsersByPrefix(String prefix,
+      {int limit = 50}) async {
+    await _seedingFuture;
+
+    final queryLower = prefix.toLowerCase();
+
+    final filtered = _users.where((u) {
+      final name = u.displayName?.toLowerCase() ?? '';
+      return name.contains(queryLower);
+    }).toList();
+
+    return filtered.take(limit).toList();
+  }
+
+  @override
+  Future<List<MatchUserData>> fetchUserMatchUserData(String userId) async {
+    await _seedingFuture;
+    final user = _users.firstWhere((u) => u.uid == userId,
+        orElse: () => AppUser(
+              uid: '',
+              createdAt: DateTime.now(),
+              matchsUserData: [],
+            ));
+    return user.uid.isEmpty ? [] : user.matchsUserData;
+  }
 }

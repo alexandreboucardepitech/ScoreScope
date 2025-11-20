@@ -7,6 +7,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/app_theme.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/views/amis/fil_actu_amis.dart';
 import 'package:scorescope/views/login/login.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'firebase_options.dart';
@@ -82,7 +83,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     AllMatchesView(),
     AllMatchesView(),
-    AllMatchesView(),
+    FilActuAmisView(),
     FutureBuilder<AppUser?>(
       future: RepositoryProvider.userRepository.getCurrentUser(),
       builder: (context, snapshot) {
@@ -114,8 +115,8 @@ class _HomePageState extends State<HomePage> {
             label: 'Mes matchs',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.leaderboard),
-            label: 'Classements',
+            icon: Icon(Icons.group),
+            label: 'Amis',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

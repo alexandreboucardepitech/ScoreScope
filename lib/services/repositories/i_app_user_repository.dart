@@ -1,5 +1,6 @@
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/models/match_user_data.dart';
 
 abstract class IAppUserRepository {
   Future<List<AppUser>> fetchAllUsers();
@@ -15,4 +16,6 @@ abstract class IAppUserRepository {
   Future<void> setVisionnageMatch(String matchId, String userId, VisionnageMatch visionnageMatch);
   Future<VisionnageMatch> getVisionnageMatch(String userId, String matchId);
   Future<AppUser?> getCurrentUser();
+  Future<List<AppUser>> searchUsersByPrefix(String prefix, {int limit = 50});
+  Future<List<MatchUserData>> fetchUserMatchUserData(String userId);
 }

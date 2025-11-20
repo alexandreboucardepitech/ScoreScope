@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/models/match_user_data.dart';
 
 import '../../models/app_user.dart';
 import '../repositories/i_app_user_repository.dart';
@@ -174,8 +175,8 @@ class WebAppUserRepository implements IAppUserRepository {
         final visionnageValue = data['visionnageMatch'];
         if (visionnageValue != null) {
           try {
-            return VisionnageMatch.values.firstWhere(
-                (e) => e.label == visionnageValue);
+            return VisionnageMatch.values
+                .firstWhere((e) => e.label == visionnageValue);
           } on StateError {
             return VisionnageMatch.tele;
           }
@@ -209,5 +210,30 @@ class WebAppUserRepository implements IAppUserRepository {
         'visionnageMatch': visionnageMatch.label,
       });
     }
+  }
+
+  @override
+  Future<List<AppUser>> searchUsersByPrefix(String prefix,
+      {int limit = 50}) async {
+    final allUsers = await fetchAllUsers();
+
+    final queryLower = prefix.toLowerCase();
+
+    final filtered = allUsers.where((u) {
+      final name = u.displayName?.toLowerCase() ?? '';
+      return name.contains(queryLower);
+    }).toList();
+
+    return filtered.take(limit).toList();
+  }
+
+  @override
+  Future<List<MatchUserData>> fetchUserMatchUserData(String userId) async {
+    final matchUserDataSnapshot =
+        await _usersCollection.doc(userId).collection('matchUserData').get();
+
+    return matchUserDataSnapshot.docs
+        .map((d) => MatchUserData.fromJson(d.data()))
+        .toList();
   }
 }
