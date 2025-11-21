@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/amitie.dart';
+import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
+import 'package:scorescope/widgets/profile/profile_action.dart';
 import 'package:scorescope/widgets/profile/matchs_favoris.dart';
 import 'package:scorescope/widgets/profile/matchs_regardes.dart';
 import 'package:scorescope/widgets/profile/profile_scrolled_title.dart';
@@ -21,6 +24,8 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   final IAppUserRepository userRepository = RepositoryProvider.userRepository;
+  final IAmitieRepository amitieRepository =
+      RepositoryProvider.amitieRepository;
 
   AppUser? currentUser;
   bool _isLoadingCurrentUser = true;
@@ -33,6 +38,7 @@ class _ProfileViewState extends State<ProfileView> {
   bool _isLoadingMatchsFavoris = true;
   bool _isLoadingNbMatchsRegardes = true;
   bool _isLoadingNbButs = true;
+  bool _isLoadingNbAmis = true;
 
   bool _isScrolled = false;
 
@@ -41,6 +47,7 @@ class _ProfileViewState extends State<ProfileView> {
   List<String>? userMatchsFavorisId;
   int? userNbMatchsRegardes;
   int? userNbButs;
+  int? userNbAmis;
 
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _equipesKey = GlobalKey();
@@ -62,9 +69,9 @@ class _ProfileViewState extends State<ProfileView> {
     double headerHeightTemp = 300;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _headerKey.currentContext;
-      if (ctx != null) {
-        final box = ctx.findRenderObject() as RenderBox;
+      final context = _headerKey.currentContext;
+      if (context != null) {
+        final box = context.findRenderObject() as RenderBox;
         setState(() {
           _headerHeight = box.size.height;
           headerHeightTemp = box.size.height;
@@ -104,6 +111,7 @@ class _ProfileViewState extends State<ProfileView> {
     _loadFavoris(uid);
     _loadUserNbMatchsRegardes(uid);
     _loadUserNbButs(uid);
+    _loadUserNbAmis(uid);
 
     _loadMatchUserData(uid);
   }
@@ -216,6 +224,21 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
+  Future<void> _loadUserNbAmis(String uid) async {
+    setState(() => _isLoadingNbAmis = true);
+    try {
+      final nbAmis = await amitieRepository.getUserNbAmis(uid);
+      if (!mounted) return;
+      setState(() {
+        userNbAmis = nbAmis;
+        _isLoadingNbAmis = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoadingNbAmis = false);
+    }
+  }
+
   void _scrollToSection(GlobalKey key) {
     final context = key.currentContext;
     if (context != null) {
@@ -271,13 +294,21 @@ class _ProfileViewState extends State<ProfileView> {
                         isLoadingNbButs:
                             _isLoadingNbButs || _isLoadingMatchUserData,
                         userNbButs: userNbButs,
+                        isLoadingNbAmis:
+                            _isLoadingNbAmis || _isLoadingMatchUserData,
+                        userNbAmis: userNbAmis,
+                        onStatusChanged: (newStatus) {
+                          setState(() {
+                            _loadUserNbAmis(widget.user.uid);
+                          });
+                        },
                       ),
               ),
             ),
             title: _isScrolled
                 ? ProfileScrolledTitle(
                     username: userToUse.displayName ?? 'Utilisateur',
-                    nbAmis: 'PAS FAIT',
+                    nbAmis: userNbAmis?.toString() ?? '0',
                     nbButs: userNbButs?.toString() ?? '0',
                     nbMatchs: userNbMatchsRegardes?.toString() ?? '0',
                   )
@@ -379,13 +410,16 @@ class _ProfileViewState extends State<ProfileView> {
   }
 }
 
-class _Header extends StatelessWidget {
+class _Header extends StatefulWidget {
   final AppUser user;
   final bool isMe;
   final bool isLoadingNbMatchsRegardes;
   final int? userNbMatchsRegardes;
   final bool isLoadingNbButs;
   final int? userNbButs;
+  final bool isLoadingNbAmis;
+  final int? userNbAmis;
+  final Function(String)? onStatusChanged;
 
   const _Header({
     required this.user,
@@ -394,7 +428,40 @@ class _Header extends StatelessWidget {
     this.userNbMatchsRegardes,
     this.isLoadingNbButs = false,
     this.userNbButs,
+    this.isLoadingNbAmis = false,
+    this.userNbAmis,
+    this.onStatusChanged,
   });
+
+  @override
+  State<_Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<_Header> {
+  Amitie? friendship;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFriendship();
+  }
+
+  Future<void> _loadFriendship() async {
+    if (widget.isMe) return;
+
+    final currentUser =
+        await RepositoryProvider.userRepository.getCurrentUser();
+
+    if (currentUser == null) return;
+
+    final friendshipByUsersId = await RepositoryProvider.amitieRepository
+        .friendshipByUsersId(widget.user.uid, currentUser.uid);
+
+    if (!mounted) return;
+    setState(() {
+      friendship = friendshipByUsersId;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -405,44 +472,35 @@ class _Header extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 60,
-          backgroundImage:
-              user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
-          child:
-              user.photoUrl == null && (user.displayName?.isNotEmpty ?? false)
-                  ? Text(
-                      user.displayName!.substring(0, 1).toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 36,
-                        color: ColorPalette.textAccent(context),
-                      ),
-                    )
-                  : null,
+          backgroundImage: widget.user.photoUrl != null
+              ? NetworkImage(widget.user.photoUrl!)
+              : null,
+          child: widget.user.photoUrl == null &&
+                  (widget.user.displayName?.isNotEmpty ?? false)
+              ? Text(
+                  widget.user.displayName!.substring(0, 1).toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 36,
+                    color: ColorPalette.textAccent(context),
+                  ),
+                )
+              : null,
         ),
         const SizedBox(height: 12),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Text(
-                user.displayName ?? 'Utilisateur',
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: ColorPalette.textPrimary(context),
-                    ),
+        Text(
+          widget.user.displayName ?? 'Utilisateur',
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: ColorPalette.textPrimary(context),
               ),
-            ),
-            const SizedBox(width: 4),
-            if (!isMe)
-              _FriendBadge(isFriend: false), // TODO: remplacer par vrai état
-          ],
         ),
         const SizedBox(height: 6),
-        if (user.bio != null)
+        if (widget.user.bio != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              user.bio!,
+              widget.user.bio!,
               style: TextStyle(
                 fontSize: 14,
                 color: ColorPalette.textSecondary(context),
@@ -452,7 +510,21 @@ class _Header extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
+          ProfileAction(
+            amitie: friendship,
+            user: widget.user,
+            isMe: widget.isMe,
+            onStatusChanged: (newStatus) {
+              setState(() {
+                friendship = friendship?.copyWith(status: newStatus);
+              });
+              if (widget.onStatusChanged != null) {
+                widget.onStatusChanged!(newStatus);
+              }
+            },
+          ),
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
@@ -461,23 +533,25 @@ class _Header extends StatelessWidget {
                 child: ProfileStatTile(
                   label: 'Amis',
                   labelHeight: statsLabelHeight,
-                  valueWidget: Text(
-                    'PAS FAIT',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: ColorPalette.textPrimary(context),
-                    ),
-                  ),
+                  valueWidget: widget.isLoadingNbAmis
+                      ? const _ShimmerBox(width: 24, height: 12)
+                      : Text(
+                          widget.userNbAmis?.toString() ?? '0',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
                 ),
               ),
             ),
             ProfileStatTile(
               label: 'Matchs',
               labelHeight: statsLabelHeight,
-              valueWidget: isLoadingNbMatchsRegardes
+              valueWidget: widget.isLoadingNbMatchsRegardes
                   ? const _ShimmerBox(width: 24, height: 12)
                   : Text(
-                      userNbMatchsRegardes?.toString() ?? '0',
+                      widget.userNbMatchsRegardes?.toString() ?? '0',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: ColorPalette.textPrimary(context),
@@ -490,10 +564,10 @@ class _Header extends StatelessWidget {
                 child: ProfileStatTile(
                   label: 'Buts',
                   labelHeight: statsLabelHeight,
-                  valueWidget: isLoadingNbButs
+                  valueWidget: widget.isLoadingNbButs
                       ? const _ShimmerBox(width: 24, height: 12)
                       : Text(
-                          userNbButs?.toString() ?? '0',
+                          widget.userNbButs?.toString() ?? '0',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: ColorPalette.textPrimary(context),
@@ -596,40 +670,6 @@ class _ShimmerBox extends StatelessWidget {
         width: width,
         height: height,
         color: ColorPalette.surface(context),
-      ),
-    );
-  }
-}
-
-class _FriendBadge extends StatelessWidget {
-  final bool isFriend;
-  const _FriendBadge({required this.isFriend});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      decoration: BoxDecoration(
-        color: isFriend
-            ? ColorPalette.accentVariant(context)
-            : ColorPalette.accent(context),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isFriend ? Icons.person : Icons.add,
-            size: 14,
-            color: ColorPalette.textPrimary(context),
-          ),
-          if (isFriend)
-            Icon(
-              Icons.check,
-              size: 12,
-              color: ColorPalette.textPrimary(context),
-            ),
-        ],
       ),
     );
   }

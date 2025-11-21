@@ -3,8 +3,8 @@ import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class MatchInfosCard extends StatelessWidget {
   const MatchInfosCard({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

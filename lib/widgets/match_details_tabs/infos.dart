@@ -53,8 +53,7 @@ class _InfosTabState extends State<InfosTab> {
     } catch (e) {
       debugPrint('Erreur lors du chargement du MVP ou du vote utilisateur: $e');
     } finally {
-      if (!mounted) return;
-      setState(() => _loadingMvp = false);
+      if (mounted) setState(() => _loadingMvp = false);
     }
   }
 

@@ -25,7 +25,7 @@ class MatchRatingCard extends StatefulWidget {
   final ValueChanged<int>? onChanged;
   final ValueChanged<int?>? onConfirm;
 
-  MatchRatingCard({
+  const MatchRatingCard({
     super.key,
     required this.noteMoyenne,
     this.userVote,

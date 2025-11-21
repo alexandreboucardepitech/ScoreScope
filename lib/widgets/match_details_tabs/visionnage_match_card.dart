@@ -9,10 +9,10 @@ class VisionnageMatchCard extends StatefulWidget {
   final ValueChanged<VisionnageMatch>? onSelected;
 
   const VisionnageMatchCard({
-    Key? key,
+    super.key,
     required this.matchId,
     this.onSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<VisionnageMatchCard> createState() => _VisionnageMatchCardState();
