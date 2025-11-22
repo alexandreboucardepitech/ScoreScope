@@ -129,4 +129,13 @@ class MockAmitieRepository implements IAmitieRepository {
     if (friendship == null) return null;
     return friendship;
   }
+
+  @override
+  Future<int> getUserNbPendingFriendRequests(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final pendingRequests = _friendships
+        .where((a) => a.status == 'pending' && a.secondUserId == userId)
+        .toList();
+    return pendingRequests.length;
+  }
 }

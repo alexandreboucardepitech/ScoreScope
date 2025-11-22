@@ -135,4 +135,14 @@ class WebAmitieRepository implements IAmitieRepository {
       return null;
     }
   }
+
+  @override
+  Future<int> getUserNbPendingFriendRequests(String userId) async {
+    final querySnapshot = await _friendshipsCollection
+        .where('secondUserId', isEqualTo: userId)
+        .where('status', isEqualTo: 'pending')
+        .get();
+
+    return querySnapshot.docs.length;
+  }
 }

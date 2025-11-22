@@ -80,20 +80,32 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    AllMatchesView(),
-    AllMatchesView(),
-    FilActuAmisView(),
-    FutureBuilder<AppUser?>(
-      future: RepositoryProvider.userRepository.getCurrentUser(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return ProfileView(user: snapshot.data!);
-      },
-    ),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // On définit le callback qui fera revenir à l'onglet 0
+    void goToFirstTab() {
+      setState(() => _currentIndex = 0);
+    }
+
+    _pages = [
+      AllMatchesView(),
+      AllMatchesView(),
+      FilActuAmisView(onBackPressed: goToFirstTab),
+      FutureBuilder<AppUser?>(
+        future: RepositoryProvider.userRepository.getCurrentUser(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ProfileView(user: snapshot.data!, onBackPressed: goToFirstTab);  
+        },
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

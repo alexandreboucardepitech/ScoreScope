@@ -10,4 +10,5 @@ abstract class IAmitieRepository {
   Future<void> rejectFriendRequest(String userId1, String userId2);
   Future<void> removeFriend(String userId1, String userId2);
   Future<Amitie?> friendshipByUsersId(String userId1, String userId2);
+  Future<int> getUserNbPendingFriendRequests(String userId);
 }
