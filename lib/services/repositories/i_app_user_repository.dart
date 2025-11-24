@@ -15,7 +15,11 @@ abstract class IAppUserRepository {
   Future<bool> isMatchFavori(String userId, String matchId);
   Future<void> setVisionnageMatch(String matchId, String userId, VisionnageMatch visionnageMatch);
   Future<VisionnageMatch> getVisionnageMatch(String userId, String matchId);
+  Future<void> setMatchPrivacy(String matchId, String userId, bool privacy);
+  Future<bool> getMatchPrivacy(String userId, String matchId);
   Future<AppUser?> getCurrentUser();
   Future<List<AppUser>> searchUsersByPrefix(String prefix, {int limit = 50});
-  Future<List<MatchUserData>> fetchUserMatchUserData(String userId);
+  Future<List<MatchUserData>> fetchUserAllMatchUserData(String userId);
+  Future<MatchUserData?> fetchUserMatchUserData(String userId, String matchId);
+  Future<void> removeMatchUserData(String userId, String matchId);
 }

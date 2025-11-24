@@ -42,8 +42,20 @@ class MockAppUserRepository implements IAppUserRepository {
             "coucou moi c'est alex et j'aime le foot (bah oui c'est mon nom t con)",
         equipesPrefereesId: ["2", "3"], // fc nantes / barça
         matchsUserData: [
-          MatchUserData(matchId: "1", favourite: true, mvpVoteId: "1", note: 8),
-          MatchUserData(matchId: "2", mvpVoteId: "5", note: 3),
+          MatchUserData(
+            matchId: "1",
+            favourite: true,
+            mvpVoteId: "1",
+            note: 8,
+            visionnageMatch: VisionnageMatch.stade,
+            private: false,
+          ),
+          MatchUserData(
+            matchId: "2",
+            mvpVoteId: "5",
+            note: 3,
+            private: true,
+          ),
         ],
         photoUrl: null,
         createdAt: DateTime.parse('2023-06-01T12:00:00Z'),
@@ -57,7 +69,14 @@ class MockAppUserRepository implements IAppUserRepository {
         email: 'marie@example.com',
         equipesPrefereesId: ["1"], //psg
         matchsUserData: [
-          MatchUserData(matchId: "1", mvpVoteId: "8", note: 4),
+          MatchUserData(
+            matchId: "1",
+            mvpVoteId: "8",
+            note: 4,
+            favourite: true,
+            private: false,
+            visionnageMatch: VisionnageMatch.tele,
+          ),
         ],
         photoUrl: null,
         createdAt: DateTime.parse('2022-11-15T08:30:00Z'),
@@ -71,7 +90,14 @@ class MockAppUserRepository implements IAppUserRepository {
         email: 'jules@example.com',
         equipesPrefereesId: ["3", "4"], // barça / real madrid (hein ?)
         matchsUserData: [
-          MatchUserData(matchId: "2", mvpVoteId: "5", note: 6),
+          MatchUserData(
+            matchId: "2",
+            mvpVoteId: "5",
+            note: 6,
+            private: false,
+            favourite: false,
+            visionnageMatch: VisionnageMatch.bar,
+          ),
         ],
         photoUrl: null,
         createdAt: DateTime.parse('2024-01-05T10:00:00Z'),
@@ -210,10 +236,19 @@ class MockAppUserRepository implements IAppUserRepository {
         favourite: old.favourite,
         mvpVoteId: old.mvpVoteId,
         note: note,
+        visionnageMatch: old.visionnageMatch,
+        private: old.private,
       );
     } else {
-      updated.add(MatchUserData(
-          matchId: matchId, favourite: false, mvpVoteId: null, note: note));
+      updated.add(
+        MatchUserData(
+            matchId: matchId,
+            favourite: false,
+            mvpVoteId: null,
+            note: note,
+            visionnageMatch: VisionnageMatch.tele,
+            private: false),
+      );
     }
 
     final newUser = AppUser(
@@ -251,10 +286,20 @@ class MockAppUserRepository implements IAppUserRepository {
         favourite: old.favourite,
         mvpVoteId: joueurId,
         note: old.note,
+        visionnageMatch: old.visionnageMatch,
+        private: old.private,
       );
     } else {
-      updated.add(MatchUserData(
-          matchId: matchId, favourite: false, mvpVoteId: joueurId, note: null));
+      updated.add(
+        MatchUserData(
+          matchId: matchId,
+          favourite: false,
+          mvpVoteId: joueurId,
+          note: null,
+          visionnageMatch: VisionnageMatch.tele,
+          private: false,
+        ),
+      );
     }
 
     final newUser = AppUser(
@@ -292,10 +337,20 @@ class MockAppUserRepository implements IAppUserRepository {
         favourite: favori,
         mvpVoteId: old.mvpVoteId,
         note: old.note,
+        visionnageMatch: old.visionnageMatch,
+        private: old.private,
       );
     } else {
-      updated.add(MatchUserData(
-          matchId: matchId, favourite: favori, mvpVoteId: null, note: null));
+      updated.add(
+        MatchUserData(
+          matchId: matchId,
+          favourite: favori,
+          mvpVoteId: null,
+          note: null,
+          visionnageMatch: VisionnageMatch.tele,
+          private: false,
+        ),
+      );
     }
 
     final newUser = AppUser(
@@ -354,6 +409,7 @@ class MockAppUserRepository implements IAppUserRepository {
         mvpVoteId: old.mvpVoteId,
         note: old.note,
         visionnageMatch: visionnageMatch,
+        private: old.private,
       );
     } else {
       updated.add(
@@ -363,6 +419,71 @@ class MockAppUserRepository implements IAppUserRepository {
           mvpVoteId: null,
           note: null,
           visionnageMatch: visionnageMatch,
+          private: false,
+        ),
+      );
+    }
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      matchsUserData: updated,
+    );
+
+    _users[userIdx] = newUser;
+
+    await Future.delayed(const Duration(milliseconds: 30));
+  }
+
+  @override
+  Future<bool> getMatchPrivacy(String userId, String matchId) async {
+    await _seedingFuture;
+    final user = _users.firstWhere((u) => u.uid == userId,
+        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    if (user.uid.isEmpty) return false;
+    final matchData = user.matchsUserData.firstWhere(
+        (m) => m.matchId == matchId,
+        orElse: () => MatchUserData(matchId: matchId));
+    return matchData.private;
+  }
+
+  @override
+  Future<void> setMatchPrivacy(
+      String matchId, String userId, bool privacy) async {
+    await _seedingFuture;
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final List<MatchUserData> updated = List.from(user.matchsUserData);
+
+    final muIdx = updated.indexWhere((m) => m.matchId == matchId);
+
+    if (muIdx >= 0) {
+      final old = updated[muIdx];
+      updated[muIdx] = MatchUserData(
+        matchId: old.matchId,
+        favourite: old.favourite,
+        mvpVoteId: old.mvpVoteId,
+        note: old.note,
+        visionnageMatch: old.visionnageMatch,
+        private: privacy,
+      );
+    } else {
+      updated.add(
+        MatchUserData(
+          matchId: matchId,
+          favourite: false,
+          mvpVoteId: null,
+          note: null,
+          visionnageMatch: VisionnageMatch.tele,
+          private: privacy,
         ),
       );
     }
@@ -399,7 +520,7 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<MatchUserData>> fetchUserMatchUserData(String userId) async {
+  Future<List<MatchUserData>> fetchUserAllMatchUserData(String userId) async {
     await _seedingFuture;
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(
@@ -408,5 +529,45 @@ class MockAppUserRepository implements IAppUserRepository {
               matchsUserData: [],
             ));
     return user.uid.isEmpty ? [] : user.matchsUserData;
+  }
+
+  @override
+  Future<void> removeMatchUserData(String userId, String matchId) async {
+    await _seedingFuture;
+
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final updated = user.matchsUserData
+        .where((m) => m.matchId != matchId)
+        .toList(); // trouve la liste de tous les matchs avec un id DIFFÉRENT de matchId
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      matchsUserData: updated,
+    );
+    _users[userIdx] = newUser;
+
+    // également, dans le mock match repository, enlever la note et le vote MVP
+    await MockMatchRepository().removeUserDataFromMatch(matchId, userId);
+  }
+
+  @override
+  Future<MatchUserData?> fetchUserMatchUserData(String userId, String matchId) {
+    return fetchUserAllMatchUserData(userId).then((allData) {
+      try {
+        return allData.firstWhere((m) => m.matchId == matchId);
+      } catch (_) {
+        return null;
+      }
+    });
   }
 }

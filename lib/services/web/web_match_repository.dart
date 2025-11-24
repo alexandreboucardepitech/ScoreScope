@@ -97,6 +97,7 @@ class WebMatchRepository implements IMatchRepository {
         'note': note,
         'mvpVoteId': null,
         'favourite': false,
+        'private': false,
       });
     }
   }
@@ -126,6 +127,7 @@ class WebMatchRepository implements IMatchRepository {
         'matchId': matchId,
         'mvpVoteId': joueurId,
         'favourite': false,
+        'private': false,
       });
     }
   }

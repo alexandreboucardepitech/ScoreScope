@@ -11,6 +11,8 @@ import '../repositories/i_app_user_repository.dart';
 class WebAppUserRepository implements IAppUserRepository {
   final CollectionReference<Map<String, dynamic>> _usersCollection =
       FirebaseFirestore.instance.collection('users');
+  final CollectionReference<Map<String, dynamic>> _matchsCollection =
+      FirebaseFirestore.instance.collection('matchs');
 
   @override
   Future<List<AppUser>> fetchAllUsers() async {
@@ -160,6 +162,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'note': null,
         'mvpVoteId': null,
         'favourite': favori,
+        'private': false,
       });
     }
   }
@@ -172,11 +175,11 @@ class WebAppUserRepository implements IAppUserRepository {
     for (var doc in matchUserDataSnapshot.docs) {
       final data = doc.data();
       if (data['matchId'] == matchId) {
-        final visionnageValue = data['visionnageMatch'];
+        final VisionnageMatch? visionnageValue =
+            VisionnageMatchExt.fromString(data['visionnageMatch']);
         if (visionnageValue != null) {
           try {
-            return VisionnageMatch.values
-                .firstWhere((e) => e.label == visionnageValue);
+            return visionnageValue;
           } on StateError {
             return VisionnageMatch.tele;
           }
@@ -208,6 +211,54 @@ class WebAppUserRepository implements IAppUserRepository {
         'mvpVoteId': null,
         'favourite': false,
         'visionnageMatch': visionnageMatch.label,
+        'private': false,
+      });
+    }
+  }
+
+  @override
+  Future<bool> getMatchPrivacy(String userId, String matchId) async {
+    final matchUserDataSnapshot =
+        await _usersCollection.doc(userId).collection('matchUserData').get();
+    for (var doc in matchUserDataSnapshot.docs) {
+      final data = doc.data();
+      if (data['matchId'] == matchId) {
+        final bool? privacy = data['private'];
+        if (privacy != null) {
+          try {
+            return privacy;
+          } on StateError {
+            return false;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  @override
+  Future<void> setMatchPrivacy(
+      String matchId, String userId, bool privacy) async {
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+
+    if (docSnapshot.exists) {
+      await userMatchDocRef.update({
+        'private': privacy,
+      });
+    } else {
+      await userMatchDocRef.set({
+        'matchId': matchId,
+        'note': null,
+        'mvpVoteId': null,
+        'favourite': false,
+        'visionnageMatch': VisionnageMatch.tele,
+        'private': privacy,
       });
     }
   }
@@ -228,12 +279,52 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<MatchUserData>> fetchUserMatchUserData(String userId) async {
+  Future<List<MatchUserData>> fetchUserAllMatchUserData(String userId) async {
     final matchUserDataSnapshot =
         await _usersCollection.doc(userId).collection('matchUserData').get();
 
     return matchUserDataSnapshot.docs
         .map((d) => MatchUserData.fromJson(d.data()))
         .toList();
+  }
+
+  @override
+  Future<MatchUserData?> fetchUserMatchUserData(String userId, String matchId) {
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    return userMatchDocRef.get().then((docSnapshot) {
+      if (docSnapshot.exists) {
+        return MatchUserData.fromJson(docSnapshot.data()!);
+      } else {
+        return null;
+      }
+    });
+  }
+
+  @override
+  Future<void> removeMatchUserData(String userId, String matchId) async {
+    await _matchsCollection
+        .doc(matchId)
+        .collection('notes')
+        .doc(userId)
+        .delete();
+
+    await _matchsCollection
+        .doc(matchId)
+        .collection('mvpVotes')
+        .doc(userId)
+        .delete();
+
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    return userMatchDocRef.delete();
   }
 }

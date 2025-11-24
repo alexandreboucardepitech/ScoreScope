@@ -6,6 +6,7 @@ class MatchUserData {
   final int? note;
   final String? mvpVoteId;
   final VisionnageMatch visionnageMatch;
+  final bool private;
 
   MatchUserData({
     required this.matchId,
@@ -13,6 +14,7 @@ class MatchUserData {
     this.note,
     this.mvpVoteId,
     this.visionnageMatch = VisionnageMatch.tele,
+    this.private = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,6 +24,7 @@ class MatchUserData {
       if (note != null) 'note': note,
       if (mvpVoteId != null) 'mvpVoteId': mvpVoteId,
       'visionnageMatch': visionnageMatch,
+      'private': private,
     };
   }
 
@@ -36,6 +39,7 @@ class MatchUserData {
           : VisionnageMatchExt.fromString(json['visionnageMatch']) ??
               VisionnageMatch.tele,
       // visionnageMatch: si il y a rien ou que "fromString" renvoie null on met "tele" par défaut
+      private: json['private'] ?? false,
     );
   }
 }

@@ -61,6 +61,11 @@ class Match {
     }
   }
 
+  Future<void> enleverNote({required String userId}) async {
+    notesDuMatch.remove(userId);
+    RepositoryProvider.matchRepository.noterMatch(id, userId, null);
+  }
+
   ///////////////////////// MVP /////////////////////////
 
   Future<void> voterPourMVP({

@@ -21,11 +21,39 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
   bool _isFavori = false;
   bool _isUpdatingFavori = false;
 
+  bool _isPrivate = true;
+  bool _isProcessingPrivacy = false;
+
+  late Match _currentMatch;
+
+  bool _isFetchingMatch = false;
+
+  int _userDataVersion = 0;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _currentMatch = widget.match;
     _loadFavoriStatus();
+    _loadPrivateStatus();
+  }
+
+  Future<void> _fetchMatch() async {
+    setState(() => _isFetchingMatch = true);
+    try {
+      if (_isFetchingMatch) return;
+      final freshMatch = await RepositoryProvider.matchRepository
+          .fetchMatchById(_currentMatch.id);
+      if (!mounted) return;
+      if (freshMatch == null) return;
+      setState(() => _currentMatch = freshMatch);
+    } catch (e) {
+      debugPrint('Erreur lors du fetch du match: $e');
+    } finally {
+      if (!mounted) return;
+      setState(() => _isFetchingMatch = false);
+    }
   }
 
   Future<void> _loadFavoriStatus() async {
@@ -34,11 +62,29 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           await RepositoryProvider.userRepository.getCurrentUser();
       if (currentUser != null) {
         final favori = await RepositoryProvider.userRepository
-            .isMatchFavori(currentUser.uid, widget.match.id);
+            .isMatchFavori(currentUser.uid, _currentMatch.id);
         if (!mounted) return;
         setState(() => _isFavori = favori);
       }
     } catch (_) {}
+  }
+
+  Future<void> _loadPrivateStatus() async {
+    setState(() => _isProcessingPrivacy = true);
+    try {
+      final currentUser =
+          await RepositoryProvider.userRepository.getCurrentUser();
+      if (currentUser != null) {
+        final privacy = await RepositoryProvider.userRepository
+            .getMatchPrivacy(currentUser.uid, _currentMatch.id);
+        if (!mounted) return;
+        setState(() => _isPrivate = privacy);
+      }
+    } catch (_) {
+    } finally {
+      if (!mounted) return;
+      setState(() => _isProcessingPrivacy = false);
+    }
   }
 
   Future<void> _toggleFavori() async {
@@ -52,8 +98,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           await RepositoryProvider.userRepository.getCurrentUser();
       if (currentUser != null) {
         await RepositoryProvider.userRepository
-            .matchFavori(widget.match.id, currentUser.uid, newFavori);
+            .matchFavori(_currentMatch.id, currentUser.uid, newFavori);
       }
+      if (!mounted) return;
       setState(() {
         _isFavori = newFavori;
       });
@@ -67,7 +114,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         ),
       );
     } catch (e) {
-      // erreur lors de la mise à jour
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur lors de la mise à jour du favori'),
@@ -75,7 +122,184 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         ),
       );
     } finally {
+      if (!mounted) return;
       setState(() => _isUpdatingFavori = false);
+    }
+  }
+
+  void _onPrivacyMenuSelected(String action) {
+    switch (action) {
+      case 'publish':
+        _showPublishDialog();
+        break;
+      case 'makePrivate':
+        _showMakePrivateDialog();
+        break;
+      case 'delete':
+        _showDeleteDialog();
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> _showPublishDialog() {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rendre le match public'),
+        content:
+            const Text('Le match sera rendu public et visible par vos amis.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _setPrivacy(false); // false => rendu public
+            },
+            child: const Text('Rendre public'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showMakePrivateDialog() {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rendre le match privé'),
+        content: const Text(
+            'Le match restera en brouillon (privé) et ne sera pas visible par vos amis.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _setPrivacy(true); // true => privé
+            },
+            child: const Text('Rendre privé'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showDeleteDialog() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer le match'),
+        content: const Text(
+            'Êtes-vous sûr de vouloir supprimer ce match ? Cela retirera votre note et votre vote MVP.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _deleteMatchUserData();
+              // refetch complet du match
+              await _fetchMatch();
+            },
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _setPrivacy(bool makePrivate) async {
+    if (_isProcessingPrivacy) return;
+
+    setState(() => _isProcessingPrivacy = true);
+
+    try {
+      final currentUser =
+          await RepositoryProvider.userRepository.getCurrentUser();
+      if (currentUser == null) throw Exception('Utilisateur non connecté');
+
+      await RepositoryProvider.userRepository
+          .setMatchPrivacy(_currentMatch.id, currentUser.uid, makePrivate);
+
+      if (!mounted) return;
+      setState(() {
+        _isPrivate = makePrivate;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text(makePrivate ? 'Match rendu privé' : 'Match rendu public'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erreur lors de la mise à jour de la confidentialité'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _isProcessingPrivacy = false);
+    }
+  }
+
+  Future<void> _deleteMatchUserData() async {
+    if (_isProcessingPrivacy) return;
+
+    setState(() => _isProcessingPrivacy = true);
+
+    try {
+      final currentUser =
+          await RepositoryProvider.userRepository.getCurrentUser();
+      if (currentUser == null) throw Exception('Utilisateur non connecté');
+
+      // Supprimer côté repo
+      await RepositoryProvider.userRepository
+          .removeMatchUserData(currentUser.uid, _currentMatch.id);
+
+      if (!mounted) return;
+
+      // Ne pas modifier _currentMatch localement avec des méthodes qui pourraient écrire.
+      // On incrémente la version pour forcer les enfants à se mettre à jour.
+      setState(() {
+        _userDataVersion++;
+        _isFavori = false; // on reset l'icône coeur
+      });
+
+      // On fetch ensuite pour récupérer l'état "vrai" depuis le serveur
+      // (tu fais déjà un fetch après le dialog, mais si tu veux l'intégrer ici tu peux)
+      // await _fetchMatch();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Match supprimé')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Erreur lors de la suppression du match (réessayez)')),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _isProcessingPrivacy = false);
     }
   }
 
@@ -95,7 +319,6 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          // bouton favori
           IconButton(
             icon: _isUpdatingFavori
                 ? SizedBox(
@@ -103,16 +326,96 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: ColorPalette.opposite(context),
+                      color: ColorPalette.accent(context),
                     ),
                   )
                 : Icon(
                     _isFavori ? Icons.favorite : Icons.favorite_border,
-                    color: _isFavori
-                        ? ColorPalette.accent(context)
-                        : ColorPalette.opposite(context),
+                    color: ColorPalette.accent(context),
                   ),
             onPressed: _toggleFavori,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 4.0),
+            child: _isProcessingPrivacy
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        color: ColorPalette.accent(context),
+                      ),
+                    ),
+                  )
+                : PopupMenuButton<String>(
+                    tooltip: _isPrivate ? 'Match privé' : 'Match public',
+                    icon: Icon(_isPrivate ? Icons.lock : Icons.public,
+                        color: ColorPalette.accent(context)),
+                    onSelected: (value) => _onPrivacyMenuSelected(value),
+                    itemBuilder: (context) {
+                      if (_isPrivate) {
+                        return [
+                          PopupMenuItem(
+                            value: 'publish',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.public, size: 18),
+                                const SizedBox(width: 10),
+                                Text('Rendre le match public',
+                                    style: TextStyle(
+                                        color:
+                                            ColorPalette.textPrimary(context))),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete, size: 18),
+                                const SizedBox(width: 10),
+                                Text('Supprimer le match',
+                                    style: TextStyle(
+                                        color:
+                                            ColorPalette.textPrimary(context))),
+                              ],
+                            ),
+                          ),
+                        ];
+                      } else {
+                        return [
+                          PopupMenuItem(
+                            value: 'makePrivate',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.lock, size: 18),
+                                const SizedBox(width: 10),
+                                Text('Rendre le match privé',
+                                    style: TextStyle(
+                                        color:
+                                            ColorPalette.textPrimary(context))),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete, size: 18),
+                                const SizedBox(width: 10),
+                                Text('Supprimer le match',
+                                    style: TextStyle(
+                                        color:
+                                            ColorPalette.textPrimary(context))),
+                              ],
+                            ),
+                          ),
+                        ];
+                      }
+                    },
+                  ),
           ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: ColorPalette.opposite(context)),
@@ -144,7 +447,6 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // logos + score (réduis si besoin)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -156,11 +458,11 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                     width: 48,
                                     height: 48,
                                     child: Image.asset(
-                                        widget.match.equipeDomicile.logoPath!,
+                                        _currentMatch.equipeDomicile.logoPath!,
                                         fit: BoxFit.contain)),
                                 const SizedBox(height: 6),
                                 Text(
-                                  widget.match.equipeDomicile.nom,
+                                  _currentMatch.equipeDomicile.nom,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -173,7 +475,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                           ),
                           Expanded(
                             child: Text(
-                              '${widget.match.scoreEquipeDomicile} - ${widget.match.scoreEquipeExterieur}',
+                              '${_currentMatch.scoreEquipeDomicile} - ${_currentMatch.scoreEquipeExterieur}',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 24,
@@ -190,11 +492,11 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                     width: 48,
                                     height: 48,
                                     child: Image.asset(
-                                        widget.match.equipeExterieur.logoPath!,
+                                        _currentMatch.equipeExterieur.logoPath!,
                                         fit: BoxFit.contain)),
                                 const SizedBox(height: 6),
                                 Text(
-                                  widget.match.equipeExterieur.nom,
+                                  _currentMatch.equipeExterieur.nom,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -207,21 +509,17 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 8),
-
-                      // buteurs (texte compact)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Bloc domicile
                           SizedBox(
-                            width: 160, // largeur fixe pour la colonne domicile
+                            width: 160,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: getLignesButeurs(
-                                      buts: widget.match.butsEquipeDomicile,
+                                      buts: _currentMatch.butsEquipeDomicile,
                                       domicile: true,
                                       fullName: false)
                                   .map(
@@ -237,27 +535,21 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                   .toList(),
                             ),
                           ),
-
-                          // Bloc score / ballon
                           SizedBox(
-                            width: 40, // largeur fixe du bloc central
+                            width: 40,
                             child: Column(
                               children: const [
                                 Icon(Icons.sports_soccer, size: 14),
                                 SizedBox(height: 4),
-                                // Tu peux mettre le score ici si tu veux
                               ],
                             ),
                           ),
-
-                          // Bloc extérieur
                           SizedBox(
-                            width:
-                                160, // largeur fixe pour la colonne extérieur
+                            width: 160,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: getLignesButeurs(
-                                      buts: widget.match.butsEquipeExterieur,
+                                      buts: _currentMatch.butsEquipeExterieur,
                                       domicile: false,
                                       fullName: false)
                                   .map(
@@ -293,13 +585,15 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
               ],
             ),
           ),
-
-          // --- Contenu dessous (tab views) ---
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
-                InfosTab(match: widget.match),
+                InfosTab(
+                  key: ValueKey('${_currentMatch.id}_$_userDataVersion'),
+                  match: _currentMatch,
+                  userDataVersion: _userDataVersion,
+                ),
                 Center(child: Text("Contenu Statistiques")),
                 Center(child: Text("Contenu Commentaires")),
               ],

@@ -11,7 +11,9 @@ import '../../../models/match.dart';
 
 class InfosTab extends StatefulWidget {
   final Match match;
-  const InfosTab({super.key, required this.match});
+  final int userDataVersion;
+
+  const InfosTab({super.key, required this.match, this.userDataVersion = 0});
 
   @override
   State<InfosTab> createState() => _InfosTabState();
@@ -27,33 +29,71 @@ class _InfosTabState extends State<InfosTab> {
   @override
   void initState() {
     super.initState();
-    _loadMvp();
+    _loadMvpEtNote();
   }
 
-  Future<void> _loadMvp() async {
-    setState(() => _loadingMvp = true);
-    try {
-      final mvp = await widget.match.getMvp();
+  @override
+  void didUpdateWidget(covariant InfosTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final joueurId = widget.match.mvpVotes[user.uid];
-        if (joueurId != null) {
-          userVoteMVP = await RepositoryProvider.joueurRepository
-              .fetchJoueurById(joueurId);
+    if (widget.userDataVersion != oldWidget.userDataVersion) {
+      setState(() {
+        userVoteMVP = null;
+        userVoteNoteMatch = null;
+        currentMvp = null;
+        _loadingMvp = true;
+      });
+      _loadMvpEtNote();
+    }
+  }
+
+  Future<void> _loadMvpEtNote() async {
+    if (!mounted) return;
+    setState(() => _loadingMvp = true);
+
+    Joueur? loadedCurrentMvp;
+    Joueur? loadedUserVoteMVP;
+    int? loadedUserNote;
+
+    try {
+      loadedCurrentMvp = await widget.match.getMvp();
+
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser != null) {
+        final match = await RepositoryProvider.matchRepository
+            .fetchMatchById(widget.match.id);
+        if (match != null) {
+          final userVoteId = match.mvpVotes[firebaseUser.uid];
+          if (userVoteId != null) {
+            loadedUserVoteMVP =
+                await RepositoryProvider.joueurRepository.fetchJoueurById(
+              userVoteId,
+            );
+          } else {
+            loadedUserVoteMVP = null;
+          }
+          final userNote = match.notesDuMatch[firebaseUser.uid];
+          loadedUserNote = userNote;
         }
-        userVoteNoteMatch = widget.match.notesDuMatch[user.uid];
       }
 
       if (!mounted) return;
       setState(() {
-        currentMvp = mvp;
-        // userVote = initialUserVote;
+        currentMvp = loadedCurrentMvp;
+        userVoteMVP = loadedUserVoteMVP;
+        userVoteNoteMatch = loadedUserNote;
       });
     } catch (e) {
       debugPrint('Erreur lors du chargement du MVP ou du vote utilisateur: $e');
+      if (!mounted) return;
+      setState(() {
+        currentMvp = loadedCurrentMvp; // on garde ce qu'on a pu lire du global
+        userVoteMVP = null;
+        userVoteNoteMatch = null;
+      });
     } finally {
-      if (mounted) setState(() => _loadingMvp = false);
+      if (!mounted) return;
+      setState(() => _loadingMvp = false);
     }
   }
 
@@ -76,7 +116,7 @@ class _InfosTabState extends State<InfosTab> {
     } else {
       widget.match.enleverVote(userId: user.uid);
     }
-    await _loadMvp();
+    await _loadMvpEtNote();
   }
 
   @override
@@ -86,6 +126,9 @@ class _InfosTabState extends State<InfosTab> {
       child: Column(
         children: [
           MatchRatingCard(
+            key: ValueKey(
+              'match_rating_${widget.match.id}_${widget.userDataVersion}',
+            ),
             noteMoyenne: widget.match.getNoteMoyenne(),
             userVote: userVoteNoteMatch,
             onChanged: (nouvelleValeur) {},
@@ -103,6 +146,9 @@ class _InfosTabState extends State<InfosTab> {
                   child: Center(child: CircularProgressIndicator()),
                 )
               : MvpCard(
+                  key: ValueKey(
+                    'mvp_${widget.match.id}_${widget.userDataVersion}',
+                  ),
                   mvp: currentMvp,
                   userVote: userVoteMVP,
                   onVotePressed: _onPlusPressed,
@@ -114,9 +160,14 @@ class _InfosTabState extends State<InfosTab> {
               children: [
                 Expanded(
                   flex: 1,
-                  child: VisionnageMatchCard(matchId: widget.match.id),
+                  child: VisionnageMatchCard(
+                    key: ValueKey(
+                      'visionnage_${widget.match.id}_${widget.userDataVersion}',
+                    ),
+                    matchId: widget.match.id,
+                  ),
                 ),
-                const SizedBox(width: 6), // espace horizontal
+                const SizedBox(width: 6),
                 Expanded(
                   flex: 1,
                   child: MatchInfosCard(),

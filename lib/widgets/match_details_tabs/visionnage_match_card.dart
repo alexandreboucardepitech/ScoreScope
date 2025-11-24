@@ -37,6 +37,21 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
   }
 
   @override
+  void didUpdateWidget(covariant VisionnageMatchCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Si le matchId change, réinitialiser l'affichage et recharger la valeur depuis la BDD
+    if (widget.matchId != oldWidget.matchId) {
+      if (!mounted) return;
+      setState(() {
+        _loading = true;
+        _isSaving = false;
+        _currentType = VisionnageMatch.tele; // valeur par défaut temporaire
+      });
+      _loadTypeVisionnage();
+    }
+  }
+
+  @override
   void dispose() {
     _shimmerController?.dispose();
     super.dispose();
@@ -92,7 +107,8 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
           _isSaving = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Impossible de récupérer l'utilisateur.")),
+          const SnackBar(
+              content: Text("Impossible de récupérer l'utilisateur.")),
         );
         return;
       }
@@ -110,15 +126,15 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
         _isSaving = false;
       });
 
-      widget.onSelected?.call(
-          choix); // si besoin de faire des trucs en plus quand on sélectionne la valeur
+      widget.onSelected?.call(choix);
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isSaving = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Échec de la sauvegarde — réessaye plus tard.")),
+        const SnackBar(
+            content: Text("Échec de la sauvegarde — réessaye plus tard.")),
       );
     }
   }
