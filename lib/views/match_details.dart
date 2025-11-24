@@ -146,21 +146,41 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
   Future<void> _showPublishDialog() {
     return showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Rendre le match public'),
+        backgroundColor: ColorPalette.surface(context),
+        title: Text(
+          'Rendre le match public',
+          style: TextStyle(
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
         content:
             const Text('Le match sera rendu public et visible par vos amis.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
+            child: Text(
+              'Annuler',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.accent(context),
+            ),
             onPressed: () async {
               Navigator.of(context).pop();
               await _setPrivacy(false); // false => rendu public
             },
-            child: const Text('Rendre public'),
+            child: Text(
+              'Rendre public',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
         ],
       ),
@@ -170,21 +190,41 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
   Future<void> _showMakePrivateDialog() {
     return showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Rendre le match privé'),
+        backgroundColor: ColorPalette.surface(context),
+        title: Text(
+          'Rendre le match privé',
+          style: TextStyle(
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
         content: const Text(
             'Le match restera en brouillon (privé) et ne sera pas visible par vos amis.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
+            child: Text(
+              'Annuler',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.accent(context),
+            ),
             onPressed: () async {
               Navigator.of(context).pop();
               await _setPrivacy(true); // true => privé
             },
-            child: const Text('Rendre privé'),
+            child: Text(
+              'Rendre privé',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
         ],
       ),
@@ -196,13 +236,22 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer le match'),
+        backgroundColor: ColorPalette.surface(context),
+        title: Text(
+          'Supprimer le match',
+          style: TextStyle(
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
         content: const Text(
-            'Êtes-vous sûr de vouloir supprimer ce match ? Cela retirera votre note et votre vote MVP.'),
+            "Êtes-vous sûr de vouloir supprimer ce match ?\nCela retirera votre note et votre vote MVP et il n'apparaîtra plus sur votre profil."),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
+            child: Text('Annuler',
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(context),
+                )),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -214,7 +263,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
               // refetch complet du match
               await _fetchMatch();
             },
-            child: const Text('Supprimer'),
+            child: Text(
+              'Supprimer',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
         ],
       ),
@@ -363,10 +417,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                               children: [
                                 const Icon(Icons.public, size: 18),
                                 const SizedBox(width: 10),
-                                Text('Rendre le match public',
-                                    style: TextStyle(
-                                        color:
-                                            ColorPalette.textPrimary(context))),
+                                Text(
+                                  'Rendre le match public',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -376,10 +432,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                               children: [
                                 const Icon(Icons.delete, size: 18),
                                 const SizedBox(width: 10),
-                                Text('Supprimer le match',
-                                    style: TextStyle(
-                                        color:
-                                            ColorPalette.textPrimary(context))),
+                                Text(
+                                  'Supprimer le match',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -392,10 +450,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                               children: [
                                 const Icon(Icons.lock, size: 18),
                                 const SizedBox(width: 10),
-                                Text('Rendre le match privé',
-                                    style: TextStyle(
-                                        color:
-                                            ColorPalette.textPrimary(context))),
+                                Text(
+                                  'Rendre le match privé',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -405,10 +465,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                               children: [
                                 const Icon(Icons.delete, size: 18),
                                 const SizedBox(width: 10),
-                                Text('Supprimer le match',
-                                    style: TextStyle(
-                                        color:
-                                            ColorPalette.textPrimary(context))),
+                                Text(
+                                  'Supprimer le match',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
                               ],
                             ),
                           ),

@@ -257,7 +257,6 @@ class WebAppUserRepository implements IAppUserRepository {
         'note': null,
         'mvpVoteId': null,
         'favourite': false,
-        'visionnageMatch': VisionnageMatch.tele,
         'private': privacy,
       });
     }
