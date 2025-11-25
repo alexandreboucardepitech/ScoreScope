@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/match.dart' as model_match;
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:scorescope/models/match.dart';
-import 'package:scorescope/services/repository_provider.dart';
 
 class MatchsRegardes extends StatefulWidget {
   final List<String>? matchesId;
   final bool isLoading; // true = on charge les IDs
   final AppUser? user;
+  final VoidCallback? onVoirPlus;
+
   const MatchsRegardes({
     super.key,
     required this.matchesId,
     this.isLoading = false,
     this.user,
+    this.onVoirPlus,
   });
 
   @override
@@ -24,7 +27,7 @@ class MatchsRegardes extends StatefulWidget {
 class _MatchsRegardesState extends State<MatchsRegardes> {
   final matchesRepo = RepositoryProvider.matchRepository;
 
-  final Map<String, Match?> _loaded = {};
+  final Map<String, model_match.Match?> _loaded = {};
   final Set<String> _fetching = {};
 
   @override
@@ -36,7 +39,10 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
   @override
   void didUpdateWidget(covariant MatchsRegardes oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _ensureFetch();
+    // si la liste d'IDs a changé, on s'assure de fetcher les nouveaux
+    if (oldWidget.matchesId != widget.matchesId) {
+      _ensureFetch();
+    }
   }
 
   void _ensureFetch() {
@@ -46,10 +52,10 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
       _fetchMatch(id);
     }
     // retirer les IDs qui ne sont plus dans la liste
-    _loaded.keys
-        .where((k) => !ids.contains(k))
-        .toList()
-        .forEach(_loaded.remove);
+    final toRemove = _loaded.keys.where((k) => !ids.contains(k)).toList();
+    for (final r in toRemove) {
+      _loaded.remove(r);
+    }
   }
 
   Future<void> _fetchMatch(String id) async {
@@ -67,7 +73,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _loaded[id] = null; // erreur : on peut afficher un placeholder d'erreur
+        _loaded[id] = null; // erreur : placeholder
       });
     } finally {
       _fetching.remove(id);
@@ -76,45 +82,89 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) return _buildGlobalShimmer();
-
     final ids = widget.matchesId ?? [];
-    if (ids.isEmpty) return const SizedBox.shrink();
 
-    final display = ids.take(5).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Derniers matchs ajoutés',
-              style: TextStyle(
-                color: ColorPalette.textPrimary(context),
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                'Voir plus',
-                style: TextStyle(
-                  color: ColorPalette.textSecondary(context),
-                ),
-              ),
-            )
-          ],
-        ),
+        _buildHeader(context),
         const SizedBox(height: 8),
-        MatchList(ids: display, user: widget.user),
+        if (widget.isLoading)
+          _buildGlobalShimmer(context)
+        else if (ids.isEmpty)
+          _buildEmptyMessage(context, "Aucun match regardé")
+        else
+          MatchList(
+            ids: ids.take(5).toList(),
+            user: widget.user,
+          ),
       ],
     );
   }
 
-  Widget _buildGlobalShimmer() {
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Derniers matchs ajoutés',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        TextButton(
+          onPressed: widget.onVoirPlus,
+          child: Text(
+            'Voir plus',
+            style: TextStyle(
+              color: ColorPalette.textSecondary(context),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyMessage(BuildContext context, String msg) {
+    return SizedBox(
+      height: 140,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.sports_soccer_outlined,
+                size: 32, color: ColorPalette.textSecondary(context)),
+            const SizedBox(height: 8),
+            Text(
+              msg,
+              style: TextStyle(
+                color: ColorPalette.textSecondary(context),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlobalShimmer(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // header shimmer
+        Shimmer.fromColors(
+          baseColor: ColorPalette.shimmerPrimary(context),
+          highlightColor: ColorPalette.shimmerSecondary(context),
+          child: Container(
+            height: 18,
+            width: 180,
+            margin: const EdgeInsets.only(bottom: 8),
+            color: ColorPalette.surface(context),
+          ),
+        ),
+        // 5 tuiles shimmer
         Shimmer.fromColors(
           baseColor: ColorPalette.shimmerPrimary(context),
           highlightColor: ColorPalette.shimmerSecondary(context),
@@ -122,7 +172,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
             children: List.generate(
               5,
               (i) => const Padding(
-                padding: EdgeInsets.symmetric(vertical: 4),
+                padding: EdgeInsets.symmetric(vertical: 6),
                 child: _MatchShimmerTile(),
               ),
             ),
@@ -139,7 +189,7 @@ class _MatchShimmerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
+      height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: ColorPalette.surface(context),
@@ -148,7 +198,7 @@ class _MatchShimmerTile extends StatelessWidget {
       child: Row(
         children: [
           Container(
-              width: 40, height: 40, color: ColorPalette.surface(context)),
+              width: 48, height: 48, color: ColorPalette.surface(context)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -158,9 +208,10 @@ class _MatchShimmerTile extends StatelessWidget {
                 Container(height: 12, color: ColorPalette.surface(context)),
                 const SizedBox(height: 6),
                 Container(
-                    height: 12,
-                    width: 80,
-                    color: ColorPalette.surface(context)),
+                  height: 12,
+                  width: 100,
+                  color: ColorPalette.surface(context),
+                ),
               ],
             ),
           ),

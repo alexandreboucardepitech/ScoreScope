@@ -37,25 +37,36 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<String>> getUserMatchsRegardesId(String userId) async {
+  Future<List<String>> getUserMatchsRegardesId(
+      String userId, bool onlyPublic) async {
     final matchUserDataSnapshot =
         await _usersCollection.doc(userId).collection('matchUserData').get();
 
     return matchUserDataSnapshot.docs
+        .where((d) => !onlyPublic || (d.data()['private'] == false))
         .map((d) => d.data()['matchId'] as String)
         .toList();
   }
 
   @override
-  Future<int> getUserNbMatchsRegardes(String userId) async {
+  Future<int> getUserNbMatchsRegardes(String userId, bool onlyPublic) async {
     final matchUserDataSnapshot =
         await _usersCollection.doc(userId).collection('matchUserData').get();
 
-    return matchUserDataSnapshot.docs.length;
+    int count = 0;
+
+    for (var doc in matchUserDataSnapshot.docs) {
+      final data = doc.data();
+      if (!onlyPublic || (data['private'] == false)) {
+        count++;
+      }
+    }
+
+    return count;
   }
 
   @override
-  Future<int> getUserNbButs(String userId) async {
+  Future<int> getUserNbButs(String userId, bool onlyPublic) async {
     final matchUserDataSnapshot =
         await _usersCollection.doc(userId).collection('matchUserData').get();
 
@@ -64,6 +75,9 @@ class WebAppUserRepository implements IAppUserRepository {
     final matchsCollection = FirebaseFirestore.instance.collection('matchs');
 
     for (var doc in matchUserDataSnapshot.docs) {
+      if (onlyPublic && (doc.data()['private'] == true)) {
+        continue;
+      }
       final matchId = doc.data()['matchId'] as String?;
 
       if (matchId == null) continue;
@@ -83,9 +97,10 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<int> getUserNbMatchsRegardesParEquipe(
-      String userId, String equipeId) async {
+      String userId, String equipeId, bool onlyPublic) async {
     int nbMatchsRegardes = 0;
-    List<String> matchsRegardesId = await getUserMatchsRegardesId(userId);
+    List<String> matchsRegardesId =
+        await getUserMatchsRegardesId(userId, onlyPublic);
 
     if (matchsRegardesId.isEmpty) return 0;
 
@@ -110,12 +125,14 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<String>> getUserMatchsFavorisId(String userId) async {
+  Future<List<String>> getUserMatchsFavorisId(
+      String userId, bool onlyPublic) async {
     final matchUserDataSnapshot =
         await _usersCollection.doc(userId).collection('matchUserData').get();
 
     return matchUserDataSnapshot.docs
         .where((d) => d.data()['favourite'] == true)
+        .where((d) => !onlyPublic || (d.data()['private'] == false))
         .map((d) => d.data()['matchId'] as String)
         .toList();
   }
@@ -138,7 +155,7 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<bool> isMatchFavori(String userId, String matchId) async {
-    List<String> matchsFavoris = await getUserMatchsFavorisId(userId);
+    List<String> matchsFavoris = await getUserMatchsFavorisId(userId, false);
     return matchsFavoris.contains(matchId);
   }
 
@@ -170,23 +187,16 @@ class WebAppUserRepository implements IAppUserRepository {
   @override
   Future<VisionnageMatch> getVisionnageMatch(
       String userId, String matchId) async {
-    final matchUserDataSnapshot =
-        await _usersCollection.doc(userId).collection('matchUserData').get();
-    for (var doc in matchUserDataSnapshot.docs) {
-      final data = doc.data();
-      if (data['matchId'] == matchId) {
-        final VisionnageMatch? visionnageValue =
-            VisionnageMatchExt.fromString(data['visionnageMatch']);
-        if (visionnageValue != null) {
-          try {
-            return visionnageValue;
-          } on StateError {
-            return VisionnageMatch.tele;
-          }
-        }
-      }
-    }
-    return VisionnageMatch.tele;
+    final doc = await _usersCollection
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId)
+        .get();
+    if (!doc.exists) return VisionnageMatch.tele;
+    final data = doc.data()!;
+    final VisionnageMatch? visionnageValue =
+        VisionnageMatchExt.fromString(data['visionnageMatch']);
+    return visionnageValue ?? VisionnageMatch.tele;
   }
 
   @override
@@ -278,13 +288,26 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<MatchUserData>> fetchUserAllMatchUserData(String userId) async {
+  Future<List<MatchUserData>> fetchUserAllMatchUserData(
+      String userId, bool onlyPublic) async {
     final matchUserDataSnapshot =
         await _usersCollection.doc(userId).collection('matchUserData').get();
 
-    return matchUserDataSnapshot.docs
-        .map((d) => MatchUserData.fromJson(d.data()))
-        .toList();
+    List<MatchUserData> matchUserDataList = [];
+
+    for (var doc in matchUserDataSnapshot.docs) {
+      final data = doc.data();
+      final matchUserData = MatchUserData.fromJson(data);
+      if (onlyPublic) {
+        if (!matchUserData.private) {
+          matchUserDataList.add(matchUserData);
+        }
+      } else {
+        matchUserDataList.add(matchUserData);
+      }
+    }
+
+    return matchUserDataList;
   }
 
   @override

@@ -64,10 +64,7 @@ class _ProfileViewState extends State<ProfileView> {
     super.initState();
 
     _displayedUser = widget.user;
-
-    _loadCurrentUser();
-
-    _loadProfileData();
+    _init();
 
     double headerHeightTemp = 300;
 
@@ -87,6 +84,11 @@ class _ProfileViewState extends State<ProfileView> {
         }
       });
     });
+  }
+
+  Future<void> _init() async {
+    await _loadCurrentUser();
+    _loadProfileData();
   }
 
   Future<void> _loadCurrentUser() async {
@@ -146,8 +148,8 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _loadMatchUserData(String uid) async {
     setState(() => _isLoadingMatchUserData = true);
     try {
-      final List<MatchUserData> data =
-          await userRepository.fetchUserAllMatchUserData(uid);
+      final List<MatchUserData> data = await userRepository
+          .fetchUserAllMatchUserData(uid, uid != currentUser?.uid);
 
       if (!mounted) return;
 
@@ -194,7 +196,10 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _loadMatchsRegardes(String uid) async {
     setState(() => _isLoadingMatchsRegardes = true);
     try {
-      final matchs = await userRepository.getUserMatchsRegardesId(uid);
+      final matchs = await userRepository.getUserMatchsRegardesId(
+        uid,
+        uid != currentUser?.uid,
+      );
       if (!mounted) return;
       setState(() {
         userMatchsRegardesId = matchs;
@@ -209,7 +214,10 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _loadFavoris(String uid) async {
     setState(() => _isLoadingMatchsFavoris = true);
     try {
-      final favs = await userRepository.getUserMatchsFavorisId(uid);
+      final favs = await userRepository.getUserMatchsFavorisId(
+        uid,
+        uid != currentUser?.uid,
+      );
       if (!mounted) return;
       setState(() {
         userMatchsFavorisId = favs;
@@ -224,7 +232,10 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _loadUserNbMatchsRegardes(String uid) async {
     setState(() => _isLoadingNbMatchsRegardes = true);
     try {
-      final nbMatchs = await userRepository.getUserNbMatchsRegardes(uid);
+      final nbMatchs = await userRepository.getUserNbMatchsRegardes(
+        uid,
+        uid != currentUser?.uid,
+      );
       if (!mounted) return;
       setState(() {
         userNbMatchsRegardes = nbMatchs;
@@ -239,7 +250,10 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _loadUserNbButs(String uid) async {
     setState(() => _isLoadingNbButs = true);
     try {
-      final nbButs = await userRepository.getUserNbButs(uid);
+      final nbButs = await userRepository.getUserNbButs(
+        uid,
+        uid != currentUser?.uid,
+      );
       if (!mounted) return;
       setState(() {
         userNbButs = nbButs;
@@ -351,14 +365,20 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     final bool isMe = widget.user.uid == currentUser?.uid;
-
     final userToUse = _displayedUser ?? widget.user;
+
+    final bool equipesLoading = _isLoadingEquipesPreferees;
+
+    final bool matchsRegardesLoading =
+        _isLoadingMatchsRegardes || _isLoadingMatchUserData;
+
+    final bool matchsFavorisLoading = _isLoadingMatchsFavoris;
 
     return PopScope<bool>(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop && widget.onBackPressed != null) {
-          widget.onBackPressed!(); // revient à l'onglet 0
+          widget.onBackPressed!();
         }
       },
       child: Scaffold(
@@ -479,39 +499,30 @@ class _ProfileViewState extends State<ProfileView> {
           body: Container(
             color: ColorPalette.background(context),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    key: _equipesKey,
-                    child: EquipesPreferees(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    EquipesPreferees(
                       teamsId: userEquipesPrefereesId,
                       user: userToUse,
-                      isLoading: _isLoadingEquipesPreferees,
+                      isMe: isMe,
+                      isLoading: equipesLoading,
                     ),
-                  ),
-                  const Divider(height: 32),
-                  Container(
-                    key: _matchsRegardesKey,
-                    child: MatchsRegardes(
+                    const Divider(height: 32),
+                    MatchsRegardes(
                       matchesId: userMatchsRegardesId,
-                      isLoading:
-                          _isLoadingMatchsRegardes || _isLoadingMatchUserData,
+                      isLoading: matchsRegardesLoading,
                       user: userToUse,
                     ),
-                  ),
-                  const Divider(height: 32),
-                  Container(
-                    key: _matchsFavorisKey,
-                    child: MatchsFavoris(
+                    const Divider(height: 32),
+                    MatchsFavoris(
                       matchsFavorisId: userMatchsFavorisId,
-                      isLoading: _isLoadingMatchsFavoris,
+                      isLoading: matchsFavorisLoading,
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                )),
           ),
         ),
       ),

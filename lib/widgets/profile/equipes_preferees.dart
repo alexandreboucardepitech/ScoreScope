@@ -10,10 +10,12 @@ class EquipesPreferees extends StatefulWidget {
   final List<String>? teamsId;
   final AppUser user;
   final bool isLoading;
+  final bool isMe;
   const EquipesPreferees(
       {super.key,
       required this.teamsId,
       required this.user,
+      required this.isMe,
       this.isLoading = false});
 
   @override
@@ -97,7 +99,7 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
     });
     try {
       final nb = await userRepo.getUserNbMatchsRegardesParEquipe(
-          widget.user.uid, equipeId);
+          widget.user.uid, equipeId, widget.isMe ? false : true);
       if (!mounted) return;
       setState(() {
         _loadedNbMatchs[equipeId] = nb;

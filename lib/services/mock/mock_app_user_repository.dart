@@ -135,31 +135,44 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<String>> getUserMatchsRegardesId(String userId) async {
+  Future<List<String>> getUserMatchsRegardesId(
+      String userId, bool onlyPublic) async {
     await _seedingFuture;
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
-    return user.uid.isEmpty
-        ? []
+    if (user.uid.isEmpty) return [];
+    final matchsRegardes = onlyPublic
+        ? user.matchsUserData
+            .where((m) => m.private == false)
+            .map((m) => m.matchId)
+            .toList()
         : user.matchsUserData.map((m) => m.matchId).toList();
+    return matchsRegardes;
   }
 
   @override
-  Future<int> getUserNbMatchsRegardes(String userId) async {
+  Future<int> getUserNbMatchsRegardes(String userId, bool onlyPublic) async {
     await _seedingFuture;
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
-    return user.matchsUserData.length;
+    if (user.uid.isEmpty) return 0;
+    final matchsRegardes = onlyPublic
+        ? user.matchsUserData.where((m) => m.private == false).toList()
+        : user.matchsUserData;
+    return matchsRegardes.length;
   }
 
   @override
-  Future<int> getUserNbButs(String userId) async {
+  Future<int> getUserNbButs(String userId, bool onlyPublic) async {
     await _seedingFuture;
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
     int nbButs = 0;
     Match? match;
     for (MatchUserData data in user.matchsUserData) {
+      if (onlyPublic && data.private) {
+        continue;
+      }
       match = await MockMatchRepository().fetchMatchById(data.matchId);
       if (match != null) {
         nbButs =
@@ -171,10 +184,10 @@ class MockAppUserRepository implements IAppUserRepository {
 
   @override
   Future<int> getUserNbMatchsRegardesParEquipe(
-      String userId, String equipeId) async {
+      String userId, String equipeId, bool onlyPublic) async {
     await _seedingFuture;
 
-    final List<String> matchsRegardesId = await getUserMatchsRegardesId(userId);
+    final List<String> matchsRegardesId = await getUserMatchsRegardesId(userId, onlyPublic);
     if (matchsRegardesId.isEmpty) return 0;
 
     final matchesRepo = MockMatchRepository();
@@ -198,16 +211,18 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<String>> getUserMatchsFavorisId(String userId) async {
+  Future<List<String>> getUserMatchsFavorisId(
+      String userId, bool onlyPublic) async {
     await _seedingFuture;
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
-    return user.uid.isEmpty
-        ? []
-        : user.matchsUserData
-            .where((match) => match.favourite == true)
-            .map((m) => m.matchId)
-            .toList();
+    if (user.uid.isEmpty) return [];
+    final favoris = user.matchsUserData
+        .where((m) => m.favourite == true)
+        .where((m) => onlyPublic ? m.private == false : true)
+        .map((m) => m.matchId)
+        .toList();
+    return favoris;
   }
 
   @override
@@ -371,7 +386,7 @@ class MockAppUserRepository implements IAppUserRepository {
 
   @override
   Future<bool> isMatchFavori(String userId, String matchId) async {
-    List<String> matchsFavoris = await getUserMatchsFavorisId(userId);
+    List<String> matchsFavoris = await getUserMatchsFavorisId(userId, false);
     return matchsFavoris.contains(matchId);
   }
 
@@ -520,15 +535,17 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<MatchUserData>> fetchUserAllMatchUserData(String userId) async {
+  Future<List<MatchUserData>> fetchUserAllMatchUserData(
+      String userId, bool onlyPublic) async {
     await _seedingFuture;
     final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(
-              uid: '',
-              createdAt: DateTime.now(),
-              matchsUserData: [],
-            ));
-    return user.uid.isEmpty ? [] : user.matchsUserData;
+        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    if (user.uid.isEmpty) return [];
+    if (onlyPublic) {
+      return user.matchsUserData.where((m) => m.private == false).toList();
+    } else {
+      return user.matchsUserData;
+    }
   }
 
   @override
@@ -562,7 +579,7 @@ class MockAppUserRepository implements IAppUserRepository {
 
   @override
   Future<MatchUserData?> fetchUserMatchUserData(String userId, String matchId) {
-    return fetchUserAllMatchUserData(userId).then((allData) {
+    return fetchUserAllMatchUserData(userId, false).then((allData) {
       try {
         return allData.firstWhere((m) => m.matchId == matchId);
       } catch (_) {
