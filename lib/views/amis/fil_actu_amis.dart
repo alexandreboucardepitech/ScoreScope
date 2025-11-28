@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:scorescope/models/amitie.dart';
+import 'package:scorescope/models/match_regarde_ami.dart';
+import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/ui/slow_scroll_physics.dart';
 import 'package:scorescope/views/amis/ajout_amis.dart';
 import 'package:scorescope/views/amis/demandes_amis.dart';
+import 'package:scorescope/widgets/fil_actu_amis/match_regarde_ami_card.dart';
 
 class FilActuAmisView extends StatefulWidget {
   final VoidCallback? onBackPressed;
-
   const FilActuAmisView({super.key, this.onBackPressed});
 
   @override
@@ -17,10 +21,17 @@ class FilActuAmisView extends StatefulWidget {
 class _FilActuAmisViewState extends State<FilActuAmisView> {
   final ValueNotifier<int> _pendingRequests = ValueNotifier<int>(0);
 
+  bool _isLoadingFeed = true;
+  bool _isFeedError = false;
+
+  final List<FriendMatchEntry> _rawEntries = [];
+  final List<MatchRegardeAmi> _entries = [];
+
   @override
   void initState() {
     super.initState();
     _loadPendingRequests();
+    _loadFeed();
   }
 
   Future<void> _loadPendingRequests() async {
@@ -38,7 +49,6 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
 
       if (!mounted) return;
 
-      // on n'affiche le badge que si > 0
       if (nbPending > 0) {
         _pendingRequests.value = nbPending;
       }
@@ -53,7 +63,6 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
     super.dispose();
   }
 
-  // Icône cloche avec badge, adaptée à la palette
   Widget _notificationsIcon(BuildContext context) {
     return ValueListenableBuilder<int>(
       valueListenable: _pendingRequests,
@@ -152,13 +161,15 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ).copyWith(
-              overlayColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.pressed)) {
-                  return ColorPalette.highlight(context)
-                      .withValues(alpha: 0.14);
-                }
-                return null;
-              }),
+              overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.pressed)) {
+                    return ColorPalette.highlight(context)
+                        .withValues(alpha: 0.14);
+                  }
+                  return null;
+                },
+              ),
             ),
             onPressed: () {
               HapticFeedback.selectionClick();
@@ -171,87 +182,217 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return PopScope<bool>(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && widget.onBackPressed != null) {
-          widget.onBackPressed!(); // revient à l'onglet 0
+  Future<void> _loadFeed() async {
+    setState(() {
+      _isLoadingFeed = true;
+      _isFeedError = false;
+      _rawEntries.clear();
+      _entries.clear();
+    });
+
+    try {
+      final currentUser =
+          await RepositoryProvider.userRepository.getCurrentUser();
+      if (!mounted) return;
+
+      if (currentUser == null) {
+        setState(() {
+          _isLoadingFeed = false;
+        });
+        return;
+      }
+
+      final List<FriendMatchEntry> repoEntries = await RepositoryProvider
+          .amitieRepository
+          .fetchFriendsMatchesUserData(currentUser.uid);
+
+      if (!mounted) return;
+
+      _rawEntries.addAll(repoEntries);
+
+      final uniqueIds = _rawEntries
+          .map((entry) => entry.matchData.matchId)
+          .whereType<String>()
+          .toSet()
+          .toList();
+
+      final matchRepo = RepositoryProvider.matchRepository;
+      final futures = uniqueIds.map((id) => matchRepo.fetchMatchById(id));
+      final matchesList = await Future.wait(futures);
+      if (!mounted) return;
+
+      final Map<String, MatchModel?> matchById = {};
+      for (var i = 0; i < uniqueIds.length; i++) {
+        matchById[uniqueIds[i]] = matchesList[i];
+      }
+
+      final mvpIds = _rawEntries
+          .map((entry) => entry.matchData.mvpVoteId)
+          .whereType<String>()
+          .toSet()
+          .toList();
+
+      final Map<String, String> mvpNameById = {};
+      if (mvpIds.isNotEmpty) {
+        final joueurRepo = RepositoryProvider.joueurRepository;
+        final mvpFutures = mvpIds.map((id) => joueurRepo.fetchJoueurById(id));
+        final joueurs = await Future.wait(mvpFutures);
+        for (var i = 0; i < mvpIds.length; i++) {
+          final joueur = joueurs[i];
+          if (joueur != null) {
+            mvpNameById[mvpIds[i]] = joueur.fullName;
+          }
         }
-      },
-      child: Scaffold(
-        backgroundColor: ColorPalette.background(context),
-        appBar: AppBar(
-          backgroundColor: ColorPalette.tileBackground(context),
-          elevation: 0,
-          title: Text(
-            "Fil d'actu des amis",
-            style: TextStyle(
-              color: ColorPalette.textPrimary(context),
+      }
+
+      final enriched = _rawEntries.map((r) {
+        final match = matchById[r.matchData.matchId];
+        final mvpName = r.matchData.mvpVoteId != null
+            ? mvpNameById[r.matchData.mvpVoteId!]
+            : null;
+        return MatchRegardeAmi(
+          friend: r.friend,
+          matchData: r.matchData,
+          match: match,
+          eventDate: r.eventDate,
+          mvpName: mvpName,
+        );
+      }).toList();
+
+      setState(() {
+        _entries.addAll(enriched);
+        _isLoadingFeed = false;
+      });
+    } catch (e, st) {
+      debugPrint("Erreur _loadFeed: $e\n$st");
+      if (!mounted) return;
+      setState(() {
+        _isLoadingFeed = false;
+        _isFeedError = true;
+      });
+    }
+  }
+
+  Future<void> _refreshFeed() async {
+    await _loadFeed();
+  }
+
+  Widget _buildFeedContent(BuildContext context) {
+    if (_isLoadingFeed) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_isFeedError) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline,
+                size: 48, color: ColorPalette.pictureBackground(context)),
+            const SizedBox(height: 12),
+            Text(
+              "Impossible de charger le fil.",
+              style: TextStyle(color: ColorPalette.textSecondary(context)),
             ),
-          ),
-          centerTitle: false,
-          iconTheme: IconThemeData(
-            color: ColorPalette.textPrimary(context),
-          ),
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: _notificationsIcon(context)),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _loadFeed,
+              child: const Text("Réessayer"),
+            )
           ],
         ),
-        body: Column(
+      );
+    }
+
+    if (_entries.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.group_outlined,
+                size: 64, color: ColorPalette.pictureBackground(context)),
+            const SizedBox(height: 12),
+            Text(
+              "Aucune activité récente de vos amis.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: ColorPalette.textSecondary(context),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Invitez des amis pour voir leur activité ici.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: ColorPalette.textSecondary(context),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refreshFeed,
+      child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: _entries.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final entry = _entries[index];
+          return MatchRegardeAmiCard(entry: entry);
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: ColorPalette.background(context),
+      appBar: AppBar(
+        backgroundColor: ColorPalette.tileBackground(context),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        toolbarOpacity: 1.0,
+        title: Text(
+          "Fil d'actu des amis",
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+        centerTitle: false,
+        iconTheme: IconThemeData(
+          color: ColorPalette.textPrimary(context),
+        ),
+        actions: [
+          Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: _notificationsIcon(context)),
+        ],
+      ),
+      body: SingleChildScrollView(
+        physics: const SlowScrollPhysics(),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
               color: ColorPalette.tileBackground(context),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildAddFriendButton(context),
-                ],
-              ),
+              child: _buildAddFriendButton(context),
             ),
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: ColorPalette.border(context).withValues(alpha: 0.06),
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.group_outlined,
-                          size: 64,
-                          color: ColorPalette.pictureBackground(context)),
-                      const SizedBox(height: 12),
-                      Text(
-                        "Ici sera le fil d'actu des amis (vide pour l'instant).",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: ColorPalette.textSecondary(context),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Invitez des amis pour voir leur activité ici.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: ColorPalette.textSecondary(context),
-                        ),
-                      ),
-                    ],
-                  ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: ColorPalette.border(context).withValues(alpha: 0.06),
                 ),
               ),
+              child: _buildFeedContent(context),
             ),
           ],
         ),

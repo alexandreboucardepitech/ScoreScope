@@ -5,7 +5,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'equipe.dart';
 import 'but.dart';
 
-class Match {
+class MatchModel {
   final String id;
   final Equipe equipeDomicile;
   final Equipe equipeExterieur;
@@ -20,7 +20,7 @@ class Match {
   Map<String, String> mvpVotes;
   Map<String, int> notesDuMatch;
 
-  Match(
+  MatchModel(
       {required this.id,
       required this.equipeDomicile,
       required this.equipeExterieur,
@@ -137,7 +137,7 @@ class Match {
         'notesDuMatch': notesDuMatch,
       };
 
-  static Future<Match> fromJson(
+  static Future<MatchModel> fromJson(
       {required Map<String, dynamic> json, String? matchId}) async {
     final equipeDomicile = await RepositoryProvider.equipeRepository
         .fetchEquipeById(json['equipeDomicileId']);
@@ -188,7 +188,7 @@ class Match {
       return buts;
     }
 
-    return Match(
+    return MatchModel(
         id: matchId ?? json['id'],
         competition: json['competition'] as String? ?? '',
         date: (json['date'] is Timestamp)

@@ -5,7 +5,7 @@ import '../../models/joueur.dart';
 
 Future<Joueur?> showVoteBottomSheet({
   required BuildContext context,
-  required Match match,
+  required MatchModel match,
   Joueur? initialUserVote,
 }) {
   return showModalBottomSheet<Joueur?>(
@@ -23,7 +23,7 @@ Future<Joueur?> showVoteBottomSheet({
 }
 
 class VoteBottomSheetContent extends StatefulWidget {
-  final Match match;
+  final MatchModel match;
   final Joueur? initialUserVote;
   const VoteBottomSheetContent({
     super.key,
@@ -45,7 +45,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
   }
 
   int getNbVotesWithUserVote(
-      {required Match match,
+      {required MatchModel match,
       required Joueur joueur,
       Joueur? initialUserVote,
       Joueur? currentUserVote}) {

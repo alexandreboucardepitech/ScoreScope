@@ -1,4 +1,6 @@
 import 'package:scorescope/models/amitie.dart';
+import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 
 class MockAmitieRepository implements IAmitieRepository {
@@ -38,6 +40,29 @@ class MockAmitieRepository implements IAmitieRepository {
     return _friendships
         .where((a) => a.firstUserId == userId || a.secondUserId == userId)
         .toList();
+  }
+
+  @override
+  Future<List<AppUser>> fetchFriendsForUser(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final acceptedFriendships = _friendships
+        .where((a) =>
+            (a.firstUserId == userId || a.secondUserId == userId) &&
+            a.status == 'confirmed')
+        .toList();
+
+    final friends = <AppUser>[];
+
+    for (final f in acceptedFriendships) {
+      final friendId = f.firstUserId == userId ? f.secondUserId : f.firstUserId;
+      final friendUser = await MockAppUserRepository().fetchUserById(friendId);
+      if (friendUser != null) {
+        friends.add(friendUser);
+      }
+    }
+
+    return friends;
   }
 
   @override
@@ -137,5 +162,47 @@ class MockAmitieRepository implements IAmitieRepository {
         .where((a) => a.status == 'pending' && a.secondUserId == userId)
         .toList();
     return pendingRequests.length;
+  }
+
+  @override
+  Future<List<FriendMatchEntry>> fetchFriendsMatchesUserData(
+      String userId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final friends = await fetchFriendsForUser(userId);
+    if (friends.isEmpty) return [];
+
+    final List<FriendMatchEntry> result = [];
+
+    for (final friend in friends) {
+      final friendMatches = await MockAppUserRepository()
+          .fetchUserAllMatchUserData(friend.uid, true); // onlyPublic = true
+
+      for (final md in friendMatches) {
+        DateTime? watchedAt;
+        try {
+          watchedAt = md.watchedAt;
+        } catch (_) {
+          watchedAt = null;
+        }
+
+        result.add(FriendMatchEntry(
+          friend: friend,
+          matchData: md,
+          eventDate: watchedAt,
+        ));
+      }
+    }
+
+    result.sort((a, b) {
+      final da = a.eventDate;
+      final db = b.eventDate;
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+      return db.compareTo(da);
+    });
+
+    return result;
   }
 }

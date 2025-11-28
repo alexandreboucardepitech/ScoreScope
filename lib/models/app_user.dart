@@ -23,7 +23,7 @@ class AppUser {
     this.matchsUserData = const [],
   });
 
-  MatchUserData? getMatchUserDataByMatch({Match? match, String? matchId}) {
+  MatchUserData? getMatchUserDataByMatch({MatchModel? match, String? matchId}) {
     for (MatchUserData matchData in matchsUserData) {
       if (matchData.matchId == matchId ||
           (match != null && matchData.matchId == match.id)) {

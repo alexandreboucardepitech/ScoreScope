@@ -9,7 +9,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/get_lignes_buteurs.dart';
 
 class MatchTile extends StatefulWidget {
-  final Match match;
+  final MatchModel match;
   final MatchUserData? userData;
 
   const MatchTile({required this.match, this.userData, super.key});

@@ -10,7 +10,7 @@ import 'package:scorescope/widgets/match_details_tabs/visionnage_match_card.dart
 import '../../../models/match.dart';
 
 class InfosTab extends StatefulWidget {
-  final Match match;
+  final MatchModel match;
   final int userDataVersion;
 
   const InfosTab({super.key, required this.match, this.userDataVersion = 0});

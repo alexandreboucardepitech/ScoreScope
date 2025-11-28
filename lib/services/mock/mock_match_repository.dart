@@ -25,7 +25,7 @@ class MockMatchRepository implements IMatchRepository {
 
   Future<void> get ready => _seedingFuture;
 
-  final List<Match> _matches = [];
+  final List<MatchModel> _matches = [];
   final IEquipeRepository equipeRepository = MockEquipeRepository();
   final IJoueurRepository joueurRepository = MockJoueurRepository();
 
@@ -54,7 +54,7 @@ class MockMatchRepository implements IMatchRepository {
         leroux != null &&
         hakimi != null) {
       _matches.add(
-        Match(
+        MatchModel(
           id: "1",
           equipeDomicile: psg,
           equipeExterieur: fcnantes,
@@ -84,7 +84,7 @@ class MockMatchRepository implements IMatchRepository {
         mbappe != null &&
         mastantuono != null) {
       _matches.add(
-        Match(
+        MatchModel(
           id: "2",
           equipeDomicile: barca,
           equipeExterieur: realmadrid,
@@ -110,14 +110,14 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<List<Match>> fetchAllMatches() async {
+  Future<List<MatchModel>> fetchAllMatches() async {
     await _seedingFuture;
     await Future.delayed(const Duration(milliseconds: 300));
-    return List<Match>.from(_matches);
+    return List<MatchModel>.from(_matches);
   }
 
   @override
-  Future<Match?> fetchMatchById(String id) async {
+  Future<MatchModel?> fetchMatchById(String id) async {
     await _seedingFuture;
     await Future.delayed(Duration(milliseconds: 200));
 
@@ -130,10 +130,10 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<List<Match>> fetchMatchesListById(List<String> ids) async {
-    List<Match> matches = [];
+  Future<List<MatchModel>> fetchMatchesListById(List<String> ids) async {
+    List<MatchModel> matches = [];
     for (String id in ids) {
-      Match? match = await fetchMatchById(id);
+      MatchModel? match = await fetchMatchById(id);
       if (match != null) {
         matches.add(match);
       }
@@ -142,20 +142,20 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> addMatch(Match match) async {
+  Future<void> addMatch(MatchModel match) async {
     _matches.add(match);
     await Future.delayed(const Duration(milliseconds: 50));
   }
 
   @override
-  Future<void> updateMatch(Match match) async {
+  Future<void> updateMatch(MatchModel match) async {
     final idx = _matches.indexWhere((x) => x == match);
     if (idx >= 0) _matches[idx] = match;
     await Future.delayed(const Duration(milliseconds: 50));
   }
 
   @override
-  Future<void> deleteMatch(Match match) async {
+  Future<void> deleteMatch(MatchModel match) async {
     _matches.remove(match);
     await Future.delayed(const Duration(milliseconds: 50));
   }

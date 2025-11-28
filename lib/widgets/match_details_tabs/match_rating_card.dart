@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/string/get_reaction_emoji.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/slider_degrade_couleur.dart';
 
@@ -40,19 +41,6 @@ class MatchRatingCard extends StatefulWidget {
 class _MatchRatingCardState extends State<MatchRatingCard> {
   late int? _rating;
   double get ratingDouble => (_rating ?? 0).toDouble();
-  final List<String> emojis = [
-    '😴',
-    '🥶',
-    '😵‍💫',
-    '😬',
-    '😐',
-    '🙂',
-    '😎',
-    '🫣',
-    '🥵',
-    '🤩',
-    '🤯'
-  ];
 
   @override
   void initState() {
@@ -172,7 +160,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                   ),
                   child: Center(
                     child: Text(
-                      _rating != null ? emojis[_rating!] : '-',
+                      _rating != null ? getReactionEmoji(_rating!) : '-',
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,

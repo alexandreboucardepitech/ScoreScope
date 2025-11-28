@@ -1006,7 +1006,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                   ),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      final newMatch = Match(
+                      final newMatch = MatchModel(
                         id: '',
                         equipeDomicile: _selectedEquipeDomicile ??
                             Equipe(nom: _equipeDomicileController.text, id: ''),

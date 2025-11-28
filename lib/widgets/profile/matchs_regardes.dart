@@ -27,7 +27,7 @@ class MatchsRegardes extends StatefulWidget {
 class _MatchsRegardesState extends State<MatchsRegardes> {
   final matchesRepo = RepositoryProvider.matchRepository;
 
-  final Map<String, model_match.Match?> _loaded = {};
+  final Map<String, model_match.MatchModel?> _loaded = {};
   final Set<String> _fetching = {};
 
   @override

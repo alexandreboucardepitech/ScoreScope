@@ -8,7 +8,7 @@ import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_tile.dart';
 
 class MatchList extends StatefulWidget {
-  final List<Match>? matches;
+  final List<MatchModel>? matches;
   final List<String>? ids;
   final Widget? header;
   final AppUser? user;
@@ -27,8 +27,8 @@ class MatchList extends StatefulWidget {
 
 class _MatchListState extends State<MatchList> {
   final _repo = RepositoryProvider.matchRepository;
-  static final Map<String, Match> _globalCache = {};
-  List<Match>? _loaded;
+  static final Map<String, MatchModel> _globalCache = {};
+  List<MatchModel>? _loaded;
   bool _loading = false;
   String? _error;
 
@@ -63,7 +63,7 @@ class _MatchListState extends State<MatchList> {
     }
 
     final missingIds = <String>[];
-    final results = <Match>[];
+    final results = <MatchModel>[];
     for (final id in ids) {
       if (_globalCache.containsKey(id)) {
         results.add(_globalCache[id]!);
@@ -87,7 +87,7 @@ class _MatchListState extends State<MatchList> {
 
     try {
       final idsQueue = Queue<String>.from(missingIds);
-      final fetchedList = <Match>[];
+      final fetchedList = <MatchModel>[];
       const concurrency = 6;
 
       Future<void> worker() async {
@@ -106,7 +106,7 @@ class _MatchListState extends State<MatchList> {
         _globalCache[m.id] = m;
       }
 
-      final merged = <Match>[];
+      final merged = <MatchModel>[];
       for (final id in ids) {
         if (_globalCache.containsKey(id)) merged.add(_globalCache[id]!);
       }
@@ -128,7 +128,7 @@ class _MatchListState extends State<MatchList> {
   @override
   Widget build(BuildContext context) {
     final hasHeader = widget.header != null;
-    final List<Match>? items = widget.matches ?? _loaded;
+    final List<MatchModel>? items = widget.matches ?? _loaded;
 
     Widget content;
 

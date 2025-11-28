@@ -7,7 +7,7 @@ import '../models/match.dart';
 import '../utils/string/get_lignes_buteurs.dart';
 
 class MatchDetailsPage extends StatefulWidget {
-  final Match match;
+  final MatchModel match;
 
   const MatchDetailsPage({super.key, required this.match});
 
@@ -24,7 +24,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
   bool _isPrivate = true;
   bool _isProcessingPrivacy = false;
 
-  late Match _currentMatch;
+  late MatchModel _currentMatch;
 
   bool _isFetchingMatch = false;
 
@@ -108,7 +108,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            newFavori ? 'Match ajouté aux favoris' : 'Match retiré des favoris',
+            newFavori ? 'MatchModel ajouté aux favoris' : 'MatchModel retiré des favoris',
           ),
           duration: const Duration(seconds: 1),
         ),
@@ -296,7 +296,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:
-              Text(makePrivate ? 'Match rendu privé' : 'Match rendu public'),
+              Text(makePrivate ? 'MatchModel rendu privé' : 'MatchModel rendu public'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -342,7 +342,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       // await _fetchMatch();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Match supprimé')),
+        const SnackBar(content: Text('MatchModel supprimé')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -404,7 +404,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                     ),
                   )
                 : PopupMenuButton<String>(
-                    tooltip: _isPrivate ? 'Match privé' : 'Match public',
+                    tooltip: _isPrivate ? 'MatchModel privé' : 'MatchModel public',
                     icon: Icon(_isPrivate ? Icons.lock : Icons.public,
                         color: ColorPalette.accent(context)),
                     onSelected: (value) => _onPrivacyMenuSelected(value),

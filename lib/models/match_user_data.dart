@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 
 class MatchUserData {
@@ -7,6 +8,7 @@ class MatchUserData {
   final String? mvpVoteId;
   final VisionnageMatch visionnageMatch;
   final bool private;
+  final DateTime? watchedAt;
 
   MatchUserData({
     required this.matchId,
@@ -15,6 +17,7 @@ class MatchUserData {
     this.mvpVoteId,
     this.visionnageMatch = VisionnageMatch.tele,
     this.private = false,
+    this.watchedAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -25,6 +28,7 @@ class MatchUserData {
       if (mvpVoteId != null) 'mvpVoteId': mvpVoteId,
       'visionnageMatch': visionnageMatch,
       'private': private,
+      if (watchedAt != null) 'watchedAt': watchedAt,
     };
   }
 
@@ -40,6 +44,11 @@ class MatchUserData {
               VisionnageMatch.tele,
       // visionnageMatch: si il y a rien ou que "fromString" renvoie null on met "tele" par défaut
       private: json['private'] ?? false,
+      watchedAt: json['watchedAt'] is DateTime
+          ? json['watchedAt'] as DateTime
+          : (json['watchedAt'] is Timestamp
+              ? (json['watchedAt'] as Timestamp).toDate()
+              : null),
     );
   }
 }

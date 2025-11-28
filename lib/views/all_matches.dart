@@ -15,7 +15,7 @@ class AllMatchesView extends StatefulWidget {
 }
 
 class _AllMatchesViewState extends State<AllMatchesView> {
-  late Future<List<Match>> _futureMatches;
+  late Future<List<MatchModel>> _futureMatches;
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         ),
         backgroundColor: ColorPalette.background(context),
       ),
-      body: FutureBuilder<List<Match>>(
+      body: FutureBuilder<List<MatchModel>>(
         future: _futureMatches,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -69,7 +69,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final newMatch = await Navigator.push<Match>(
+          final newMatch = await Navigator.push<MatchModel>(
             context,
             MaterialPageRoute(builder: (context) => AddMatchView()),
           );

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/match_user_data.dart';
 import '../../models/amitie.dart';
 import '../repositories/i_amitie_repository.dart';
 
@@ -35,6 +37,41 @@ class WebAmitieRepository implements IAmitieRepository {
     final allDocs = [...querySnapshot.docs, ...secondQuerySnapshot.docs];
 
     return allDocs.map((doc) => Amitie.fromJson(json: doc.data())).toList();
+  }
+
+  @override
+  Future<List<AppUser>> fetchFriendsForUser(String userId) async {
+    final allFriendships = await fetchFriendshipsForUser(userId);
+
+    // ne garder que les amitiés acceptées
+    final acceptedFriendIds = allFriendships.map((f) {
+      return f.firstUserId == userId ? f.secondUserId : f.firstUserId;
+    }).toList();
+
+    if (acceptedFriendIds.isEmpty) return [];
+
+    // récupère les infos utilisateurs correspondantes
+    final usersCollection = FirebaseFirestore.instance.collection('users');
+    final friends = <AppUser>[];
+
+    const batchSize = 10;
+    for (var i = 0; i < acceptedFriendIds.length; i += batchSize) {
+      final batchIds = acceptedFriendIds.sublist(
+        i,
+        i + batchSize > acceptedFriendIds.length
+            ? acceptedFriendIds.length
+            : i + batchSize,
+      );
+
+      final usersQuery =
+          await usersCollection.where('uid', whereIn: batchIds).get();
+
+      friends.addAll(usersQuery.docs
+          .map((doc) => AppUser.fromJson(json: doc.data()))
+          .toList());
+    }
+
+    return friends;
   }
 
   @override
@@ -144,5 +181,84 @@ class WebAmitieRepository implements IAmitieRepository {
         .get();
 
     return querySnapshot.docs.length;
+  }
+
+  @override
+  Future<List<FriendMatchEntry>> fetchFriendsMatchesUserData(
+    String userId, {
+    bool onlyPublic = true,
+    int? daysLimit,
+  }) async {
+    final friends = await fetchFriendsForUser(userId);
+    if (friends.isEmpty) return [];
+
+    final now = DateTime.now().toUtc();
+    final DateTime? cutoff =
+        daysLimit != null ? now.subtract(Duration(days: daysLimit)) : null;
+
+    final usersCollection = FirebaseFirestore.instance.collection('users');
+
+    final List<FriendMatchEntry> allEntries = [];
+
+    for (final friend in friends) {
+      final friendId = friend.uid;
+
+      final subCollectionSnap =
+          await usersCollection.doc(friendId).collection('matchUserData').get();
+
+      for (final doc in subCollectionSnap.docs) {
+        final map = doc.data();
+
+        try {
+          final matchUserData = MatchUserData.fromJson(map);
+
+          if (onlyPublic && (map['private'] == true || matchUserData.private == true)) {
+            continue;
+          }
+
+          final dynamic raw = map['watchedAt'];
+          DateTime? watchedAt;
+
+          if (raw is Timestamp) {
+            watchedAt = raw.toDate().toUtc();
+          } else if (raw is DateTime) {
+            watchedAt = raw.toUtc();
+          } else if (raw is String) {
+            try {
+              watchedAt = DateTime.parse(raw).toUtc();
+            } catch (_) {
+              watchedAt = null;
+            }
+          }
+
+          // Filtre daysLimit
+          if (cutoff != null &&
+              watchedAt != null &&
+              watchedAt.isBefore(cutoff)) {
+            continue;
+          }
+
+          allEntries.add(
+            FriendMatchEntry(
+              friend: friend,
+              matchData: matchUserData,
+              eventDate: watchedAt,
+            ),
+          );
+        } catch (_) {}
+      }
+    }
+
+    // Tri global par watchedAt desc
+    allEntries.sort((a, b) {
+      final da = a.eventDate;
+      final db = b.eventDate;
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+      return db.compareTo(da);
+    });
+
+    return allEntries;
   }
 }

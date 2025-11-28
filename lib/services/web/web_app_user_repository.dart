@@ -180,6 +180,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'mvpVoteId': null,
         'favourite': favori,
         'private': false,
+        'watchedAt': DateTime.now().toUtc(),
       });
     }
   }
@@ -222,6 +223,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'favourite': false,
         'visionnageMatch': visionnageMatch.label,
         'private': false,
+        'watchedAt': DateTime.now().toUtc(),
       });
     }
   }
@@ -268,6 +270,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'mvpVoteId': null,
         'favourite': false,
         'private': privacy,
+        'watchedAt': DateTime.now().toUtc(),
       });
     }
   }

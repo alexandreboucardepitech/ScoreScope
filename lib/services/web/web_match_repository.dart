@@ -7,7 +7,7 @@ class WebMatchRepository implements IMatchRepository {
       FirebaseFirestore.instance.collection('matchs');
 
   @override
-  Future<List<Match>> fetchAllMatches() async {
+  Future<List<MatchModel>> fetchAllMatches() async {
     final snapshot = await _collection.get();
 
     final futures = snapshot.docs.map((doc) async {
@@ -23,14 +23,14 @@ class WebMatchRepository implements IMatchRepository {
 
       data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
-      return await Match.fromJson(json: data, matchId: doc.id);
+      return await MatchModel.fromJson(json: data, matchId: doc.id);
     }).toList();
 
     return await Future.wait(futures);
   }
 
   @override
-  Future<Match?> fetchMatchById(String id) async {
+  Future<MatchModel?> fetchMatchById(String id) async {
     final doc = await _collection.doc(id).get();
     if (!doc.exists) return null;
 
@@ -42,14 +42,14 @@ class WebMatchRepository implements IMatchRepository {
     final notesSnapshot = await _collection.doc(id).collection('notes').get();
     data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
-    return Match.fromJson(json: data, matchId: doc.id);
+    return MatchModel.fromJson(json: data, matchId: doc.id);
   }
 
   @override
-  Future<List<Match>> fetchMatchesListById(List<String> ids) async {
-    List<Match> matches = [];
+  Future<List<MatchModel>> fetchMatchesListById(List<String> ids) async {
+    List<MatchModel> matches = [];
     for (String id in ids) {
-      Match? match = await fetchMatchById(id);
+      MatchModel? match = await fetchMatchById(id);
       if (match != null) {
         matches.add(match);
       }
@@ -58,17 +58,17 @@ class WebMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> addMatch(Match match) async {
+  Future<void> addMatch(MatchModel match) async {
     await _collection.doc(match.id).set(match.toJson());
   }
 
   @override
-  Future<void> updateMatch(Match match) async {
+  Future<void> updateMatch(MatchModel match) async {
     await _collection.doc(match.id).update(match.toJson());
   }
 
   @override
-  Future<void> deleteMatch(Match match) async {
+  Future<void> deleteMatch(MatchModel match) async {
     await _collection.doc(match.id).delete();
   }
 
@@ -98,6 +98,7 @@ class WebMatchRepository implements IMatchRepository {
         'mvpVoteId': null,
         'favourite': false,
         'private': false,
+        'watchedAt': DateTime.now().toUtc(),
       });
     }
   }
@@ -125,9 +126,11 @@ class WebMatchRepository implements IMatchRepository {
     } else {
       await userMatchDocRef.set({
         'matchId': matchId,
+        'note': null,
         'mvpVoteId': joueurId,
         'favourite': false,
         'private': false,
+        'watchedAt': DateTime.now().toUtc(),
       });
     }
   }

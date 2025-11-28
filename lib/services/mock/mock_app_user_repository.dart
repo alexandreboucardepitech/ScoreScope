@@ -49,12 +49,14 @@ class MockAppUserRepository implements IAppUserRepository {
             note: 8,
             visionnageMatch: VisionnageMatch.stade,
             private: false,
+            watchedAt: DateTime.parse('2025-11-01T15:00:00Z'),
           ),
           MatchUserData(
             matchId: "2",
             mvpVoteId: "5",
             note: 3,
             private: true,
+            watchedAt: DateTime.parse('2025-11-02T18:00:00Z'),
           ),
         ],
         photoUrl: null,
@@ -76,6 +78,7 @@ class MockAppUserRepository implements IAppUserRepository {
             favourite: true,
             private: false,
             visionnageMatch: VisionnageMatch.tele,
+            watchedAt: DateTime.parse('2025-11-03T15:00:00Z'),
           ),
         ],
         photoUrl: null,
@@ -97,14 +100,13 @@ class MockAppUserRepository implements IAppUserRepository {
             private: false,
             favourite: false,
             visionnageMatch: VisionnageMatch.bar,
+            watchedAt: DateTime.parse('2025-11-04T20:00:00Z'),
           ),
         ],
         photoUrl: null,
         createdAt: DateTime.parse('2024-01-05T10:00:00Z'),
       ),
     );
-
-    return;
   }
 
   @override
@@ -168,7 +170,7 @@ class MockAppUserRepository implements IAppUserRepository {
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
     int nbButs = 0;
-    Match? match;
+    MatchModel? match;
     for (MatchUserData data in user.matchsUserData) {
       if (onlyPublic && data.private) {
         continue;
@@ -187,14 +189,15 @@ class MockAppUserRepository implements IAppUserRepository {
       String userId, String equipeId, bool onlyPublic) async {
     await _seedingFuture;
 
-    final List<String> matchsRegardesId = await getUserMatchsRegardesId(userId, onlyPublic);
+    final List<String> matchsRegardesId =
+        await getUserMatchsRegardesId(userId, onlyPublic);
     if (matchsRegardesId.isEmpty) return 0;
 
     final matchesRepo = MockMatchRepository();
 
     final futures =
         matchsRegardesId.map((id) => matchesRepo.fetchMatchById(id));
-    final List<Match?> matches = await Future.wait(futures);
+    final List<MatchModel?> matches = await Future.wait(futures);
 
     int nbMatchs = 0;
 
