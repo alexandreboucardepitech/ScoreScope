@@ -212,29 +212,14 @@ class WebAmitieRepository implements IAmitieRepository {
         try {
           final matchUserData = MatchUserData.fromJson(map);
 
-          if (onlyPublic && (map['private'] == true || matchUserData.private == true)) {
+          if (onlyPublic &&
+              (map['private'] == true || matchUserData.private == true)) {
             continue;
           }
 
-          final dynamic raw = map['watchedAt'];
-          DateTime? watchedAt;
-
-          if (raw is Timestamp) {
-            watchedAt = raw.toDate().toUtc();
-          } else if (raw is DateTime) {
-            watchedAt = raw.toUtc();
-          } else if (raw is String) {
-            try {
-              watchedAt = DateTime.parse(raw).toUtc();
-            } catch (_) {
-              watchedAt = null;
-            }
-          }
-
-          // Filtre daysLimit
           if (cutoff != null &&
-              watchedAt != null &&
-              watchedAt.isBefore(cutoff)) {
+              matchUserData.watchedAt != null &&
+              matchUserData.watchedAt!.isBefore(cutoff)) {
             continue;
           }
 
@@ -242,17 +227,15 @@ class WebAmitieRepository implements IAmitieRepository {
             FriendMatchEntry(
               friend: friend,
               matchData: matchUserData,
-              eventDate: watchedAt,
             ),
           );
         } catch (_) {}
       }
     }
 
-    // Tri global par watchedAt desc
     allEntries.sort((a, b) {
-      final da = a.eventDate;
-      final db = b.eventDate;
+      final da = a.matchData.watchedAt;
+      final db = b.matchData.watchedAt;
       if (da == null && db == null) return 0;
       if (da == null) return 1;
       if (db == null) return -1;
@@ -260,5 +243,56 @@ class WebAmitieRepository implements IAmitieRepository {
     });
 
     return allEntries;
+  }
+
+  @override
+  Future<List<FriendMatchEntry>> fetchFriendsMatchUserDataForMatch(
+      String matchId, String userId) async {
+    final friends = await fetchFriendsForUser(userId);
+    if (friends.isEmpty) return [];
+
+    final usersCollection = FirebaseFirestore.instance.collection('users');
+    final List<FriendMatchEntry> entries = [];
+
+    for (final friend in friends) {
+      final friendId = friend.uid;
+
+      final matchUserDataQuery = await usersCollection
+          .doc(friendId)
+          .collection('matchUserData')
+          .where('matchId', isEqualTo: matchId)
+          .get();
+
+      for (final doc in matchUserDataQuery.docs) {
+        final map = doc.data();
+
+        try {
+          final matchUserData = MatchUserData.fromJson(map);
+
+          if (map['private'] == true || matchUserData.private == true) {
+            continue;
+          }
+
+          entries.add(
+            FriendMatchEntry(
+              friend: friend,
+              matchData: matchUserData,
+            ),
+          );
+        } catch (_) {}
+      }
+    }
+
+    // Tri par watchedAt desc
+    entries.sort((a, b) {
+      final da = a.matchData.watchedAt;
+      final db = b.matchData.watchedAt;
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+      return db.compareTo(da);
+    });
+
+    return entries;
   }
 }

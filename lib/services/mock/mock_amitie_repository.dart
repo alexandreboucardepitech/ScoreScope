@@ -179,24 +179,50 @@ class MockAmitieRepository implements IAmitieRepository {
           .fetchUserAllMatchUserData(friend.uid, true); // onlyPublic = true
 
       for (final md in friendMatches) {
-        DateTime? watchedAt;
-        try {
-          watchedAt = md.watchedAt;
-        } catch (_) {
-          watchedAt = null;
-        }
-
         result.add(FriendMatchEntry(
           friend: friend,
           matchData: md,
-          eventDate: watchedAt,
         ));
       }
     }
 
     result.sort((a, b) {
-      final da = a.eventDate;
-      final db = b.eventDate;
+      final da = a.matchData.watchedAt;
+      final db = b.matchData.watchedAt;
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+      return db.compareTo(da);
+    });
+
+    return result;
+  }
+
+  @override
+  Future<List<FriendMatchEntry>> fetchFriendsMatchUserDataForMatch(
+      String matchId, String userId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final friends = await fetchFriendsForUser(userId);
+    if (friends.isEmpty) return [];
+
+    final List<FriendMatchEntry> result = [];
+
+    for (final friend in friends) {
+      final matchUserData = await MockAppUserRepository()
+          .fetchUserMatchUserData(friend.uid, matchId);
+
+      if (matchUserData != null) {
+        result.add(FriendMatchEntry(
+          friend: friend,
+          matchData: matchUserData,
+        ));
+      }
+    }
+
+    result.sort((a, b) {
+      final da = a.matchData.watchedAt;
+      final db = b.matchData.watchedAt;
       if (da == null && db == null) return 0;
       if (da == null) return 1;
       if (db == null) return -1;

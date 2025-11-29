@@ -3,6 +3,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_details_tabs/infos.dart';
+import 'package:scorescope/widgets/match_details_tabs/mes_amis.dart';
 import '../models/match.dart';
 import '../utils/string/get_lignes_buteurs.dart';
 
@@ -108,7 +109,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            newFavori ? 'MatchModel ajouté aux favoris' : 'MatchModel retiré des favoris',
+            newFavori ? 'Match ajouté aux favoris' : 'Match retiré des favoris',
           ),
           duration: const Duration(seconds: 1),
         ),
@@ -295,8 +296,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text(makePrivate ? 'MatchModel rendu privé' : 'MatchModel rendu public'),
+          content: Text(makePrivate
+              ? 'Match rendu privé'
+              : 'Match rendu public'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -404,7 +406,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                     ),
                   )
                 : PopupMenuButton<String>(
-                    tooltip: _isPrivate ? 'MatchModel privé' : 'MatchModel public',
+                    tooltip:
+                        _isPrivate ? 'Match privé' : 'Match public',
                     icon: Icon(_isPrivate ? Icons.lock : Icons.public,
                         color: ColorPalette.accent(context)),
                     onSelected: (value) => _onPrivacyMenuSelected(value),
@@ -640,8 +643,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                   unselectedLabelColor: ColorPalette.textPrimary(context),
                   tabs: const [
                     Tab(text: "Infos"),
-                    Tab(text: "Stats"),
                     Tab(text: "Comments"),
+                    Tab(text: "Mes Amis"),
                   ],
                 ),
               ],
@@ -657,7 +660,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                   userDataVersion: _userDataVersion,
                 ),
                 Center(child: Text("Contenu Statistiques")),
-                Center(child: Text("Contenu Commentaires")),
+                MesAmisTab(matchId: _currentMatch.id),
               ],
             ),
           ),

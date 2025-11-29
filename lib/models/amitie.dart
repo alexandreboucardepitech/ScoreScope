@@ -5,12 +5,10 @@ import 'package:scorescope/models/match_user_data.dart';
 class FriendMatchEntry {
   final AppUser friend;
   final MatchUserData matchData;
-  final DateTime? eventDate;
 
   FriendMatchEntry({
     required this.friend,
     required this.matchData,
-    this.eventDate,
   });
 }
 

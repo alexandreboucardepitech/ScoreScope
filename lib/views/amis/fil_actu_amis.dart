@@ -8,7 +8,7 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/ui/slow_scroll_physics.dart';
 import 'package:scorescope/views/amis/ajout_amis.dart';
 import 'package:scorescope/views/amis/demandes_amis.dart';
-import 'package:scorescope/widgets/fil_actu_amis/match_regarde_ami_card.dart';
+import 'package:scorescope/widgets/fil_actu_amis/match_regarde_amis_list.dart';
 
 class FilActuAmisView extends StatefulWidget {
   final VoidCallback? onBackPressed;
@@ -161,9 +161,9 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ).copyWith(
-              overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.pressed)) {
+              overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.pressed)) {
                     return ColorPalette.highlight(context)
                         .withValues(alpha: 0.14);
                   }
@@ -254,7 +254,6 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
           friend: r.friend,
           matchData: r.matchData,
           match: match,
-          eventDate: r.eventDate,
           mvpName: mvpName,
         );
       }).toList();
@@ -336,15 +335,9 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
 
     return RefreshIndicator(
       onRefresh: _refreshFeed,
-      child: ListView.separated(
-        physics: const NeverScrollableScrollPhysics(),
+      child: MatchRegardeAmiListView(
+        entries: _entries,
         shrinkWrap: true,
-        itemCount: _entries.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final entry = _entries[index];
-          return MatchRegardeAmiCard(entry: entry);
-        },
       ),
     );
   }

@@ -6,14 +6,12 @@ class MatchRegardeAmi {
   final AppUser friend;
   final MatchUserData matchData;
   final MatchModel? match;
-  final DateTime? eventDate;
   final String? mvpName;
 
   MatchRegardeAmi({
     required this.friend,
     required this.matchData,
-    required this.match,
-    required this.eventDate,
+    this.match,
     required this.mvpName,
   });
 }

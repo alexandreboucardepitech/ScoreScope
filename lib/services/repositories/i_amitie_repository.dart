@@ -14,4 +14,6 @@ abstract class IAmitieRepository {
   Future<Amitie?> friendshipByUsersId(String userId1, String userId2);
   Future<int> getUserNbPendingFriendRequests(String userId);
   Future<List<FriendMatchEntry>> fetchFriendsMatchesUserData(String userId);
+  Future<List<FriendMatchEntry>> fetchFriendsMatchUserDataForMatch(
+      String matchId, String userId);
 }
