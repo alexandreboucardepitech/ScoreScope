@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/models/match_regarde_ami.dart';
+import 'package:scorescope/models/post/match_regarde_ami.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/fil_actu_amis/match_regarde_ami_card.dart';
 

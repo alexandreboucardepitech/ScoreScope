@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/models/equipe.dart';
-import 'package:scorescope/models/match_regarde_ami.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/models/equipe.dart';
+import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/models/post/match_regarde_ami.dart';
+import 'package:scorescope/models/post/commentaire.dart';
+import 'package:scorescope/models/post/reaction.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/get_reaction_emoji.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/match_details.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class MatchRegardeAmiCard extends StatelessWidget {
+import 'reaction_row.dart';
+import 'comments_preview.dart';
+
+class MatchRegardeAmiCard extends StatefulWidget {
   final MatchRegardeAmi entry;
   final bool matchDetails;
 
@@ -18,6 +25,125 @@ class MatchRegardeAmiCard extends StatelessWidget {
     required this.entry,
     this.matchDetails = true,
   });
+
+  @override
+  State<MatchRegardeAmiCard> createState() => _MatchRegardeAmiCardState();
+}
+
+class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
+  late final MatchRegardeAmi entry;
+  late final MatchUserData matchData;
+  String? _currentUserId;
+  bool _loadingReactionOp = false;
+  bool _loadingInitial = true;
+
+  final Map<String, String> _userNamesCache = {};
+
+  @override
+  void initState() {
+    super.initState();
+    entry = widget.entry;
+    matchData = entry.matchData;
+    _initLocalState();
+  }
+
+  Future<void> _initLocalState() async {
+    try {
+      final current = await RepositoryProvider.userRepository.getCurrentUser();
+      _currentUserId = current?.uid;
+    } catch (_) {
+      _currentUserId = null;
+    }
+    await _refreshCommentsAndReactions(initial: true);
+  }
+
+  Future<void> _refreshCommentsAndReactions({bool initial = false}) async {
+    setState(() {
+      if (initial) _loadingInitial = true;
+    });
+
+    final ownerId = entry.friend.uid;
+    final matchId = matchData.matchId;
+
+    try {
+      final reactions = await RepositoryProvider.postRepository.fetchReactions(
+        ownerUserId: ownerId,
+        matchId: matchId,
+        limit: 50,
+      );
+
+      final comments = await RepositoryProvider.postRepository.fetchComments(
+        ownerUserId: ownerId,
+        matchId: matchId,
+        limit: 2,
+      );
+
+      matchData.reactions = List<Reaction>.from(reactions);
+      matchData.comments = List<Commentaire>.from(comments);
+
+      for (final c in matchData.comments) {
+        if (!_userNamesCache.containsKey(c.authorId)) {
+          try {
+            final user = await RepositoryProvider.userRepository
+                .fetchUserById(c.authorId);
+            _userNamesCache[c.authorId] = user?.displayName ?? c.authorId;
+          } catch (_) {
+            _userNamesCache[c.authorId] = c.authorId;
+          }
+        }
+      }
+    } catch (e) {
+      // ignore errors
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingInitial = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _toggleReaction(String emoji) async {
+    if (_currentUserId == null || _loadingReactionOp) return;
+
+    setState(() => _loadingReactionOp = true);
+
+    final ownerId = entry.friend.uid;
+    final matchId = matchData.matchId;
+    final myId = _currentUserId!;
+
+    try {
+      final existingForEmoji = matchData.reactions
+          .where((r) => r.userId == myId && r.emoji == emoji)
+          .toList();
+
+      if (existingForEmoji.isNotEmpty) {
+        await RepositoryProvider.postRepository.deleteReaction(
+          ownerUserId: ownerId,
+          matchId: matchId,
+          authorId: myId,
+          emoji: emoji,
+        );
+      } else {
+        await RepositoryProvider.postRepository.addReaction(
+          ownerUserId: ownerId,
+          matchId: matchId,
+          authorId: myId,
+          emoji: emoji,
+        );
+      }
+
+      await _refreshCommentsAndReactions();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur réaction : ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loadingReactionOp = false);
+    }
+  }
 
   String _formatMatchDate(DateTime d) {
     final local = d.toLocal();
@@ -32,11 +158,10 @@ class MatchRegardeAmiCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final friend = entry.friend;
-    final md = entry.matchData;
     final MatchModel? match = entry.match;
-    final String relativeTime =
-        md.watchedAt != null ? timeago.format(md.watchedAt!, locale: 'fr') : '';
-
+    final String relativeTime = matchData.watchedAt != null
+        ? timeago.format(matchData.watchedAt!, locale: 'fr')
+        : '';
     const double avatarSize = 32;
 
     final Equipe? home = match?.equipeDomicile;
@@ -47,74 +172,54 @@ class MatchRegardeAmiCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header au-dessus de la card
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ProfileView(
+          // Header
+          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProfileView(
                       user: friend,
-                      onBackPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: ColorPalette.border(context),
-                    shape: BoxShape.circle,
-                  ),
-                  child: CircleAvatar(
-                    radius: avatarSize / 2,
-                    backgroundColor: ColorPalette.pictureBackground(context),
-                    backgroundImage: friend.photoUrl != null
-                        ? NetworkImage(friend.photoUrl!)
-                        : null,
-                    child: friend.photoUrl == null
-                        ? Text(
-                            (friend.displayName?.isNotEmpty == true
-                                ? friend.displayName![0].toUpperCase()
-                                : '?'),
-                            style: TextStyle(
-                              color: ColorPalette.textPrimary(context),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          )
-                        : null,
-                  ),
+                      onBackPressed: () => Navigator.pop(context)),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      friend.displayName ?? 'Utilisateur',
-                      style: TextStyle(
-                        color: ColorPalette.textPrimary(context),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                      ),
-                    ),
-                    if (relativeTime.isNotEmpty)
-                      Text(
-                        relativeTime,
+              child: CircleAvatar(
+                radius: avatarSize / 2,
+                backgroundColor: ColorPalette.pictureBackground(context),
+                backgroundImage: friend.photoUrl != null
+                    ? NetworkImage(friend.photoUrl!)
+                    : null,
+                child: friend.photoUrl == null
+                    ? Text(
+                        (friend.displayName?.isNotEmpty == true
+                            ? friend.displayName![0].toUpperCase()
+                            : '?'),
                         style: TextStyle(
-                          color: ColorPalette.textSecondary(context),
-                          fontSize: 12,
-                        ),
-                      ),
-                  ],
-                ),
+                            color: ColorPalette.textPrimary(context),
+                            fontWeight: FontWeight.bold),
+                      )
+                    : null,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(friend.displayName ?? 'Utilisateur',
+                      style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14)),
+                  if (relativeTime.isNotEmpty)
+                    Text(relativeTime,
+                        style: TextStyle(
+                            color: ColorPalette.textSecondary(context),
+                            fontSize: 12)),
+                ],
+              ),
+            ),
+          ]),
           const SizedBox(height: 10),
           Stack(
             clipBehavior: Clip.none,
@@ -134,7 +239,7 @@ class MatchRegardeAmiCard extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (matchDetails &&
+                    if (widget.matchDetails &&
                         match != null &&
                         home != null &&
                         away != null) ...[
@@ -218,9 +323,7 @@ class MatchRegardeAmiCard extends StatelessWidget {
                       const SizedBox(height: 10),
                       Divider(color: ColorPalette.border(context), height: 1),
                       const SizedBox(height: 12),
-                    ], // fin matchDetails section
-
-                    // --- Ligne emojis (note / mode)
+                    ],
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -228,14 +331,14 @@ class MatchRegardeAmiCard extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                md.note != null
-                                    ? getReactionEmoji(md.note!)
+                                matchData.note != null
+                                    ? getReactionEmoji(matchData.note!)
                                     : '😐',
                                 style: const TextStyle(fontSize: 36),
                               ),
                               Text(
-                                md.note != null
-                                    ? '${md.note}/10'
+                                matchData.note != null
+                                    ? '${matchData.note}/10'
                                     : 'Pas noté/10',
                                 style: TextStyle(
                                     color: ColorPalette.accent(context),
@@ -254,14 +357,14 @@ class MatchRegardeAmiCard extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                md.visionnageMatch.emoji.isNotEmpty
-                                    ? md.visionnageMatch.emoji
+                                matchData.visionnageMatch.emoji.isNotEmpty
+                                    ? matchData.visionnageMatch.emoji
                                     : '❓',
                                 style: const TextStyle(fontSize: 36),
                               ),
                               Text(
-                                md.visionnageMatch.label.isNotEmpty
-                                    ? md.visionnageMatch.label
+                                matchData.visionnageMatch.label.isNotEmpty
+                                    ? matchData.visionnageMatch.label
                                     : '?',
                                 style: TextStyle(
                                     color: ColorPalette.accent(context),
@@ -311,7 +414,7 @@ class MatchRegardeAmiCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (md.favourite)
+              if (matchData.favourite)
                 Positioned(
                   top: 10,
                   right: 10,
@@ -323,19 +426,25 @@ class MatchRegardeAmiCard extends StatelessWidget {
                 ),
             ],
           ),
+          ReactionRow(
+            matchUserData: matchData,
+            currentUserId: _currentUserId,
+            loading: _loadingReactionOp,
+            onToggle: _toggleReaction,
+          ),
+          CommentsPreview(
+            comments: matchData.comments,
+            userNamesCache: _userNamesCache,
+            onSeeAll: () {},
+          ),
         ],
       ),
     );
+
     if (match != null) {
       return GestureDetector(
-        onTap: () {
-          // si on veut quand matchDetails=false toujours pouvoir ouvrir les détails,
-          // on garde le push. Sinon wrapper par condition.
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => MatchDetailsPage(match: match)),
-          );
-        },
+        onTap: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => MatchDetailsPage(match: match))),
         child: card,
       );
     } else {

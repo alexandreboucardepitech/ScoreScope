@@ -643,7 +643,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                   unselectedLabelColor: ColorPalette.textPrimary(context),
                   tabs: const [
                     Tab(text: "Infos"),
-                    Tab(text: "Comments"),
+                    Tab(text: "Statistiques"),
                     Tab(text: "Mes Amis"),
                   ],
                 ),

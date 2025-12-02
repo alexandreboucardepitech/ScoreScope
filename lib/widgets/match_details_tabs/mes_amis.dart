@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
-import 'package:scorescope/models/match_regarde_ami.dart';
+import 'package:scorescope/models/post/match_regarde_ami.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/fil_actu_amis/match_regarde_amis_list.dart';
@@ -47,7 +47,7 @@ class _MesAmisTabState extends State<MesAmisTab> {
       }
 
       final List<FriendMatchEntry> repoEntries = await RepositoryProvider
-          .amitieRepository
+          .postRepository
           .fetchFriendsMatchUserDataForMatch(widget.matchId, user.uid);
 
       if (!mounted) return;

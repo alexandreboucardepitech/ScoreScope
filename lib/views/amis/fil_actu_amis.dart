@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scorescope/models/amitie.dart';
-import 'package:scorescope/models/match_regarde_ami.dart';
+import 'package:scorescope/models/post/match_regarde_ami.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
@@ -203,7 +203,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
       }
 
       final List<FriendMatchEntry> repoEntries = await RepositoryProvider
-          .amitieRepository
+          .postRepository
           .fetchFriendsMatchesUserData(currentUser.uid);
 
       if (!mounted) return;
