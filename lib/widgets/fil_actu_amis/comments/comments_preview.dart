@@ -22,7 +22,6 @@ class CommentsPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final preview = comments.take(3).toList();
 
     return Padding(
@@ -37,12 +36,10 @@ class CommentsPreview extends StatelessWidget {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap:
-                      onSeeAll, // tap sur la ligne -> voir tous les commentaires
+                  onTap: onSeeAll,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // avatar (clicable pour ouvrir le profil)
                       GestureDetector(
                         onTap: () async {
                           AppUser? profile = userCache[c.authorId];
@@ -112,7 +109,6 @@ class CommentsPreview extends StatelessWidget {
                               : null,
                         ),
                       ),
-
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(

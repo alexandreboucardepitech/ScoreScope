@@ -10,6 +10,16 @@ const double _avatarSize = 30.0;
 const double _avatarSizeExpanded = 36.0;
 const double _avatarOverlap = 12.0;
 
+bool currentUserReactedWith(
+  String emoji,
+  String? currentUserId,
+  MatchUserData matchUserData,
+) {
+  if (currentUserId == null) return false;
+  final map = matchUserData.reactionsUserToEmojiMap();
+  return map[currentUserId]?.contains(emoji) ?? false;
+}
+
 class ReactionRow extends StatefulWidget {
   final MatchUserData matchUserData;
   final String? currentUserId;
@@ -34,15 +44,13 @@ class _ReactionRowState extends State<ReactionRow> {
   final List<String> _recentEmojis = [];
   final Map<String, AppUser?> _localUserCache = {};
 
-  bool _currentUserReactedWith(String emoji) {
-    if (widget.currentUserId == null) return false;
-    final map = widget.matchUserData.reactionsUserToEmojiMap();
-    return map[widget.currentUserId!]?.contains(emoji) ?? false;
-  }
-
   Future<void> _ensureUsersLoadedForEmoji(String emoji) async {
     final ids = _userIdsForEmoji(emoji);
-    final toLoad = ids.where((id) => !_localUserCache.containsKey(id)).toList();
+    final toLoad = ids
+        .where(
+          (id) => !_localUserCache.containsKey(id),
+        )
+        .toList();
     if (toLoad.isEmpty) return;
 
     for (final id in toLoad) {
@@ -69,7 +77,9 @@ class _ReactionRowState extends State<ReactionRow> {
       isScrollControlled: true,
       backgroundColor: ColorPalette.tileBackground(context),
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+          borderRadius: BorderRadius.vertical(
+        top: Radius.circular(16),
+      )),
       builder: (ctx) {
         return EmojiPickerSheet(
           recent: _recentEmojis,
@@ -85,6 +95,11 @@ class _ReactionRowState extends State<ReactionRow> {
         _recentEmojis.insert(0, selected);
         if (_recentEmojis.length > 20) _recentEmojis.removeLast();
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Vous avez ajouté la réaction $selected'),
+        ),
+      );
     }
   }
 
@@ -101,16 +116,26 @@ class _ReactionRowState extends State<ReactionRow> {
     final counts = widget.matchUserData.countsReactions();
 
     final defaultEmojis = ['🔥', '😮', '😭', '👀'];
-    final defaultEntries =
-        defaultEmojis.map((e) => MapEntry(e, counts[e] ?? 0)).toList();
+    final defaultEntries = defaultEmojis
+        .map(
+          (e) => MapEntry(e, counts[e] ?? 0),
+        )
+        .toList();
 
-    final custom =
-        counts.keys.where((k) => !defaultEmojis.contains(k)).toList();
-    custom.sort((a, b) => (counts[b] ?? 0) - (counts[a] ?? 0));
+    final custom = counts.keys
+        .where(
+          (k) => !defaultEmojis.contains(k),
+        )
+        .toList();
+    custom.sort(
+      (a, b) => (counts[b] ?? 0) - (counts[a] ?? 0),
+    );
 
     final entries = [
       ...defaultEntries,
-      ...custom.map((e) => MapEntry(e, counts[e] ?? 0))
+      ...custom.map(
+        (e) => MapEntry(e, counts[e] ?? 0),
+      )
     ];
 
     const double loaderMaxWidth = 18.0;
@@ -135,7 +160,8 @@ class _ReactionRowState extends State<ReactionRow> {
                           _CompactReactionChip(
                             emoji: e.key,
                             count: e.value,
-                            active: _currentUserReactedWith(e.key),
+                            active: currentUserReactedWith(e.key,
+                                widget.currentUserId, widget.matchUserData),
                             onTap: () async {
                               await widget.onToggle(e.key);
                               setState(() {
@@ -161,10 +187,15 @@ class _ReactionRowState extends State<ReactionRow> {
                     decoration: BoxDecoration(
                       color: ColorPalette.tileBackground(context),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: ColorPalette.border(context)),
+                      border: Border.all(
+                        color: ColorPalette.border(context),
+                      ),
                     ),
-                    child: Icon(Icons.add,
-                        size: 18, color: ColorPalette.textPrimary(context)),
+                    child: Icon(
+                      Icons.add,
+                      size: 18,
+                      color: ColorPalette.textPrimary(context),
+                    ),
                   ),
                 ),
               ],
@@ -194,7 +225,9 @@ class _ReactionRowState extends State<ReactionRow> {
     final counts = widget.matchUserData.countsReactions();
 
     final entries = counts.entries.toList()
-      ..sort((a, b) => (b.value).compareTo(a.value));
+      ..sort(
+        (a, b) => (b.value).compareTo(a.value),
+      );
 
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -216,7 +249,18 @@ class _ReactionRowState extends State<ReactionRow> {
                       fetchUserIdsForEmoji: () => _userIdsForEmoji(e.key),
                       loadUsersForEmoji: () =>
                           _ensureUsersLoadedForEmoji(e.key),
-                      onToggle: widget.onToggle,
+                      onToggle: (emoji) async {
+                        await widget.onToggle(emoji);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'Vous avez ${currentUserReactedWith(emoji, widget.currentUserId, widget.matchUserData) ? 'supprimé' : 'ajouté'} la réaction $emoji'),
+                          ),
+                        );
+                        setState(() {});
+                      },
+                      currentUserId: widget.currentUserId,
+                      matchUserData: widget.matchUserData,
                     ),
                   ),
                 const SizedBox(width: 8),
@@ -230,10 +274,15 @@ class _ReactionRowState extends State<ReactionRow> {
                     decoration: BoxDecoration(
                       color: ColorPalette.tileSelected(context),
                       borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: ColorPalette.border(context)),
+                      border: Border.all(
+                        color: ColorPalette.border(context),
+                      ),
                     ),
-                    child: Icon(Icons.add,
-                        size: 22, color: ColorPalette.textPrimary(context)),
+                    child: Icon(
+                      Icons.add,
+                      size: 22,
+                      color: ColorPalette.textPrimary(context),
+                    ),
                   ),
                 ),
               ],
@@ -318,6 +367,8 @@ class _EmojiInlineItem extends StatefulWidget {
   final List<String> Function() fetchUserIdsForEmoji;
   final Future<void> Function() loadUsersForEmoji;
   final Future<void> Function(String emoji) onToggle;
+  final String? currentUserId;
+  final MatchUserData matchUserData;
 
   const _EmojiInlineItem({
     required this.emoji,
@@ -326,6 +377,8 @@ class _EmojiInlineItem extends StatefulWidget {
     required this.fetchUserIdsForEmoji,
     required this.loadUsersForEmoji,
     required this.onToggle,
+    required this.currentUserId,
+    required this.matchUserData,
   });
 
   @override
@@ -357,6 +410,17 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
     });
   }
 
+  Future<void> _addReaction() async {
+    await widget.onToggle(widget.emoji);
+    _userIds = widget.fetchUserIdsForEmoji();
+    if (mounted) setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Vous avez ajouté la réaction ${widget.emoji}'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final displayStackIds = _userIds.take(4).toList();
@@ -370,6 +434,12 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
             await widget.onToggle(widget.emoji);
             _userIds = widget.fetchUserIdsForEmoji();
             if (mounted) setState(() {});
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'Vous avez ${currentUserReactedWith(widget.emoji, widget.currentUserId, widget.matchUserData) ? 'supprimé' : 'ajouté'} la réaction ${widget.emoji}'),
+              ),
+            );
           },
           child: SizedBox(
             width: _emojiBoxSize,
@@ -383,6 +453,32 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
                     style: const TextStyle(fontSize: _emojiFontSize),
                   ),
                 ),
+                if (_expanded &&
+                    currentUserReactedWith(
+                          widget.emoji,
+                          widget.currentUserId,
+                          widget.matchUserData,
+                        ) ==
+                        false)
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    child: GestureDetector(
+                      onTap: _addReaction,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: ColorPalette.tileBackground(context),
+                          borderRadius: BorderRadius.circular(12),
+                          border:
+                              Border.all(color: ColorPalette.border(context)),
+                        ),
+                        child: Icon(Icons.add,
+                            size: 14, color: ColorPalette.textAccent(context)),
+                      ),
+                    ),
+                  ),
                 Positioned(
                   bottom: 0,
                   right: 0,
@@ -394,19 +490,22 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
                         ? Container(
                             key: ValueKey(
                                 'count_${widget.emoji}_${widget.count}'),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                            width: 24,
+                            height: 24,
+                            alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: ColorPalette.tileBackground(context),
-                              borderRadius: BorderRadius.circular(12),
+                              shape:
+                                  BoxShape.circle, // forme circulaire parfaite
                               border: Border.all(
                                   color: ColorPalette.border(context)),
                             ),
                             child: Text(
                               widget.count.toString(),
                               style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  color: ColorPalette.textAccent(context)),
+                                fontWeight: FontWeight.w800,
+                                color: ColorPalette.textAccent(context),
+                              ),
                             ),
                           )
                         : SizedBox(
@@ -484,6 +583,11 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
           await widget.onToggle(widget.emoji);
           _userIds = widget.fetchUserIdsForEmoji();
           if (mounted) setState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Vous avez supprimé la réaction ${widget.emoji}'),
+            ),
+          );
           return;
         }
         final profile = widget.localUserCache[uid];
@@ -548,10 +652,12 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
         border: Border.all(color: ColorPalette.border(context), width: 1),
       ),
       alignment: Alignment.center,
-      child: Text(initial,
-          style: TextStyle(
-              color: ColorPalette.textPrimary(context),
-              fontWeight: FontWeight.bold)),
+      child: Text(
+        initial,
+        style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+            fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

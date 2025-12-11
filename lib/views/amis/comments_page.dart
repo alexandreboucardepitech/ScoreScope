@@ -32,7 +32,6 @@ class _CommentsPageState extends State<CommentsPage> {
   bool _loadingReactionOp = false;
   String? _currentUserId;
 
-  // controller optionnel pour scroll programmatique (ex: focus -> scroll to bottom)
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -42,6 +41,7 @@ class _CommentsPageState extends State<CommentsPage> {
     _comments = List.from(matchData.comments);
     _userCache.addAll(widget.userCache);
     _initCurrentUser();
+    _refreshCommentsAndReactions();
   }
 
   @override
@@ -91,8 +91,7 @@ class _CommentsPageState extends State<CommentsPage> {
           }
         }
       }
-    } catch (e) {
-      // ignore
+    } catch (_) {
     } finally {
       if (mounted) setState(() {});
     }
@@ -236,126 +235,120 @@ class _CommentsPageState extends State<CommentsPage> {
     final friend = widget.entry.friend;
     final ownerUserId = friend.uid;
 
-    // hauteur visible disponible pour la page (constraints.maxHeight),
-    // et insets clavier (viewInsets.bottom)
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: Text(
-          "Détails",
-          style: TextStyle(
-            color: ColorPalette.textPrimary(context),
+     return PopScope<bool>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.of(context).pop(true);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Détails"),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
           ),
         ),
-        backgroundColor: ColorPalette.surface(context),
-        foregroundColor: ColorPalette.opposite(context),
-        elevation: 1,
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(builder: (context, constraints) {
-          final visibleHeight = constraints.maxHeight;
-          // IMPORTANT : pour empêcher un "vide" sous le champ lorsque le clavier est ouvert
-          // on fixe la minHeight à visibleHeight + bottomInset (couvre aussi la zone clavier).
-          final minHeight = visibleHeight + bottomInset;
+        body: SafeArea(
+          child: LayoutBuilder(builder: (context, constraints) {
+            final visibleHeight = constraints.maxHeight;
+            final minHeight = visibleHeight + bottomInset;
 
-          return SingleChildScrollView(
-            controller: _scrollController,
-            physics: const ClampingScrollPhysics(),
-            // <-- PAS de padding bottom ici : éviter de créer un "espace" sous le champ
-            padding: EdgeInsets.zero,
-            child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(minHeight: minHeight < 0 ? 0 : minHeight),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // === TOP CONTENT (match card, reaction row, titre, commentaires) ===
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, right: 12, top: 8),
-                        child: MatchRegardeAmiCard(
-                          entry: widget.entry,
-                          matchDetails: widget.entry.match != null,
-                          showInteractions: false,
-                        ),
-                      ),
-                      Divider(color: ColorPalette.border(context), height: 1),
-                      ReactionRow(
-                        key: ValueKey(matchData.reactions.length),
-                        matchUserData: matchData,
-                        currentUserId: _currentUserId,
-                        loading: _loadingReactionOp,
-                        onToggle: _toggleReaction,
-                        expanded: true,
-                      ),
-                      Divider(color: ColorPalette.border(context), height: 1),
-
-                      // Titre
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        child: Text(
-                          "Commentaires",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            color: ColorPalette.textPrimary(context),
+            return SingleChildScrollView(
+              controller: _scrollController,
+              physics: const ClampingScrollPhysics(),
+              padding: EdgeInsets.zero,
+              child: ConstrainedBox(
+                constraints:
+                    BoxConstraints(minHeight: minHeight < 0 ? 0 : minHeight),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 12, right: 12, top: 8),
+                          child: MatchRegardeAmiCard(
+                            entry: widget.entry,
+                            matchDetails: widget.entry.match != null,
+                            showInteractions: false,
                           ),
                         ),
-                      ),
-
-                      // Liste des commentaires (dans une Column pour que tout soit scrollable)
-                      if (_comments.isNotEmpty)
-                        ...List<Widget>.generate(_comments.length * 2 - 1, (i) {
-                          if (i.isOdd) {
-                            return Divider(
-                              height: 1,
-                              color: ColorPalette.border(context),
-                            );
-                          } else {
-                            final index = i ~/ 2;
-                            final c = _comments[index];
-                            return _buildCommentItem(context, c, index);
-                          }
-                        })
-                      else
+                        Divider(color: ColorPalette.border(context), height: 1),
+                        ReactionRow(
+                          key: ValueKey(matchData.reactions.length),
+                          matchUserData: matchData,
+                          currentUserId: _currentUserId,
+                          loading: _loadingReactionOp,
+                          onToggle: _toggleReaction,
+                          expanded: true,
+                        ),
+                        Divider(color: ColorPalette.border(context), height: 1),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
                           child: Text(
-                            "Pas encore de commentaires",
+                            "Commentaires",
                             style: TextStyle(
-                              color: ColorPalette.textSecondary(context),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              color: ColorPalette.textPrimary(context),
                             ),
                           ),
                         ),
-                    ],
-                  ),
-
-                  // === BOTTOM: champ de saisie collé en bas ===
-                  SafeArea(
-                    top: false,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
-                      child: CommentInputField(
-                        ownerUserId: ownerUserId,
-                        matchId: matchData.matchId,
-                        refreshComments: _refreshCommentsAndReactions,
-                        defaultIsWriting: true,
+                        if (_comments.isNotEmpty)
+                          ...List<Widget>.generate(_comments.length * 2 - 1,
+                              (i) {
+                            if (i.isOdd) {
+                              return Divider(
+                                height: 1,
+                                color: ColorPalette.border(context),
+                              );
+                            } else {
+                              final index = i ~/ 2;
+                              final c = _comments[index];
+                              return _buildCommentItem(context, c, index);
+                            }
+                          })
+                        else
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            child: Text(
+                              "Pas encore de commentaires",
+                              style: TextStyle(
+                                color: ColorPalette.textSecondary(context),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        child: CommentInputField(
+                          ownerUserId: ownerUserId,
+                          matchId: matchData.matchId,
+                          refreshComments: _refreshCommentsAndReactions,
+                          defaultIsWriting: true,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }

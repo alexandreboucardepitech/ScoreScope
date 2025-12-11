@@ -67,10 +67,10 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
 
   Future<void> _initLocalState() async {
     await _initCurrentUserOnly();
-    await _refreshCommentsAndReactions();
+    await _refreshCommentsAndReactions(commentsLimit: 3);
   }
 
-  Future<void> _refreshCommentsAndReactions() async {
+  Future<void> _refreshCommentsAndReactions({int? commentsLimit}) async {
     setState(() {}); // spinner léger
 
     final ownerId = entry.friend.uid;
@@ -86,7 +86,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
       final comments = await RepositoryProvider.postRepository.fetchComments(
         ownerUserId: ownerId,
         matchId: matchId,
-        limit: 3, // on récupère 3 commentaires pour l'aperçu
+        limit: commentsLimit,
       );
 
       matchData.reactions = List<Reaction>.from(reactions);
@@ -166,6 +166,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final friend = entry.friend;
     final MatchModel? match = entry.match;
@@ -177,251 +178,277 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
     final Equipe? home = match?.equipeDomicile;
     final Equipe? away = match?.equipeExterieur;
 
-    final card = Container(
+    final cardContent = Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProfileView(
-                      user: friend,
-                      onBackPressed: () => Navigator.pop(context)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProfileView(
+                        user: friend,
+                        onBackPressed: () => Navigator.pop(context)),
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: avatarSize / 2,
+                  backgroundColor: ColorPalette.pictureBackground(context),
+                  backgroundImage: friend.photoUrl != null
+                      ? NetworkImage(friend.photoUrl!)
+                      : null,
+                  child: friend.photoUrl == null
+                      ? Text(
+                          (friend.displayName?.isNotEmpty == true
+                              ? friend.displayName![0].toUpperCase()
+                              : '?'),
+                          style: TextStyle(
+                              color: ColorPalette.textPrimary(context),
+                              fontWeight: FontWeight.bold),
+                        )
+                      : null,
                 ),
               ),
-              child: CircleAvatar(
-                radius: avatarSize / 2,
-                backgroundColor: ColorPalette.pictureBackground(context),
-                backgroundImage: friend.photoUrl != null
-                    ? NetworkImage(friend.photoUrl!)
-                    : null,
-                child: friend.photoUrl == null
-                    ? Text(
-                        (friend.displayName?.isNotEmpty == true
-                            ? friend.displayName![0].toUpperCase()
-                            : '?'),
-                        style: TextStyle(
-                            color: ColorPalette.textPrimary(context),
-                            fontWeight: FontWeight.bold),
-                      )
-                    : null,
+              const SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProfileView(
+                          user: friend,
+                          onBackPressed: () => Navigator.pop(context)),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(friend.displayName ?? 'Utilisateur',
+                          style: TextStyle(
+                              color: ColorPalette.textPrimary(context),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14)),
+                      if (relativeTime.isNotEmpty)
+                        Text(relativeTime,
+                            style: TextStyle(
+                                color: ColorPalette.textSecondary(context),
+                                fontSize: 12)),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(friend.displayName ?? 'Utilisateur',
-                      style: TextStyle(
-                          color: ColorPalette.textPrimary(context),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14)),
-                  if (relativeTime.isNotEmpty)
-                    Text(relativeTime,
-                        style: TextStyle(
-                            color: ColorPalette.textSecondary(context),
-                            fontSize: 12)),
-                ],
-              ),
-            ),
-          ]),
+            ],
+          ),
           const SizedBox(height: 10),
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: ColorPalette.tileBackground(context),
-                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-                  border: Border.all(
-                    color: ColorPalette.border(context),
-                    width: 3,
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  if (match != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MatchDetailsPage(match: match),
+                      ),
+                    );
+                  }
+                },
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: ColorPalette.tileBackground(context),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 4)
+                    ],
+                    border: Border.all(
+                      color: ColorPalette.border(context),
+                      width: 3,
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.matchDetails &&
-                        match != null &&
-                        home != null &&
-                        away != null) ...[
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (widget.matchDetails &&
+                          match != null &&
+                          home != null &&
+                          away != null) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (home.logoPath != null)
+                                    Image.asset(home.logoPath!,
+                                        width: 36,
+                                        height: 36,
+                                        fit: BoxFit.contain),
+                                  const SizedBox(height: 4),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      home.nom,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _formatMatchDate(match.date),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color:
+                                          ColorPalette.textSecondary(context),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (away.logoPath != null)
+                                    Image.asset(away.logoPath!,
+                                        width: 36,
+                                        height: 36,
+                                        fit: BoxFit.contain),
+                                  const SizedBox(height: 4),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      away.nom,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Divider(color: ColorPalette.border(context), height: 1),
+                        const SizedBox(height: 12),
+                      ],
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Expanded(
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (home.logoPath != null)
-                                  Image.asset(home.logoPath!,
-                                      width: 36,
-                                      height: 36,
-                                      fit: BoxFit.contain),
-                                const SizedBox(height: 4),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    home.nom,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                  ),
+                                Text(
+                                  matchData.note != null
+                                      ? getReactionEmoji(matchData.note!)
+                                      : '😐',
+                                  style: const TextStyle(fontSize: 36),
+                                ),
+                                Text(
+                                  matchData.note != null
+                                      ? '${matchData.note}/10'
+                                      : 'Pas noté/10',
+                                  style: TextStyle(
+                                      color: ColorPalette.accent(context),
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
                           ),
-                          // Score + date au centre
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Column(
-                              children: [
-                                Text(
-                                  '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                    color: ColorPalette.textPrimary(context),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                // date formatée jour/mois/année heure:minute
-                                Text(
-                                  _formatMatchDate(match.date),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: ColorPalette.textSecondary(context),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          Container(
+                            width: 1,
+                            height: 60,
+                            color: ColorPalette.border(context),
                           ),
                           Expanded(
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (away.logoPath != null)
-                                  Image.asset(away.logoPath!,
-                                      width: 36,
-                                      height: 36,
-                                      fit: BoxFit.contain),
-                                const SizedBox(height: 4),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    away.nom,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                  ),
+                                Text(
+                                  matchData.visionnageMatch.emoji.isNotEmpty
+                                      ? matchData.visionnageMatch.emoji
+                                      : '❓',
+                                  style: const TextStyle(fontSize: 36),
+                                ),
+                                Text(
+                                  matchData.visionnageMatch.label.isNotEmpty
+                                      ? matchData.visionnageMatch.label
+                                      : '?',
+                                  style: TextStyle(
+                                      color: ColorPalette.accent(context),
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       Divider(color: ColorPalette.border(context), height: 1),
                       const SizedBox(height: 12),
-                    ],
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text(
-                                matchData.note != null
-                                    ? getReactionEmoji(matchData.note!)
-                                    : '😐',
-                                style: const TextStyle(fontSize: 36),
-                              ),
-                              Text(
-                                matchData.note != null
-                                    ? '${matchData.note}/10'
-                                    : 'Pas noté/10',
-                                style: TextStyle(
-                                    color: ColorPalette.accent(context),
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Séparateur vertical
-                        Container(
-                          width: 1,
-                          height: 60,
-                          color: ColorPalette.border(context),
-                        ),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text(
-                                matchData.visionnageMatch.emoji.isNotEmpty
-                                    ? matchData.visionnageMatch.emoji
-                                    : '❓',
-                                style: const TextStyle(fontSize: 36),
-                              ),
-                              Text(
-                                matchData.visionnageMatch.label.isNotEmpty
-                                    ? matchData.visionnageMatch.label
-                                    : '?',
-                                style: TextStyle(
-                                    color: ColorPalette.accent(context),
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-                    Divider(color: ColorPalette.border(context), height: 1),
-                    const SizedBox(height: 12),
-
-                    // --- Vote MVP centré (toujours affiché)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.how_to_vote,
-                            size: 18,
-                            color: ColorPalette.accentVariant(context)),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Vote pour MVP : ',
-                          style: TextStyle(
-                              color: ColorPalette.textPrimary(context),
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Flexible(
-                          child: Text(
-                            entry.mvpName != null && entry.mvpName!.isNotEmpty
-                                ? entry.mvpName!
-                                : 'Pas de vote pour le MVP',
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.how_to_vote,
+                              size: 18,
+                              color: ColorPalette.accentVariant(context)),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Vote pour MVP : ',
                             style: TextStyle(
-                              color: entry.mvpName != null &&
-                                      entry.mvpName!.isNotEmpty
-                                  ? ColorPalette.accent(context)
-                                  : ColorPalette.textSecondary(context),
-                              fontWeight: FontWeight.bold,
-                              overflow: TextOverflow.ellipsis,
+                                color: ColorPalette.textPrimary(context),
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Flexible(
+                            child: Text(
+                              entry.mvpName != null && entry.mvpName!.isNotEmpty
+                                  ? entry.mvpName!
+                                  : 'Pas de vote pour le MVP',
+                              style: TextStyle(
+                                color: entry.mvpName != null &&
+                                        entry.mvpName!.isNotEmpty
+                                    ? ColorPalette.accent(context)
+                                    : ColorPalette.textSecondary(context),
+                                fontWeight: FontWeight.bold,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               if (matchData.favourite)
@@ -436,8 +463,6 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
                 ),
             ],
           ),
-
-          // n'afficher les interactions que si l'option est active
           if (widget.showInteractions) ...[
             ReactionRow(
               matchUserData: matchData,
@@ -456,17 +481,19 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
                 comments: matchData.comments,
                 userCache: _userCache,
                 onSeeAll: () async {
-                  await Navigator.of(context).push(
+                  final changed = await Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => CommentsPage(
-                        entry: widget.entry,
-                        userCache: _userCache,
-                      ),
+                      builder: (_) =>
+                          CommentsPage(entry: entry, userCache: _userCache),
                     ),
                   );
+                  if (changed == true) {
+                    await _refreshCommentsAndReactions(commentsLimit: 3);
+                    setState(() {});
+                  }
                 },
                 onProfileUpdated: () async {
-                  await _refreshCommentsAndReactions();
+                  await _refreshCommentsAndReactions(commentsLimit: 3);
                 },
               ),
           ],
@@ -476,12 +503,19 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
 
     if (match != null) {
       return GestureDetector(
-        onTap: () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => MatchDetailsPage(match: match))),
-        child: card,
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CommentsPage(entry: entry, userCache: _userCache),
+            ),
+          );
+        },
+        child: cardContent,
       );
     } else {
-      return card;
+      return cardContent;
     }
   }
 }

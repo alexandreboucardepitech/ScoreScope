@@ -52,13 +52,12 @@ class _CommentInputFieldState extends State<CommentInputField> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        // Si on clique ailleurs et que le champ est vide, on repasse en placeholder
         if (_isWriting && _controller.text.trim().isEmpty) {
           setState(() => _isWriting = false);
           FocusScope.of(context).unfocus();
         }
       },
-      child: _isWriting ? _buildWritingField(context) : _buildPlaceholder(),
+      child: (_isWriting || widget.defaultIsWriting) ? _buildWritingField(context) : _buildPlaceholder(),
     );
   }
 
@@ -66,11 +65,10 @@ class _CommentInputFieldState extends State<CommentInputField> {
     return GestureDetector(
       onTap: () {
         setState(() => _isWriting = true);
-        // On met le focus **uniquement au clic**, pas au démarrage
         FocusScope.of(context).requestFocus(_focusNode);
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Text(
           "Écrire un commentaire",
           style: TextStyle(
