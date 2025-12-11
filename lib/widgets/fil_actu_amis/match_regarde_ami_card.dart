@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/match_user_data.dart';
@@ -11,19 +12,23 @@ import 'package:scorescope/utils/string/get_reaction_emoji.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/match_details.dart';
 import 'package:scorescope/views/profile/profile.dart';
+import 'package:scorescope/widgets/fil_actu_amis/comments/comment_input_field.dart';
+import 'package:scorescope/views/amis/comments_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import 'reaction_row.dart';
-import 'comments_preview.dart';
+import 'comments/comments_preview.dart';
 
 class MatchRegardeAmiCard extends StatefulWidget {
   final MatchRegardeAmi entry;
   final bool matchDetails;
+  final bool showInteractions;
 
   const MatchRegardeAmiCard({
     super.key,
     required this.entry,
     this.matchDetails = true,
+    this.showInteractions = true,
   });
 
   @override
@@ -35,32 +40,38 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
   late final MatchUserData matchData;
   String? _currentUserId;
   bool _loadingReactionOp = false;
-  bool _loadingInitial = true;
 
-  final Map<String, String> _userNamesCache = {};
+  final Map<String, AppUser?> _userCache = {};
 
   @override
   void initState() {
     super.initState();
     entry = widget.entry;
     matchData = entry.matchData;
-    _initLocalState();
+    if (widget.showInteractions) {
+      _initLocalState();
+    } else {
+      _initCurrentUserOnly();
+    }
   }
 
-  Future<void> _initLocalState() async {
+  Future<void> _initCurrentUserOnly() async {
     try {
       final current = await RepositoryProvider.userRepository.getCurrentUser();
       _currentUserId = current?.uid;
     } catch (_) {
       _currentUserId = null;
     }
-    await _refreshCommentsAndReactions(initial: true);
+    if (mounted) setState(() {});
   }
 
-  Future<void> _refreshCommentsAndReactions({bool initial = false}) async {
-    setState(() {
-      if (initial) _loadingInitial = true;
-    });
+  Future<void> _initLocalState() async {
+    await _initCurrentUserOnly();
+    await _refreshCommentsAndReactions();
+  }
+
+  Future<void> _refreshCommentsAndReactions() async {
+    setState(() {}); // spinner léger
 
     final ownerId = entry.friend.uid;
     final matchId = matchData.matchId;
@@ -75,30 +86,29 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
       final comments = await RepositoryProvider.postRepository.fetchComments(
         ownerUserId: ownerId,
         matchId: matchId,
-        limit: 2,
+        limit: 3, // on récupère 3 commentaires pour l'aperçu
       );
 
       matchData.reactions = List<Reaction>.from(reactions);
       matchData.comments = List<Commentaire>.from(comments);
 
+      // on pré-charge les AppUser pour les commentaires
       for (final c in matchData.comments) {
-        if (!_userNamesCache.containsKey(c.authorId)) {
+        if (!_userCache.containsKey(c.authorId)) {
           try {
             final user = await RepositoryProvider.userRepository
                 .fetchUserById(c.authorId);
-            _userNamesCache[c.authorId] = user?.displayName ?? c.authorId;
+            _userCache[c.authorId] = user; // peut être null si non trouvé
           } catch (_) {
-            _userNamesCache[c.authorId] = c.authorId;
+            _userCache[c.authorId] = null;
           }
         }
       }
     } catch (e) {
-      // ignore errors
+      // ignore errors for now
     } finally {
       if (mounted) {
-        setState(() {
-          _loadingInitial = false;
-        });
+        setState(() {});
       }
     }
   }
@@ -426,17 +436,40 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
                 ),
             ],
           ),
-          ReactionRow(
-            matchUserData: matchData,
-            currentUserId: _currentUserId,
-            loading: _loadingReactionOp,
-            onToggle: _toggleReaction,
-          ),
-          CommentsPreview(
-            comments: matchData.comments,
-            userNamesCache: _userNamesCache,
-            onSeeAll: () {},
-          ),
+
+          // n'afficher les interactions que si l'option est active
+          if (widget.showInteractions) ...[
+            ReactionRow(
+              matchUserData: matchData,
+              currentUserId: _currentUserId,
+              loading: _loadingReactionOp,
+              onToggle: _toggleReaction,
+            ),
+            if (matchData.comments.isEmpty)
+              CommentInputField(
+                ownerUserId: entry.friend.uid,
+                matchId: matchData.matchId,
+                refreshComments: _refreshCommentsAndReactions,
+              ),
+            if (matchData.comments.isNotEmpty)
+              CommentsPreview(
+                comments: matchData.comments,
+                userCache: _userCache,
+                onSeeAll: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CommentsPage(
+                        entry: widget.entry,
+                        userCache: _userCache,
+                      ),
+                    ),
+                  );
+                },
+                onProfileUpdated: () async {
+                  await _refreshCommentsAndReactions();
+                },
+              ),
+          ],
         ],
       ),
     );

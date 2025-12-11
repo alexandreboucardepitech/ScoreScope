@@ -31,8 +31,10 @@ class WebPostRepository implements IPostRepository {
     for (final friend in friends) {
       final friendId = friend.uid;
 
-      final subCollectionSnap =
-          await usersCollection.doc(friendId).collection('matchUserData').get();
+      final collRef = usersCollection.doc(friendId).collection('matchUserData');
+      final subCollectionSnap = onlyPublic
+          ? await collRef.where('private', isEqualTo: false).get()
+          : await collRef.get();
 
       for (final doc in subCollectionSnap.docs) {
         final map = doc.data();
@@ -86,19 +88,21 @@ class WebPostRepository implements IPostRepository {
     for (final friend in friends) {
       final friendId = friend.uid;
 
-      final matchUserDataQuery = await usersCollection
+      Query q = usersCollection
           .doc(friendId)
           .collection('matchUserData')
           .where('matchId', isEqualTo: matchId)
-          .get();
+          .where('private', isEqualTo: false);
+
+      final matchUserDataQuery = await q.get();
 
       for (final doc in matchUserDataQuery.docs) {
-        final map = doc.data();
+        final data = doc.data() as Map<String, dynamic>;
 
         try {
-          final matchUserData = MatchUserData.fromJson(map);
+          final matchUserData = MatchUserData.fromJson(data);
 
-          if (map['private'] == true || matchUserData.private == true) {
+          if (data['private'] == true || matchUserData.private == true) {
             continue;
           }
 
@@ -115,6 +119,7 @@ class WebPostRepository implements IPostRepository {
     entries.sort((a, b) {
       final da = a.matchData.watchedAt;
       final db = b.matchData.watchedAt;
+
       if (da == null && db == null) return 0;
       if (da == null) return 1;
       if (db == null) return -1;
@@ -128,15 +133,17 @@ class WebPostRepository implements IPostRepository {
     required String ownerUserId,
     required String matchId,
   }) async {
-    final coll = usersCollection.doc(ownerUserId).collection('matchUserData')
-        as CollectionReference;
-    final q = await coll.where('matchId', isEqualTo: matchId).limit(1).get();
-    if (q.docs.isEmpty) {
+    final coll = usersCollection.doc(ownerUserId).collection('matchUserData');
+
+    final docRef = coll.doc(matchId);
+    final snap = await docRef.get();
+
+    if (!snap.exists) {
       throw StateError(
-          'matchUserData not found for owner=$ownerUserId matchId=$matchId');
+          'matchUserData not found for owner=$ownerUserId matchId=$matchId (tried doc id)');
     }
-    final doc = q.docs.first;
-    return coll.doc(doc.id);
+
+    return docRef;
   }
 
   // COMMENTS

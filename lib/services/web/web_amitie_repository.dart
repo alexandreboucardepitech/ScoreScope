@@ -42,14 +42,15 @@ class WebAmitieRepository implements IAmitieRepository {
   Future<List<AppUser>> fetchFriendsForUser(String userId) async {
     final allFriendships = await fetchFriendshipsForUser(userId);
 
-    // ne garder que les amitiés acceptées
-    final acceptedFriendIds = allFriendships.map((f) {
-      return f.firstUserId == userId ? f.secondUserId : f.firstUserId;
-    }).toList();
+    final acceptedFriendIds = allFriendships
+        .map((f) {
+          return f.firstUserId == userId ? f.secondUserId : f.firstUserId;
+        })
+        .whereType<String>()
+        .toList();
 
     if (acceptedFriendIds.isEmpty) return [];
 
-    // récupère les infos utilisateurs correspondantes
     final usersCollection = FirebaseFirestore.instance.collection('users');
     final friends = <AppUser>[];
 
@@ -62,12 +63,20 @@ class WebAmitieRepository implements IAmitieRepository {
             : i + batchSize,
       );
 
-      final usersQuery =
-          await usersCollection.where('uid', whereIn: batchIds).get();
+      final futures = batchIds.map((id) => usersCollection.doc(id).get());
+      final snapshots = await Future.wait(futures);
 
-      friends.addAll(usersQuery.docs
-          .map((doc) => AppUser.fromJson(json: doc.data()))
-          .toList());
+      for (final snap in snapshots) {
+        if (snap.exists) {
+          final data = snap.data();
+          if (data != null) {
+            try {
+              friends.add(AppUser.fromJson(json: data, userId: snap.id));
+            } catch (_) {
+            }
+          }
+        }
+      }
     }
 
     return friends;

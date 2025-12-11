@@ -264,7 +264,8 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
       });
     } catch (e, st) {
       debugPrint("Erreur _loadFeed: $e\n$st");
-      if (!mounted) return;
+      if (!
+      mounted) return;
       setState(() {
         _isLoadingFeed = false;
         _isFeedError = true;

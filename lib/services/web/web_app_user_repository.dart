@@ -39,8 +39,13 @@ class WebAppUserRepository implements IAppUserRepository {
   @override
   Future<List<String>> getUserMatchsRegardesId(
       String userId, bool onlyPublic) async {
-    final matchUserDataSnapshot =
-        await _usersCollection.doc(userId).collection('matchUserData').get();
+    final matchUserDataSnapshot = onlyPublic
+        ? await _usersCollection
+            .doc(userId)
+            .collection('matchUserData')
+            .where('private', isEqualTo: false)
+            .get()
+        : await _usersCollection.doc(userId).collection('matchUserData').get();
 
     return matchUserDataSnapshot.docs
         .where((d) => !onlyPublic || (d.data()['private'] == false))
@@ -50,8 +55,13 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<int> getUserNbMatchsRegardes(String userId, bool onlyPublic) async {
-    final matchUserDataSnapshot =
-        await _usersCollection.doc(userId).collection('matchUserData').get();
+    final matchUserDataSnapshot = onlyPublic
+        ? await _usersCollection
+            .doc(userId)
+            .collection('matchUserData')
+            .where('private', isEqualTo: false)
+            .get()
+        : await _usersCollection.doc(userId).collection('matchUserData').get();
 
     int count = 0;
 
@@ -67,8 +77,13 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<int> getUserNbButs(String userId, bool onlyPublic) async {
-    final matchUserDataSnapshot =
-        await _usersCollection.doc(userId).collection('matchUserData').get();
+    final matchUserDataSnapshot = onlyPublic
+        ? await _usersCollection
+            .doc(userId)
+            .collection('matchUserData')
+            .where('private', isEqualTo: false)
+            .get()
+        : await _usersCollection.doc(userId).collection('matchUserData').get();
 
     int totalButs = 0;
 
@@ -127,8 +142,13 @@ class WebAppUserRepository implements IAppUserRepository {
   @override
   Future<List<String>> getUserMatchsFavorisId(
       String userId, bool onlyPublic) async {
-    final matchUserDataSnapshot =
-        await _usersCollection.doc(userId).collection('matchUserData').get();
+    final matchUserDataSnapshot = onlyPublic
+        ? await _usersCollection
+            .doc(userId)
+            .collection('matchUserData')
+            .where('private', isEqualTo: false)
+            .get()
+        : await _usersCollection.doc(userId).collection('matchUserData').get();
 
     return matchUserDataSnapshot.docs
         .where((d) => d.data()['favourite'] == true)
@@ -230,21 +250,34 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<bool> getMatchPrivacy(String userId, String matchId) async {
-    final matchUserDataSnapshot =
-        await _usersCollection.doc(userId).collection('matchUserData').get();
-    for (var doc in matchUserDataSnapshot.docs) {
-      final data = doc.data();
-      if (data['matchId'] == matchId) {
-        final bool? privacy = data['private'];
-        if (privacy != null) {
-          try {
-            return privacy;
-          } on StateError {
-            return false;
-          }
-        }
+    final userMatchDocRef =
+        _usersCollection.doc(userId).collection('matchUserData').doc(matchId);
+
+    final directDoc = await userMatchDocRef.get();
+    if (directDoc.exists) {
+      final data = directDoc.data();
+      if (data != null && data.containsKey('private')) {
+        final pv = data['private'];
+        if (pv is bool) return pv;
+        return false;
       }
+      return false;
     }
+
+    final snapshot = await _usersCollection
+        .doc(userId)
+        .collection('matchUserData')
+        .where('matchId', isEqualTo: matchId)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      return false;
+    }
+
+    final data = snapshot.docs.first.data();
+    final pv = data['private'];
+    if (pv is bool) return pv;
     return false;
   }
 
@@ -293,8 +326,13 @@ class WebAppUserRepository implements IAppUserRepository {
   @override
   Future<List<MatchUserData>> fetchUserAllMatchUserData(
       String userId, bool onlyPublic) async {
-    final matchUserDataSnapshot =
-        await _usersCollection.doc(userId).collection('matchUserData').get();
+    final matchUserDataSnapshot = onlyPublic
+        ? await _usersCollection
+            .doc(userId)
+            .collection('matchUserData')
+            .where('private', isEqualTo: false)
+            .get()
+        : await _usersCollection.doc(userId).collection('matchUserData').get();
 
     List<MatchUserData> matchUserDataList = [];
 
