@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match_user_data.dart';
 
-class FriendMatchEntry {
-  final AppUser friend;
+class UserMatchEntry {
+  final AppUser user;
   final MatchUserData matchData;
 
-  FriendMatchEntry({
-    required this.friend,
+  UserMatchEntry({
+    required this.user,
     required this.matchData,
   });
 }

@@ -3,9 +3,11 @@ import 'package:scorescope/models/post/commentaire.dart';
 import 'package:scorescope/models/post/reaction.dart';
 
 abstract class IPostRepository {
-  Future<List<FriendMatchEntry>> fetchFriendsMatchesUserData(String userId);
-  Future<List<FriendMatchEntry>> fetchFriendsMatchUserDataForMatch(
-      String matchId, String userId);
+  Future<List<UserMatchEntry>> fetchFriendsMatchesUserData(String userId);
+  Future<List<UserMatchEntry>> fetchFriendsMatchUserDataForMatch(
+    String matchId,
+    String userId,
+  );
 
   Future<void> addComment({
     required String ownerUserId,

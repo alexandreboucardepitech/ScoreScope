@@ -7,7 +7,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/ui/slow_scroll_physics.dart';
 import 'package:scorescope/views/amis/ajout_amis.dart';
-import 'package:scorescope/views/amis/demandes_amis.dart';
+import 'package:scorescope/views/amis/notifications.dart';
 import 'package:scorescope/widgets/fil_actu_amis/match_regarde_amis_list.dart';
 
 class FilActuAmisView extends StatefulWidget {
@@ -24,7 +24,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
   bool _isLoadingFeed = true;
   bool _isFeedError = false;
 
-  final List<FriendMatchEntry> _rawEntries = [];
+  final List<UserMatchEntry> _rawEntries = [];
   final List<MatchRegardeAmi> _entries = [];
 
   @override
@@ -47,10 +47,13 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
       final nbPending = await RepositoryProvider.amitieRepository
           .getUserNbPendingFriendRequests(user.uid);
 
+      final nbNotifs = await RepositoryProvider.notificationRepository
+          .getNumberNotifications(userId: user.uid);
+
       if (!mounted) return;
 
-      if (nbPending > 0) {
-        _pendingRequests.value = nbPending;
+      if (nbPending > 0 || nbNotifs > 0) {
+        _pendingRequests.value = nbPending + nbNotifs;
       }
     } catch (e, st) {
       debugPrint("Erreur lors du chargement des demandes : $e\n$st");
@@ -78,16 +81,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const DemandesAmisView(),
-                ),
-              );
-            },
-            onLongPress: () {
-              _pendingRequests.value = 0;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Demandes marquées comme lues'),
-                  backgroundColor: ColorPalette.surfaceSecondary(context),
+                  builder: (_) => const NotificationsView(),
                 ),
               );
             },
@@ -202,7 +196,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
         return;
       }
 
-      final List<FriendMatchEntry> repoEntries = await RepositoryProvider
+      final List<UserMatchEntry> repoEntries = await RepositoryProvider
           .postRepository
           .fetchFriendsMatchesUserData(currentUser.uid);
 
@@ -251,7 +245,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
             ? mvpNameById[r.matchData.mvpVoteId!]
             : null;
         return MatchRegardeAmi(
-          friend: r.friend,
+          friend: r.user,
           matchData: r.matchData,
           match: match,
           mvpName: mvpName,
@@ -264,8 +258,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
       });
     } catch (e, st) {
       debugPrint("Erreur _loadFeed: $e\n$st");
-      if (!
-      mounted) return;
+      if (!mounted) return;
       setState(() {
         _isLoadingFeed = false;
         _isFeedError = true;

@@ -7,48 +7,131 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'package:scorescope/widgets/fil_actu_amis/comments/comment_input_field.dart';
-import '../../widgets/fil_actu_amis/reaction_row.dart';
+import 'package:scorescope/widgets/fil_actu_amis/reaction_row.dart';
 import 'package:scorescope/widgets/fil_actu_amis/match_regarde_ami_card.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class CommentsPage extends StatefulWidget {
-  final MatchRegardeAmi entry;
+  /// Mode A : données complètes déjà chargées
+  final MatchRegardeAmi? entry;
+
+  /// Mode B : navigation légère (notifications)
+  final String? matchId;
+  final String? ownerUserId;
+
   final Map<String, AppUser?> userCache;
 
   const CommentsPage({
-    required this.entry,
-    required this.userCache,
     super.key,
-  });
+    this.entry,
+    this.matchId,
+    this.ownerUserId,
+    this.userCache = const {},
+  }) : assert(
+          entry != null || (matchId != null && ownerUserId != null),
+          'Either entry or matchId + ownerUserId must be provided',
+        );
 
   @override
   State<CommentsPage> createState() => _CommentsPageState();
 }
 
 class _CommentsPageState extends State<CommentsPage> {
-  late MatchUserData matchData;
-  late List<Commentaire> _comments;
+  MatchRegardeAmi? _entry;
+  MatchUserData? _matchData;
+
+  List<Commentaire> _comments = [];
   final Map<String, AppUser?> _userCache = {};
+
+  bool _isLoading = false;
   bool _loadingReactionOp = false;
+  bool _hasError = false;
+
   String? _currentUserId;
 
   final ScrollController _scrollController = ScrollController();
 
+  // ------------------------------------------------------------
+  // INIT
+  // ------------------------------------------------------------
+
   @override
   void initState() {
     super.initState();
-    matchData = widget.entry.matchData;
-    _comments = List.from(matchData.comments);
+
     _userCache.addAll(widget.userCache);
     _initCurrentUser();
+
+    if (widget.entry != null) {
+      // ✅ Mode A : données déjà disponibles
+      _initFromEntry(widget.entry!);
+    } else {
+      // 🔵 Mode B : reconstruction depuis IDs
+      _loadEntryFromIds();
+    }
+  }
+
+  void _initFromEntry(MatchRegardeAmi entry) {
+    _entry = entry;
+    _matchData = entry.matchData;
+    _comments = List.from(entry.matchData.comments);
     _refreshCommentsAndReactions();
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  Future<void> _loadEntryFromIds() async {
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+
+    try {
+      final userRepo = RepositoryProvider.userRepository;
+      final matchRepo = RepositoryProvider.matchRepository;
+      final joueurRepo = RepositoryProvider.joueurRepository;
+
+      final owner = await userRepo.fetchUserById(widget.ownerUserId!);
+      final matchData = await userRepo.fetchUserMatchUserData(
+        widget.ownerUserId!,
+        widget.matchId!,
+      );
+      final match = await matchRepo.fetchMatchById(widget.matchId!);
+
+      String? mvpName;
+      if (matchData?.mvpVoteId != null) {
+        final joueur = await joueurRepo.fetchJoueurById(matchData!.mvpVoteId!);
+        mvpName = joueur?.fullName;
+      }
+
+      if (!mounted) return;
+
+      _entry = MatchRegardeAmi(
+        friend: owner!,
+        matchData: matchData!,
+        match: match,
+        mvpName: mvpName,
+      );
+
+      _matchData = matchData;
+      _comments = List.from(matchData.comments);
+
+      await _refreshCommentsAndReactions();
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e, st) {
+      debugPrint("Erreur CommentsPage: $e\n$st");
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+      });
+    }
   }
+
+  // ------------------------------------------------------------
+  // CURRENT USER
+  // ------------------------------------------------------------
 
   Future<void> _initCurrentUser() async {
     try {
@@ -57,12 +140,18 @@ class _CommentsPageState extends State<CommentsPage> {
     } catch (_) {
       _currentUserId = null;
     }
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
+  // ------------------------------------------------------------
+  // COMMENTS / REACTIONS
+  // ------------------------------------------------------------
+
   Future<void> _refreshCommentsAndReactions() async {
-    final ownerUserId = widget.entry.friend.uid;
-    final matchId = matchData.matchId;
+    if (_entry == null || _matchData == null) return;
+
+    final ownerUserId = _entry!.friend.uid;
+    final matchId = _matchData!.matchId;
 
     try {
       final reactions = await RepositoryProvider.postRepository.fetchReactions(
@@ -77,7 +166,7 @@ class _CommentsPageState extends State<CommentsPage> {
         limit: 1000,
       );
 
-      matchData.reactions = List.from(reactions);
+      _matchData!.reactions = List.from(reactions);
       _comments = List.from(comments);
 
       for (final c in _comments) {
@@ -91,21 +180,24 @@ class _CommentsPageState extends State<CommentsPage> {
           }
         }
       }
-    } catch (_) {
     } finally {
       if (mounted) setState(() {});
     }
   }
 
   Future<void> _toggleReaction(String emoji) async {
-    if (_currentUserId == null || _loadingReactionOp) return;
+    if (_currentUserId == null ||
+        _loadingReactionOp ||
+        _entry == null ||
+        _matchData == null) return;
+
     setState(() => _loadingReactionOp = true);
 
-    final ownerUserId = widget.entry.friend.uid;
-    final matchId = matchData.matchId;
+    final ownerUserId = _entry!.friend.uid;
+    final matchId = _matchData!.matchId;
 
     try {
-      final existingForEmoji = matchData.reactions
+      final existingForEmoji = _matchData!.reactions
           .where((r) => r.userId == _currentUserId && r.emoji == emoji)
           .toList();
 
@@ -126,15 +218,14 @@ class _CommentsPageState extends State<CommentsPage> {
       }
 
       await _refreshCommentsAndReactions();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Erreur réaction : $e')));
-      }
     } finally {
       if (mounted) setState(() => _loadingReactionOp = false);
     }
   }
+
+  // ------------------------------------------------------------
+  // UI
+  // ------------------------------------------------------------
 
   Widget _buildCommentItem(BuildContext context, Commentaire c, int index) {
     final user = _userCache[c.authorId];
@@ -179,11 +270,7 @@ class _CommentsPageState extends State<CommentsPage> {
               alignment: Alignment.center,
               child: user?.photoUrl == null
                   ? Text(
-                      (user?.displayName?.isNotEmpty == true
-                          ? user!.displayName![0].toUpperCase()
-                          : c.authorId.isNotEmpty
-                              ? c.authorId[0].toUpperCase()
-                              : '?'),
+                      user?.displayName?.characters.first.toUpperCase() ?? '?',
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontWeight: FontWeight.bold,
@@ -202,16 +289,21 @@ class _CommentsPageState extends State<CommentsPage> {
                     Text(
                       user?.displayName ?? c.authorId,
                       style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: ColorPalette.textPrimary(context),
-                          fontSize: 14),
+                        fontWeight: FontWeight.w700,
+                        color: ColorPalette.textPrimary(context),
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      timeago.format(c.createdAt, locale: 'fr'),
+                      timeago.format(
+                        c.createdAt,
+                        locale: 'fr',
+                      ),
                       style: TextStyle(
-                          color: ColorPalette.textSecondary(context),
-                          fontSize: 11),
+                        color: ColorPalette.textSecondary(context),
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),
@@ -232,12 +324,22 @@ class _CommentsPageState extends State<CommentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final friend = widget.entry.friend;
-    final ownerUserId = friend.uid;
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
+    if (_hasError || _entry == null || _matchData == null) {
+      return const Scaffold(
+        body: Center(child: Text("Erreur de chargement")),
+      );
+    }
+
+    final ownerUserId = _entry!.friend.uid;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-     return PopScope<bool>(
+    return PopScope<bool>(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
@@ -246,12 +348,10 @@ class _CommentsPageState extends State<CommentsPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Détails"),
+          title: const Text("Détails"),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(true),
           ),
         ),
         body: SafeArea(
@@ -277,15 +377,15 @@ class _CommentsPageState extends State<CommentsPage> {
                           padding: const EdgeInsets.only(
                               left: 12, right: 12, top: 8),
                           child: MatchRegardeAmiCard(
-                            entry: widget.entry,
-                            matchDetails: widget.entry.match != null,
+                            entry: _entry!,
+                            matchDetails: _entry!.match != null,
                             showInteractions: false,
                           ),
                         ),
                         Divider(color: ColorPalette.border(context), height: 1),
                         ReactionRow(
-                          key: ValueKey(matchData.reactions.length),
-                          matchUserData: matchData,
+                          key: ValueKey(_matchData!.reactions.length),
+                          matchUserData: _matchData!,
                           currentUserId: _currentUserId,
                           loading: _loadingReactionOp,
                           onToggle: _toggleReaction,
@@ -302,6 +402,8 @@ class _CommentsPageState extends State<CommentsPage> {
                               fontSize: 16,
                               color: ColorPalette.textPrimary(context),
                             ),
+                            textAlign:
+                                TextAlign.start, // <-- exactement comme avant
                           ),
                         ),
                         if (_comments.isNotEmpty)
@@ -337,7 +439,7 @@ class _CommentsPageState extends State<CommentsPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 0),
                         child: CommentInputField(
                           ownerUserId: ownerUserId,
-                          matchId: matchData.matchId,
+                          matchId: _matchData!.matchId,
                           refreshComments: _refreshCommentsAndReactions,
                           defaultIsWriting: true,
                         ),

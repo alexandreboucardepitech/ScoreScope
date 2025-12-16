@@ -46,7 +46,7 @@ class _MesAmisTabState extends State<MesAmisTab> {
         return;
       }
 
-      final List<FriendMatchEntry> repoEntries = await RepositoryProvider
+      final List<UserMatchEntry> repoEntries = await RepositoryProvider
           .postRepository
           .fetchFriendsMatchUserDataForMatch(widget.matchId, user.uid);
 
@@ -76,7 +76,7 @@ class _MesAmisTabState extends State<MesAmisTab> {
             ? mvpNameById[r.matchData.mvpVoteId!]
             : null;
         return MatchRegardeAmi(
-          friend: r.friend,
+          friend: r.user,
           matchData: r.matchData,
           mvpName: mvpName,
         );

@@ -4,6 +4,7 @@ import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/post/commentaire.dart';
 import 'package:scorescope/models/post/reaction.dart';
 import 'package:scorescope/services/mock/mock_app_user_repository.dart';
+import 'package:scorescope/services/mock/mock_notification_repository.dart';
 import 'package:scorescope/services/repositories/i_post_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
 
@@ -114,7 +115,7 @@ class MockPostRepository implements IPostRepository {
   // FRIENDS' MATCH USERDATA FETCH (kept behaviour)
   // -------------------------
   @override
-  Future<List<FriendMatchEntry>> fetchFriendsMatchesUserData(
+  Future<List<UserMatchEntry>> fetchFriendsMatchesUserData(
       String userId) async {
     await Future.delayed(const Duration(milliseconds: 200));
 
@@ -122,13 +123,13 @@ class MockPostRepository implements IPostRepository {
         await RepositoryProvider.amitieRepository.fetchFriendsForUser(userId);
     if (friends.isEmpty) return [];
 
-    final List<FriendMatchEntry> result = [];
+    final List<UserMatchEntry> result = [];
 
     for (final friend in friends) {
       final friendMatches = await MockAppUserRepository()
           .fetchUserAllMatchUserData(friend.uid, true); // onlyPublic=true
       for (final md in friendMatches) {
-        result.add(FriendMatchEntry(friend: friend, matchData: md));
+        result.add(UserMatchEntry(user: friend, matchData: md));
       }
     }
 
@@ -145,7 +146,7 @@ class MockPostRepository implements IPostRepository {
   }
 
   @override
-  Future<List<FriendMatchEntry>> fetchFriendsMatchUserDataForMatch(
+  Future<List<UserMatchEntry>> fetchFriendsMatchUserDataForMatch(
       String matchId, String userId) async {
     await Future.delayed(const Duration(milliseconds: 200));
 
@@ -153,13 +154,13 @@ class MockPostRepository implements IPostRepository {
         await RepositoryProvider.amitieRepository.fetchFriendsForUser(userId);
     if (friends.isEmpty) return [];
 
-    final List<FriendMatchEntry> result = [];
+    final List<UserMatchEntry> result = [];
 
     for (final friend in friends) {
       final matchUserData = await MockAppUserRepository()
           .fetchUserMatchUserData(friend.uid, matchId);
       if (matchUserData != null) {
-        result.add(FriendMatchEntry(friend: friend, matchData: matchUserData));
+        result.add(UserMatchEntry(user: friend, matchData: matchUserData));
       }
     }
 
@@ -197,6 +198,12 @@ class MockPostRepository implements IPostRepository {
 
     _addCommentInternal(
         ownerUserId: ownerUserId, matchId: matchId, comment: comment);
+
+    MockNotificationRepository().notifyNewComment(
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+      authorId: authorId,
+    );
   }
 
   @override
@@ -235,7 +242,20 @@ class MockPostRepository implements IPostRepository {
 
     final key = _key(ownerUserId, matchId);
     final list = _comments.putIfAbsent(key, () => []);
-    list.removeWhere((c) => c.id == commentId);
+
+    final idx = list.indexWhere((c) => c.id == commentId);
+    if (idx == -1) return;
+
+    final comment = list[idx];
+    final authorId = comment.authorId;
+
+    list.removeAt(idx);
+
+    await MockNotificationRepository().notifyCommentDeleted(
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+      authorId: authorId,
+    );
   }
 
   @override
@@ -272,7 +292,6 @@ class MockPostRepository implements IPostRepository {
     final key = _key(ownerUserId, matchId);
     final list = _reactions.putIfAbsent(key, () => []);
 
-    // remove existing reactions by same user + emoji (keep uniqueness per user+emoji)
     list.removeWhere((r) => r.userId == authorId && r.emoji == emoji);
 
     final reaction = Reaction(
@@ -282,8 +301,13 @@ class MockPostRepository implements IPostRepository {
       createdAt: DateTime.now().toUtc(),
     );
 
-    // insert newest-first
     list.insert(0, reaction);
+
+    MockNotificationRepository().notifyNewReaction(
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+      authorId: authorId,
+    );
   }
 
   @override
@@ -298,8 +322,18 @@ class MockPostRepository implements IPostRepository {
 
     final key = _key(ownerUserId, matchId);
     final list = _reactions.putIfAbsent(key, () => []);
-    // remove all matching reactions (userId + emoji)
-    list.removeWhere((r) => r.userId == authorId && r.emoji == emoji);
+
+    final idx =
+        list.indexWhere((c) => c.userId == authorId && c.emoji == emoji);
+    if (idx == -1) return;
+
+    list.removeAt(idx);
+
+    await MockNotificationRepository().notifyCommentDeleted(
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+      authorId: authorId,
+    );
   }
 
   @override
@@ -314,7 +348,6 @@ class MockPostRepository implements IPostRepository {
     final key = _key(ownerUserId, matchId);
     final list = _reactions.putIfAbsent(key, () => []);
     final copy = List<Reaction>.from(list);
-    // sort newest-first by createdAt
     copy.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     if (limit != null && limit < copy.length) {

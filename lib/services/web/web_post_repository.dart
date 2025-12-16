@@ -5,13 +5,14 @@ import 'package:scorescope/models/post/commentaire.dart';
 import 'package:scorescope/models/post/reaction.dart';
 import 'package:scorescope/services/repositories/i_post_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/services/web/web_notification_repository.dart';
 
 class WebPostRepository implements IPostRepository {
   final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection('users');
 
   @override
-  Future<List<FriendMatchEntry>> fetchFriendsMatchesUserData(
+  Future<List<UserMatchEntry>> fetchFriendsMatchesUserData(
     String userId, {
     bool onlyPublic = true,
     int? daysLimit,
@@ -26,7 +27,7 @@ class WebPostRepository implements IPostRepository {
 
     final usersCollection = FirebaseFirestore.instance.collection('users');
 
-    final List<FriendMatchEntry> allEntries = [];
+    final List<UserMatchEntry> allEntries = [];
 
     for (final friend in friends) {
       final friendId = friend.uid;
@@ -54,8 +55,8 @@ class WebPostRepository implements IPostRepository {
           }
 
           allEntries.add(
-            FriendMatchEntry(
-              friend: friend,
+            UserMatchEntry(
+              user: friend,
               matchData: matchUserData,
             ),
           );
@@ -76,25 +77,25 @@ class WebPostRepository implements IPostRepository {
   }
 
   @override
-  Future<List<FriendMatchEntry>> fetchFriendsMatchUserDataForMatch(
+  Future<List<UserMatchEntry>> fetchFriendsMatchUserDataForMatch(
       String matchId, String userId) async {
     final friends =
         await RepositoryProvider.amitieRepository.fetchFriendsForUser(userId);
     if (friends.isEmpty) return [];
 
     final usersCollection = FirebaseFirestore.instance.collection('users');
-    final List<FriendMatchEntry> entries = [];
+    final List<UserMatchEntry> entries = [];
 
     for (final friend in friends) {
       final friendId = friend.uid;
 
-      Query q = usersCollection
+      Query query = usersCollection
           .doc(friendId)
           .collection('matchUserData')
           .where('matchId', isEqualTo: matchId)
           .where('private', isEqualTo: false);
 
-      final matchUserDataQuery = await q.get();
+      final matchUserDataQuery = await query.get();
 
       for (final doc in matchUserDataQuery.docs) {
         final data = doc.data() as Map<String, dynamic>;
@@ -107,8 +108,8 @@ class WebPostRepository implements IPostRepository {
           }
 
           entries.add(
-            FriendMatchEntry(
-              friend: friend,
+            UserMatchEntry(
+              user: friend,
               matchData: matchUserData,
             ),
           );
@@ -170,6 +171,12 @@ class WebPostRepository implements IPostRepository {
     };
 
     await newDocRef.set(commentData);
+
+    WebNotificationRepository().notifyNewComment(
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+      authorId: authorId,
+    );
   }
 
   @override
@@ -204,7 +211,20 @@ class WebPostRepository implements IPostRepository {
     );
 
     final commentRef = parentRef.collection('comments').doc(commentId);
+
+    final snap = await commentRef.get();
+    if (!snap.exists) return;
+
+    final data = snap.data() as Map<String, dynamic>;
+    final authorId = data['authorId'] as String;
+
     await commentRef.delete();
+
+    await WebNotificationRepository().notifyCommentDeleted(
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+      authorId: authorId,
+    );
   }
 
   @override
@@ -218,11 +238,11 @@ class WebPostRepository implements IPostRepository {
       matchId: matchId,
     );
 
-    Query q =
+    Query query =
         parentRef.collection('comments').orderBy('createdAt', descending: true);
-    if (limit != null) q = q.limit(limit);
+    if (limit != null) query = query.limit(limit);
 
-    final snap = await q.get();
+    final snap = await query.get();
     return snap.docs
         .map(
             (d) => Commentaire.fromJson(d.data() as Map<String, dynamic>, d.id))
@@ -251,8 +271,13 @@ class WebPostRepository implements IPostRepository {
       'createdAt': FieldValue.serverTimestamp(),
     };
 
-    // create a new reaction doc with auto-id
     await reactionsRef.add(data);
+
+    WebNotificationRepository().notifyNewReaction(
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+      authorId: authorId,
+    );
   }
 
   @override
@@ -269,12 +294,11 @@ class WebPostRepository implements IPostRepository {
 
     final CollectionReference reactionsCol = parentRef.collection('reactions');
 
-    // Query for docs matching both userId and emoji
-    final q = reactionsCol
+    final query = reactionsCol
         .where('userId', isEqualTo: authorId)
         .where('emoji', isEqualTo: emoji);
 
-    final snap = await q.get();
+    final snap = await query.get();
 
     if (snap.docs.isEmpty) return;
 
@@ -283,6 +307,12 @@ class WebPostRepository implements IPostRepository {
       batch.delete(doc.reference);
     }
     await batch.commit();
+
+    await WebNotificationRepository().notifyReactionDeleted(
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+      authorId: authorId,
+    );
   }
 
   @override
@@ -296,12 +326,12 @@ class WebPostRepository implements IPostRepository {
       matchId: matchId,
     );
 
-    Query q = parentRef
+    Query query = parentRef
         .collection('reactions')
         .orderBy('createdAt', descending: true);
-    if (limit != null) q = q.limit(limit);
+    if (limit != null) query = query.limit(limit);
 
-    final snap = await q.get();
+    final snap = await query.get();
     return snap.docs
         .map((d) => Reaction.fromJson(d.data() as Map<String, dynamic>, d.id))
         .toList();
