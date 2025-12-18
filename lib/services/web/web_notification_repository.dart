@@ -51,16 +51,16 @@ class WebNotificationRepository implements INotificationRepository {
     switch (type) {
       case "comments":
         await docRef.update({
-          'hasNewComments': false,
+          'newCommentsCount': 0,
         });
       case "reactions":
         await docRef.update({
-          'hasNewReactions': false,
+          'newReactionsCount': 0,
         });
       default:
         await docRef.update({
-          'hasNewComments': false,
-          'hasNewReactions': false,
+          'newCommentsCount': 0,
+          'newReactionsCount': 0,
         });
     }
   }
@@ -74,8 +74,8 @@ class WebNotificationRepository implements INotificationRepository {
 
     for (final doc in querySnapshot.docs) {
       batch.update(doc.reference, {
-        'hasNewComments': false,
-        'hasNewReactions': false,
+        'newCommentsCount': 0,
+        'newReactionsCount': 0,
       });
     }
 
@@ -95,25 +95,15 @@ class WebNotificationRepository implements INotificationRepository {
     );
 
     await FirebaseFirestore.instance.runTransaction((tx) async {
-      final snap = await tx.get(docRef);
-
-      if (!snap.exists) {
-        tx.set(docRef, {
-          'ownerUserId': ownerUserId,
-          'matchId': matchId,
-          'commentCounts': {authorId: 1},
-          'reactionCounts': {},
-          'hasNewComments': true,
-          'hasNewReactions': false,
-          'lastPostActivity': FieldValue.serverTimestamp(),
-        });
-      } else {
-        tx.update(docRef, {
-          'commentCounts.$authorId': FieldValue.increment(1),
-          'hasNewComments': true,
-          'lastPostActivity': FieldValue.serverTimestamp(),
-        });
-      }
+      await docRef.set({
+        'ownerUserId': ownerUserId,
+        'matchId': matchId,
+        'commentCounts': {
+          authorId: FieldValue.increment(1),
+        },
+        'newCommentsCount': FieldValue.increment(1),
+        'lastPostActivity': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     });
   }
 
@@ -130,25 +120,15 @@ class WebNotificationRepository implements INotificationRepository {
     );
 
     await FirebaseFirestore.instance.runTransaction((tx) async {
-      final snap = await tx.get(docRef);
-
-      if (!snap.exists) {
-        tx.set(docRef, {
-          'ownerUserId': ownerUserId,
-          'matchId': matchId,
-          'commentCounts': {},
-          'reactionCounts': {authorId: 1},
-          'hasNewComments': false,
-          'hasNewReactions': true,
-          'lastPostActivity': FieldValue.serverTimestamp(),
-        });
-      } else {
-        tx.update(docRef, {
-          'reactionCounts.$authorId': FieldValue.increment(1),
-          'hasNewReactions': true,
-          'lastPostActivity': FieldValue.serverTimestamp(),
-        });
-      }
+      await docRef.set({
+        'ownerUserId': ownerUserId,
+        'matchId': matchId,
+        'reactionCounts': {
+          authorId: FieldValue.increment(1),
+        },
+        'newReactionsCount': FieldValue.increment(1),
+        'lastPostActivity': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     });
   }
 
@@ -165,36 +145,12 @@ class WebNotificationRepository implements INotificationRepository {
       ),
     );
 
-    await FirebaseFirestore.instance.runTransaction((tx) async {
-      final snap = await tx.get(docRef);
-      if (!snap.exists) return;
-
-      final data = snap.data() as Map<String, dynamic>;
-      final Map<String, dynamic> counts =
-          Map<String, dynamic>.from(data['commentCounts'] ?? {});
-
-      final int currentCount = (counts[authorId] ?? 0) as int;
-
-      if (currentCount <= 0) return;
-
-      if (currentCount == 1) {
-        tx.update(docRef, {
-          'commentCounts.$authorId': FieldValue.delete(),
-        });
-        counts.remove(authorId);
-      } else {
-        // Décrément
-        tx.update(docRef, {
-          'commentCounts.$authorId': FieldValue.increment(-1),
-        });
-        counts[authorId] = currentCount - 1;
-      }
-
-      // Mise à jour du flag global
-      tx.update(docRef, {
-        'hasNewComments': counts.isNotEmpty,
-      });
-    });
+    await docRef.set({
+      'commentCounts': {
+        authorId: FieldValue.increment(-1),
+      },
+      'newCommentsCount': FieldValue.increment(-1),
+    }, SetOptions(merge: true));
   }
 
   @override
@@ -204,39 +160,24 @@ class WebNotificationRepository implements INotificationRepository {
     required String authorId,
   }) async {
     final docRef = _notificationsCol(ownerUserId).doc(
-      _notificationId(ownerUserId: ownerUserId, matchId: matchId),
+      _notificationId(
+        ownerUserId: ownerUserId,
+        matchId: matchId,
+      ),
     );
 
-    await FirebaseFirestore.instance.runTransaction((tx) async {
-      final snap = await tx.get(docRef);
-      if (!snap.exists) return;
-
-      final data = snap.data() as Map<String, dynamic>;
-      final counts = Map<String, dynamic>.from(data['reactionCounts'] ?? {});
-
-      final current = (counts[authorId] ?? 0) as int;
-      if (current <= 1) {
-        tx.update(docRef, {
-          'reactionCounts.$authorId': FieldValue.delete(),
-        });
-        counts.remove(authorId);
-      } else {
-        tx.update(docRef, {
-          'reactionCounts.$authorId': FieldValue.increment(-1),
-        });
-        counts[authorId] = current - 1;
-      }
-
-      tx.update(docRef, {
-        'hasNewReactions': counts.isNotEmpty,
-      });
-    });
+    await docRef.set({
+      'reactionCounts': {
+        authorId: FieldValue.increment(-1),
+      },
+      'newReactionsCount': FieldValue.increment(-1),
+    }, SetOptions(merge: true));
   }
 
   @override
   Future<void> deleteOldNotifications({
     required String userId,
-    required int daysLimit,
+    int daysLimit = 14,
   }) async {
     final cutoff =
         Timestamp.fromDate(DateTime.now().subtract(Duration(days: daysLimit)));
@@ -253,15 +194,16 @@ class WebNotificationRepository implements INotificationRepository {
     }
     await batch.commit();
   }
-  
+
   @override
   Future<int> getNumberNotifications({required String userId}) async {
     int count = 0;
-    List<PostNotification> notifications = await fetchNotifications(userId: userId);
+    List<PostNotification> notifications =
+        await fetchNotifications(userId: userId);
 
     for (PostNotification notif in notifications) {
-      if (notif.hasNewComments) count++;
-      if (notif.hasNewReactions) count++;
+      if (notif.newCommentsCount > 0) count++;
+      if (notif.newReactionsCount > 0) count++;
     }
 
     return count;

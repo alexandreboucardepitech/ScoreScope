@@ -53,6 +53,9 @@ class _NotificationsViewState extends State<NotificationsView> {
 
       _currentUserId = user.uid;
 
+      RepositoryProvider.notificationRepository
+          .deleteOldNotifications(userId: user.uid);
+
       final requests = await RepositoryProvider.amitieRepository
           .fetchFriendRequestsReceived(user.uid);
 

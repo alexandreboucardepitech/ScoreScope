@@ -138,7 +138,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
         _NotificationTileData(
           notification: notification,
           type: 'comments',
-          isNew: notification.hasNewComments,
+          isNew: notification.hasNewComments(),
         ),
       );
     }
@@ -148,7 +148,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
         _NotificationTileData(
           notification: notification,
           type: 'reactions',
-          isNew: notification.hasNewReactions,
+          isNew: notification.hasNewReactions(),
         ),
       );
     }

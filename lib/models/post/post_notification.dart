@@ -4,8 +4,8 @@ class PostNotification {
   final String ownerUserId;
   final String matchId;
 
-  final bool hasNewComments;
-  final bool hasNewReactions;
+  final int newCommentsCount;
+  final int newReactionsCount;
 
   /// userId -> number of comments
   final Map<String, int> commentCounts;
@@ -18,28 +18,39 @@ class PostNotification {
   PostNotification({
     required this.ownerUserId,
     required this.matchId,
-    required this.hasNewComments,
-    required this.hasNewReactions,
+    required this.newCommentsCount,
+    required this.newReactionsCount,
     required this.commentCounts,
     required this.reactionCounts,
     required this.lastPostActivity,
   });
 
+  bool hasNewComments() {
+    return newCommentsCount > 0;
+  }
+
+  bool hasNewReactions() {
+    return newReactionsCount > 0;
+  }
+
   factory PostNotification.fromJson(Map<String, dynamic> json) {
-    Map<String, int> _parseCounts(dynamic raw) {
+    Map<String, int> parseCounts(dynamic raw) {
       if (raw is Map<String, dynamic>) {
         return raw.map((k, v) => MapEntry(k, (v as num).toInt()));
       }
       return {};
     }
 
+    Map<String, int> commentCounts = parseCounts(json['commentCounts']);
+    Map<String, int> reactionCounts = parseCounts(json['reactionCounts']);
+
     return PostNotification(
       ownerUserId: json['ownerUserId'] as String,
       matchId: json['matchId'] as String,
-      hasNewComments: json['hasNewComments'] as bool? ?? false,
-      hasNewReactions: json['hasNewReactions'] as bool? ?? false,
-      commentCounts: _parseCounts(json['commentCounts']),
-      reactionCounts: _parseCounts(json['reactionCounts']),
+      newCommentsCount: json['newCommentsCount'] as int? ?? 0,
+      newReactionsCount: json['newReactionsCount'] as int? ?? 0,
+      commentCounts: commentCounts,
+      reactionCounts: reactionCounts,
       lastPostActivity: (json['lastPostActivity'] is Timestamp)
           ? (json['lastPostActivity'] as Timestamp).toDate()
           : DateTime.now(),
@@ -50,8 +61,8 @@ class PostNotification {
     return {
       'ownerUserId': ownerUserId,
       'matchId': matchId,
-      'hasNewComments': hasNewComments,
-      'hasNewReactions': hasNewReactions,
+      'newCommentsCount': newCommentsCount,
+      'newReactionsCount': newReactionsCount,
       'commentCounts': commentCounts,
       'reactionCounts': reactionCounts,
       'lastPostActivity': lastPostActivity,
@@ -59,8 +70,8 @@ class PostNotification {
   }
 
   PostNotification copyWith({
-    bool? hasNewComments,
-    bool? hasNewReactions,
+    int? newCommentsCount,
+    int? newReactionsCount,
     Map<String, int>? commentCounts,
     Map<String, int>? reactionCounts,
     DateTime? lastPostActivity,
@@ -68,8 +79,8 @@ class PostNotification {
     return PostNotification(
       ownerUserId: ownerUserId,
       matchId: matchId,
-      hasNewComments: hasNewComments ?? this.hasNewComments,
-      hasNewReactions: hasNewReactions ?? this.hasNewReactions,
+      newCommentsCount: newCommentsCount ?? this.newCommentsCount,
+      newReactionsCount: newReactionsCount ?? this.newReactionsCount,
       commentCounts: commentCounts ?? this.commentCounts,
       reactionCounts: reactionCounts ?? this.reactionCounts,
       lastPostActivity: lastPostActivity ?? this.lastPostActivity,

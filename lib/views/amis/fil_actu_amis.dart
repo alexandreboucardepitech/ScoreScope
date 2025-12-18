@@ -52,9 +52,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
 
       if (!mounted) return;
 
-      if (nbPending > 0 || nbNotifs > 0) {
-        _pendingRequests.value = nbPending + nbNotifs;
-      }
+      _pendingRequests.value = nbPending + nbNotifs;
     } catch (e, st) {
       debugPrint("Erreur lors du chargement des demandes : $e\n$st");
     }
@@ -76,14 +74,15 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
           label: 'Demandes d\'amis${has ? ", $count non lues" : ""}',
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
-            onTap: () {
+            onTap: () async {
               HapticFeedback.selectionClick();
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => const NotificationsView(),
                 ),
               );
+              _loadPendingRequests();
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),

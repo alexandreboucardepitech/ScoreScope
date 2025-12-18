@@ -40,7 +40,7 @@ abstract class INotificationRepository {
 
   Future<void> deleteOldNotifications({
     required String userId,
-    required int daysLimit,
+    int daysLimit = 14,
   });
 
   Future<int> getNumberNotifications({required String userId});

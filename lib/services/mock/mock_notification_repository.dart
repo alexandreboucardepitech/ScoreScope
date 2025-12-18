@@ -28,8 +28,8 @@ class MockNotificationRepository implements INotificationRepository {
       matchId: '1',
       commentCounts: {'u_marie': 1},
       reactionCounts: {'u_jules': 1},
-      hasNewComments: true,
-      hasNewReactions: true,
+      newCommentsCount: 1,
+      newReactionsCount: 0,
       lastPostActivity: now.subtract(const Duration(minutes: 30)),
     );
   }
@@ -59,8 +59,8 @@ class MockNotificationRepository implements INotificationRepository {
         matchId: matchId,
         commentCounts: {},
         reactionCounts: {},
-        hasNewComments: false,
-        hasNewReactions: false,
+        newCommentsCount: 0,
+        newReactionsCount: 0,
         lastPostActivity: DateTime.now().toUtc(),
       ),
     );
@@ -103,16 +103,16 @@ class MockNotificationRepository implements INotificationRepository {
     switch (type) {
       case "comments":
         newNotif = notif.copyWith(
-          hasNewComments: false,
+          newCommentsCount: 0,
         );
       case "reactions":
         newNotif = notif.copyWith(
-          hasNewReactions: false,
+          newReactionsCount: 0,
         );
       default:
         newNotif = notif.copyWith(
-          hasNewComments: false,
-          hasNewReactions: false,
+          newCommentsCount: 0,
+          newReactionsCount: 0,
         );
     }
 
@@ -133,13 +133,13 @@ class MockNotificationRepository implements INotificationRepository {
     _notifications.updateAll((key, notif) {
       if (notif.ownerUserId != userId) return notif;
 
-      if (!notif.hasNewComments && !notif.hasNewReactions) {
+      if (notif.newCommentsCount == 0 && notif.newReactionsCount == 0) {
         return notif;
       }
 
       return notif.copyWith(
-        hasNewComments: false,
-        hasNewReactions: false,
+        newCommentsCount: 0,
+        newReactionsCount: 0,
       );
     });
   }
@@ -168,7 +168,7 @@ class MockNotificationRepository implements INotificationRepository {
       matchId: matchId,
     )] = notif.copyWith(
       commentCounts: counts,
-      hasNewComments: true,
+      newCommentsCount: notif.newCommentsCount + 1,
       lastPostActivity: DateTime.now().toUtc(),
     );
   }
@@ -193,12 +193,16 @@ class MockNotificationRepository implements INotificationRepository {
       notif.reactionCounts[authorId] = 0;
     }
 
+    final counts = Map<String, int>.from(notif.reactionCounts);
+    counts[authorId] = (counts[authorId] ?? 0) + 1;
+
     _notifications[_key(
       userId: ownerUserId,
       ownerUserId: ownerUserId,
       matchId: matchId,
     )] = notif.copyWith(
-      hasNewReactions: true,
+      reactionCounts: counts,
+      newReactionsCount: notif.newReactionsCount + 1,
       lastPostActivity: DateTime.now().toUtc(),
     );
   }
@@ -231,7 +235,7 @@ class MockNotificationRepository implements INotificationRepository {
 
     _notifications[key] = notif.copyWith(
       commentCounts: counts,
-      hasNewComments: counts.isNotEmpty,
+      newCommentsCount: notif.newReactionsCount - 1,
     );
   }
 
@@ -263,15 +267,13 @@ class MockNotificationRepository implements INotificationRepository {
 
     _notifications[key] = notif.copyWith(
       reactionCounts: counts,
-      hasNewReactions: counts.isNotEmpty,
+      newReactionsCount: notif.newReactionsCount - 1,
     );
   }
 
   @override
-  Future<void> deleteOldNotifications({
-    required String userId,
-    required int daysLimit,
-  }) async {
+  Future<void> deleteOldNotifications(
+      {required String userId, int daysLimit = 14}) async {
     await ready;
 
     final cutoff = DateTime.now().toUtc().subtract(Duration(days: daysLimit));
@@ -290,8 +292,8 @@ class MockNotificationRepository implements INotificationRepository {
         await fetchNotifications(userId: userId);
 
     for (PostNotification notif in notifications) {
-      if (notif.hasNewComments) count++;
-      if (notif.hasNewReactions) count++;
+      if (notif.newCommentsCount > 0) count++;
+      if (notif.newReactionsCount > 0) count++;
     }
 
     return count;
