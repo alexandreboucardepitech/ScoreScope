@@ -58,6 +58,36 @@ class WebMatchRepository implements IMatchRepository {
   }
 
   @override
+  Future<List<MatchModel>> fetchMatchesByDate(DateTime date) async {
+    DateTime startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
+    DateTime endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+
+    final Timestamp startTimestamp = Timestamp.fromDate(startOfDay);
+    final Timestamp endTimestamp = Timestamp.fromDate(endOfDay);
+
+    final snapshot = await _collection
+        .where('date', isGreaterThanOrEqualTo: startTimestamp)
+        .where('date', isLessThanOrEqualTo: endTimestamp)
+        .get();
+
+    final futures = snapshot.docs.map((doc) async {
+      final data = doc.data();
+
+      final mvpVotesSnapshot =
+          await _collection.doc(doc.id).collection('mvpVotes').get();
+      data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
+
+      final notesSnapshot =
+          await _collection.doc(doc.id).collection('notes').get();
+      data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
+
+      return await MatchModel.fromJson(json: data, matchId: doc.id);
+    }).toList();
+
+    return await Future.wait(futures);
+  }
+
+  @override
   Future<void> addMatch(MatchModel match) async {
     await _collection.doc(match.id).set(match.toJson());
   }

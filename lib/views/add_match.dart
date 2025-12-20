@@ -1035,6 +1035,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         joueursEquipeExterieur: _selectedButeursExterieur
                             .whereType<Joueur>()
                             .toList(),
+                        status: MatchStatus.finished,
                       );
                       Navigator.pop(context, newMatch);
                     }

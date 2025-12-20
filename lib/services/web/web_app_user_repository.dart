@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 
@@ -370,24 +371,62 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<void> removeMatchUserData(String userId, String matchId) async {
-    await _matchsCollection
-        .doc(matchId)
-        .collection('notes')
-        .doc(userId)
-        .delete();
+    final firestore = FirebaseFirestore.instance;
 
-    await _matchsCollection
-        .doc(matchId)
-        .collection('mvpVotes')
-        .doc(userId)
-        .delete();
+    try {
+      final notesRef =
+          _matchsCollection.doc(matchId).collection('notes').doc(userId);
 
-    final userMatchDocRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('matchUserData')
-        .doc(matchId);
+      final mvpVotesRef =
+          _matchsCollection.doc(matchId).collection('mvpVotes').doc(userId);
 
-    return userMatchDocRef.delete();
+      final notesSnap = await notesRef.get();
+      if (notesSnap.exists) {
+        await notesRef.delete();
+      }
+
+      final mvpSnap = await mvpVotesRef.get();
+      if (mvpSnap.exists) {
+        await mvpVotesRef.delete();
+      }
+
+      final userMatchDocRef = firestore
+          .collection('users')
+          .doc(userId)
+          .collection('matchUserData')
+          .doc(matchId);
+
+      final userMatchSnap = await userMatchDocRef.get();
+      if (userMatchSnap.exists) {
+        final commentsSnap = await userMatchDocRef.collection('comments').get();
+        for (final doc in commentsSnap.docs) {
+          await doc.reference.delete();
+        }
+
+        final reactionsSnap =
+            await userMatchDocRef.collection('reactions').get();
+        for (final doc in reactionsSnap.docs) {
+          await doc.reference.delete();
+        }
+
+        await userMatchDocRef.delete();
+      }
+
+      final postNotificationsQuery = firestore
+          .collection('users')
+          .doc(userId)
+          .collection('postNotifications')
+          .where('matchId', isEqualTo: matchId);
+
+      final notificationsSnap = await postNotificationsQuery.get();
+      for (final doc in notificationsSnap.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e, stack) {
+      debugPrint(
+        '❌ removeMatchUserData failed for user=$userId match=$matchId\n$e',
+      );
+      debugPrint(stack.toString());
+    }
   }
 }

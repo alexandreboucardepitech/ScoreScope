@@ -339,12 +339,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         _isFavori = false; // on reset l'icône coeur
       });
 
-      // On fetch ensuite pour récupérer l'état "vrai" depuis le serveur
-      // (tu fais déjà un fetch après le dialog, mais si tu veux l'intégrer ici tu peux)
-      // await _fetchMatch();
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('MatchModel supprimé')),
+        const SnackBar(content: Text('Match supprimé')),
       );
     } catch (e) {
       if (!mounted) return;

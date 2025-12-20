@@ -4,6 +4,7 @@ abstract class IMatchRepository {
   Future<List<MatchModel>> fetchAllMatches();
   Future<MatchModel?> fetchMatchById(String id);
   Future<List<MatchModel>> fetchMatchesListById(List<String> ids);
+  Future<List<MatchModel>> fetchMatchesByDate(DateTime date);
   Future<void> addMatch(MatchModel match);
   Future<void> updateMatch(MatchModel match);
   Future<void> deleteMatch(MatchModel match);

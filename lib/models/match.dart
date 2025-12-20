@@ -5,8 +5,17 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'equipe.dart';
 import 'but.dart';
 
+enum MatchStatus {
+  scheduled,
+  live,
+  finished,
+  postponed,
+}
+
 class MatchModel {
   final String id;
+  final MatchStatus status; // Nouveau champ
+  final String? liveMinute; // Nouveau champ
   final Equipe equipeDomicile;
   final Equipe equipeExterieur;
   final String competition;
@@ -22,10 +31,12 @@ class MatchModel {
 
   MatchModel(
       {required this.id,
+      required this.status, // Requis
       required this.equipeDomicile,
       required this.equipeExterieur,
       required this.competition,
       required this.date,
+      this.liveMinute, // Optionnel
       required this.scoreEquipeDomicile,
       required this.scoreEquipeExterieur,
       required this.joueursEquipeDomicile,
@@ -38,6 +49,16 @@ class MatchModel {
         butsEquipeExterieur = butsEquipeExterieur ?? [],
         mvpVotes = mvpVotes ?? {},
         notesDuMatch = notesDuMatch ?? {};
+
+  bool get isFinished => status == MatchStatus.finished;
+  bool get isLive => status == MatchStatus.live;
+  bool get isScheduled => status == MatchStatus.scheduled;
+
+  int getNbViewers() {
+    return mvpVotes.length > notesDuMatch.length
+        ? mvpVotes.length
+        : notesDuMatch.length;
+  }
 
   //////////////////// NOTE DU MATCH ////////////////////
 
@@ -115,8 +136,11 @@ class MatchModel {
     return voteCounts[id] ?? 0;
   }
 
+  // --- MODIFICATION ICI ---
   Map<String, dynamic> toJson() => {
         'id': id,
+        'status': status.name, // Sauvegarde "scheduled", "live", etc.
+        'liveMinute': liveMinute,
         'competition': competition,
         'date': date.toIso8601String(),
         'scoreEquipeDomicile': scoreEquipeDomicile,
@@ -139,6 +163,13 @@ class MatchModel {
 
   static Future<MatchModel> fromJson(
       {required Map<String, dynamic> json, String? matchId}) async {
+    String statusString = json['status'] as String? ?? 'scheduled';
+
+    MatchStatus status = MatchStatus.values.firstWhere(
+      (e) => e.name == statusString,
+      orElse: () => MatchStatus.scheduled,
+    );
+
     final equipeDomicile = await RepositoryProvider.equipeRepository
         .fetchEquipeById(json['equipeDomicileId']);
     final equipeExterieur = await RepositoryProvider.equipeRepository
@@ -190,6 +221,8 @@ class MatchModel {
 
     return MatchModel(
         id: matchId ?? json['id'],
+        status: status,
+        liveMinute: json['liveMinute'] as String?,
         competition: json['competition'] as String? ?? '',
         date: (json['date'] is Timestamp)
             ? (json['date'] as Timestamp).toDate()
@@ -213,5 +246,5 @@ class MatchModel {
 
   @override
   String toString() =>
-      '$competition : ${equipeDomicile.nom} $scoreEquipeDomicile-$scoreEquipeExterieur ${equipeExterieur.nom}';
+      '$competition : ${equipeDomicile.nom} $scoreEquipeDomicile-$scoreEquipeExterieur ${equipeExterieur.nom} [${status.name}]';
 }

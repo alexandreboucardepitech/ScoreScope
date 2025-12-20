@@ -11,6 +11,7 @@ import 'package:scorescope/views/login/login.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'firebase_options.dart';
 import 'views/all_matches.dart';
+import 'package:intl/date_symbol_data_local.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
@@ -26,6 +27,8 @@ void main() async {
   // Déconnexion automatique au début pour test :
   // await GoogleSignIn.instance.disconnect();
   // await FirebaseAuth.instance.signOut();
+
+  await initializeDateFormatting('fr_FR', null);
 
   runApp(MyApp(authService: authService));
 }
@@ -92,16 +95,17 @@ class _HomePageState extends State<HomePage> {
     }
 
     _pages = [
-      AllMatchesView(),
-      AllMatchesView(),
-      FilActuAmisView(onBackPressed: goToFirstTab),
+      AllMatchesView(), // Matchs
+      FilActuAmisView(onBackPressed: goToFirstTab), // Amis
+      AllMatchesView(), // Stats (à remplacer plus tard)
+      // Profil
       FutureBuilder<AppUser?>(
         future: RepositoryProvider.userRepository.getCurrentUser(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          return ProfileView(user: snapshot.data!, onBackPressed: goToFirstTab);  
+          return ProfileView(user: snapshot.data!, onBackPressed: goToFirstTab);
         },
       ),
     ];
@@ -119,16 +123,16 @@ class _HomePageState extends State<HomePage> {
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: 'Calendrier',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.sports_soccer),
-            label: 'Mes matchs',
+            label: 'Matchs',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.group),
             label: 'Amis',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Statistiques',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

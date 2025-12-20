@@ -56,10 +56,12 @@ class MockMatchRepository implements IMatchRepository {
       _matches.add(
         MatchModel(
           id: "1",
+          status: MatchStatus.finished,
+          liveMinute: null,
           equipeDomicile: psg,
           equipeExterieur: fcnantes,
           competition: "Ligue 1",
-          date: DateTime.now(),
+          date: DateTime.now().subtract(const Duration(hours: 3)),
           scoreEquipeDomicile: 0,
           scoreEquipeExterieur: 6,
           butsEquipeDomicile: [],
@@ -86,6 +88,8 @@ class MockMatchRepository implements IMatchRepository {
       _matches.add(
         MatchModel(
           id: "2",
+          status: MatchStatus.live,
+          liveMinute: "72'",
           equipeDomicile: barca,
           equipeExterieur: realmadrid,
           competition: "Liga",
@@ -139,6 +143,19 @@ class MockMatchRepository implements IMatchRepository {
       }
     }
     return matches;
+  }
+
+  @override
+  Future<List<MatchModel>> fetchMatchesByDate(DateTime date) async {
+    await _seedingFuture;
+    // Simule un léger délai réseau
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    return _matches.where((match) {
+      return match.date.year == date.year &&
+          match.date.month == date.month &&
+          match.date.day == date.day;
+    }).toList();
   }
 
   @override
