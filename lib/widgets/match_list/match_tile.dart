@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/match_details.dart';
 import 'package:scorescope/models/match.dart';
@@ -10,8 +11,16 @@ import 'package:scorescope/utils/string/get_lignes_buteurs.dart';
 class MatchTile extends StatefulWidget {
   final MatchModel match;
   final MatchUserData? userData;
+  final AppUser? user;
+  final bool displayUserData;
 
-  const MatchTile({required this.match, this.userData, super.key});
+  const MatchTile({
+    required this.match,
+    this.userData,
+    this.user,
+    this.displayUserData = false,
+    super.key,
+  });
 
   @override
   State<MatchTile> createState() => _MatchTileState();
@@ -23,7 +32,6 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
   late final Animation<double> _heightFactor;
   Joueur? _mvpJoueur;
 
-  // simple shimmer controller for placeholders
   late final AnimationController _shimmerController;
 
   bool _isExpanded = false;
@@ -148,7 +156,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min, // prend juste la taille nécessaire
+        mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
             child: Text(
@@ -169,6 +177,13 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     final match = widget.match;
     final MatchUserData? userData = widget.userData;
 
+    final bool isHomeFavorite =
+        widget.user?.equipesPrefereesId.contains(match.equipeDomicile.id) ??
+            false;
+    final bool isAwayFavorite =
+        widget.user?.equipesPrefereesId.contains(match.equipeExterieur.id) ??
+            false;
+
     return Container(
       color: ColorPalette.tileBackground(context),
       child: Column(
@@ -182,73 +197,88 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                     onTap: _navigateToDetails,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 16.0),
+                          horizontal: 12.0, vertical: 12.0),
                       child: Row(
                         children: [
-                          // Logo ligue
                           Padding(
-                            padding: const EdgeInsetsDirectional.only(end: 16),
+                            padding: const EdgeInsetsDirectional.only(end: 12),
                             child: SizedBox(
-                              width: 30,
-                              child: CircleAvatar(
-                                radius: 16,
-                                backgroundColor: Colors.transparent,
-                                child: Image.asset(
-                                  match.competition.logoUrl ??
-                                      'assets/logos/competitions/ligue1.png',
-                                  fit: BoxFit.contain,
-                                ),
+                              width: 24,
+                              child: Image.asset(
+                                match.competition.logoUrl ??
+                                    'assets/logos/competitions/ligue1.png',
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ),
-
-                          // Équipe domicile
                           Expanded(
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  match.equipeDomicile.nom,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: ColorPalette.textPrimary(context),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    match.equipeDomicile.nom,
+                                    textAlign: TextAlign.end,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.visible,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: match.scoreEquipeDomicile >
+                                              match.scoreEquipeExterieur
+                                          ? ColorPalette.textAccent(context)
+                                          : ColorPalette.textPrimary(context),
+                                    ),
                                   ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
                                 ),
-                              ),
+                                const SizedBox(width: 6),
+                                _buildTeamLogo(
+                                  context,
+                                  match.equipeDomicile.logoPath,
+                                  isFavorite: isHomeFavorite,
+                                ),
+                              ],
                             ),
                           ),
-
-                          // Score
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                          Container(
+                            width: 44,
+                            alignment: Alignment.center,
                             child: Text(
-                              "${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}",
+                              '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w900,
                                 color: ColorPalette.textPrimary(context),
                               ),
                             ),
                           ),
-
-                          // Équipe extérieur
                           Expanded(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  match.equipeExterieur.nom,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: ColorPalette.textPrimary(context),
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                _buildTeamLogo(
+                                  context,
+                                  match.equipeExterieur.logoPath,
+                                  isFavorite: isAwayFavorite,
                                 ),
-                              ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    match.equipeExterieur.nom,
+                                    textAlign: TextAlign.start,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.visible,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: match.scoreEquipeExterieur >
+                                              match.scoreEquipeDomicile
+                                          ? ColorPalette.textAccent(context)
+                                          : ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -256,8 +286,6 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-
-                // Flèche : uniquement elle contrôle l'expansion
                 IconButton(
                   splashRadius: 20,
                   icon: RotationTransition(
@@ -321,7 +349,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
               ),
             ),
           ),
-          if (userData != null)
+          if (userData != null && widget.displayUserData)
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
@@ -341,4 +369,41 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
       ),
     );
   }
+}
+
+Widget _buildTeamLogo(BuildContext context, String? path,
+    {required bool isFavorite}) {
+  final logoWidget = SizedBox(
+    width: 28,
+    height: 28,
+    child: path != null
+        ? Image.asset(path, fit: BoxFit.contain)
+        : Icon(Icons.shield, size: 20, color: ColorPalette.divider(context)),
+  );
+
+  if (!isFavorite) {
+    return logoWidget;
+  }
+
+  return Stack(
+    clipBehavior: Clip.none,
+    children: [
+      logoWidget,
+      Positioned(
+        bottom: -1,
+        right: -1,
+        child: Container(
+          decoration: BoxDecoration(
+            color: ColorPalette.accentVariant(context),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.star_rounded,
+            size: 10,
+            color: ColorPalette.accent(context),
+          ),
+        ),
+      ),
+    ],
+  );
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/match.dart';
+import 'package:scorescope/utils/string/date_format.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class MatchInfosCard extends StatelessWidget {
-  const MatchInfosCard({
-    super.key,
-  });
+  final MatchModel match;
+
+  const MatchInfosCard({required this.match, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +29,20 @@ class MatchInfosCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          // Lignes placeholder
           Row(
             children: [
-              const Text('📍'),
+              Icon(
+                Icons.location_pin,
+                size: 20,
+                color: ColorPalette.accent(context),
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Nom du stade — à faire',
-                  style: TextStyle(color: ColorPalette.textPrimary(context)),
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                  ),
                 ),
               ),
             ],
@@ -43,12 +50,18 @@ class MatchInfosCard extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              const Text('📅'),
+              Icon(
+                Icons.calendar_month,
+                size: 20,
+                color: ColorPalette.accent(context),
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'A FAIRE',
-                  style: TextStyle(color: ColorPalette.textPrimary(context)),
+                  formatDateAndHour(match.date),
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                  ),
                 ),
               ),
             ],
@@ -56,12 +69,18 @@ class MatchInfosCard extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              const Text('🏆'),
+              Icon(
+                Icons.emoji_events_outlined,
+                size: 20,
+                color: ColorPalette.accent(context),
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Compétition — à faire',
-                  style: TextStyle(color: ColorPalette.textPrimary(context)),
+                  match.competition.nom,
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                  ),
                 ),
               ),
             ],

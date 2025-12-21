@@ -28,7 +28,10 @@ class MatchsFavoris extends StatelessWidget {
         else if (ids.isEmpty)
           _buildEmptyMessage(context, "Aucun match favori")
         else
-          MatchList(ids: ids),
+          MatchList(
+            ids: ids,
+            displayUserData: true,
+          ),
       ],
     );
   }

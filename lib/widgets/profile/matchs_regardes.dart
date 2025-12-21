@@ -97,6 +97,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
           MatchList(
             ids: ids.take(5).toList(),
             user: widget.user,
+            displayUserData: true,
           ),
       ],
     );

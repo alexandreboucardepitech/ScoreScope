@@ -170,7 +170,7 @@ class _InfosTabState extends State<InfosTab> {
                 const SizedBox(width: 6),
                 Expanded(
                   flex: 1,
-                  child: MatchInfosCard(),
+                  child: MatchInfosCard(match: widget.match),
                 ),
               ],
             ),

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/widgets/all_matches/competitions_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 import '../services/repositories/i_match_repository.dart';
 import '../models/match.dart';
@@ -23,7 +24,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
   final double _dateCardWidth = 70.0;
 
   late Future<List<MatchModel>> _futureMatches;
-  late Future<List<String>> _futureFavoriteTeamIds;
+  late Future<AppUser?> _futureCurrentUser;
 
   @override
   void initState() {
@@ -69,14 +70,14 @@ class _AllMatchesViewState extends State<AllMatchesView> {
   void _loadData() {
     setState(() {
       _futureMatches = widget.matchRepository.fetchMatchesByDate(_selectedDate);
-      _futureFavoriteTeamIds = _fetchUserFavoriteTeamIds();
+      _futureCurrentUser = _fetchCurrentUser();
     });
   }
 
-  Future<List<String>> _fetchUserFavoriteTeamIds() async {
+  Future<AppUser?> _fetchCurrentUser() async {
     AppUser? currentUser =
         await RepositoryProvider.userRepository.getCurrentUser();
-    return currentUser?.equipesPrefereesId ?? [];
+    return currentUser;
   }
 
   void _onDateSelected(DateTime date) {
@@ -129,14 +130,25 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.search, color: ColorPalette.textPrimary(context)),
+            icon: Icon(
+              Icons.emoji_events_outlined,
+              color: ColorPalette.textPrimary(context),
+            ),
+            onPressed: () => _showCompetitionsSelector(context, _loadData),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.search,
+              color: ColorPalette.textPrimary(context),
+            ),
             onPressed: () {},
           ),
           IconButton(
-            icon: Icon(Icons.calendar_today_outlined,
-                color: ColorPalette.textPrimary(context)),
-            onPressed: () {
-            },
+            icon: Icon(
+              Icons.calendar_today_outlined,
+              color: ColorPalette.textPrimary(context),
+            ),
+            onPressed: () {},
           ),
         ],
       ),
@@ -145,7 +157,10 @@ class _AllMatchesViewState extends State<AllMatchesView> {
           _buildDateSelector(),
           Expanded(
             child: FutureBuilder<List<dynamic>>(
-              future: Future.wait([_futureMatches, _futureFavoriteTeamIds]),
+              future: Future.wait([
+                _futureMatches,
+                _futureCurrentUser,
+              ]),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -153,22 +168,29 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                   return Center(child: Text('Erreur: ${snapshot.error}'));
                 } else {
                   final allMatches = snapshot.data![0] as List<MatchModel>;
-                  final favoriteIds = snapshot.data![1] as List<String>;
+                  final currentUser = snapshot.data![1] as AppUser?;
+
+                  final favoriteTeamsIds =
+                      currentUser?.equipesPrefereesId ?? [];
+                  final favoriteCompetitionsIds =
+                      currentUser?.competitionsPrefereesId ?? [];
 
                   if (allMatches.isEmpty) {
                     return Center(
                       child: Text(
                         "Aucun match ce jour-là",
-                        style:
-                            TextStyle(color: ColorPalette.textPrimary(context)),
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                        ),
                       ),
                     );
                   }
 
                   final followedMatches = allMatches
                       .where((m) =>
-                          favoriteIds.contains(m.equipeDomicile.id) ||
-                          favoriteIds.contains(m.equipeExterieur.id))
+                          favoriteTeamsIds.contains(m.equipeDomicile.id) ||
+                          favoriteTeamsIds.contains(m.equipeExterieur.id) ||
+                          favoriteCompetitionsIds.contains(m.competition.id))
                       .toList();
 
                   final otherMatches = allMatches
@@ -186,6 +208,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                           matches: followedMatches,
                           header: _buildSectionHeader(
                               "Favoris", Icons.star_rounded),
+                          user: currentUser,
+                          displayUserData: false,
                         ),
                       if (otherMatches.isNotEmpty)
                         MatchList(
@@ -196,6 +220,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                                 : "Autres matchs",
                             Icons.sports_soccer,
                           ),
+                          user: currentUser,
+                          displayUserData: false,
                         ),
                     ],
                   );
@@ -277,7 +303,11 @@ class _AllMatchesViewState extends State<AllMatchesView> {
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: ColorPalette.accent(context)),
+        Icon(
+          icon,
+          size: 16,
+          color: ColorPalette.accent(context),
+        ),
         const SizedBox(width: 8),
         Text(
           title,
@@ -290,4 +320,19 @@ class _AllMatchesViewState extends State<AllMatchesView> {
       ],
     );
   }
+}
+
+void _showCompetitionsSelector(
+    BuildContext context, Function onSelected) async {
+  await showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: ColorPalette.surface(context),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) => const CompetitionsBottomSheet(),
+  );
+
+  onSelected();
 }

@@ -12,6 +12,7 @@ class MatchList extends StatefulWidget {
   final List<String>? ids;
   final Widget? header;
   final AppUser? user;
+  final bool displayUserData;
 
   const MatchList({
     super.key,
@@ -19,6 +20,7 @@ class MatchList extends StatefulWidget {
     this.ids,
     this.header,
     this.user,
+    this.displayUserData = false,
   }) : assert(matches != null || ids != null, 'Provide either matches or ids');
 
   @override
@@ -151,12 +153,13 @@ class _MatchListState extends State<MatchList> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (hasHeader)
-              _buildHeaderTile(context, child: widget.header),
+            if (hasHeader) _buildHeaderTile(context, child: widget.header),
             for (int i = 0; i < items.length; i++) ...[
               MatchTile(
                 match: items[i],
                 userData: widget.user?.getMatchUserDataByMatch(match: items[i]),
+                user: widget.user,
+                displayUserData: widget.displayUserData,
               ),
               if (i != items.length - 1)
                 Divider(color: ColorPalette.border(context), height: 1),

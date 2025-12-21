@@ -497,6 +497,7 @@ class _ProfileViewState extends State<ProfileView> {
                             'Équipes préférées',
                             style: TextStyle(
                               color: ColorPalette.textPrimary(context),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -538,7 +539,7 @@ class _ProfileViewState extends State<ProfileView> {
           body: Container(
             color: ColorPalette.background(context),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

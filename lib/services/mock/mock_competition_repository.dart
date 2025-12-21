@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:scorescope/models/competition.dart';
+import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/repositories/i_competition_repository.dart';
 
 class MockCompetitionRepository implements ICompetitionRepository {
@@ -55,6 +56,20 @@ class MockCompetitionRepository implements ICompetitionRepository {
       return _competitions.firstWhere((comp) => comp.id == id);
     } catch (e) {
       return null;
+    }
+  }
+
+  @override
+  Future<void> updateFavoriteCompetitions(
+      {required String userId, required List<String> competitionIds}) async {
+    await Future.delayed(Duration(milliseconds: 200));
+
+    final user = await MockAppUserRepository().fetchUserById(userId);
+
+    if (user != null) {
+      user.competitionsPrefereesId
+        ..clear()
+        ..addAll(competitionIds);
     }
   }
 }
