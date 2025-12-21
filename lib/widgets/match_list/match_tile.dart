@@ -1,4 +1,3 @@
-// lib/widgets/match/match_tile.dart
 import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/match_details.dart';
@@ -195,7 +194,8 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                 radius: 16,
                                 backgroundColor: Colors.transparent,
                                 child: Image.asset(
-                                  'assets/competitions/ligue1.jpg',
+                                  match.competition.logoUrl ??
+                                      'assets/logos/competitions/ligue1.png',
                                   fit: BoxFit.contain,
                                 ),
                               ),

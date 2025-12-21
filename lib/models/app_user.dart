@@ -10,6 +10,7 @@ class AppUser {
   final String? photoUrl;
   final DateTime createdAt;
   final List<String> equipesPrefereesId;
+  final List<String> competitionsPrefereesId;
   final List<MatchUserData> matchsUserData;
 
   AppUser({
@@ -20,6 +21,7 @@ class AppUser {
     this.photoUrl,
     required this.createdAt,
     this.equipesPrefereesId = const [],
+    this.competitionsPrefereesId = const [],
     this.matchsUserData = const [],
   });
 
@@ -52,6 +54,11 @@ class AppUser {
               ?.map((e) => e as String)
               .toList() ??
           [],
+      competitionsPrefereesId:
+          (json['competitionsPrefereesId'] as List<dynamic>?)
+                  ?.map((e) => e as String)
+                  .toList() ??
+              [],
       matchsUserData: (json['matchsUserData'] as List<dynamic>?)
               ?.map((e) => MatchUserData.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -68,6 +75,7 @@ class AppUser {
       'photoUrl': photoUrl,
       'createdAt': createdAt,
       'equipesPrefereesId': equipesPrefereesId,
+      'competitionsPrefereesId': competitionsPrefereesId,
       'matchsUserData': matchsUserData,
     };
   }

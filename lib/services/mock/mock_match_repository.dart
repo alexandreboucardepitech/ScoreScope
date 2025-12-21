@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:scorescope/services/mock/mock_app_user_repository.dart';
+import 'package:scorescope/services/mock/mock_competition_repository.dart';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
+import 'package:scorescope/services/repositories/i_competition_repository.dart';
 import 'package:scorescope/services/repositories/i_joueur_repository.dart';
 import 'package:scorescope/services/mock/mock_joueur_repository.dart';
 
@@ -28,6 +30,8 @@ class MockMatchRepository implements IMatchRepository {
   final List<MatchModel> _matches = [];
   final IEquipeRepository equipeRepository = MockEquipeRepository();
   final IJoueurRepository joueurRepository = MockJoueurRepository();
+  final ICompetitionRepository competitionRepository =
+      MockCompetitionRepository();
 
   Future<void> _seed() async {
     await MockJoueurRepository().ready;
@@ -47,12 +51,16 @@ class MockMatchRepository implements IMatchRepository {
     final barca = await equipeRepository.fetchEquipeById("3");
     final realmadrid = await equipeRepository.fetchEquipeById("4");
 
+    final ligue1 = await competitionRepository.fetchCompetitionById("1");
+    final laliga = await competitionRepository.fetchCompetitionById("2");
+
     if (psg != null &&
         fcnantes != null &&
         abline != null &&
         benhattab != null &&
         leroux != null &&
-        hakimi != null) {
+        hakimi != null &&
+        ligue1 != null) {
       _matches.add(
         MatchModel(
           id: "1",
@@ -60,7 +68,7 @@ class MockMatchRepository implements IMatchRepository {
           liveMinute: null,
           equipeDomicile: psg,
           equipeExterieur: fcnantes,
-          competition: "Ligue 1",
+          competition: ligue1,
           date: DateTime.now().subtract(const Duration(hours: 3)),
           scoreEquipeDomicile: 0,
           scoreEquipeExterieur: 6,
@@ -84,7 +92,8 @@ class MockMatchRepository implements IMatchRepository {
         yamal != null &&
         pedri != null &&
         mbappe != null &&
-        mastantuono != null) {
+        mastantuono != null &&
+        laliga != null) {
       _matches.add(
         MatchModel(
           id: "2",
@@ -92,7 +101,7 @@ class MockMatchRepository implements IMatchRepository {
           liveMinute: "72'",
           equipeDomicile: barca,
           equipeExterieur: realmadrid,
-          competition: "Liga",
+          competition: laliga,
           date: DateTime.now(),
           scoreEquipeDomicile: 3,
           scoreEquipeExterieur: 2,

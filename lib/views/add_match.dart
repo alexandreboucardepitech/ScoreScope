@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scorescope/models/but.dart';
+import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repositories/i_equipe_repository.dart';
 import 'package:scorescope/services/repositories/i_joueur_repository.dart';
@@ -1017,7 +1018,10 @@ class _AddMatchViewState extends State<AddMatchView> {
                             int.tryParse(_scoreDomController.text) ?? 0,
                         scoreEquipeExterieur:
                             int.tryParse(_scoreExtController.text) ?? 0,
-                        competition: _competitionController.text,
+                        competition: Competition(
+                          id: '',
+                          nom: _competitionController.text,
+                        ), // Compétition vide par défaut
                         date: _matchDate,
                         butsEquipeDomicile: getButObjects(
                           _buteursDom,

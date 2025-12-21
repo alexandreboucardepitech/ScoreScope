@@ -7,7 +7,7 @@ class Joueur {
   final String picture;
 
   Joueur(
-      {this.id,
+      {required this.id,
       required this.prenom,
       required this.nom,
       required this.equipeId,

@@ -7,7 +7,7 @@ class Equipe {
   final String? couleurSecondaire;
 
   Equipe(
-      {this.id = '1',
+      {required this.id,
       required this.nom,
       this.code,
       this.logoPath,

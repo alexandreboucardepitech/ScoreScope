@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 
@@ -14,11 +15,11 @@ enum MatchStatus {
 
 class MatchModel {
   final String id;
-  final MatchStatus status; // Nouveau champ
-  final String? liveMinute; // Nouveau champ
+  final MatchStatus status;
+  final String? liveMinute;
   final Equipe equipeDomicile;
   final Equipe equipeExterieur;
-  final String competition;
+  final Competition competition;
   final DateTime date;
   final int scoreEquipeDomicile;
   final int scoreEquipeExterieur;
@@ -31,12 +32,12 @@ class MatchModel {
 
   MatchModel(
       {required this.id,
-      required this.status, // Requis
+      required this.status,
       required this.equipeDomicile,
       required this.equipeExterieur,
       required this.competition,
       required this.date,
-      this.liveMinute, // Optionnel
+      this.liveMinute,
       required this.scoreEquipeDomicile,
       required this.scoreEquipeExterieur,
       required this.joueursEquipeDomicile,
@@ -139,9 +140,9 @@ class MatchModel {
   // --- MODIFICATION ICI ---
   Map<String, dynamic> toJson() => {
         'id': id,
-        'status': status.name, // Sauvegarde "scheduled", "live", etc.
+        'status': status.name,
         'liveMinute': liveMinute,
-        'competition': competition,
+        'competitionId': competition.id,
         'date': date.toIso8601String(),
         'scoreEquipeDomicile': scoreEquipeDomicile,
         'scoreEquipeExterieur': scoreEquipeExterieur,
@@ -163,85 +164,92 @@ class MatchModel {
 
   static Future<MatchModel> fromJson(
       {required Map<String, dynamic> json, String? matchId}) async {
-    String statusString = json['status'] as String? ?? 'scheduled';
+    try {
+      String statusString = json['status'] as String? ?? 'scheduled';
 
-    MatchStatus status = MatchStatus.values.firstWhere(
-      (e) => e.name == statusString,
-      orElse: () => MatchStatus.scheduled,
-    );
+      MatchStatus status = MatchStatus.values.firstWhere(
+        (e) => e.name == statusString,
+        orElse: () => MatchStatus.scheduled,
+      );
 
-    final equipeDomicile = await RepositoryProvider.equipeRepository
-        .fetchEquipeById(json['equipeDomicileId']);
-    final equipeExterieur = await RepositoryProvider.equipeRepository
-        .fetchEquipeById(json['equipeExterieurId']);
+      final competition = await RepositoryProvider.competitionRepository
+          .fetchCompetitionById(json['competitionId']);
 
-    final joueursDomicile = <Joueur>[];
-    for (final id in (json['joueursEquipeDomicileId'] as List? ?? [])) {
-      final joueur =
-          await RepositoryProvider.joueurRepository.fetchJoueurById(id);
-      if (joueur != null) joueursDomicile.add(joueur);
-    }
+      final equipeDomicile = await RepositoryProvider.equipeRepository
+          .fetchEquipeById(json['equipeDomicileId']);
+      final equipeExterieur = await RepositoryProvider.equipeRepository
+          .fetchEquipeById(json['equipeExterieurId']);
 
-    final joueursExterieur = <Joueur>[];
-    for (final id in (json['joueursEquipeExterieurId'] as List? ?? [])) {
-      final joueur =
-          await RepositoryProvider.joueurRepository.fetchJoueurById(id);
-      if (joueur != null) joueursExterieur.add(joueur);
-    }
-
-    final mvpVotesList = json['mvpVotes'] as List<dynamic>? ?? [];
-    final mvpVotes = {
-      for (var doc in mvpVotesList)
-        doc['userId'] as String: doc['joueurId'] as String
-    };
-
-    final notesList = json['notesDuMatch'] as List<dynamic>? ?? [];
-    final notesDuMatch = {
-      for (var doc in notesList)
-        doc['userId'] as String: (doc['note'] as num).toInt()
-    };
-
-    Future<List<But>> reconstructButs(List<dynamic>? butsList) async {
-      if (butsList == null) return [];
-
-      final buts = <But>[];
-      for (final b in butsList) {
-        final joueurId = b['buteurId'] as String?;
-        Joueur? joueur;
-        if (joueurId != null) {
-          joueur = await RepositoryProvider.joueurRepository
-              .fetchJoueurById(joueurId);
-        }
-        if (joueur != null) {
-          buts.add(But(buteur: joueur, minute: b['minute']));
-        }
+      final joueursDomicile = <Joueur>[];
+      for (final id in (json['joueursEquipeDomicileId'] as List? ?? [])) {
+        final joueur =
+            await RepositoryProvider.joueurRepository.fetchJoueurById(id);
+        if (joueur != null) joueursDomicile.add(joueur);
       }
-      return buts;
-    }
 
-    return MatchModel(
-        id: matchId ?? json['id'],
-        status: status,
-        liveMinute: json['liveMinute'] as String?,
-        competition: json['competition'] as String? ?? '',
-        date: (json['date'] is Timestamp)
-            ? (json['date'] as Timestamp).toDate()
-            : DateTime.parse(
-                json['date'] as String? ?? DateTime.now().toIso8601String()),
-        scoreEquipeDomicile:
-            (json['scoreEquipeDomicile'] as num?)?.toInt() ?? 0,
-        scoreEquipeExterieur:
-            (json['scoreEquipeExterieur'] as num?)?.toInt() ?? 0,
-        equipeDomicile: equipeDomicile!,
-        equipeExterieur: equipeExterieur!,
-        joueursEquipeDomicile: joueursDomicile,
-        joueursEquipeExterieur: joueursExterieur,
-        butsEquipeDomicile:
-            await reconstructButs(json['butsEquipeDomicile'] as List?),
-        butsEquipeExterieur:
-            await reconstructButs(json['butsEquipeExterieur'] as List?),
-        mvpVotes: mvpVotes,
-        notesDuMatch: notesDuMatch);
+      final joueursExterieur = <Joueur>[];
+      for (final id in (json['joueursEquipeExterieurId'] as List? ?? [])) {
+        final joueur =
+            await RepositoryProvider.joueurRepository.fetchJoueurById(id);
+        if (joueur != null) joueursExterieur.add(joueur);
+      }
+
+      final mvpVotesList = json['mvpVotes'] as List<dynamic>? ?? [];
+      final mvpVotes = {
+        for (var doc in mvpVotesList)
+          doc['userId'] as String: doc['joueurId'] as String
+      };
+
+      final notesList = json['notesDuMatch'] as List<dynamic>? ?? [];
+      final notesDuMatch = {
+        for (var doc in notesList)
+          doc['userId'] as String: (doc['note'] as num).toInt()
+      };
+
+      Future<List<But>> reconstructButs(List<dynamic>? butsList) async {
+        if (butsList == null) return [];
+
+        final buts = <But>[];
+        for (final b in butsList) {
+          final joueurId = b['buteurId'] as String?;
+          Joueur? joueur;
+          if (joueurId != null) {
+            joueur = await RepositoryProvider.joueurRepository
+                .fetchJoueurById(joueurId);
+          }
+          if (joueur != null) {
+            buts.add(But(buteur: joueur, minute: b['minute']));
+          }
+        }
+        return buts;
+      }
+
+      return MatchModel(
+          id: matchId ?? json['id'],
+          status: status,
+          liveMinute: json['liveMinute'] as String?,
+          competition: competition!,
+          date: (json['date'] is Timestamp)
+              ? (json['date'] as Timestamp).toDate()
+              : DateTime.parse(
+                  json['date'] as String? ?? DateTime.now().toIso8601String()),
+          scoreEquipeDomicile:
+              (json['scoreEquipeDomicile'] as num?)?.toInt() ?? 0,
+          scoreEquipeExterieur:
+              (json['scoreEquipeExterieur'] as num?)?.toInt() ?? 0,
+          equipeDomicile: equipeDomicile!,
+          equipeExterieur: equipeExterieur!,
+          joueursEquipeDomicile: joueursDomicile,
+          joueursEquipeExterieur: joueursExterieur,
+          butsEquipeDomicile:
+              await reconstructButs(json['butsEquipeDomicile'] as List?),
+          butsEquipeExterieur:
+              await reconstructButs(json['butsEquipeExterieur'] as List?),
+          mvpVotes: mvpVotes,
+          notesDuMatch: notesDuMatch);
+    } catch (e) {
+      throw Exception('Erreur lors de la conversion du match depuis JSON: $e');
+    }
   }
 
   @override
