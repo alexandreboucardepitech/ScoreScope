@@ -1,6 +1,7 @@
 class Equipe {
   final String id;
   final String nom;
+  final String? nomCourt;
   final String? code;
   final String? logoPath;
   final String? couleurPrincipale;
@@ -9,6 +10,7 @@ class Equipe {
   Equipe(
       {required this.id,
       required this.nom,
+      this.nomCourt,
       this.code,
       this.logoPath,
       this.couleurPrincipale,
@@ -17,6 +19,7 @@ class Equipe {
   Map<String, dynamic> toJson() => {
         'id': id,
         'nom': nom,
+        if (nomCourt != null) 'nomCourt': nomCourt,
         if (code != null) 'code': code,
         if (logoPath != null) 'logoPath': logoPath,
         if (couleurPrincipale != null) 'couleurPrincipale': couleurPrincipale,
@@ -28,6 +31,7 @@ class Equipe {
       Equipe(
         id: equipeId ?? json['id'],
         nom: json['nom'] as String? ?? '',
+        nomCourt: json['nomCourt'] as String?,
         code: json['code'] as String?,
         logoPath: json['logoPath'] as String?,
         couleurPrincipale: json['couleurPrincipale'] as String?,

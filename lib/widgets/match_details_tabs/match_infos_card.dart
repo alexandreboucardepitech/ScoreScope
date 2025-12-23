@@ -20,7 +20,6 @@ class MatchInfosCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Titre
           Text(
             'Infos match',
             style: TextStyle(

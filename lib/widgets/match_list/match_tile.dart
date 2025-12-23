@@ -172,6 +172,92 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildAdaptiveTeamName(
+    BuildContext context, {
+    required String nomComplet,
+    required String? nomCourt,
+    required bool isWinner,
+    required TextAlign align,
+  }) {
+    final textColor = isWinner
+        ? ColorPalette.textAccent(context)
+        : ColorPalette.textPrimary(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final TextStyle baseStyle = TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+        );
+
+        final TextPainter textPainter = TextPainter(
+          text: TextSpan(text: nomComplet, style: baseStyle),
+          maxLines: 2,
+          textDirection: TextDirection.ltr,
+          textAlign: align,
+        )..layout(maxWidth: constraints.maxWidth);
+
+        bool isUglyWrap = false;
+        final metrics = textPainter.computeLineMetrics();
+
+        if (metrics.length > 1) {
+          final endOfFirstLine =
+              textPainter.getLineBoundary(const TextPosition(offset: 0)).end;
+          if (endOfFirstLine <= 3) {
+            isUglyWrap = true;
+          }
+        }
+
+        if (!textPainter.didExceedMaxLines && !isUglyWrap) {
+          return Text(
+            nomComplet,
+            textAlign: align,
+            maxLines: 2,
+            style: baseStyle,
+          );
+        }
+
+        if (nomCourt != null) {
+          return Text(
+            nomCourt,
+            textAlign: align,
+            maxLines: 2,
+            style: baseStyle,
+          );
+        }
+
+        final TextStyle minStyle = baseStyle.copyWith(fontSize: 10);
+        final TextPainter minPainter = TextPainter(
+          text: TextSpan(text: nomComplet, style: minStyle),
+          maxLines: 1,
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: constraints.maxWidth);
+
+        if (!minPainter.didExceedMaxLines) {
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: align == TextAlign.end
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Text(
+              nomComplet,
+              style: baseStyle,
+            ),
+          );
+        }
+
+        return Text(
+          nomComplet,
+          textAlign: align,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: minStyle,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final match = widget.match;
@@ -216,19 +302,13 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Flexible(
-                                  child: Text(
-                                    match.equipeDomicile.nom,
-                                    textAlign: TextAlign.end,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.visible,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: match.scoreEquipeDomicile >
-                                              match.scoreEquipeExterieur
-                                          ? ColorPalette.textAccent(context)
-                                          : ColorPalette.textPrimary(context),
-                                    ),
+                                  child: _buildAdaptiveTeamName(
+                                    context,
+                                    nomComplet: match.equipeDomicile.nom,
+                                    nomCourt: match.equipeDomicile.nomCourt,
+                                    isWinner: match.scoreEquipeDomicile >
+                                        match.scoreEquipeExterieur,
+                                    align: TextAlign.end,
                                   ),
                                 ),
                                 const SizedBox(width: 6),
@@ -263,19 +343,13 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(
-                                  child: Text(
-                                    match.equipeExterieur.nom,
-                                    textAlign: TextAlign.start,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.visible,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: match.scoreEquipeExterieur >
-                                              match.scoreEquipeDomicile
-                                          ? ColorPalette.textAccent(context)
-                                          : ColorPalette.textPrimary(context),
-                                    ),
+                                  child: _buildAdaptiveTeamName(
+                                    context,
+                                    nomComplet: match.equipeExterieur.nom,
+                                    nomCourt: match.equipeExterieur.nomCourt,
+                                    isWinner: match.scoreEquipeExterieur >
+                                        match.scoreEquipeDomicile,
+                                    align: TextAlign.start,
                                   ),
                                 ),
                               ],
@@ -373,9 +447,9 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
 
 Widget _buildTeamLogo(BuildContext context, String? path,
     {required bool isFavorite}) {
-  final logoWidget = SizedBox(
-    width: 28,
-    height: 28,
+  final logoWidget = Container(
+    width: 32,
+    height: 32,
     child: path != null
         ? Image.asset(path, fit: BoxFit.contain)
         : Icon(Icons.shield, size: 20, color: ColorPalette.divider(context)),
@@ -394,12 +468,12 @@ Widget _buildTeamLogo(BuildContext context, String? path,
         right: -1,
         child: Container(
           decoration: BoxDecoration(
-            color: ColorPalette.accentVariant(context),
+            color: ColorPalette.background(context),
             shape: BoxShape.circle,
           ),
           child: Icon(
             Icons.star_rounded,
-            size: 10,
+            size: 14,
             color: ColorPalette.accent(context),
           ),
         ),
