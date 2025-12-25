@@ -5,6 +5,7 @@ import 'package:scorescope/services/mock/mock_joueur_repository.dart';
 import 'package:scorescope/services/mock/mock_match_repository.dart';
 import 'package:scorescope/services/mock/mock_notification_repository.dart';
 import 'package:scorescope/services/mock/mock_post_repository.dart';
+import 'package:scorescope/services/mock/mock_recherche_repository.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/services/repositories/i_competition_repository.dart';
 import 'package:scorescope/services/repositories/i_equipe_repository.dart';
@@ -13,6 +14,7 @@ import 'package:scorescope/services/repositories/i_match_repository.dart';
 import 'package:scorescope/services/repositories/i_app_user_repository.dart';
 import 'package:scorescope/services/repositories/i_notification_repository.dart';
 import 'package:scorescope/services/repositories/i_post_repository.dart';
+import 'package:scorescope/services/repositories/i_recherche_repository.dart';
 import 'package:scorescope/services/web/web_amitie_repository.dart';
 import 'package:scorescope/services/web/web_app_user_repository.dart';
 import 'package:scorescope/services/web/web_competition_repository.dart';
@@ -21,6 +23,7 @@ import 'package:scorescope/services/web/web_joueur_repository.dart';
 import 'package:scorescope/services/web/web_match_repository.dart';
 import 'package:scorescope/services/web/web_notification_repository.dart';
 import 'package:scorescope/services/web/web_post_repository.dart';
+import 'package:scorescope/services/web/web_recherche_repository.dart';
 
 import 'mock/mock_equipe_repository.dart';
 
@@ -101,6 +104,15 @@ class RepositoryProvider {
         return MockCompetitionRepository();
       case Environment.web:
         return WebCompetitionRepository();
+    }
+  }
+
+  static IRechercheRepository get rechercheRepository {
+    switch (environment) {
+      case Environment.mock:
+        return MockRechercheRepository();
+      case Environment.web:
+        return WebRechercheRepository();
     }
   }
 }

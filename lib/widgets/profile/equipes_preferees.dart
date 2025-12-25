@@ -266,8 +266,8 @@ class EquipePrefereeTile extends StatelessWidget {
           children: [
             if (equipe.logoPath != null)
               SizedBox(
-                  width: 28,
-                  height: 28,
+                  width: 32,
+                  height: 32,
                   child: Image.asset(equipe.logoPath!, fit: BoxFit.contain))
             else
               CircleAvatar(radius: 14, child: Icon(Icons.shield, size: 16)),

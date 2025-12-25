@@ -10,7 +10,7 @@ import 'package:scorescope/views/amis/fil_actu_amis.dart';
 import 'package:scorescope/views/login/login.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'firebase_options.dart';
-import 'views/all_matches.dart';
+import 'views/all_matches/all_matches.dart';
 import 'package:intl/date_symbol_data_local.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 

@@ -3,10 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/views/all_matches/recherche_view.dart';
 import 'package:scorescope/widgets/all_matches/competitions_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
-import '../services/repositories/i_match_repository.dart';
-import '../models/match.dart';
+import '../../services/repositories/i_match_repository.dart';
+import '../../models/match.dart';
 
 class AllMatchesView extends StatefulWidget {
   final IMatchRepository matchRepository = RepositoryProvider.matchRepository;
@@ -141,7 +142,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               Icons.search,
               color: ColorPalette.textPrimary(context),
             ),
-            onPressed: () {},
+            onPressed: () => _openSearch(context),
           ),
           IconButton(
             icon: Icon(
@@ -336,3 +337,17 @@ void _showCompetitionsSelector(
 
   onSelected();
 }
+
+void _openSearch(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: ColorPalette.background(context),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (_) => const RechercheView(),
+  );
+}
+
