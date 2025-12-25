@@ -184,23 +184,24 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
         ? ColorPalette.textAccent(context)
         : ColorPalette.textPrimary(context);
 
+    final TextStyle baseStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
+      color: textColor,
+    );
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final TextStyle baseStyle = TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        );
-
         final TextPainter textPainter = TextPainter(
           text: TextSpan(text: nomComplet, style: baseStyle),
           maxLines: 2,
           textDirection: TextDirection.ltr,
           textAlign: align,
+          textScaler: MediaQuery.of(context).textScaler,
         )..layout(maxWidth: constraints.maxWidth);
 
-        bool isUglyWrap = false;
         final metrics = textPainter.computeLineMetrics();
+        bool isUglyWrap = false;
 
         if (metrics.length > 1) {
           final endOfFirstLine =
@@ -210,7 +211,10 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
           }
         }
 
-        if (!textPainter.didExceedMaxLines && !isUglyWrap) {
+        final bool fitsComfortably =
+            (textPainter.width * 1.1) <= constraints.maxWidth;
+
+        if (!isUglyWrap && fitsComfortably) {
           return Text(
             nomComplet,
             textAlign: align,
@@ -223,37 +227,21 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
           return Text(
             nomCourt,
             textAlign: align,
-            maxLines: 2,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: baseStyle,
           );
         }
 
-        final TextStyle minStyle = baseStyle.copyWith(fontSize: 10);
-        final TextPainter minPainter = TextPainter(
-          text: TextSpan(text: nomComplet, style: minStyle),
-          maxLines: 1,
-          textDirection: TextDirection.ltr,
-        )..layout(maxWidth: constraints.maxWidth);
-
-        if (!minPainter.didExceedMaxLines) {
-          return FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: align == TextAlign.end
-                ? Alignment.centerRight
-                : Alignment.centerLeft,
-            child: Text(
-              nomComplet,
-              style: baseStyle,
-            ),
-          );
-        }
-
-        return Text(
-          nomComplet,
-          textAlign: align,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: minStyle,
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: align == TextAlign.end
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
+          child: Text(
+            nomComplet,
+            style: baseStyle,
+          ),
         );
       },
     );
@@ -317,6 +305,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                   context,
                                   match.equipeDomicile.logoPath,
                                   isFavorite: isHomeFavorite,
+                                  size: 28,
                                 ),
                               ],
                             ),
@@ -341,6 +330,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                   context,
                                   match.equipeExterieur.logoPath,
                                   isFavorite: isAwayFavorite,
+                                  size: 28,
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(
