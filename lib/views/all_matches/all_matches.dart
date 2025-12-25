@@ -38,12 +38,15 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     _loadData();
   }
 
-  void _scrollToCenter() {
+  void _scrollToCenter({bool animated = false}) {
     if (!_dateScrollController.hasClients) return;
 
-    final now = DateTime.now();
     int todayIndex = _availableDates.indexWhere(
-        (d) => d.day == now.day && d.month == now.month && d.year == now.year);
+      (d) =>
+          d.day == _selectedDate.day &&
+          d.month == _selectedDate.month &&
+          d.year == _selectedDate.year,
+    );
 
     if (todayIndex != -1) {
       double screenWidth = MediaQuery.of(context).size.width;
@@ -51,11 +54,24 @@ class _AllMatchesViewState extends State<AllMatchesView> {
           (screenWidth / 2) +
           (_dateCardWidth / 2) +
           16;
-      _dateScrollController.animateTo(
-        offset,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOut,
-      );
+
+      if (animated) {
+        _dateScrollController.animateTo(
+          offset.clamp(
+            0.0,
+            _dateScrollController.position.maxScrollExtent,
+          ),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        _dateScrollController.jumpTo(
+          offset.clamp(
+            0.0,
+            _dateScrollController.position.maxScrollExtent,
+          ),
+        );
+      }
     }
   }
 
@@ -86,6 +102,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     setState(() {
       _selectedDate = date;
       _loadData();
+      _scrollToCenter(animated: true);
     });
   }
 
@@ -350,4 +367,3 @@ void _openSearch(BuildContext context) {
     builder: (_) => const RechercheView(),
   );
 }
-
