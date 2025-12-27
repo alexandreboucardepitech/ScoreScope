@@ -9,6 +9,7 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/amis/fil_actu_amis.dart';
 import 'package:scorescope/views/login/login.dart';
 import 'package:scorescope/views/profile/profile.dart';
+import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'firebase_options.dart';
 import 'views/all_matches/all_matches.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -97,7 +98,7 @@ class _HomePageState extends State<HomePage> {
     _pages = [
       AllMatchesView(), // Matchs
       FilActuAmisView(onBackPressed: goToFirstTab), // Amis
-      AllMatchesView(), // Stats (à remplacer plus tard)
+      StatsView(), // Stats
       // Profil
       FutureBuilder<AppUser?>(
         future: RepositoryProvider.userRepository.getCurrentUser(),
