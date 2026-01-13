@@ -9,6 +9,7 @@ class GraphCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 180, // ✅ hauteur explicite
       decoration: BoxDecoration(
         color: ColorPalette.tileBackground(context),
         borderRadius: BorderRadius.circular(16),
@@ -25,15 +26,16 @@ class GraphCard extends StatelessWidget {
               fontSize: 14,
             ),
           ),
-          const Spacer(),
-          Center(
-            child: Icon(
-              Icons.insert_chart_outlined,
-              size: 48,
-              color: ColorPalette.textSecondary(context),
+          const SizedBox(height: 24),
+          Expanded(
+            child: Center(
+              child: Icon(
+                Icons.insert_chart_outlined,
+                size: 48,
+                color: ColorPalette.textSecondary(context),
+              ),
             ),
           ),
-          const Spacer(),
         ],
       ),
     );

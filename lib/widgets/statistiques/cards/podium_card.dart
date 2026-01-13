@@ -1,25 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class PodiumCard<T> extends StatelessWidget {
   final String title;
-  final List<T> items;
-
-  final String Function(T) labelExtractor;
-  final num Function(T) valueExtractor;
-  final String Function(T)? imageExtractor;
+  final List<PodiumEntry> items;
 
   final Color? accentColor;
-
   final String emptyStateText;
 
   const PodiumCard({
     super.key,
     required this.title,
     required this.items,
-    required this.labelExtractor,
-    required this.valueExtractor,
-    this.imageExtractor,
     this.accentColor,
     this.emptyStateText = 'Aucune donnée disponible',
   });
@@ -49,11 +42,14 @@ class PodiumCard<T> extends StatelessWidget {
   /// ───────────────── TITLE ─────────────────
 
   Widget _buildTitle(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 16,
-        color: ColorPalette.textSecondary(context),
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          color: ColorPalette.textSecondary(context),
+        ),
       ),
     );
   }
@@ -106,13 +102,14 @@ class PodiumCard<T> extends StatelessWidget {
 
   /// ───────────────── SINGLE (HERO) ─────────────────
 
-  Widget _buildSingle(BuildContext context, T item, Color accent, bool large) {
+  Widget _buildSingle(
+      BuildContext context, PodiumEntry podiumEntry, Color accent, bool large) {
     final singleRow = Row(
       children: [
-        if (imageExtractor != null)
+        if (podiumEntry.item.displayImage != null)
           CircleAvatar(
             radius: large ? 32 : 28,
-            backgroundImage: AssetImage(imageExtractor!(item)),
+            backgroundImage: AssetImage(podiumEntry.item.displayImage!),
           ),
         const SizedBox(width: 16),
         Expanded(
@@ -122,7 +119,7 @@ class PodiumCard<T> extends StatelessWidget {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  labelExtractor(item),
+                  podiumEntry.item.displayLabel,
                   maxLines: 1,
                   style: TextStyle(
                     fontSize: 16,
@@ -132,8 +129,7 @@ class PodiumCard<T> extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              _buildValueChip(context, valueExtractor(item), accent,
-                  large: large),
+              _buildValueChip(context, podiumEntry.value, accent, large: large),
             ],
           ),
         ),
@@ -155,7 +151,7 @@ class PodiumCard<T> extends StatelessWidget {
 
   /// ───────────────── DUO ─────────────────
 
-  Widget _buildDuo(BuildContext context, List<T> duo, Color accent) {
+  Widget _buildDuo(BuildContext context, List<PodiumEntry> duo, Color accent) {
     final first = duo[0];
     final second = duo[1];
 
@@ -170,24 +166,25 @@ class PodiumCard<T> extends StatelessWidget {
 
   /// ───────────────── PODIUM (3) ─────────────────
 
-  Widget _buildPodium(BuildContext context, List<T> podium, Color accent) {
+  Widget _buildPodium(
+      BuildContext context, List<PodiumEntry> podium, Color accent) {
     final first = podium[0];
 
     return Column(
       children: [
         Row(
           children: [
-            if (imageExtractor != null)
+            if (first.item.displayImage != null)
               CircleAvatar(
                 radius: 24,
-                backgroundImage: AssetImage(imageExtractor!(first)),
+                backgroundImage: AssetImage(first.item.displayImage!),
               ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 children: [
                   Text(
-                    labelExtractor(first),
+                    first.item.displayLabel,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -196,7 +193,7 @@ class PodiumCard<T> extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  _buildValueChip(context, valueExtractor(first), accent),
+                  _buildValueChip(context, first.value, accent),
                 ],
               ),
             ),
@@ -214,7 +211,8 @@ class PodiumCard<T> extends StatelessWidget {
 
   /// ───────────────── SECONDARY ROW ─────────────────
 
-  Widget _buildSecondaryRow(BuildContext context, int index, T item) {
+  Widget _buildSecondaryRow(
+      BuildContext context, int index, PodiumEntry podiumEntry) {
     return Row(
       children: [
         Text(
@@ -227,7 +225,7 @@ class PodiumCard<T> extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            labelExtractor(item),
+            podiumEntry.item.displayLabel,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -236,7 +234,7 @@ class PodiumCard<T> extends StatelessWidget {
           ),
         ),
         Text(
-          valueExtractor(item).toString(),
+          podiumEntry.value.toString(),
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: ColorPalette.textPrimary(context),

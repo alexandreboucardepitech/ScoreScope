@@ -1,4 +1,6 @@
-class Joueur {
+import 'package:scorescope/models/util/podium_displayable.dart';
+
+class Joueur implements PodiumDisplayable {
   final String? id;
   final String prenom;
   final String nom;
@@ -17,6 +19,12 @@ class Joueur {
   String get fullName => '$prenom $nom'.trim();
 
   String get shortName => prenom.isEmpty ? nom : '${prenom[0]}. $nom';
+
+  @override
+  String get displayLabel => shortName;
+
+  @override
+  String? get displayImage => picture;
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
 
 import 'equipe.dart';
@@ -13,7 +14,7 @@ enum MatchStatus {
   postponed,
 }
 
-class MatchModel {
+class MatchModel implements PodiumDisplayable {
   final String id;
   final MatchStatus status;
   final String? liveMinute;
@@ -54,6 +55,13 @@ class MatchModel {
   bool get isFinished => status == MatchStatus.finished;
   bool get isLive => status == MatchStatus.live;
   bool get isScheduled => status == MatchStatus.scheduled;
+
+  @override
+  String get displayLabel =>
+      '${equipeDomicile.code} $scoreEquipeDomicile - $scoreEquipeExterieur ${equipeExterieur.code}';
+
+  @override
+  String? get displayImage => competition.logoUrl;
 
   int getNbViewers() {
     return mvpVotes.length > notesDuMatch.length

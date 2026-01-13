@@ -1,50 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
-import 'package:scorescope/widgets/statistiques/podium_card.dart';
+import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 
 class StatsJoueursOnglet extends StatelessWidget {
-  const StatsJoueursOnglet({super.key});
+  final bool showCards;
+  const StatsJoueursOnglet({super.key, this.showCards = true});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.2,
-        children: [
-          PodiumCard<Joueur>(
-            title: 'Buteurs les plus vus',
-            items: const [],
-            labelExtractor: (j) => j.shortName,
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucun joueur',
-          ),
-          PodiumCard<Joueur>(
-            title: 'Titularisations',
-            items: const [],
-            labelExtractor: (j) => j.shortName,
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucun joueur',
-          ),
-          PodiumCard<Joueur>(
-            title: 'MVP les plus votés',
-            items: const [],
-            labelExtractor: (j) => j.shortName,
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucun MVP',
-          ),
-          PodiumCard<Joueur>(
-            title: 'Record de buts sur un match',
-            items: const [],
-            labelExtractor: (j) => j.shortName,
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucun record',
-          ),
-        ],
+    final widgets = <Widget>[
+      buildPodiumCardOrListTile<Joueur>(
+        showCards: showCards,
+        title: 'Buteurs les plus vus',
+        items: const [],
+        emptyStateText: 'Aucun joueur',
       ),
+      buildPodiumCardOrListTile<Joueur>(
+        showCards: showCards,
+        title: 'Titularisations',
+        items: const [],
+        emptyStateText: 'Aucun joueur',
+      ),
+      buildPodiumCardOrListTile<Joueur>(
+        showCards: showCards,
+        title: 'MVP les plus votés',
+        items: const [],
+        emptyStateText: 'Aucun MVP',
+      ),
+      buildPodiumCardOrListTile<Joueur>(
+        showCards: showCards,
+        title: 'Record de buts sur un match',
+        items: const [],
+        emptyStateText: 'Aucun record',
+      ),
+    ];
+
+    return buildGridOrList(
+      statsWidgets: widgets,
+      graphWidgets: [],
+      showCards: showCards,
     );
   }
 }

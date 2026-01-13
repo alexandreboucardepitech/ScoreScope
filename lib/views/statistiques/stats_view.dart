@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/widgets/statistiques/loader/stats_generales_loader.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_competitions.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_equipes.dart';
-import 'package:scorescope/widgets/statistiques/onglets/stats_generales.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_habitudes.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_joueurs.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_matchs.dart';
 
-class StatsView extends StatelessWidget {
+class StatsView extends StatefulWidget {
   const StatsView({super.key});
+
+  @override
+  State<StatsView> createState() => _StatsViewState();
+}
+
+class _StatsViewState extends State<StatsView> {
+  bool _showCards = true;
+
+  void _toggleView() {
+    setState(() {
+      _showCards = !_showCards;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,26 +47,28 @@ class StatsView extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.calendar_today_outlined),
               onPressed: () {},
+              tooltip: 'Filtrer par date',
             ),
             IconButton(
-              icon: const Icon(Icons.filter_alt),
-              onPressed: () {},
+              icon: Icon(_showCards ? Icons.view_module : Icons.view_list),
+              onPressed: _toggleView,
+              tooltip: _showCards ? 'Afficher en liste' : 'Afficher en cards',
             ),
             IconButton(
-              icon: const Icon(Icons.view_module),
+              icon: const Icon(Icons.more_vert),
               onPressed: () {},
+              tooltip: "Plus d'options",
             ),
           ],
           bottom: TabBar(
             isScrollable: true,
-            padding: EdgeInsets.zero,
             indicatorColor: ColorPalette.accent(context),
             indicatorWeight: 3,
             labelColor: ColorPalette.accent(context),
             unselectedLabelColor: ColorPalette.textPrimary(context),
-            labelPadding: EdgeInsets.symmetric(horizontal: 12.0),
+            labelPadding: const EdgeInsets.symmetric(horizontal: 12),
             tabAlignment: TabAlignment.start,
-            tabs: [
+            tabs: const [
               Tab(text: 'Global'),
               Tab(text: 'Matchs'),
               Tab(text: 'Équipes'),
@@ -63,14 +78,14 @@ class StatsView extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            StatsGeneralesOnglet(),
-            StatsMatchsOnglet(),
-            StatsEquipesOnglet(),
-            StatsJoueursOnglet(),
-            StatsCompetitionsOnglet(),
-            StatsHabitudesOnglet(),
+            StatsGeneralesLoader(showCards: _showCards),
+            StatsMatchsOnglet(showCards: _showCards),
+            StatsEquipesOnglet(showCards: _showCards),
+            StatsJoueursOnglet(showCards: _showCards),
+            StatsCompetitionsOnglet(showCards: _showCards),
+            StatsHabitudesOnglet(showCards: _showCards),
           ],
         ),
       ),

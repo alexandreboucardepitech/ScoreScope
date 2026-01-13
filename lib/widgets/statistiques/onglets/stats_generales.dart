@@ -1,69 +1,92 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/models/joueur.dart';
-import 'package:scorescope/widgets/statistiques/podium_card.dart';
-import 'package:scorescope/widgets/statistiques/simple_stat_card.dart';
+import 'package:scorescope/models/stats/stats_generales_data.dart';
+import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 
 class StatsGeneralesOnglet extends StatelessWidget {
-  const StatsGeneralesOnglet({super.key});
+  final bool showCards;
+  final StatsGeneralesData data;
+
+  const StatsGeneralesOnglet({
+    super.key,
+    required this.data,
+    this.showCards = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.2,
-        children: [
-          SimpleStatCard(
-              title: 'Matchs vus', value: '128', icon: Icons.sports_soccer),
-          SimpleStatCard(title: 'Buts vus', value: '342', icon: Icons.sports),
-          PodiumCard(
-            title: 'Équipes les plus vues',
-            items: const [],
-            labelExtractor: (_) => '',
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucune équipe',
-          ),
-          PodiumCard(
-            title: 'Compétitions suivies',
-            items: const [],
-            labelExtractor: (_) => '',
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucune compétition',
-          ),
-          PodiumCard<Joueur>(
-            title: 'Joueurs les plus vus marquer',
-            items: const [],
-            labelExtractor: (j) => j.shortName,
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucun buteur',
-          ),
-          SimpleStatCard(
-              title: 'Joueurs différents buteurs',
-              value: '58',
-              icon: Icons.person),
-          SimpleStatCard(
-              title: 'Équipes différentes vues',
-              value: '42',
-              icon: Icons.groups),
-          SimpleStatCard(
-              title: 'Compétitions différentes',
-              value: '12',
-              icon: Icons.emoji_events),
-          SimpleStatCard(
-              title: 'Moy. buts / match', value: '2.7', icon: Icons.bar_chart),
-          SimpleStatCard(title: 'Moy. notes', value: '7.4', icon: Icons.star),
-          PodiumCard(
-            title: 'MVP le plus voté',
-            items: const [],
-            labelExtractor: (_) => '',
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucun MVP',
-          ),
-        ],
+    final statsWidgets = <Widget>[
+      buildSimpleStatCardOrListTile(
+        showCards: showCards,
+        title: 'Matchs vus',
+        value: data.matchsVus.toString(),
+        icon: Icons.sports_soccer,
       ),
+      buildSimpleStatCardOrListTile(
+        showCards: showCards,
+        title: 'Buts vus',
+        value: data.butsVus.toString(),
+        icon: Icons.sports,
+      ),
+      buildPodiumCardOrListTile(
+        showCards: showCards,
+        title: 'Équipes les plus vues',
+        items: data.equipesLesPlusVues,
+        emptyStateText: 'Aucune équipe',
+      ),
+      buildPodiumCardOrListTile(
+        showCards: showCards,
+        title: 'Compétitions les plus suivies',
+        items: data.competitionsLesPlusSuivies,
+        emptyStateText: 'Aucune compétition',
+      ),
+      buildPodiumCardOrListTile(
+        showCards: showCards,
+        title: 'Joueurs les plus vus marquer',
+        items: data.meilleursButeurs,
+        emptyStateText: 'Aucun buteur',
+      ),
+      buildSimpleStatCardOrListTile(
+        showCards: showCards,
+        title: 'Nombre de buteurs différents',
+        value: data.nbButeursDifferents.toString(),
+        icon: Icons.person,
+      ),
+      buildSimpleStatCardOrListTile(
+        showCards: showCards,
+        title: 'Équipes différentes vues',
+        value: data.nbEquipesDifferentes.toString(),
+        icon: Icons.groups,
+      ),
+      buildSimpleStatCardOrListTile(
+        showCards: showCards,
+        title: 'Compétitions différentes vues',
+        value: data.nbCompetitionsDifferentes.toString(),
+        icon: Icons.emoji_events,
+      ),
+      buildSimpleStatCardOrListTile(
+        showCards: showCards,
+        title: 'Moy. buts / match',
+        value: data.moyenneButsParMatch.toStringAsFixed(1),
+        icon: Icons.bar_chart,
+      ),
+      buildSimpleStatCardOrListTile(
+        showCards: showCards,
+        title: 'Moy. des notes données',
+        value: data.moyenneNotes.toStringAsFixed(1),
+        icon: Icons.star,
+      ),
+      buildPodiumCardOrListTile(
+        showCards: showCards,
+        title: 'MVP le plus voté',
+        items: data.mvpsLesPlusVotes,
+        emptyStateText: 'Aucun MVP',
+      ),
+    ];
+
+    return buildGridOrList(
+      statsWidgets: statsWidgets,
+      graphWidgets: const [],
+      showCards: showCards,
     );
   }
 }

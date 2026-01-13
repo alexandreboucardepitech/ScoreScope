@@ -1,54 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/widgets/statistiques/graph_card.dart';
-import 'package:scorescope/widgets/statistiques/podium_card.dart';
-import 'package:scorescope/widgets/statistiques/simple_stat_card.dart';
+import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
+import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
 class StatsCompetitionsOnglet extends StatelessWidget {
-  const StatsCompetitionsOnglet({super.key});
+  final bool showCards;
+  const StatsCompetitionsOnglet({super.key, this.showCards = true});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.2,
-        children: [
-          PodiumCard(
-            title: 'Compétitions les plus vues',
-            items: const [],
-            labelExtractor: (_) => '',
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucune compétition',
-          ),
-          SimpleStatCard(
-              title: 'Compétitions différentes',
-              value: '12',
-              icon: Icons.emoji_events),
-          PodiumCard(
-            title: 'Buts par compétition',
-            items: const [],
-            labelExtractor: (_) => '',
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucune donnée',
-          ),
-          PodiumCard(
-            title: 'Moy. buts / match',
-            items: const [],
-            labelExtractor: (_) => '',
-            valueExtractor: (_) => 0,
-            emptyStateText: 'Aucune donnée',
-          ),
-          GraphCard(
-            title: 'Répartition par compétition',
-          ),
-          GraphCard(
-            title: 'Types de compétitions',
-          ),
-        ],
+    final statsWidgets = <Widget>[
+      buildPodiumCardOrListTile(
+        showCards: showCards,
+        title: 'Compétitions les plus vues',
+        items: const [],
+        emptyStateText: 'Aucune compétition',
       ),
+      buildSimpleStatCardOrListTile(
+          showCards: showCards,
+          title: 'Compétitions différentes vues',
+          value: '12',
+          icon: Icons.emoji_events),
+      buildPodiumCardOrListTile(
+        showCards: showCards,
+        title: 'Buts par compétition',
+        items: const [],
+        emptyStateText: 'Aucune donnée',
+      ),
+      buildPodiumCardOrListTile(
+        showCards: showCards,
+        title: 'Moy. buts / match',
+        items: const [],
+        emptyStateText: 'Aucune donnée',
+      ),
+    ];
+    final graphWidgets = <Widget>[
+      GraphCard(title: 'Répartition par compétition'),
+      GraphCard(title: 'Types de compétitions'),
+    ];
+
+    return buildGridOrList(
+      statsWidgets: statsWidgets,
+      graphWidgets: graphWidgets,
+      showCards: showCards,
     );
   }
 }

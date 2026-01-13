@@ -1,4 +1,6 @@
-class Competition {
+import 'package:scorescope/models/util/podium_displayable.dart';
+
+class Competition implements PodiumDisplayable {
   final String id;
   final String nom;
   final String? logoUrl;
@@ -6,6 +8,12 @@ class Competition {
 
   Competition(
       {required this.id, required this.nom, this.logoUrl, this.popularite = 0});
+
+  @override
+  String get displayLabel => nom;
+
+  @override
+  String? get displayImage => logoUrl;
 
   Map<String, dynamic> toJson() => {
         'id': id,

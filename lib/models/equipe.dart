@@ -1,4 +1,6 @@
-class Equipe {
+import 'package:scorescope/models/util/podium_displayable.dart';
+
+class Equipe implements PodiumDisplayable {
   final String id;
   final String nom;
   final String? nomCourt;
@@ -15,6 +17,12 @@ class Equipe {
       this.logoPath,
       this.couleurPrincipale,
       this.couleurSecondaire});
+
+  @override
+  String get displayLabel => nom;
+
+  @override
+  String? get displayImage => logoPath;
 
   Map<String, dynamic> toJson() => {
         'id': id,

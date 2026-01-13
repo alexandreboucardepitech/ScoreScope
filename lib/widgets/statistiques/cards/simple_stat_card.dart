@@ -51,13 +51,16 @@ class SimpleStatCard extends StatelessWidget {
                   height: 0.9,
                 ),
               ),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: ColorPalette.textSecondary(context),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: ColorPalette.textSecondary(context),
+                  ),
                 ),
               ),
             ],
