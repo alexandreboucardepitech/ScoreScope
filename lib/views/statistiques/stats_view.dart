@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
-import 'package:scorescope/widgets/statistiques/loader/stats_generales_loader.dart';
-import 'package:scorescope/widgets/statistiques/onglets/stats_competitions.dart';
-import 'package:scorescope/widgets/statistiques/onglets/stats_equipes.dart';
-import 'package:scorescope/widgets/statistiques/onglets/stats_habitudes.dart';
-import 'package:scorescope/widgets/statistiques/onglets/stats_joueurs.dart';
-import 'package:scorescope/widgets/statistiques/onglets/stats_matchs.dart';
+import 'package:scorescope/widgets/statistiques/loader/stats_loader_widget.dart';
 
 class StatsView extends StatefulWidget {
   const StatsView({super.key});
@@ -80,12 +75,30 @@ class _StatsViewState extends State<StatsView> {
         ),
         body: TabBarView(
           children: [
-            StatsGeneralesLoader(showCards: _showCards),
-            StatsMatchsOnglet(showCards: _showCards),
-            StatsEquipesOnglet(showCards: _showCards),
-            StatsJoueursOnglet(showCards: _showCards),
-            StatsCompetitionsOnglet(showCards: _showCards),
-            StatsHabitudesOnglet(showCards: _showCards),
+            StatsLoaderWidget(
+              showCards: _showCards,
+              onglet: StatsOnglet.generales,
+            ),
+            StatsLoaderWidget(
+              showCards: _showCards,
+              onglet: StatsOnglet.matchs,
+            ),
+            StatsLoaderWidget(
+              showCards: _showCards,
+              onglet: StatsOnglet.equipes,
+            ),
+            StatsLoaderWidget(
+              showCards: _showCards,
+              onglet: StatsOnglet.joueurs,
+            ),
+            StatsLoaderWidget(
+              showCards: _showCards,
+              onglet: StatsOnglet.competitions,
+            ),
+            StatsLoaderWidget(
+              showCards: _showCards,
+              onglet: StatsOnglet.habitudes,
+            ),
           ],
         ),
       ),

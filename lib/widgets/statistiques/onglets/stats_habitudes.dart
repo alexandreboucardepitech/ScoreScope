@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/stats/stats_habitudes_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
 class StatsHabitudesOnglet extends StatelessWidget {
   final bool showCards;
-  const StatsHabitudesOnglet({super.key, this.showCards = true});
+  final StatsHabitudesData data;
+
+  const StatsHabitudesOnglet({
+    super.key,
+    required this.data,
+    this.showCards = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,36 +19,36 @@ class StatsHabitudesOnglet extends StatelessWidget {
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'MVP les plus votés',
-        items: const [],
+        items: data.mvpsLesPlusVotes,
         emptyStateText: 'Aucun MVP',
       ),
       buildSimpleStatCardOrListTile(
           showCards: showCards,
           title: 'Note moyenne',
-          value: '7.4',
+          value: data.moyenneNotes.toString(),
           icon: Icons.star),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Matchs les mieux notés',
-        items: const [],
+        items: data.matchsMieuxNotes,
         emptyStateText: 'Aucun match',
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Matchs les + commentés',
-        items: const [],
+        items: data.matchsPlusCommentes,
         emptyStateText: 'Aucun match',
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Matchs les + réactions',
-        items: const [],
+        items: data.matchsPlusReactions,
         emptyStateText: 'Aucun match',
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Jours avec le plus de matchs vus',
-        items: const [],
+        items: data.joursLePlusDeMatchs,
         emptyStateText: 'Aucune donnée',
       ),
     ];

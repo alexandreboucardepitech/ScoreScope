@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/models/stats/stats_joueurs_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 
 class StatsJoueursOnglet extends StatelessWidget {
   final bool showCards;
-  const StatsJoueursOnglet({super.key, this.showCards = true});
+  final StatsJoueursData data;
+
+  const StatsJoueursOnglet({
+    super.key,
+    required this.data,
+    this.showCards = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,25 +19,25 @@ class StatsJoueursOnglet extends StatelessWidget {
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
         title: 'Buteurs les plus vus',
-        items: const [],
+        items: data.meilleursButeurs,
         emptyStateText: 'Aucun joueur',
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
         title: 'Titularisations',
-        items: const [],
+        items: data.titularisations,
         emptyStateText: 'Aucun joueur',
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
         title: 'MVP les plus votés',
-        items: const [],
+        items: data.mvpsLesPlusVotes,
         emptyStateText: 'Aucun MVP',
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
         title: 'Record de buts sur un match',
-        items: const [],
+        items: data.meilleursButeursUnMatch,
         emptyStateText: 'Aucun record',
       ),
     ];

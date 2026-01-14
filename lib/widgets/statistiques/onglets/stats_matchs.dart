@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/stats/stats_matchs_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
 class StatsMatchsOnglet extends StatelessWidget {
   final bool showCards;
+  final StatsMatchsData data;
 
   const StatsMatchsOnglet({
     super.key,
+    required this.data,
     this.showCards = true,
   });
 
@@ -16,31 +19,31 @@ class StatsMatchsOnglet extends StatelessWidget {
       buildSimpleStatCardOrListTile(
         showCards: showCards,
         title: 'Matchs vus',
-        value: '128',
+        value: data.matchsVus.toString(),
         icon: Icons.sports,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
         title: 'Moy. buts / match',
-        value: '2.7',
+        value: data.moyenneButsParMatch.toStringAsFixed(1),
         icon: Icons.bar_chart,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Plus gros score',
-        items: const [],
+        items: data.biggestScores,
         emptyStateText: 'Aucun match',
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Plus gros écart',
-        items: const [],
+        items: data.biggestScoresDifference,
         emptyStateText: 'Aucun match',
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
         title: 'Diff. buts moyenne',
-        value: '1.3',
+        value: data.moyenneDiffButsParMatch.toStringAsFixed(1),
         icon: Icons.compare_arrows,
       ),
     ];
@@ -50,45 +53,10 @@ class StatsMatchsOnglet extends StatelessWidget {
       const GraphCard(title: 'Clubs vs Internationaux'),
     ];
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (showCards)
-            GridView.count(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: statsWidgets,
-            )
-          else
-            Column(
-              children: statsWidgets
-                  .map(
-                    (w) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: w,
-                    ),
-                  )
-                  .toList(),
-            ),
-          const SizedBox(height: 16),
-          Column(
-            children: graphWidgets
-                .map(
-                  (w) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: w,
-                  ),
-                )
-                .toList(),
-          ),
-        ],
-      ),
+    return buildGridOrList(
+      statsWidgets: statsWidgets,
+      graphWidgets: graphWidgets,
+      showCards: showCards,
     );
   }
 }

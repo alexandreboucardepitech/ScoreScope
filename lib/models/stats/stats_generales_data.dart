@@ -13,9 +13,9 @@ class StatsGeneralesData {
   final int nbCompetitionsDifferentes;
   final double moyenneNotes;
 
+  final List<PodiumEntry<Joueur>> meilleursButeurs;
   final List<PodiumEntry<Equipe>> equipesLesPlusVues;
   final List<PodiumEntry<Competition>> competitionsLesPlusSuivies;
-  final List<PodiumEntry<Joueur>> meilleursButeurs;
   final List<PodiumEntry<Joueur>> mvpsLesPlusVotes;
 
   const StatsGeneralesData({
@@ -26,9 +26,9 @@ class StatsGeneralesData {
     required this.nbEquipesDifferentes,
     required this.nbCompetitionsDifferentes,
     required this.moyenneNotes,
+    required this.meilleursButeurs,
     required this.equipesLesPlusVues,
     required this.competitionsLesPlusSuivies,
-    required this.meilleursButeurs,
     required this.mvpsLesPlusVotes,
   });
 }
