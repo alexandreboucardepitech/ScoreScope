@@ -281,7 +281,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                               width: 24,
                               child: Image.asset(
                                 match.competition.logoUrl ??
-                                    'assets/logos/competitions/ligue1.png',
+                                    'assets/logos/competitions/ligue1.jpg',
                                 fit: BoxFit.contain,
                               ),
                             ),

@@ -47,7 +47,7 @@ class StatsGeneralesOnglet extends StatelessWidget {
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Nombre de buteurs différents',
+        title: 'Buteurs différents',
         value: data.nbButeursDifferents.toString(),
         icon: Icons.person,
       ),

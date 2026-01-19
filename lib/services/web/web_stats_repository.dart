@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
@@ -16,9 +17,12 @@ import 'package:scorescope/utils/stats_loader.dart';
 class WebStatsRepository implements IStatsRepository {
   @override
   Future<StatsGeneralesData> fetchStatsGenerales(
-      String userId, bool onlyPublic) async {
+      String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await WebAppUserRepository()
         .getUserMatchsRegardesId(userId, onlyPublic);
+
+    List<MatchModel> matchsVusModels =
+        await StatsLoader.getMatchModelsFromIds(matchsVus);
 
     int nbButsVus =
         await WebAppUserRepository().getUserNbButs(userId, onlyPublic);
@@ -27,11 +31,11 @@ class WebStatsRepository implements IStatsRepository {
         .fetchUserAllMatchUserData(userId, onlyPublic);
 
     Map<Joueur, int> buteursDifferents =
-        await StatsLoader.getMeilleursButeurs(matchsVus);
+        await StatsLoader.getMeilleursButeurs(matchsVusModels);
     Map<Equipe, int> equipesDifferentes =
-        await StatsLoader.getEquipesLesPlusVues(matchsVus);
+        await StatsLoader.getEquipesLesPlusVues(matchsVusModels);
     Map<Competition, int> competitionsDifferentes =
-        await StatsLoader.getCompetitionsLesPlusVues(matchsVus);
+        await StatsLoader.getCompetitionsLesPlusVues(matchsVusModels);
 
     return StatsGeneralesData(
       matchsVus: matchsVus.length,
@@ -55,7 +59,7 @@ class WebStatsRepository implements IStatsRepository {
 
   @override
   Future<StatsMatchsData> fetchStatsMatchs(
-      String userId, bool onlyPublic) async {
+      String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await WebAppUserRepository()
         .getUserMatchsRegardesId(userId, onlyPublic);
 
@@ -80,14 +84,15 @@ class WebStatsRepository implements IStatsRepository {
 
   @override
   Future<StatsEquipesData> fetchStatsEquipes(
-      String userId, bool onlyPublic) async {
+      String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await WebAppUserRepository()
         .getUserMatchsRegardesId(userId, onlyPublic);
-    Map<Equipe, int> equipesDifferentes =
-        await StatsLoader.getEquipesLesPlusVues(matchsVus);
 
     List<MatchModel> matchsVusModels =
         await StatsLoader.getMatchModelsFromIds(matchsVus);
+
+    Map<Equipe, int> equipesDifferentes =
+        await StatsLoader.getEquipesLesPlusVues(matchsVusModels);
 
     return StatsEquipesData(
       equipesLesPlusVues:
@@ -106,21 +111,24 @@ class WebStatsRepository implements IStatsRepository {
 
   @override
   Future<StatsJoueursData> fetchStatsJoueurs(
-      String userId, bool onlyPublic) async {
+      String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await WebAppUserRepository()
         .getUserMatchsRegardesId(userId, onlyPublic);
 
+    List<MatchModel> matchsVusModels =
+        await StatsLoader.getMatchModelsFromIds(matchsVus);
+
     Map<Joueur, int> buteursDifferents =
-        await StatsLoader.getMeilleursButeurs(matchsVus);
+        await StatsLoader.getMeilleursButeurs(matchsVusModels);
 
     Map<Joueur, int> titularisations =
-        await StatsLoader.getTitularisations(matchsVus);
+        await StatsLoader.getTitularisations(matchsVusModels);
 
     List<MatchUserData> matchsVusUser = await WebAppUserRepository()
         .fetchUserAllMatchUserData(userId, onlyPublic);
 
     Map<Joueur, int> meilleursButeursUnMatch =
-        await StatsLoader.getMeilleursButeurs(matchsVus);
+        await StatsLoader.getMeilleursButeursUnMatch(matchsVusModels);
 
     return StatsJoueursData(
         meilleursButeurs:
@@ -134,14 +142,14 @@ class WebStatsRepository implements IStatsRepository {
 
   @override
   Future<StatsCompetitionsData> fetchStatsCompetitions(
-      String userId, bool onlyPublic) async {
+      String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await WebAppUserRepository()
         .getUserMatchsRegardesId(userId, onlyPublic);
     List<MatchModel> matchsVusModels =
         await StatsLoader.getMatchModelsFromIds(matchsVus);
 
     Map<Competition, int> competitionsDifferentes =
-        await StatsLoader.getCompetitionsLesPlusVues(matchsVus);
+        await StatsLoader.getCompetitionsLesPlusVues(matchsVusModels);
 
     return StatsCompetitionsData(
         competitionsLesPlusSuivies:
@@ -154,7 +162,7 @@ class WebStatsRepository implements IStatsRepository {
 
   @override
   Future<StatsHabitudesData> fetchStatsHabitudes(
-      String userId, bool onlyPublic) async {
+      String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<MatchUserData> matchsVusUser = await WebAppUserRepository()
         .fetchUserAllMatchUserData(userId, onlyPublic);
 

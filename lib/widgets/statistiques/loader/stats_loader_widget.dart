@@ -24,11 +24,15 @@ enum StatsOnglet {
 
 class StatsLoaderWidget extends StatefulWidget {
   final bool showCards;
+  final bool onlyPublicMatches;
+  final DateTimeRange? dateRange;
   final StatsOnglet onglet;
 
   const StatsLoaderWidget({
     super.key,
     required this.showCards,
+    required this.onlyPublicMatches,
+    required this.dateRange,
     required this.onglet,
   });
 
@@ -38,6 +42,15 @@ class StatsLoaderWidget extends StatefulWidget {
 
 class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
   late Future<dynamic> _future;
+
+  @override
+  void didUpdateWidget(covariant StatsLoaderWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.onlyPublicMatches != widget.onlyPublicMatches) {
+      _future = _loadStats();
+    }
+  }
 
   @override
   void initState() {
@@ -55,22 +68,22 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
     switch (widget.onglet) {
       case StatsOnglet.generales:
         return RepositoryProvider.statsRepository
-            .fetchStatsGenerales(currentUser.uid, false);
+            .fetchStatsGenerales(currentUser.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.matchs:
         return RepositoryProvider.statsRepository
-            .fetchStatsMatchs(currentUser.uid, false);
+            .fetchStatsMatchs(currentUser.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.equipes:
         return RepositoryProvider.statsRepository
-            .fetchStatsEquipes(currentUser.uid, false);
+            .fetchStatsEquipes(currentUser.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.joueurs:
         return RepositoryProvider.statsRepository
-            .fetchStatsJoueurs(currentUser.uid, false);
+            .fetchStatsJoueurs(currentUser.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.competitions:
         return RepositoryProvider.statsRepository
-            .fetchStatsCompetitions(currentUser.uid, false);
+            .fetchStatsCompetitions(currentUser.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.habitudes:
         return RepositoryProvider.statsRepository
-            .fetchStatsHabitudes(currentUser.uid, false);
+            .fetchStatsHabitudes(currentUser.uid, widget.onlyPublicMatches, widget.dateRange);
     }
   }
 

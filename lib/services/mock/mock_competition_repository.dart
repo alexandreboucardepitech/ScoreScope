@@ -24,19 +24,19 @@ class MockCompetitionRepository implements ICompetitionRepository {
       Competition(
         id: '1',
         nom: 'Ligue 1',
-        logoUrl: 'assets/competitions/ligue1.png',
+        logoUrl: 'assets/competitions/ligue1.jpg',
         popularite: 40,
       ),
       Competition(
         id: '2',
         nom: 'La Liga',
-        logoUrl: 'assets/competitions/laliga.png',
+        logoUrl: 'assets/competitions/ligue1.jpg',
         popularite: 50,
       ),
       Competition(
           id: '3',
           nom: 'Ligue des Champions',
-          logoUrl: 'assets/competitions/ligue1.png',
+          logoUrl: 'assets/competitions/ligue1.jpg',
           popularite: 100)
     ]);
   }

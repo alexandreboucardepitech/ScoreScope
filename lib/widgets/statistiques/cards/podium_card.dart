@@ -107,9 +107,11 @@ class PodiumCard<T> extends StatelessWidget {
     final singleRow = Row(
       children: [
         if (podiumEntry.item.displayImage != null)
-          CircleAvatar(
-            radius: large ? 32 : 28,
-            backgroundImage: AssetImage(podiumEntry.item.displayImage!),
+          Image.asset(
+            width: large ? 32 : 28,
+            height: large ? 32 : 28,
+            podiumEntry.item.displayImage!,
+            fit: BoxFit.contain,
           ),
         const SizedBox(width: 16),
         Expanded(
@@ -175,9 +177,11 @@ class PodiumCard<T> extends StatelessWidget {
         Row(
           children: [
             if (first.item.displayImage != null)
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: AssetImage(first.item.displayImage!),
+              Image.asset(
+                width: 32,
+                height: 32,
+                first.item.displayImage!,
+                fit: BoxFit.contain,
               ),
             const SizedBox(width: 12),
             Expanded(

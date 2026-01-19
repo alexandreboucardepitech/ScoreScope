@@ -13,12 +13,9 @@ class StatsLoader {
   const StatsLoader._(); // empêche l'instanciation
 
   static Future<Map<Joueur, int>> getMeilleursButeurs(
-      List<String> matchsVusId) async {
+      List<MatchModel> matchsVusModels) async {
     Map<Joueur, int> uniqueButeursId = {};
-    for (final matchId in matchsVusId) {
-      final MatchModel? match =
-          await RepositoryProvider.matchRepository.fetchMatchById(matchId);
-      if (match == null) continue;
+    for (final match in matchsVusModels) {
       final List<But> butsDuMatch =
           match.butsEquipeDomicile + match.butsEquipeExterieur;
       for (var but in butsDuMatch) {
@@ -27,16 +24,14 @@ class StatsLoader {
     }
     final sortedEntries = uniqueButeursId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
+    print("getMeilleursButeurs");
     return Map.fromEntries(sortedEntries);
   }
 
   static Future<Map<Joueur, int>> getTitularisations(
-      List<String> matchsVusId) async {
+      List<MatchModel> matchsVusModels) async {
     Map<Joueur, int> uniqueJoueursId = {};
-    for (final matchId in matchsVusId) {
-      final MatchModel? match =
-          await RepositoryProvider.matchRepository.fetchMatchById(matchId);
-      if (match == null) continue;
+    for (final match in matchsVusModels) {
       final List<Joueur> joueursDuMatch =
           match.joueursEquipeDomicile + match.joueursEquipeExterieur;
       for (var joueur in joueursDuMatch) {
@@ -45,16 +40,14 @@ class StatsLoader {
     }
     final sortedEntries = uniqueJoueursId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
+    print("getTitularisations");
     return Map.fromEntries(sortedEntries);
   }
 
   static Future<Map<Equipe, int>> getEquipesLesPlusVues(
-      List<String> matchsVusId) async {
+      List<MatchModel> matchsVusModels) async {
     Map<Equipe, int> uniqueEquipesId = {};
-    for (final matchId in matchsVusId) {
-      final MatchModel? match =
-          await RepositoryProvider.matchRepository.fetchMatchById(matchId);
-      if (match == null) continue;
+    for (final match in matchsVusModels) {
       uniqueEquipesId[match.equipeDomicile] =
           (uniqueEquipesId[match.equipeDomicile] ?? 0) + 1;
       uniqueEquipesId[match.equipeExterieur] =
@@ -62,21 +55,20 @@ class StatsLoader {
     }
     final sortedEntries = uniqueEquipesId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
+    print("getEquipesLesPlusVues");
     return Map.fromEntries(sortedEntries);
   }
 
   static Future<Map<Competition, int>> getCompetitionsLesPlusVues(
-      List<String> matchsVusId) async {
+      List<MatchModel> matchsVusModels) async {
     Map<Competition, int> uniqueCompetitionsId = {};
-    for (final matchId in matchsVusId) {
-      final MatchModel? match =
-          await RepositoryProvider.matchRepository.fetchMatchById(matchId);
-      if (match == null) continue;
+    for (final match in matchsVusModels) {
       uniqueCompetitionsId[match.competition] =
           (uniqueCompetitionsId[match.competition] ?? 0) + 1;
     }
     final sortedEntries = uniqueCompetitionsId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
+    print("getCompetitionsLesPlusVues");
     return Map.fromEntries(sortedEntries);
   }
 
@@ -91,6 +83,7 @@ class StatsLoader {
         countNotes++;
       }
     }
+    print("getMoyenneNotes");
     return countNotes > 0 ? totalNotes / countNotes : 0;
   }
 
@@ -120,6 +113,7 @@ class StatsLoader {
       if (joueur == null) continue;
       mvpsPodium.add(PodiumEntry<Joueur>(item: joueur, value: entry.value));
     }
+    print("getMvpsLesPlusVotes");
     return mvpsPodium;
   }
 
@@ -145,6 +139,7 @@ class StatsLoader {
     }).toList();
 
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getBiggestScoresMatch");
     return podiumEntries;
   }
 
@@ -158,6 +153,7 @@ class StatsLoader {
     }).toList();
 
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getBiggestScoreDifferenceMatch");
     return podiumEntries;
   }
 
@@ -173,6 +169,7 @@ class StatsLoader {
       totalDiffButs += diffButs;
     }
 
+    print("getMoyenneDifferenceButsParMatch");
     return totalDiffButs / matchsVusModels.length;
   }
 
@@ -192,6 +189,7 @@ class StatsLoader {
       }
     }
 
+    print("getPourcentageVictoireDomExt");
     final totalMatchs = matchsVusModels.length;
     if (totalMatchs == 0) {
       return [0, 0, 0];
@@ -224,6 +222,7 @@ class StatsLoader {
             (entry) => PodiumEntry<Equipe>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getEquipesLesPlusVuesGagner");
     return podiumEntries;
   }
 
@@ -247,6 +246,7 @@ class StatsLoader {
             (entry) => PodiumEntry<Equipe>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getEquipesLesPlusVuesPerdre");
     return podiumEntries;
   }
 
@@ -266,6 +266,7 @@ class StatsLoader {
             (entry) => PodiumEntry<Equipe>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getEquipesLesPlusVuesMarquer");
     return podiumEntries;
   }
 
@@ -285,19 +286,16 @@ class StatsLoader {
             (entry) => PodiumEntry<Equipe>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getEquipesLesPlusVuesEncaisser");
     return podiumEntries;
   }
 
   static Future<Map<Joueur, int>> getMeilleursButeursUnMatch(
-    List<String> matchsVusId,
+    List<MatchModel> matchsVus,
   ) async {
     final Map<Joueur, int> bestGoalsPerMatchByPlayer = {};
 
-    for (final matchId in matchsVusId) {
-      final MatchModel? match =
-          await RepositoryProvider.matchRepository.fetchMatchById(matchId);
-      if (match == null) continue;
-
+    for (final match in matchsVus) {
       final List<But> butsDuMatch =
           match.butsEquipeDomicile + match.butsEquipeExterieur;
 
@@ -321,6 +319,7 @@ class StatsLoader {
     final sortedEntries = bestGoalsPerMatchByPlayer.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
+    print("getMeilleursButeursUnMatch");
     return Map.fromEntries(sortedEntries);
   }
 
@@ -338,6 +337,7 @@ class StatsLoader {
             PodiumEntry<Competition>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getButsParCompetition");
     return podiumEntries;
   }
 
@@ -371,6 +371,7 @@ class StatsLoader {
     }).toList();
 
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getMoyenneButsParMatchParCompetition");
     return podiumEntries;
   }
 
@@ -395,6 +396,7 @@ class StatsLoader {
       );
     }
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getMatchsMieuxNotes");
     return podiumEntries;
   }
 
@@ -416,6 +418,7 @@ class StatsLoader {
       );
     }
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getMatchsPlusCommentes");
     return podiumEntries;
   }
 
@@ -437,6 +440,7 @@ class StatsLoader {
       );
     }
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getMatchsPlusReactions");
     return podiumEntries;
   }
 
@@ -465,6 +469,7 @@ class StatsLoader {
         )
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    print("getJoursAvecLePlusDeMatchs");
     return podiumEntries;
   }
 }
