@@ -6,12 +6,12 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/stats/stats_competitions_data.dart';
 import 'package:scorescope/models/stats/stats_equipes_data.dart';
+import 'package:scorescope/models/stats/stats_generales_data.dart';
 import 'package:scorescope/models/stats/stats_habitudes_data.dart';
 import 'package:scorescope/models/stats/stats_joueurs_data.dart';
 import 'package:scorescope/models/stats/stats_matchs_data.dart';
-import 'package:scorescope/models/stats/stats_generales_data.dart';
-import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/repositories/i_stats_repository.dart';
+import 'package:scorescope/services/Mock/Mock_app_user_repository.dart';
 import 'package:scorescope/utils/stats_loader.dart';
 
 class MockStatsRepository implements IStatsRepository {
@@ -19,16 +19,17 @@ class MockStatsRepository implements IStatsRepository {
   Future<StatsGeneralesData> fetchStatsGenerales(
       String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await MockAppUserRepository()
-        .getUserMatchsRegardesId(userId, onlyPublic);
+        .getUserMatchsRegardesId(
+            userId: userId, onlyPublic: onlyPublic, dateRange: dateRange);
 
     List<MatchModel> matchsVusModels =
         await StatsLoader.getMatchModelsFromIds(matchsVus);
 
-    int nbButsVus =
-        await MockAppUserRepository().getUserNbButs(userId, onlyPublic);
+    int nbButsVus = StatsLoader.getNbButsVus(matchsVusModels: matchsVusModels);
 
     List<MatchUserData> matchsVusUser = await MockAppUserRepository()
-        .fetchUserAllMatchUserData(userId, onlyPublic);
+        .fetchUserAllMatchUserData(
+            userId: userId, onlyPublic: onlyPublic, dateRange: dateRange);
 
     Map<Joueur, int> buteursDifferents =
         await StatsLoader.getMeilleursButeurs(matchsVusModels);
@@ -61,7 +62,8 @@ class MockStatsRepository implements IStatsRepository {
   Future<StatsMatchsData> fetchStatsMatchs(
       String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await MockAppUserRepository()
-        .getUserMatchsRegardesId(userId, onlyPublic);
+        .getUserMatchsRegardesId(
+            userId: userId, onlyPublic: onlyPublic, dateRange: dateRange);
 
     int nbButsVus =
         await MockAppUserRepository().getUserNbButs(userId, onlyPublic);
@@ -86,7 +88,8 @@ class MockStatsRepository implements IStatsRepository {
   Future<StatsEquipesData> fetchStatsEquipes(
       String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await MockAppUserRepository()
-        .getUserMatchsRegardesId(userId, onlyPublic);
+        .getUserMatchsRegardesId(
+            userId: userId, onlyPublic: onlyPublic, dateRange: dateRange);
 
     List<MatchModel> matchsVusModels =
         await StatsLoader.getMatchModelsFromIds(matchsVus);
@@ -113,7 +116,8 @@ class MockStatsRepository implements IStatsRepository {
   Future<StatsJoueursData> fetchStatsJoueurs(
       String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await MockAppUserRepository()
-        .getUserMatchsRegardesId(userId, onlyPublic);
+        .getUserMatchsRegardesId(
+            userId: userId, onlyPublic: onlyPublic, dateRange: dateRange);
 
     List<MatchModel> matchsVusModels =
         await StatsLoader.getMatchModelsFromIds(matchsVus);
@@ -125,7 +129,8 @@ class MockStatsRepository implements IStatsRepository {
         await StatsLoader.getTitularisations(matchsVusModels);
 
     List<MatchUserData> matchsVusUser = await MockAppUserRepository()
-        .fetchUserAllMatchUserData(userId, onlyPublic);
+        .fetchUserAllMatchUserData(
+            userId: userId, onlyPublic: onlyPublic, dateRange: dateRange);
 
     Map<Joueur, int> meilleursButeursUnMatch =
         await StatsLoader.getMeilleursButeursUnMatch(matchsVusModels);
@@ -144,7 +149,8 @@ class MockStatsRepository implements IStatsRepository {
   Future<StatsCompetitionsData> fetchStatsCompetitions(
       String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<String> matchsVus = await MockAppUserRepository()
-        .getUserMatchsRegardesId(userId, onlyPublic);
+        .getUserMatchsRegardesId(
+            userId: userId, onlyPublic: onlyPublic, dateRange: dateRange);
     List<MatchModel> matchsVusModels =
         await StatsLoader.getMatchModelsFromIds(matchsVus);
 
@@ -164,7 +170,8 @@ class MockStatsRepository implements IStatsRepository {
   Future<StatsHabitudesData> fetchStatsHabitudes(
       String userId, bool onlyPublic, DateTimeRange? dateRange) async {
     List<MatchUserData> matchsVusUser = await MockAppUserRepository()
-        .fetchUserAllMatchUserData(userId, onlyPublic);
+        .fetchUserAllMatchUserData(
+            userId: userId, onlyPublic: onlyPublic, dateRange: dateRange);
 
     return StatsHabitudesData(
       mvpsLesPlusVotes:

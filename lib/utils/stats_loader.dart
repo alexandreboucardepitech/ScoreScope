@@ -72,6 +72,17 @@ class StatsLoader {
     return Map.fromEntries(sortedEntries);
   }
 
+  static int getNbButsVus({required List<MatchModel> matchsVusModels}) {
+    if (matchsVusModels.isEmpty) return 0;
+    int totalButs = 0;
+
+    for (var match in matchsVusModels) {
+      totalButs += match.scoreEquipeDomicile + match.scoreEquipeExterieur;
+    }
+
+    return totalButs;
+  }
+
   static Future<double> getMoyenneNotes(
       {required List<MatchUserData> matchsVusUser}) async {
     if (matchsVusUser.isEmpty) return 0;

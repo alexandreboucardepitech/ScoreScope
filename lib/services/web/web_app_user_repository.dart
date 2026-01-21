@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 
@@ -39,14 +40,35 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<List<String>> getUserMatchsRegardesId(
-      String userId, bool onlyPublic) async {
+      {required String userId,
+      bool onlyPublic = false,
+      DateTimeRange? dateRange}) async {
     final matchUserDataSnapshot = onlyPublic
         ? await _usersCollection
             .doc(userId)
             .collection('matchUserData')
             .where('private', isEqualTo: false)
+            .where('watchedAt',
+                isGreaterThanOrEqualTo: dateRange != null
+                    ? Timestamp.fromDate(dateRange.start)
+                    : null)
+            .where('watchedAt',
+                isLessThanOrEqualTo: dateRange != null
+                    ? Timestamp.fromDate(dateRange.end)
+                    : null)
             .get()
-        : await _usersCollection.doc(userId).collection('matchUserData').get();
+        : await _usersCollection
+            .doc(userId)
+            .collection('matchUserData')
+            .where('watchedAt',
+                isGreaterThanOrEqualTo: dateRange != null
+                    ? Timestamp.fromDate(dateRange.start)
+                    : null)
+            .where('watchedAt',
+                isLessThanOrEqualTo: dateRange != null
+                    ? Timestamp.fromDate(dateRange.end)
+                    : null)
+            .get();
 
     return matchUserDataSnapshot.docs
         .where((d) => !onlyPublic || (d.data()['private'] == false))
@@ -116,7 +138,7 @@ class WebAppUserRepository implements IAppUserRepository {
       String userId, String equipeId, bool onlyPublic) async {
     int nbMatchsRegardes = 0;
     List<String> matchsRegardesId =
-        await getUserMatchsRegardesId(userId, onlyPublic);
+        await getUserMatchsRegardesId(userId: userId, onlyPublic: onlyPublic);
 
     if (matchsRegardesId.isEmpty) return 0;
 
@@ -326,14 +348,35 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<List<MatchUserData>> fetchUserAllMatchUserData(
-      String userId, bool onlyPublic) async {
+      {required String userId,
+      bool onlyPublic = false,
+      DateTimeRange? dateRange}) async {
     final matchUserDataSnapshot = onlyPublic
         ? await _usersCollection
             .doc(userId)
             .collection('matchUserData')
             .where('private', isEqualTo: false)
+            .where('watchedAt',
+                isGreaterThanOrEqualTo: dateRange != null
+                    ? Timestamp.fromDate(dateRange.start)
+                    : null)
+            .where('watchedAt',
+                isLessThanOrEqualTo: dateRange != null
+                    ? Timestamp.fromDate(dateRange.end)
+                    : null)
             .get()
-        : await _usersCollection.doc(userId).collection('matchUserData').get();
+        : await _usersCollection
+            .doc(userId)
+            .collection('matchUserData')
+            .where('watchedAt',
+                isGreaterThanOrEqualTo: dateRange != null
+                    ? Timestamp.fromDate(dateRange.start)
+                    : null)
+            .where('watchedAt',
+                isLessThanOrEqualTo: dateRange != null
+                    ? Timestamp.fromDate(dateRange.end)
+                    : null)
+            .get();
 
     List<MatchUserData> matchUserDataList = [];
 

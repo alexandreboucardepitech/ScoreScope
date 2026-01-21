@@ -54,6 +54,7 @@ class _StatsViewState extends State<StatsView> {
         helpText: 'Sélectionner une période',
         cancelText: 'Annuler',
         confirmText: 'Appliquer',
+        saveText: 'Appliquer',
         builder: (context, child) {
           final baseTheme = Theme.of(context);
           return Theme(
@@ -76,16 +77,29 @@ class _StatsViewState extends State<StatsView> {
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  foregroundColor: ColorPalette.buttonPrimary(context),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                  foregroundColor: ColorPalette.accentVariant(context),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
-                fillColor: ColorPalette.surfaceSecondary(context),
+                fillColor: ColorPalette.tileBackground(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: ColorPalette.border(context)),
+                  borderSide: BorderSide(
+                    color: ColorPalette.border(context),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: ColorPalette.accent(context),
+                    width: 2,
+                  ),
                 ),
               ),
             ),
@@ -107,9 +121,9 @@ class _StatsViewState extends State<StatsView> {
       final user = await RepositoryProvider.userRepository.getCurrentUser();
       List<int> saisons = [];
       if (user != null) {
-        List<MatchUserData> userMatches = await RepositoryProvider
-            .userRepository
-            .fetchUserAllMatchUserData(user.uid, _onlyPublicMatches);
+        List<MatchUserData> userMatches =
+            await RepositoryProvider.userRepository.fetchUserAllMatchUserData(
+                userId: user.uid, onlyPublic: _onlyPublicMatches);
 
         for (MatchUserData match in userMatches) {
           final matchDate = match.watchedAt;
@@ -135,7 +149,12 @@ class _StatsViewState extends State<StatsView> {
               return AlertDialog(
                 constraints: const BoxConstraints(maxHeight: 400),
                 alignment: Alignment.center,
-                title: const Text('Sélectionner la saison'),
+                title: Text(
+                  'Sélectionner la saison',
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                  ),
+                ),
                 content: SizedBox(
                   height: saisons.length > 4 ? 300 : null,
                   width: double.maxFinite,
@@ -147,6 +166,7 @@ class _StatsViewState extends State<StatsView> {
                                 RadioListTile<int>(
                                   value: saison,
                                   groupValue: selectedYear,
+                                  activeColor: ColorPalette.accent(context),
                                   title: Text("Saison $saison/${saison + 1}"),
                                   onChanged: (value) {
                                     setDialogState(() {
@@ -164,6 +184,7 @@ class _StatsViewState extends State<StatsView> {
                               RadioListTile<int>(
                                 value: saison,
                                 groupValue: selectedYear,
+                                activeColor: ColorPalette.accent(context),
                                 title: Text("Saison $saison/${saison + 1}"),
                                 onChanged: (value) {
                                   setDialogState(() {
@@ -180,7 +201,7 @@ class _StatsViewState extends State<StatsView> {
                     child: Text(
                       'Annuler',
                       style: TextStyle(
-                        color: ColorPalette.textSecondary(context),
+                        color: ColorPalette.textPrimary(context),
                       ),
                     ),
                   ),
@@ -197,8 +218,9 @@ class _StatsViewState extends State<StatsView> {
                       'Appliquer',
                       style: TextStyle(
                         color: selectedYear == null
-                          ? ColorPalette.textAccent(context)
-                          : ColorPalette.textPrimary(context),
+                            ? ColorPalette.textSecondary(context)
+                                .withValues(alpha: 0.8)
+                            : ColorPalette.textPrimary(context),
                       ),
                     ),
                   ),

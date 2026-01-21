@@ -127,7 +127,7 @@ class MockPostRepository implements IPostRepository {
 
     for (final friend in friends) {
       final friendMatches = await MockAppUserRepository()
-          .fetchUserAllMatchUserData(friend.uid, true); // onlyPublic=true
+          .fetchUserAllMatchUserData(userId: friend.uid, onlyPublic: true);
       for (final md in friendMatches) {
         result.add(UserMatchEntry(user: friend, matchData: md));
       }

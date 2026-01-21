@@ -178,8 +178,9 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _loadMatchUserData(String uid) async {
     _setStateAndRemeasure(() => _isLoadingMatchUserData = true);
     try {
-      final List<MatchUserData> data = await userRepository
-          .fetchUserAllMatchUserData(uid, uid != currentUser?.uid);
+      final List<MatchUserData> data =
+          await userRepository.fetchUserAllMatchUserData(
+              userId: uid, onlyPublic: uid != currentUser?.uid);
 
       if (!mounted) return;
 
@@ -227,8 +228,8 @@ class _ProfileViewState extends State<ProfileView> {
     _setStateAndRemeasure(() => _isLoadingMatchsRegardes = true);
     try {
       final matchs = await userRepository.getUserMatchsRegardesId(
-        uid,
-        uid != currentUser?.uid,
+        userId: uid,
+        onlyPublic: uid != currentUser?.uid,
       );
       if (!mounted) return;
       _setStateAndRemeasure(() {

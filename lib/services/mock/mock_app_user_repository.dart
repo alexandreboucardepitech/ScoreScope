@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
@@ -138,7 +139,9 @@ class MockAppUserRepository implements IAppUserRepository {
 
   @override
   Future<List<String>> getUserMatchsRegardesId(
-      String userId, bool onlyPublic) async {
+      {required String userId,
+      bool onlyPublic = false,
+      DateTimeRange? dateRange}) async {
     await _seedingFuture;
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
@@ -146,6 +149,13 @@ class MockAppUserRepository implements IAppUserRepository {
     final matchsRegardes = onlyPublic
         ? user.matchsUserData
             .where((m) => m.private == false)
+            .where((m) => dateRange != null
+                ? m.watchedAt != null &&
+                    m.watchedAt!.isAfter(
+                        dateRange.start.subtract(const Duration(days: 1))) &&
+                    m.watchedAt!
+                        .isBefore(dateRange.end.add(const Duration(days: 1)))
+                : true)
             .map((m) => m.matchId)
             .toList()
         : user.matchsUserData.map((m) => m.matchId).toList();
@@ -190,7 +200,7 @@ class MockAppUserRepository implements IAppUserRepository {
     await _seedingFuture;
 
     final List<String> matchsRegardesId =
-        await getUserMatchsRegardesId(userId, onlyPublic);
+        await getUserMatchsRegardesId(userId: userId, onlyPublic: onlyPublic);
     if (matchsRegardesId.isEmpty) return 0;
 
     final matchesRepo = MockMatchRepository();
@@ -539,7 +549,9 @@ class MockAppUserRepository implements IAppUserRepository {
 
   @override
   Future<List<MatchUserData>> fetchUserAllMatchUserData(
-      String userId, bool onlyPublic) async {
+      {required String userId,
+      bool onlyPublic = false,
+      DateTimeRange? dateRange}) async {
     await _seedingFuture;
     final user = _users.firstWhere((u) => u.uid == userId,
         orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
@@ -582,7 +594,8 @@ class MockAppUserRepository implements IAppUserRepository {
 
   @override
   Future<MatchUserData?> fetchUserMatchUserData(String userId, String matchId) {
-    return fetchUserAllMatchUserData(userId, false).then((allData) {
+    return fetchUserAllMatchUserData(userId: userId, onlyPublic: false)
+        .then((allData) {
       try {
         return allData.firstWhere((m) => m.matchId == matchId);
       } catch (_) {
