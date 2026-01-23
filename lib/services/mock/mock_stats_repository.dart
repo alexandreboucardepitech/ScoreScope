@@ -4,6 +4,7 @@ import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/models/stats/graph/stat_value.dart';
 import 'package:scorescope/models/stats/stats_competitions_data.dart';
 import 'package:scorescope/models/stats/stats_equipes_data.dart';
 import 'package:scorescope/models/stats/stats_generales_data.dart';
@@ -11,7 +12,7 @@ import 'package:scorescope/models/stats/stats_habitudes_data.dart';
 import 'package:scorescope/models/stats/stats_joueurs_data.dart';
 import 'package:scorescope/models/stats/stats_matchs_data.dart';
 import 'package:scorescope/services/repositories/i_stats_repository.dart';
-import 'package:scorescope/services/Mock/Mock_app_user_repository.dart';
+import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/utils/stats_loader.dart';
 
 class MockStatsRepository implements IStatsRepository {
@@ -81,7 +82,10 @@ class MockStatsRepository implements IStatsRepository {
             StatsLoader.getMoyenneDifferenceButsParMatch(matchsVusModels),
         pourcentageVictoireDomExt:
             StatsLoader.getPourcentageVictoireDomExt(matchsVusModels),
-        pourcentageClubsInternationaux: [50, 50]); // TODO: plus tard
+        pourcentageClubsInternationaux: [
+          StatValue(label: "Clubs", value: 50),
+          StatValue(label: "International", value: 50),
+        ]); // TODO: plus tard
   }
 
   @override
@@ -109,6 +113,11 @@ class MockStatsRepository implements IStatsRepository {
           StatsLoader.getEquipesLesPlusVuesMarquer(matchsVusModels),
       equipesPlusDeButsEncaisses:
           StatsLoader.getEquipesLesPlusVuesEncaisser(matchsVusModels),
+      matchsVusParEquipe: StatsLoader.getStatValueListFromMap<Equipe>(
+          dataMap: equipesDifferentes,
+          getLabel: (Equipe e) => e.nom,
+          getColor: (Equipe e) => e.couleurPrincipale,
+          getImage: (Equipe e) => e.logoPath),
     );
   }
 
@@ -163,7 +172,13 @@ class MockStatsRepository implements IStatsRepository {
         nbCompetitionsDifferentes: competitionsDifferentes.length,
         butsParCompetition: StatsLoader.getButsParCompetition(matchsVusModels),
         competitionsMoyButs:
-            StatsLoader.getMoyenneButsParMatchParCompetition(matchsVusModels));
+            StatsLoader.getMoyenneButsParMatchParCompetition(matchsVusModels),
+        pourcentageMatchsCompetitions:
+            StatsLoader.getPourcentageMatchsCompetitions(matchsVusModels),
+        typesCompetitions: [
+          StatValue(label: "Clubs", value: 50),
+          StatValue(label: "International", value: 50),
+        ]); // TODO: plus tard
   }
 
   @override
@@ -186,6 +201,10 @@ class MockStatsRepository implements IStatsRepository {
           matchsVusUser: matchsVusUser),
       joursLePlusDeMatchs:
           StatsLoader.getJoursAvecLePlusDeMatchs(matchsVusUser: matchsVusUser),
+      typeVisionnage:
+          await StatsLoader.getTypeVisionnage(matchsVusUser: matchsVusUser),
+      matchsVusParJour:
+          await StatsLoader.getMatchsVusParJour(matchsVusUser: matchsVusUser),
     );
   }
 }

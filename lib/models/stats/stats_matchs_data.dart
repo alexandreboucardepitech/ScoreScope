@@ -1,4 +1,5 @@
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/models/stats/graph/stat_value.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 
 class StatsMatchsData {
@@ -9,8 +10,8 @@ class StatsMatchsData {
   final List<PodiumEntry<MatchModel>> biggestScoresDifference;
   final num moyenneDiffButsParMatch;
 
-  final List<num> pourcentageVictoireDomExt;
-  final List<num> pourcentageClubsInternationaux;
+  final List<StatValue> pourcentageVictoireDomExt;
+  final List<StatValue> pourcentageClubsInternationaux;
 
   const StatsMatchsData({
     required this.matchsVus,

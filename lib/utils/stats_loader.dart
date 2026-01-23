@@ -4,10 +4,13 @@ import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/models/stats/graph/stat_value.dart';
+import 'package:scorescope/models/stats/graph/time_stat_value.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/day_podium_displayable.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/models/enum/visionnage_match.dart';
 
 class StatsLoader {
   const StatsLoader._(); // empêche l'instanciation
@@ -24,7 +27,6 @@ class StatsLoader {
     }
     final sortedEntries = uniqueButeursId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    print("getMeilleursButeurs");
     return Map.fromEntries(sortedEntries);
   }
 
@@ -40,7 +42,6 @@ class StatsLoader {
     }
     final sortedEntries = uniqueJoueursId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    print("getTitularisations");
     return Map.fromEntries(sortedEntries);
   }
 
@@ -55,7 +56,6 @@ class StatsLoader {
     }
     final sortedEntries = uniqueEquipesId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    print("getEquipesLesPlusVues");
     return Map.fromEntries(sortedEntries);
   }
 
@@ -68,7 +68,6 @@ class StatsLoader {
     }
     final sortedEntries = uniqueCompetitionsId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    print("getCompetitionsLesPlusVues");
     return Map.fromEntries(sortedEntries);
   }
 
@@ -94,7 +93,6 @@ class StatsLoader {
         countNotes++;
       }
     }
-    print("getMoyenneNotes");
     return countNotes > 0 ? totalNotes / countNotes : 0;
   }
 
@@ -106,6 +104,25 @@ class StatsLoader {
 
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
     return podiumEntries;
+  }
+
+  static List<StatValue> getStatValueListFromMap<T>({
+    required Map<T, int> dataMap,
+    required String Function(T) getLabel,
+    required String? Function(T) getColor,
+    required String? Function(T) getImage,
+  }) {
+    final statValues = dataMap.entries
+        .map((entry) => StatValue(
+              label: getLabel(entry.key),
+              value: entry.value,
+              color: getColor(entry.key),
+              image: getImage(entry.key),
+            ))
+        .toList();
+
+    statValues.sort((a, b) => b.value.compareTo(a.value));
+    return statValues;
   }
 
   static Future<List<PodiumEntry<Joueur>>> getMvpsLesPlusVotes(
@@ -124,7 +141,6 @@ class StatsLoader {
       if (joueur == null) continue;
       mvpsPodium.add(PodiumEntry<Joueur>(item: joueur, value: entry.value));
     }
-    print("getMvpsLesPlusVotes");
     return mvpsPodium;
   }
 
@@ -150,7 +166,6 @@ class StatsLoader {
     }).toList();
 
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getBiggestScoresMatch");
     return podiumEntries;
   }
 
@@ -164,7 +179,6 @@ class StatsLoader {
     }).toList();
 
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getBiggestScoreDifferenceMatch");
     return podiumEntries;
   }
 
@@ -180,11 +194,10 @@ class StatsLoader {
       totalDiffButs += diffButs;
     }
 
-    print("getMoyenneDifferenceButsParMatch");
     return totalDiffButs / matchsVusModels.length;
   }
 
-  static List<num> getPourcentageVictoireDomExt(
+  static List<StatValue> getPourcentageVictoireDomExt(
       List<MatchModel> matchsVusModels) {
     int victoiresDomicile = 0;
     int nuls = 0;
@@ -200,16 +213,21 @@ class StatsLoader {
       }
     }
 
-    print("getPourcentageVictoireDomExt");
     final totalMatchs = matchsVusModels.length;
     if (totalMatchs == 0) {
-      return [0, 0, 0];
+      return [
+        StatValue(label: "Domicile", value: 0),
+        StatValue(label: "Nuls", value: 0),
+        StatValue(label: "Extérieur", value: 0),
+      ];
     }
 
     return [
-      (victoiresDomicile / totalMatchs) * 100,
-      (nuls / totalMatchs) * 100,
-      (victoiresExterieur / totalMatchs) * 100,
+      StatValue(
+          label: "Domicile", value: (victoiresDomicile / totalMatchs) * 100),
+      StatValue(label: "Nuls", value: (nuls / totalMatchs) * 100),
+      StatValue(
+          label: "Extérieur", value: (victoiresExterieur / totalMatchs) * 100),
     ];
   }
 
@@ -233,7 +251,6 @@ class StatsLoader {
             (entry) => PodiumEntry<Equipe>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getEquipesLesPlusVuesGagner");
     return podiumEntries;
   }
 
@@ -257,7 +274,6 @@ class StatsLoader {
             (entry) => PodiumEntry<Equipe>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getEquipesLesPlusVuesPerdre");
     return podiumEntries;
   }
 
@@ -277,7 +293,6 @@ class StatsLoader {
             (entry) => PodiumEntry<Equipe>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getEquipesLesPlusVuesMarquer");
     return podiumEntries;
   }
 
@@ -297,7 +312,6 @@ class StatsLoader {
             (entry) => PodiumEntry<Equipe>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getEquipesLesPlusVuesEncaisser");
     return podiumEntries;
   }
 
@@ -330,7 +344,6 @@ class StatsLoader {
     final sortedEntries = bestGoalsPerMatchByPlayer.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    print("getMeilleursButeursUnMatch");
     return Map.fromEntries(sortedEntries);
   }
 
@@ -348,7 +361,6 @@ class StatsLoader {
             PodiumEntry<Competition>(item: entry.key, value: entry.value))
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getButsParCompetition");
     return podiumEntries;
   }
 
@@ -382,7 +394,6 @@ class StatsLoader {
     }).toList();
 
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getMoyenneButsParMatchParCompetition");
     return podiumEntries;
   }
 
@@ -407,7 +418,6 @@ class StatsLoader {
       );
     }
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getMatchsMieuxNotes");
     return podiumEntries;
   }
 
@@ -429,7 +439,6 @@ class StatsLoader {
       );
     }
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getMatchsPlusCommentes");
     return podiumEntries;
   }
 
@@ -451,7 +460,6 @@ class StatsLoader {
       );
     }
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getMatchsPlusReactions");
     return podiumEntries;
   }
 
@@ -480,7 +488,117 @@ class StatsLoader {
         )
         .toList();
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    print("getJoursAvecLePlusDeMatchs");
     return podiumEntries;
+  }
+
+  static List<StatValue> getPourcentageMatchsCompetitions(
+      List<MatchModel> matchsVusModels) {
+    Map<Competition, int> competitionsCount = {};
+    for (final match in matchsVusModels) {
+      competitionsCount[match.competition] =
+          (competitionsCount[match.competition] ?? 0) + 1;
+    }
+
+    final totalMatchs = matchsVusModels.length;
+    if (totalMatchs == 0) {
+      return [];
+    }
+
+    final statValues = competitionsCount.entries.map((entry) {
+      final competition = entry.key;
+      final count = entry.value;
+      final percentage = (count / totalMatchs) * 100;
+
+      return StatValue(
+        label: competition.nom,
+        value: percentage,
+        image: competition.logoUrl,
+      );
+    }).toList();
+
+    statValues.sort((a, b) => b.value.compareTo(a.value));
+    return statValues;
+  }
+
+  static Future<List<StatValue>> getTypeVisionnage({
+    required List<MatchUserData> matchsVusUser,
+  }) async {
+    int stade = 0;
+    int tele = 0;
+    int bar = 0;
+
+    for (final matchUserData in matchsVusUser) {
+      switch (matchUserData.visionnageMatch) {
+        case VisionnageMatch.stade:
+          stade++;
+        case VisionnageMatch.tele:
+          tele++;
+        case VisionnageMatch.bar:
+          bar++;
+      }
+    }
+    final totalCount = stade + tele + bar;
+    if (totalCount == 0) {
+      return [
+        StatValue(label: "Stade", value: 0),
+        StatValue(label: "Télé", value: 0),
+        StatValue(label: "Bar", value: 0),
+      ];
+    }
+
+    return [
+      StatValue(label: "Stade", value: (stade / totalCount) * 100),
+      StatValue(label: "Télé", value: (tele / totalCount) * 100),
+      StatValue(label: "Bar", value: (bar / totalCount) * 100),
+    ];
+  }
+
+  static Future<List<TimeStatValue>> getMatchsVusParJour({
+    required List<MatchUserData> matchsVusUser,
+  }) async {
+    if (matchsVusUser.isEmpty) {
+      return [];
+    }
+
+    // 1️⃣ Normaliser les dates + compter les matchs par jour
+    final Map<DateTime, int> matchsParJour = {};
+
+    for (final match in matchsVusUser) {
+      final watchedAt = match.watchedAt;
+      if (watchedAt == null) continue;
+
+      final day = DateTime(
+        watchedAt.year,
+        watchedAt.month,
+        watchedAt.day,
+      );
+
+      matchsParJour[day] = (matchsParJour[day] ?? 0) + 1;
+    }
+
+    if (matchsParJour.isEmpty) {
+      return [];
+    }
+
+    final dates = matchsParJour.keys.toList()..sort();
+
+    final DateTime firstDay = dates.first;
+    final DateTime lastDay = dates.last;
+
+    final List<TimeStatValue> result = [];
+
+    DateTime currentDay = firstDay;
+    while (!currentDay.isAfter(lastDay)) {
+      result.add(
+        TimeStatValue(
+          date: currentDay,
+          value: matchsParJour[currentDay] ?? 0,
+        ),
+      );
+
+      currentDay = currentDay.add(const Duration(days: 1));
+    }
+
+    return result;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/stats_competitions_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
@@ -41,8 +42,17 @@ class StatsCompetitionsOnglet extends StatelessWidget {
       ),
     ];
     final graphWidgets = <Widget>[
-      GraphCard(title: 'Répartition par compétition'),
-      GraphCard(title: 'Types de compétitions'),
+      GraphCard(
+        title: 'Répartition par compétition',
+        type: GraphType.pie,
+        values: data.pourcentageMatchsCompetitions,
+        pourcentage: true,
+      ),
+      GraphCard(
+        title: 'Types de compétitions',
+        type: GraphType.splitBar,
+        values: data.typesCompetitions,
+      ),
     ];
 
     return buildGridOrList(

@@ -1,5 +1,7 @@
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/models/stats/graph/stat_value.dart';
+import 'package:scorescope/models/stats/graph/time_stat_value.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/day_podium_displayable.dart';
 
@@ -13,6 +15,9 @@ class StatsHabitudesData {
 
   final List<PodiumEntry<DayPodiumDisplayable>> joursLePlusDeMatchs;
 
+  final List<StatValue> typeVisionnage;
+  final List<TimeStatValue> matchsVusParJour;
+
   const StatsHabitudesData({
     required this.mvpsLesPlusVotes,
     required this.moyenneNotes,
@@ -20,5 +25,7 @@ class StatsHabitudesData {
     required this.matchsPlusCommentes,
     required this.matchsPlusReactions,
     required this.joursLePlusDeMatchs,
+    required this.typeVisionnage,
+    required this.matchsVusParJour,
   });
 }

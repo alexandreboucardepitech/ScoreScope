@@ -1,4 +1,5 @@
 import 'package:scorescope/models/equipe.dart';
+import 'package:scorescope/models/stats/graph/stat_value.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 
 class StatsEquipesData {
@@ -11,6 +12,8 @@ class StatsEquipesData {
   final List<PodiumEntry<Equipe>> equipesPlusDeButsMarques;
   final List<PodiumEntry<Equipe>> equipesPlusDeButsEncaisses;
 
+  final List<StatValue> matchsVusParEquipe;
+
   const StatsEquipesData({
     required this.equipesLesPlusVues,
     required this.nbEquipesDifferentes,
@@ -18,5 +21,6 @@ class StatsEquipesData {
     required this.equipesLesPlusVuesPerdre,
     required this.equipesPlusDeButsMarques,
     required this.equipesPlusDeButsEncaisses,
+    required this.matchsVusParEquipe,
   });
 }

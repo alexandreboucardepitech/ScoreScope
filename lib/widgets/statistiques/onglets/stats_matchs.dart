@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/stats_matchs_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
@@ -49,8 +50,16 @@ class StatsMatchsOnglet extends StatelessWidget {
     ];
 
     final graphWidgets = <Widget>[
-      const GraphCard(title: 'Résultats (domicile / nul / extérieur)'),
-      const GraphCard(title: 'Clubs vs Internationaux'),
+      GraphCard(
+        title: 'Résultats (domicile / nul / extérieur)',
+        type: GraphType.splitBar,
+        values: data.pourcentageVictoireDomExt,
+      ),
+      GraphCard(
+        title: 'Clubs vs Internationaux',
+        type: GraphType.splitBar,
+        values: data.pourcentageClubsInternationaux,
+      ),
     ];
 
     return buildGridOrList(

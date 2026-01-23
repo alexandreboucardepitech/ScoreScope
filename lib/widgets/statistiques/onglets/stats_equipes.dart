@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/stats_equipes_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
@@ -55,7 +56,11 @@ class StatsEquipesOnglet extends StatelessWidget {
     ];
 
     final graphWidgets = <Widget>[
-      GraphCard(title: 'Répartition des matchs par équipe'),
+      GraphCard(
+        title: 'Répartition des matchs par équipe',
+        type: GraphType.pie,
+        values: data.matchsVusParEquipe,
+      ),
     ];
 
     return buildGridOrList(

@@ -45,6 +45,7 @@ dependencies:
   shimmer: ^3.0.0
   timeago: ^3.6.0
   intl: ^0.20.2
+  fl_chart: ^0.66.0
 
 dev_dependencies:
   flutter_test:

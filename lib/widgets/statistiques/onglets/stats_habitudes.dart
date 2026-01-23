@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/stats_habitudes_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
@@ -54,8 +55,17 @@ class StatsHabitudesOnglet extends StatelessWidget {
     ];
 
     final graphWidgets = <Widget>[
-      GraphCard(title: 'Types de visionnage'),
-      GraphCard(title: 'Matchs par jour'),
+      GraphCard(
+        title: 'Types de visionnage',
+        type: GraphType.pie,
+        values: data.typeVisionnage,
+        pourcentage: true,
+      ),
+      GraphCard(
+        title: 'Matchs par jour',
+        type: GraphType.timeLine,
+        values: data.matchsVusParJour,
+      ),
     ];
 
     return buildGridOrList(
