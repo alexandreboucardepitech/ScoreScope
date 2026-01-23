@@ -41,109 +41,112 @@ class _PieStatGraphState extends State<PieStatGraph> {
 
     final legendItems = sortedValues.take(3).toList();
 
-    return Row(
-      children: [
-        Expanded(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              PieChart(
-                PieChartData(
-                  startDegreeOffset: -90,
-                  centerSpaceRadius: 24,
-                  sectionsSpace: 2,
-                  pieTouchData: PieTouchData(
-                    touchCallback: (event, response) {
-                      setState(() {
-                        touchedIndex =
-                            response?.touchedSection?.touchedSectionIndex;
-                      });
-                    },
-                  ),
-                  sections: List.generate(widget.values.length, (i) {
-                    final v = widget.values[i];
-                    final percent = v.value / total * 100;
-                    final isTouched = i == touchedIndex;
-                    final color = _getColor(i, v);
-
-                    return PieChartSectionData(
-                      value: v.value.toDouble(),
-                      color: color,
-                      radius: isTouched ? 56 : 48,
-                      title: percent >= 10 ? '${percent.round()}%' : '',
-                      titleStyle: TextStyle(
-                        color: color.computeLuminance() > 0.5
-                            ? ColorPalette.textPrimaryLight
-                            : ColorPalette.textPrimaryDark,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              if (touchedIndex != null &&
-                  touchedIndex! >= 0 &&
-                  touchedIndex! < widget.values.length)
-                Positioned(
-                  top: 0,
-                  child: _Tooltip(
-                    entry: widget.values[touchedIndex!],
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        SizedBox(
-          width: 150,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: legendItems.map((v) {
-              final index = widget.values.indexOf(v);
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: _getColor(index, v),
-                      ),
+    return SizedBox(
+      height: 150,
+      child: Row(
+        children: [
+          Expanded(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PieChart(
+                  PieChartData(
+                    startDegreeOffset: -90,
+                    centerSpaceRadius: 24,
+                    sectionsSpace: 2,
+                    pieTouchData: PieTouchData(
+                      touchCallback: (event, response) {
+                        setState(() {
+                          touchedIndex =
+                              response?.touchedSection?.touchedSectionIndex;
+                        });
+                      },
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        v.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                    sections: List.generate(widget.values.length, (i) {
+                      final v = widget.values[i];
+                      final percent = v.value / total * 100;
+                      final isTouched = i == touchedIndex;
+                      final color = _getColor(i, v);
+
+                      return PieChartSectionData(
+                        value: v.value.toDouble(),
+                        color: color,
+                        radius: isTouched ? 56 : 48,
+                        title: percent >= 10 ? '${percent.round()}%' : '',
+                        titleStyle: TextStyle(
+                          color: color.computeLuminance() > 0.5
+                              ? ColorPalette.textPrimaryLight
+                              : ColorPalette.textPrimaryDark,
                           fontSize: 12,
-                          color: ColorPalette.textPrimary(context),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                if (touchedIndex != null &&
+                    touchedIndex! >= 0 &&
+                    touchedIndex! < widget.values.length)
+                  Positioned(
+                    top: 0,
+                    child: _Tooltip(
+                      entry: widget.values[touchedIndex!],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          SizedBox(
+            width: 150,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: legendItems.map((v) {
+                final index = widget.values.indexOf(v);
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: _getColor(index, v),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      widget.pourcentage
-                          ? '${v.value.toStringAsFixed(0)}%'
-                          : v.value.toStringAsFixed(0),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: ColorPalette.textSecondary(context),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          v.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
+                      const SizedBox(width: 6),
+                      Text(
+                        widget.pourcentage
+                            ? '${v.value.toStringAsFixed(0)}%'
+                            : v.value.toStringAsFixed(0),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: ColorPalette.textSecondary(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

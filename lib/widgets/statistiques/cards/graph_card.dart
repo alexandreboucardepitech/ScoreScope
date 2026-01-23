@@ -24,7 +24,6 @@ class GraphCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 220,
       decoration: BoxDecoration(
         color: ColorPalette.tileBackground(context),
         borderRadius: BorderRadius.circular(16),
@@ -33,6 +32,7 @@ class GraphCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             title,
@@ -42,12 +42,10 @@ class GraphCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: _GraphRenderer(
-              type: type,
-              values: values,
-              pourcentage: pourcentage,
-            ),
+          _GraphRenderer(
+            type: type,
+            values: values,
+            pourcentage: pourcentage,
           ),
         ],
       ),
