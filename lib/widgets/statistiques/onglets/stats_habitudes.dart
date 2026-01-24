@@ -62,9 +62,9 @@ class StatsHabitudesOnglet extends StatelessWidget {
         pourcentage: true,
       ),
       GraphCard(
-        title: 'Matchs par jour',
+        title: 'Nombre de matchs vus par mois',
         type: GraphType.timeLine,
-        values: data.matchsVusParJour,
+        values: data.matchsVusParMois,
       ),
     ];
 

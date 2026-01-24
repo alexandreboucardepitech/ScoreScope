@@ -41,7 +41,7 @@ class GraphCard extends StatelessWidget {
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 6),
           _GraphRenderer(
             type: type,
             values: values,

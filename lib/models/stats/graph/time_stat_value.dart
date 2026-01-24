@@ -1,9 +1,11 @@
 class TimeStatValue {
-  final DateTime date;
+  final DateTime period;
   final num value;
+  final int? delta;
 
   const TimeStatValue({
-    required this.date,
+    required this.period,
     required this.value,
+    this.delta,
   });
 }

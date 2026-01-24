@@ -16,7 +16,7 @@ class StatsHabitudesData {
   final List<PodiumEntry<DayPodiumDisplayable>> joursLePlusDeMatchs;
 
   final List<StatValue> typeVisionnage;
-  final List<TimeStatValue> matchsVusParJour;
+  final List<TimeStatValue> matchsVusParMois;
 
   const StatsHabitudesData({
     required this.mvpsLesPlusVotes,
@@ -26,6 +26,6 @@ class StatsHabitudesData {
     required this.matchsPlusReactions,
     required this.joursLePlusDeMatchs,
     required this.typeVisionnage,
-    required this.matchsVusParJour,
+    required this.matchsVusParMois,
   });
 }

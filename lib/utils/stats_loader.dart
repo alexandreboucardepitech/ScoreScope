@@ -553,50 +553,66 @@ class StatsLoader {
     ];
   }
 
-  static Future<List<TimeStatValue>> getMatchsVusParJour({
+  static Future<List<TimeStatValue>> getMatchsVusParMois({
     required List<MatchUserData> matchsVusUser,
   }) async {
     if (matchsVusUser.isEmpty) {
       return [];
     }
 
-    // 1️⃣ Normaliser les dates + compter les matchs par jour
-    final Map<DateTime, int> matchsParJour = {};
+    final Map<DateTime, int> matchsParMois = {};
 
     for (final match in matchsVusUser) {
       final watchedAt = match.watchedAt;
       if (watchedAt == null) continue;
 
-      final day = DateTime(
+      final monthKey = DateTime(
         watchedAt.year,
         watchedAt.month,
-        watchedAt.day,
+        1,
       );
 
-      matchsParJour[day] = (matchsParJour[day] ?? 0) + 1;
+      matchsParMois[monthKey] = (matchsParMois[monthKey] ?? 0) + 1;
     }
 
-    if (matchsParJour.isEmpty) {
+    if (matchsParMois.isEmpty) {
       return [];
     }
 
-    final dates = matchsParJour.keys.toList()..sort();
+    final sortedMonths = matchsParMois.keys.toList()..sort();
 
-    final DateTime firstDay = dates.first;
-    final DateTime lastDay = dates.last;
+    final firstMonth = DateTime(
+      sortedMonths.first.month > 1
+          ? sortedMonths.first.year
+          : sortedMonths.first.year - 1,
+      sortedMonths.first.month > 1 ? sortedMonths.first.month - 1 : 12,
+      1,
+    );
+    final lastMonth = sortedMonths.last;
 
     final List<TimeStatValue> result = [];
 
-    DateTime currentDay = firstDay;
-    while (!currentDay.isAfter(lastDay)) {
+    DateTime currentMonth = firstMonth;
+    int? previousValue;
+
+    while (!currentMonth.isAfter(lastMonth)) {
+      final value = matchsParMois[currentMonth] ?? 0;
+
       result.add(
         TimeStatValue(
-          date: currentDay,
-          value: matchsParJour[currentDay] ?? 0,
+          period: currentMonth,
+          value: value,
+          delta: previousValue,
         ),
       );
 
-      currentDay = currentDay.add(const Duration(days: 1));
+      previousValue = value;
+
+      currentMonth = DateTime(
+        currentMonth.year,
+        currentMonth.month + 1,
+        1,
+      );
     }
 
     return result;

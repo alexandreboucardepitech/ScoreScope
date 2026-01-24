@@ -203,8 +203,8 @@ class WebStatsRepository implements IStatsRepository {
           StatsLoader.getJoursAvecLePlusDeMatchs(matchsVusUser: matchsVusUser),
       typeVisionnage:
           await StatsLoader.getTypeVisionnage(matchsVusUser: matchsVusUser),
-      matchsVusParJour:
-          await StatsLoader.getMatchsVusParJour(matchsVusUser: matchsVusUser),
+      matchsVusParMois:
+          await StatsLoader.getMatchsVusParMois(matchsVusUser: matchsVusUser),
     );
   }
 }
