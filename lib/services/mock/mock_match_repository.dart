@@ -187,7 +187,12 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> noterMatch(String matchId, String userId, int? note) async {
+  Future<void> noterMatch(
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    int? note,
+  ) async {
     final idx = _matches.indexWhere((match) => match.id == matchId);
     if (idx < 0) return;
 
@@ -201,14 +206,19 @@ class MockMatchRepository implements IMatchRepository {
     }
 
     // mettre à jour le mock AppUser.matchsUserData
-    await MockAppUserRepository().setNoteForMatch(userId, matchId, note);
+    await MockAppUserRepository()
+        .setNoteForMatch(userId, matchId, matchDate, note);
 
     await Future.delayed(const Duration(milliseconds: 50));
   }
 
   @override
   Future<void> voterPourMVP(
-      String matchId, String userId, String? joueurId) async {
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    String? joueurId,
+  ) async {
     final idx = _matches.indexWhere((match) => match.id == matchId);
     if (idx < 0) return;
 
@@ -220,7 +230,7 @@ class MockMatchRepository implements IMatchRepository {
       match.mvpVotes.remove(userId);
     }
 
-    await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, joueurId);
+    await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, matchDate, joueurId);
 
     await Future.delayed(const Duration(milliseconds: 50));
   }
@@ -235,7 +245,7 @@ class MockMatchRepository implements IMatchRepository {
     match.mvpVotes.remove(userId);
 
     // supprimer le mvpVoteId dans l'user data (en le mettant à null)
-    await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, null);
+    await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, match.date, null);
 
     await Future.delayed(const Duration(milliseconds: 50));
   }

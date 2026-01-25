@@ -87,13 +87,13 @@ class MatchModel implements PodiumDisplayable {
   }) async {
     if (note != null) {
       notesDuMatch[userId] = note;
-      RepositoryProvider.matchRepository.noterMatch(id, userId, note);
+      RepositoryProvider.matchRepository.noterMatch(id, userId, date, note);
     }
   }
 
   Future<void> enleverNote({required String userId}) async {
     notesDuMatch.remove(userId);
-    RepositoryProvider.matchRepository.noterMatch(id, userId, null);
+    RepositoryProvider.matchRepository.noterMatch(id, userId, date, null);
   }
 
   ///////////////////////// MVP /////////////////////////
@@ -104,7 +104,8 @@ class MatchModel implements PodiumDisplayable {
   }) async {
     if (joueurId != null) {
       mvpVotes[userId] = joueurId;
-      RepositoryProvider.matchRepository.voterPourMVP(id, userId, joueurId);
+      RepositoryProvider.matchRepository
+          .voterPourMVP(id, userId, date, joueurId);
     }
   }
 

@@ -126,7 +126,7 @@ class _StatsViewState extends State<StatsView> {
                 userId: user.uid, onlyPublic: _onlyPublicMatches);
 
         for (MatchUserData match in userMatches) {
-          final matchDate = match.watchedAt;
+          final matchDate = match.matchDate;
           if (matchDate != null) {
             final saison =
                 matchDate.month >= 8 ? matchDate.year : matchDate.year - 1;

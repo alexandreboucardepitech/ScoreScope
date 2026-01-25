@@ -469,12 +469,12 @@ class StatsLoader {
     final Map<DayPodiumDisplayable, int> matchsParJour = {};
 
     for (final matchUserData in matchsVusUser) {
-      final watchedAt = matchUserData.watchedAt;
-      if (watchedAt == null) continue;
+      final matchDate = matchUserData.matchDate;
+      if (matchDate == null) continue;
       final day = DateTime(
-        watchedAt.year,
-        watchedAt.month,
-        watchedAt.day,
+        matchDate.year,
+        matchDate.month,
+        matchDate.day,
       );
       final dayDisplayable = DayPodiumDisplayable(day);
 
@@ -563,12 +563,12 @@ class StatsLoader {
     final Map<DateTime, int> matchsParMois = {};
 
     for (final match in matchsVusUser) {
-      final watchedAt = match.watchedAt;
-      if (watchedAt == null) continue;
+      final matchDate = match.matchDate;
+      if (matchDate == null) continue;
 
       final monthKey = DateTime(
-        watchedAt.year,
-        watchedAt.month,
+        matchDate.year,
+        matchDate.month,
         1,
       );
 

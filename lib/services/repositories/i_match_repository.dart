@@ -8,7 +8,7 @@ abstract class IMatchRepository {
   Future<void> addMatch(MatchModel match);
   Future<void> updateMatch(MatchModel match);
   Future<void> deleteMatch(MatchModel match);
-  Future<void> noterMatch(String matchId, String userId, int? note);
-  Future<void> voterPourMVP(String matchId, String userId, String? joueurId);
+  Future<void> noterMatch(String matchId, String userId, DateTime matchDate, int? note);
+  Future<void> voterPourMVP(String matchId, String userId, DateTime matchDate, String? joueurId);
   Future<void> enleverVote(String matchId, String userId);
 }

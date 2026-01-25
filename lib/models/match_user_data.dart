@@ -11,6 +11,7 @@ class MatchUserData {
   final VisionnageMatch visionnageMatch;
   final bool private;
   final DateTime? watchedAt;
+  final DateTime? matchDate;
   late List<Commentaire> comments;
   late List<Reaction> reactions;
 
@@ -22,6 +23,7 @@ class MatchUserData {
     this.visionnageMatch = VisionnageMatch.tele,
     this.private = false,
     this.watchedAt,
+    this.matchDate,
     this.comments = const [],
     this.reactions = const [],
   });
@@ -54,6 +56,7 @@ class MatchUserData {
       'visionnageMatch': visionnageMatch,
       'private': private,
       if (watchedAt != null) 'watchedAt': watchedAt,
+      if (matchDate != null) 'matchDate': matchDate,
       'comments': comments,
       'reactions': reactions,
     };
@@ -118,6 +121,11 @@ class MatchUserData {
           ? (json['watchedAt'] as Timestamp).toDate()
           : (json['watchedAt'] is DateTime
               ? json['watchedAt'] as DateTime
+              : null),
+      matchDate: json['matchDate'] is Timestamp
+          ? (json['matchDate'] as Timestamp).toDate()
+          : (json['matchDate'] is DateTime
+              ? json['matchDate'] as DateTime
               : null),
       comments: parseComments(json['comments']),
       reactions: parseReactions(json['reactions']),

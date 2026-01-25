@@ -98,8 +98,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       AppUser? currentUser =
           await RepositoryProvider.userRepository.getCurrentUser();
       if (currentUser != null) {
-        await RepositoryProvider.userRepository
-            .matchFavori(_currentMatch.id, currentUser.uid, newFavori);
+        await RepositoryProvider.userRepository.matchFavori(
+          _currentMatch.id,
+          currentUser.uid,
+          _currentMatch.date,
+          newFavori,
+        );
       }
       if (!mounted) return;
       setState(() {
@@ -286,8 +290,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           await RepositoryProvider.userRepository.getCurrentUser();
       if (currentUser == null) throw Exception('Utilisateur non connecté');
 
-      await RepositoryProvider.userRepository
-          .setMatchPrivacy(_currentMatch.id, currentUser.uid, makePrivate);
+      await RepositoryProvider.userRepository.setMatchPrivacy(
+        _currentMatch.id,
+        currentUser.uid,
+        _currentMatch.date,
+        makePrivate,
+      );
 
       if (!mounted) return;
       setState(() {
@@ -296,9 +304,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(makePrivate
-              ? 'Match rendu privé'
-              : 'Match rendu public'),
+          content:
+              Text(makePrivate ? 'Match rendu privé' : 'Match rendu public'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -402,8 +409,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                     ),
                   )
                 : PopupMenuButton<String>(
-                    tooltip:
-                        _isPrivate ? 'Match privé' : 'Match public',
+                    tooltip: _isPrivate ? 'Match privé' : 'Match public',
                     icon: Icon(_isPrivate ? Icons.lock : Icons.public,
                         color: ColorPalette.accent(context)),
                     onSelected: (value) => _onPrivacyMenuSelected(value),

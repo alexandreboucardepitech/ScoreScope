@@ -50,7 +50,8 @@ class MockAppUserRepository implements IAppUserRepository {
             note: 8,
             visionnageMatch: VisionnageMatch.stade,
             private: false,
-            watchedAt: DateTime.parse('2025-11-01T15:00:00Z'),
+            watchedAt: DateTime.now().subtract(const Duration(minutes: 30)),
+            matchDate: DateTime.now().subtract(const Duration(hours: 3)),
           ),
           MatchUserData(
             matchId: "2",
@@ -79,7 +80,8 @@ class MockAppUserRepository implements IAppUserRepository {
             favourite: true,
             private: false,
             visionnageMatch: VisionnageMatch.tele,
-            watchedAt: DateTime.parse('2025-11-03T15:00:00Z'),
+            watchedAt: DateTime.now().subtract(const Duration(minutes: 45)),
+            matchDate: DateTime.now().subtract(const Duration(hours: 3)),
           ),
         ],
         photoUrl: null,
@@ -101,7 +103,8 @@ class MockAppUserRepository implements IAppUserRepository {
             private: false,
             favourite: false,
             visionnageMatch: VisionnageMatch.bar,
-            watchedAt: DateTime.parse('2025-11-04T20:00:00Z'),
+            watchedAt: DateTime.now(),
+            matchDate: DateTime.now(),
           ),
         ],
         photoUrl: null,
@@ -246,7 +249,8 @@ class MockAppUserRepository implements IAppUserRepository {
     return found;
   }
 
-  Future<void> setNoteForMatch(String userId, String matchId, int? note) async {
+  Future<void> setNoteForMatch(
+      String userId, String matchId, DateTime matchDate, int? note) async {
     await _seedingFuture;
     final userIdx = _users.indexWhere((u) => u.uid == userId);
     if (userIdx < 0) return;
@@ -270,12 +274,15 @@ class MockAppUserRepository implements IAppUserRepository {
     } else {
       updated.add(
         MatchUserData(
-            matchId: matchId,
-            favourite: false,
-            mvpVoteId: null,
-            note: note,
-            visionnageMatch: VisionnageMatch.tele,
-            private: false),
+          matchId: matchId,
+          favourite: false,
+          mvpVoteId: null,
+          note: note,
+          visionnageMatch: VisionnageMatch.tele,
+          private: false,
+          matchDate: matchDate,
+          watchedAt: DateTime.now(),
+        ),
       );
     }
 
@@ -296,7 +303,11 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   Future<void> setMvpVoteForMatch(
-      String userId, String matchId, String? joueurId) async {
+    String userId,
+    String matchId,
+    DateTime matchDate,
+    String? joueurId,
+  ) async {
     await _seedingFuture;
     final userIdx = _users.indexWhere((u) => u.uid == userId);
     if (userIdx < 0) return;
@@ -326,6 +337,8 @@ class MockAppUserRepository implements IAppUserRepository {
           note: null,
           visionnageMatch: VisionnageMatch.tele,
           private: false,
+          matchDate: matchDate,
+          watchedAt: DateTime.now(),
         ),
       );
     }
@@ -347,7 +360,12 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<void> matchFavori(String userId, String matchId, bool favori) async {
+  Future<void> matchFavori(
+    String userId,
+    String matchId,
+    DateTime matchDate,
+    bool favori,
+  ) async {
     await _seedingFuture;
     final userIdx = _users.indexWhere((u) => u.uid == userId);
     if (userIdx < 0) return;
@@ -367,6 +385,10 @@ class MockAppUserRepository implements IAppUserRepository {
         note: old.note,
         visionnageMatch: old.visionnageMatch,
         private: old.private,
+        comments: old.comments,
+        reactions: old.reactions,
+        matchDate: old.matchDate,
+        watchedAt: old.watchedAt,
       );
     } else {
       updated.add(
@@ -377,6 +399,8 @@ class MockAppUserRepository implements IAppUserRepository {
           note: null,
           visionnageMatch: VisionnageMatch.tele,
           private: false,
+          matchDate: matchDate,
+          watchedAt: DateTime.now(),
         ),
       );
     }
@@ -418,7 +442,11 @@ class MockAppUserRepository implements IAppUserRepository {
 
   @override
   Future<void> setVisionnageMatch(
-      String matchId, String userId, VisionnageMatch visionnageMatch) async {
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    VisionnageMatch visionnageMatch,
+  ) async {
     await _seedingFuture;
     final userIdx = _users.indexWhere((u) => u.uid == userId);
     if (userIdx < 0) return;
@@ -438,6 +466,10 @@ class MockAppUserRepository implements IAppUserRepository {
         note: old.note,
         visionnageMatch: visionnageMatch,
         private: old.private,
+        comments: old.comments,
+        reactions: old.reactions,
+        matchDate: old.matchDate,
+        watchedAt: old.watchedAt,
       );
     } else {
       updated.add(
@@ -448,6 +480,8 @@ class MockAppUserRepository implements IAppUserRepository {
           note: null,
           visionnageMatch: visionnageMatch,
           private: false,
+          matchDate: matchDate,
+          watchedAt: DateTime.now(),
         ),
       );
     }
@@ -482,7 +516,11 @@ class MockAppUserRepository implements IAppUserRepository {
 
   @override
   Future<void> setMatchPrivacy(
-      String matchId, String userId, bool privacy) async {
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    bool privacy,
+  ) async {
     await _seedingFuture;
     final userIdx = _users.indexWhere((u) => u.uid == userId);
     if (userIdx < 0) return;
@@ -502,6 +540,10 @@ class MockAppUserRepository implements IAppUserRepository {
         note: old.note,
         visionnageMatch: old.visionnageMatch,
         private: privacy,
+        comments: old.comments,
+        reactions: old.reactions,
+        matchDate: old.matchDate,
+        watchedAt: old.watchedAt,
       );
     } else {
       updated.add(
@@ -512,6 +554,8 @@ class MockAppUserRepository implements IAppUserRepository {
           note: null,
           visionnageMatch: VisionnageMatch.tele,
           private: privacy,
+          matchDate: matchDate,
+          watchedAt: DateTime.now(),
         ),
       );
     }

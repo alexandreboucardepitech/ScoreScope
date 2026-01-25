@@ -164,7 +164,7 @@ class _InfosTabState extends State<InfosTab> {
                     key: ValueKey(
                       'visionnage_${widget.match.id}_${widget.userDataVersion}',
                     ),
-                    matchId: widget.match.id,
+                    match: widget.match,
                   ),
                 ),
                 const SizedBox(width: 6),

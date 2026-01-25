@@ -103,7 +103,8 @@ class WebMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> noterMatch(String matchId, String userId, int? note) async {
+  Future<void> noterMatch(
+      String matchId, String userId, DateTime matchDate, int? note) async {
     await _collection.doc(matchId).collection('notes').doc(userId).set({
       'userId': userId,
       'note': note,
@@ -129,13 +130,14 @@ class WebMatchRepository implements IMatchRepository {
         'favourite': false,
         'private': false,
         'watchedAt': DateTime.now().toUtc(),
+        'matchDate': matchDate,
       });
     }
   }
 
   @override
-  Future<void> voterPourMVP(
-      String matchId, String userId, String? joueurId) async {
+  Future<void> voterPourMVP(String matchId, String userId, DateTime matchDate,
+      String? joueurId) async {
     await _collection.doc(matchId).collection('mvpVotes').doc(userId).set({
       'userId': userId,
       'joueurId': joueurId,
@@ -161,6 +163,7 @@ class WebMatchRepository implements IMatchRepository {
         'favourite': false,
         'private': false,
         'watchedAt': DateTime.now().toUtc(),
+        'matchDate': matchDate,
       });
     }
   }

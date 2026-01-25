@@ -16,12 +16,14 @@ abstract class IAppUserRepository {
   Future<int> getUserNbMatchsRegardesParEquipe(
       String userId, String equipeId, bool onlyPublic);
   Future<List<String>> getUserMatchsFavorisId(String userId, bool onlyPublic);
-  Future<void> matchFavori(String matchId, String userId, bool favori);
+  Future<void> matchFavori(
+      String matchId, String userId, DateTime matchDate, bool favori);
   Future<bool> isMatchFavori(String userId, String matchId);
-  Future<void> setVisionnageMatch(
-      String matchId, String userId, VisionnageMatch visionnageMatch);
+  Future<void> setVisionnageMatch(String matchId, String userId,
+      DateTime matchDate, VisionnageMatch visionnageMatch);
   Future<VisionnageMatch> getVisionnageMatch(String userId, String matchId);
-  Future<void> setMatchPrivacy(String matchId, String userId, bool privacy);
+  Future<void> setMatchPrivacy(
+      String matchId, String userId, DateTime matchDate, bool privacy);
   Future<bool> getMatchPrivacy(String userId, String matchId);
   Future<AppUser?> getCurrentUser();
   Future<List<AppUser>> searchUsersByPrefix(String prefix, {int limit = 50});

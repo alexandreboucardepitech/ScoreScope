@@ -48,11 +48,11 @@ class WebAppUserRepository implements IAppUserRepository {
             .doc(userId)
             .collection('matchUserData')
             .where('private', isEqualTo: false)
-            .where('watchedAt',
+            .where('matchDate',
                 isGreaterThanOrEqualTo: dateRange != null
                     ? Timestamp.fromDate(dateRange.start)
                     : null)
-            .where('watchedAt',
+            .where('matchDate',
                 isLessThanOrEqualTo: dateRange != null
                     ? Timestamp.fromDate(dateRange.end)
                     : null)
@@ -60,11 +60,11 @@ class WebAppUserRepository implements IAppUserRepository {
         : await _usersCollection
             .doc(userId)
             .collection('matchUserData')
-            .where('watchedAt',
+            .where('matchDate',
                 isGreaterThanOrEqualTo: dateRange != null
                     ? Timestamp.fromDate(dateRange.start)
                     : null)
-            .where('watchedAt',
+            .where('matchDate',
                 isLessThanOrEqualTo: dateRange != null
                     ? Timestamp.fromDate(dateRange.end)
                     : null)
@@ -203,7 +203,7 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<void> matchFavori(String matchId, String userId, bool favori) async {
+  Future<void> matchFavori(String matchId, String userId, DateTime matchDate, bool favori) async {
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -224,6 +224,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'favourite': favori,
         'private': false,
         'watchedAt': DateTime.now().toUtc(),
+        'matchDate': matchDate,
       });
     }
   }
@@ -245,7 +246,7 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<void> setVisionnageMatch(
-      String matchId, String userId, VisionnageMatch visionnageMatch) async {
+      String matchId, String userId, DateTime matchDate, VisionnageMatch visionnageMatch) async {
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -267,6 +268,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'visionnageMatch': visionnageMatch.label,
         'private': false,
         'watchedAt': DateTime.now().toUtc(),
+        'matchDate': matchDate,
       });
     }
   }
@@ -306,7 +308,7 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<void> setMatchPrivacy(
-      String matchId, String userId, bool privacy) async {
+      String matchId, String userId, DateTime matchDate, bool privacy) async {
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -327,6 +329,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'favourite': false,
         'private': privacy,
         'watchedAt': DateTime.now().toUtc(),
+        'matchDate': matchDate,
       });
     }
   }
@@ -356,11 +359,11 @@ class WebAppUserRepository implements IAppUserRepository {
             .doc(userId)
             .collection('matchUserData')
             .where('private', isEqualTo: false)
-            .where('watchedAt',
+            .where('matchDate',
                 isGreaterThanOrEqualTo: dateRange != null
                     ? Timestamp.fromDate(dateRange.start)
                     : null)
-            .where('watchedAt',
+            .where('matchDate',
                 isLessThanOrEqualTo: dateRange != null
                     ? Timestamp.fromDate(dateRange.end)
                     : null)
@@ -368,11 +371,11 @@ class WebAppUserRepository implements IAppUserRepository {
         : await _usersCollection
             .doc(userId)
             .collection('matchUserData')
-            .where('watchedAt',
+            .where('matchDate',
                 isGreaterThanOrEqualTo: dateRange != null
                     ? Timestamp.fromDate(dateRange.start)
                     : null)
-            .where('watchedAt',
+            .where('matchDate',
                 isLessThanOrEqualTo: dateRange != null
                     ? Timestamp.fromDate(dateRange.end)
                     : null)

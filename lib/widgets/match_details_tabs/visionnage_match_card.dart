@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class VisionnageMatchCard extends StatefulWidget {
-  final String matchId;
+  final MatchModel match;
   final ValueChanged<VisionnageMatch>? onSelected;
 
   const VisionnageMatchCard({
     super.key,
-    required this.matchId,
+    required this.match,
     this.onSelected,
   });
 
@@ -39,8 +40,8 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
   @override
   void didUpdateWidget(covariant VisionnageMatchCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Si le matchId change, réinitialiser l'affichage et recharger la valeur depuis la BDD
-    if (widget.matchId != oldWidget.matchId) {
+    // Si le match.id change, réinitialiser l'affichage et recharger la valeur depuis la BDD
+    if (widget.match.id != oldWidget.match.id) {
       if (!mounted) return;
       setState(() {
         _loading = true;
@@ -71,7 +72,7 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
       }
 
       VisionnageMatch? res = await RepositoryProvider.userRepository
-          .getVisionnageMatch(currentUser.uid, widget.matchId);
+          .getVisionnageMatch(currentUser.uid, widget.match.id);
 
       if (!mounted) return;
       setState(() {
@@ -114,8 +115,9 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
       }
 
       await RepositoryProvider.userRepository.setVisionnageMatch(
-        widget.matchId,
+        widget.match.id,
         currentUser.uid,
+        widget.match.date,
         choix,
       );
 
