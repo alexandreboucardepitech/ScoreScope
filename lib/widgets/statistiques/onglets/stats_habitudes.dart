@@ -25,8 +25,8 @@ class StatsHabitudesOnglet extends StatelessWidget {
       ),
       buildSimpleStatCardOrListTile(
           showCards: showCards,
-          title: 'Note moyenne',
-          value: data.moyenneNotes.toString(),
+          title: 'Moy. des notes données',
+          value: data.moyenneNotes.toStringAsFixed(1),
           icon: Icons.star),
       buildPodiumCardOrListTile(
         showCards: showCards,

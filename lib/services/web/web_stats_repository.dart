@@ -12,8 +12,9 @@ import 'package:scorescope/models/stats/stats_habitudes_data.dart';
 import 'package:scorescope/models/stats/stats_joueurs_data.dart';
 import 'package:scorescope/models/stats/stats_matchs_data.dart';
 import 'package:scorescope/services/repositories/i_stats_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/web_app_user_repository.dart';
-import 'package:scorescope/utils/stats_loader.dart';
+import 'package:scorescope/utils/stats/stats_loader.dart';
 
 class WebStatsRepository implements IStatsRepository {
   @override
@@ -101,6 +102,15 @@ class WebStatsRepository implements IStatsRepository {
     Map<Equipe, int> equipesDifferentes =
         await StatsLoader.getEquipesLesPlusVues(matchsVusModels);
 
+    final matchsVusParEquipe =
+        await StatsLoader.getStatValueListFromMap<Equipe>(
+      dataMap: equipesDifferentes,
+      getLabel: (Equipe e) => e.nom,
+      getColor: (Equipe e) async {
+        return e.couleurPrincipale;
+      },
+    );
+
     return StatsEquipesData(
       equipesLesPlusVues:
           StatsLoader.getPodiumFromMap<Equipe>(equipesDifferentes),
@@ -113,11 +123,7 @@ class WebStatsRepository implements IStatsRepository {
           StatsLoader.getEquipesLesPlusVuesMarquer(matchsVusModels),
       equipesPlusDeButsEncaisses:
           StatsLoader.getEquipesLesPlusVuesEncaisser(matchsVusModels),
-      matchsVusParEquipe: StatsLoader.getStatValueListFromMap<Equipe>(
-          dataMap: equipesDifferentes,
-          getLabel: (Equipe e) => e.nom,
-          getColor: (Equipe e) => e.couleurPrincipale,
-          getImage: (Equipe e) => e.logoPath),
+      matchsVusParEquipe: matchsVusParEquipe,
     );
   }
 
@@ -144,14 +150,25 @@ class WebStatsRepository implements IStatsRepository {
     Map<Joueur, int> meilleursButeursUnMatch =
         await StatsLoader.getMeilleursButeursUnMatch(matchsVusModels);
 
+    final butsParJoueur = await StatsLoader.getStatValueListFromMap<Joueur>(
+      dataMap: buteursDifferents,
+      getLabel: (Joueur e) => e.shortName,
+      getColor: (Joueur e) async {
+        final equipe = await RepositoryProvider.equipeRepository
+            .fetchEquipeById(e.equipeId);
+        return equipe?.couleurPrincipale;
+      },
+    );
+
     return StatsJoueursData(
-        meilleursButeurs:
-            StatsLoader.getPodiumFromMap<Joueur>(buteursDifferents),
-        titularisations: StatsLoader.getPodiumFromMap<Joueur>(titularisations),
-        mvpsLesPlusVotes:
-            await StatsLoader.getMvpsLesPlusVotes(matchsVusUser: matchsVusUser),
-        meilleursButeursUnMatch:
-            StatsLoader.getPodiumFromMap<Joueur>(meilleursButeursUnMatch));
+      meilleursButeurs: StatsLoader.getPodiumFromMap<Joueur>(buteursDifferents),
+      titularisations: StatsLoader.getPodiumFromMap<Joueur>(titularisations),
+      mvpsLesPlusVotes:
+          await StatsLoader.getMvpsLesPlusVotes(matchsVusUser: matchsVusUser),
+      meilleursButeursUnMatch:
+          StatsLoader.getPodiumFromMap<Joueur>(meilleursButeursUnMatch),
+      butsParJoueur: butsParJoueur,
+    );
   }
 
   @override

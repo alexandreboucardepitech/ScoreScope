@@ -106,20 +106,21 @@ class StatsLoader {
     return podiumEntries;
   }
 
-  static List<StatValue> getStatValueListFromMap<T>({
+  static Future<List<StatValue>> getStatValueListFromMap<T>({
     required Map<T, int> dataMap,
     required String Function(T) getLabel,
-    required String? Function(T) getColor,
-    required String? Function(T) getImage,
-  }) {
-    final statValues = dataMap.entries
-        .map((entry) => StatValue(
-              label: getLabel(entry.key),
-              value: entry.value,
-              color: getColor(entry.key),
-              image: getImage(entry.key),
-            ))
-        .toList();
+    required Future<String?> Function(T) getColor,
+  }) async {
+    final statValues = <StatValue>[];
+
+    for (final entry in dataMap.entries) {
+      final color = await getColor(entry.key);
+      statValues.add(StatValue(
+        label: getLabel(entry.key),
+        value: entry.value,
+        color: color,
+      ));
+    }
 
     statValues.sort((a, b) => b.value.compareTo(a.value));
     return statValues;
@@ -512,7 +513,6 @@ class StatsLoader {
       return StatValue(
         label: competition.nom,
         value: percentage,
-        image: competition.logoUrl,
       );
     }).toList();
 

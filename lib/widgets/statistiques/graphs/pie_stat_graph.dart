@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/stats/graph/stat_value.dart';
+import 'package:scorescope/utils/stats/aggregate_small_values.dart';
 import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
 import 'package:scorescope/utils/ui/stats_color_palette.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
@@ -36,10 +37,9 @@ class _PieStatGraphState extends State<PieStatGraph> {
 
   @override
   Widget build(BuildContext context) {
-    final sortedValues = [...widget.values]
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final values = aggregateSmallValues(widget.values);
 
-    final legendItems = sortedValues.take(3).toList();
+    final legendItems = values.take(3).toList();
 
     return SizedBox(
       height: 150,
@@ -62,8 +62,8 @@ class _PieStatGraphState extends State<PieStatGraph> {
                         });
                       },
                     ),
-                    sections: List.generate(widget.values.length, (i) {
-                      final v = widget.values[i];
+                    sections: List.generate(values.length, (i) {
+                      final v = values[i];
                       final percent = v.value / total * 100;
                       final isTouched = i == touchedIndex;
                       final color = _getColor(i, v);
@@ -86,11 +86,11 @@ class _PieStatGraphState extends State<PieStatGraph> {
                 ),
                 if (touchedIndex != null &&
                     touchedIndex! >= 0 &&
-                    touchedIndex! < widget.values.length)
+                    touchedIndex! < values.length)
                   Positioned(
                     top: 0,
                     child: _Tooltip(
-                      entry: widget.values[touchedIndex!],
+                      entry: values[touchedIndex!],
                     ),
                   ),
               ],
@@ -103,7 +103,7 @@ class _PieStatGraphState extends State<PieStatGraph> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: legendItems.map((v) {
-                final index = widget.values.indexOf(v);
+                final index = values.indexOf(v);
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
@@ -173,7 +173,7 @@ class _Tooltip extends StatelessWidget {
           ],
         ),
         child: Text(
-          '${entry.label} : ${entry.value.toStringAsFixed(2)}',
+          '${entry.label} : ${entry.value.toInt()}', // Pour l'instant on laisse en int
           style: TextStyle(
             fontSize: 12,
             color: ColorPalette.textPrimary(context),

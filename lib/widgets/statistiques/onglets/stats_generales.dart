@@ -19,13 +19,13 @@ class StatsGeneralesOnglet extends StatelessWidget {
         showCards: showCards,
         title: 'Matchs vus',
         value: data.matchsVus.toString(),
-        icon: Icons.sports_soccer,
+        icon: Icons.sports,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
         title: 'Buts vus',
         value: data.butsVus.toString(),
-        icon: Icons.sports,
+        icon: Icons.sports_soccer,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
@@ -55,7 +55,7 @@ class StatsGeneralesOnglet extends StatelessWidget {
         showCards: showCards,
         title: 'Équipes différentes vues',
         value: data.nbEquipesDifferentes.toString(),
-        icon: Icons.groups,
+        icon: Icons.shield,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
@@ -67,7 +67,7 @@ class StatsGeneralesOnglet extends StatelessWidget {
         showCards: showCards,
         title: 'Moy. buts / match',
         value: data.moyenneButsParMatch.toStringAsFixed(1),
-        icon: Icons.bar_chart,
+        icon: Icons.show_chart,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,

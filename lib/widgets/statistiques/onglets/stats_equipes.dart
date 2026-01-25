@@ -17,17 +17,17 @@ class StatsEquipesOnglet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statsWidgets = <Widget>[
+      buildSimpleStatCardOrListTile(
+        showCards: showCards,
+        title: 'Équipes différentes vues',
+        value: data.nbEquipesDifferentes.toString(),
+        icon: Icons.shield,
+      ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Équipes les plus vues',
         items: data.equipesLesPlusVues,
         emptyStateText: 'Aucune équipe',
-      ),
-      buildSimpleStatCardOrListTile(
-        showCards: showCards,
-        title: 'Équipes différentes vues',
-        value: data.nbEquipesDifferentes.toString(),
-        icon: Icons.groups,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,

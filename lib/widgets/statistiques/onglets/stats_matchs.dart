@@ -27,7 +27,7 @@ class StatsMatchsOnglet extends StatelessWidget {
         showCards: showCards,
         title: 'Moy. buts / match',
         value: data.moyenneButsParMatch.toStringAsFixed(1),
-        icon: Icons.bar_chart,
+        icon: Icons.show_chart,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
@@ -43,9 +43,9 @@ class StatsMatchsOnglet extends StatelessWidget {
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Diff. buts moyenne',
+        title: 'Moyenne buts / match',
         value: data.moyenneDiffButsParMatch.toStringAsFixed(1),
-        icon: Icons.compare_arrows,
+        icon: Icons.balance,
       ),
     ];
 
