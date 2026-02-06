@@ -1,6 +1,6 @@
-import 'package:scorescope/models/util/podium_displayable.dart';
+import 'package:scorescope/models/util/basic_podium_displayable.dart';
 
-class Equipe implements PodiumDisplayable {
+class Equipe extends BasicPodiumDisplayable {
   final String id;
   final String nom;
   final String? nomCourt;
@@ -19,7 +19,7 @@ class Equipe implements PodiumDisplayable {
       this.couleurSecondaire});
 
   @override
-  String get displayLabel => nom;
+  String get displayLabel => nomCourt ?? nom;
 
   @override
   String? get displayImage => logoPath;

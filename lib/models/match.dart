@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/models/util/basic_podium_displayable.dart';
+import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/ui/Color_palette.dart';
 
 import 'equipe.dart';
 import 'but.dart';
@@ -57,11 +61,279 @@ class MatchModel implements PodiumDisplayable {
   bool get isScheduled => status == MatchStatus.scheduled;
 
   @override
-  String get displayLabel =>
-      '${equipeDomicile.code} $scoreEquipeDomicile - $scoreEquipeExterieur ${equipeExterieur.code}';
+  Widget buildPodiumCard({
+    required BuildContext context,
+    required PodiumContext podium,
+  }) {
+    final isFirst = podium.isFirst;
+
+    final logoSize = isFirst ? 32.0 : 28.0;
+    final scoreStyle = TextStyle(
+      fontSize: isFirst ? 18 : 16,
+      fontWeight: FontWeight.bold,
+    );
+
+    if (isFirst) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          equipeDomicile.logoPath != null
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(equipeDomicile.logoPath!,
+                        width: logoSize, height: logoSize),
+                    if (equipeDomicile.code != null)
+                      Text(
+                        equipeDomicile.code!,
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                          fontSize: 10,
+                        ),
+                      ),
+                  ],
+                )
+              : Text(
+                  equipeDomicile.code ??
+                      equipeDomicile.nomCourt ??
+                      equipeDomicile.nom,
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                  ),
+                ),
+          Text('$scoreEquipeDomicile - $scoreEquipeExterieur',
+              style: scoreStyle),
+          equipeExterieur.logoPath != null
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(equipeExterieur.logoPath!,
+                        width: logoSize, height: logoSize),
+                    if (equipeExterieur.code != null)
+                      Text(
+                        equipeExterieur.code!,
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                          fontSize: 10,
+                        ),
+                      ),
+                  ],
+                )
+              : Text(
+                  equipeExterieur.code ??
+                      equipeExterieur.nomCourt ??
+                      equipeExterieur.nom,
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                  ),
+                ),
+          const SizedBox(width: 6),
+          buildValueChip(
+            context,
+            podium.value,
+            podium.accent ?? ColorPalette.accent(context),
+            large: isFirst,
+          ),
+        ],
+      );
+    } else {
+      return Padding(
+        padding: EdgeInsets.only(
+          top: podium.rank == 3 ? 2 : 0,
+          bottom: podium.rank == 2 ? 2 : 0,
+        ),
+        child: Row(
+          children: [
+            Text(
+              '${podium.rank}.',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: podium.rank == 2 ? Colors.grey : Colors.brown,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                children: [
+                  equipeDomicile.logoPath != null
+                      ? Image.asset(equipeDomicile.logoPath!,
+                          width: 24, height: 24)
+                      : Text(
+                          equipeDomicile.code ??
+                              equipeDomicile.nomCourt ??
+                              equipeDomicile.nom,
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
+                  const SizedBox(width: 4),
+                  Text('$scoreEquipeDomicile - $scoreEquipeExterieur'),
+                  const SizedBox(width: 4),
+                  equipeExterieur.logoPath != null
+                      ? Image.asset(equipeExterieur.logoPath!,
+                          width: 24, height: 24)
+                      : Text(
+                          equipeExterieur.code ??
+                              equipeExterieur.nomCourt ??
+                              equipeExterieur.nom,
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
+                ],
+              ),
+            ),
+            Text(
+              podium.value.toString(),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
-  String? get displayImage => competition.logoUrl;
+  Widget buildPodiumRow({
+    required BuildContext context,
+    required PodiumContext podium,
+  }) {
+    final isFirst = podium.rank == 1;
+    final logoSize = isFirst ? 32.0 : 20.0;
+    final textStyle = TextStyle(
+      fontSize: isFirst ? 16 : 14,
+      fontWeight: isFirst ? FontWeight.bold : FontWeight.normal,
+      color: ColorPalette.textPrimary(context),
+    );
+
+    if (isFirst) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          equipeDomicile.logoPath != null
+              ? Image.asset(
+                  equipeDomicile.logoPath!,
+                  width: logoSize,
+                  height: logoSize,
+                  fit: BoxFit.contain,
+                )
+              : Flexible(
+                  child: Text(
+                    equipeDomicile.code ??
+                        equipeDomicile.nomCourt ??
+                        equipeDomicile.nom,
+                    overflow: TextOverflow.ellipsis,
+                    style: textStyle,
+                  ),
+                ),
+          const SizedBox(width: 6),
+          Text(
+            '$scoreEquipeDomicile - $scoreEquipeExterieur',
+            style: textStyle,
+          ),
+          const SizedBox(width: 6),
+          equipeExterieur.logoPath != null
+              ? Image.asset(
+                  equipeExterieur.logoPath!,
+                  width: logoSize,
+                  height: logoSize,
+                  fit: BoxFit.contain,
+                )
+              : Flexible(
+                  child: Text(
+                    equipeExterieur.code ??
+                        equipeExterieur.nomCourt ??
+                        equipeExterieur.nom,
+                    overflow: TextOverflow.ellipsis,
+                    style: textStyle,
+                  ),
+                ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: podium.accent ?? ColorPalette.accent(context),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              podium.value.toString(),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          )
+        ],
+      );
+    } else {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    equipeDomicile.logoPath != null
+                        ? Image.asset(
+                            equipeDomicile.logoPath!,
+                            width: logoSize,
+                            height: logoSize,
+                            fit: BoxFit.contain,
+                          )
+                        : Flexible(
+                            child: Text(
+                              equipeDomicile.code ??
+                                  equipeDomicile.nomCourt ??
+                                  equipeDomicile.nom,
+                              overflow: TextOverflow.ellipsis,
+                              style: textStyle,
+                            ),
+                          ),
+                    const SizedBox(width: 4),
+                    equipeExterieur.logoPath != null
+                        ? Image.asset(
+                            equipeExterieur.logoPath!,
+                            width: logoSize,
+                            height: logoSize,
+                            fit: BoxFit.contain,
+                          )
+                        : Flexible(
+                            child: Text(
+                              equipeExterieur.code ??
+                                  equipeExterieur.nomCourt ??
+                                  equipeExterieur.nom,
+                              overflow: TextOverflow.ellipsis,
+                              style: textStyle,
+                            ),
+                          ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$scoreEquipeDomicile - $scoreEquipeExterieur',
+                  style: textStyle,
+                ),
+              ],
+            ),
+          ),
+          Text(
+            podium.value.toString(),
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      );
+    }
+  }
 
   int getNbViewers() {
     return mvpVotes.length > notesDuMatch.length

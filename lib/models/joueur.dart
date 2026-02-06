@@ -1,6 +1,6 @@
-import 'package:scorescope/models/util/podium_displayable.dart';
+import 'package:scorescope/models/util/basic_podium_displayable.dart';
 
-class Joueur implements PodiumDisplayable {
+class Joueur extends BasicPodiumDisplayable {
   final String? id;
   final String prenom;
   final String nom;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
+import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class PodiumListItem<T> extends StatelessWidget {
@@ -45,8 +46,6 @@ class PodiumListItem<T> extends StatelessWidget {
     );
   }
 
-  // ───────────────── CONTENT SWITCH ─────────────────
-
   Widget _buildContent(BuildContext context, Color accent) {
     if (items.isEmpty) {
       return _buildEmpty(context);
@@ -56,14 +55,8 @@ class PodiumListItem<T> extends StatelessWidget {
       return _buildSingle(context, items.first, accent);
     }
 
-    if (items.length == 2) {
-      return _buildRow(context, items.take(2).toList(), accent);
-    }
-
     return _buildRow(context, items.take(3).toList(), accent);
   }
-
-  // ───────────────── EMPTY ─────────────────
 
   Widget _buildEmpty(BuildContext context) {
     return Row(
@@ -87,145 +80,83 @@ class PodiumListItem<T> extends StatelessWidget {
     );
   }
 
-  // ───────────────── SINGLE (FULL WIDTH HERO) ─────────────────
-
   Widget _buildSingle(
-      BuildContext context, PodiumEntry podiumEntry, Color accent) {
-    return Row(
-      children: [
-        if (podiumEntry.item.displayImage != null)
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: AssetImage(podiumEntry.item.displayImage!),
-          ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            podiumEntry.item.displayLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: ColorPalette.textPrimary(context),
-            ),
-          ),
-        ),
-        _buildValueChip(context, podiumEntry.value, accent),
-      ],
+    BuildContext context,
+    PodiumEntry podiumEntry,
+    Color accent,
+  ) {
+    return podiumEntry.item.buildPodiumRow(
+      context: context,
+      podium: PodiumContext(
+        rank: 1,
+        value: podiumEntry.value,
+        accent: accent,
+      ),
     );
   }
-
-  // ───────────────── ROW (2 / 3 ITEMS) ─────────────────
 
   Widget _buildRow(
-      BuildContext context, List<PodiumEntry> podium, Color accent) {
+    BuildContext context,
+    List<PodiumEntry> podium,
+    Color accent,
+  ) {
+    final first = podium[0];
+    final second = podium.length > 1 ? podium[1] : null;
+    final third = podium.length > 2 ? podium[2] : null;
+
     return Row(
       children: [
-        _buildFirst(context, podium.first, accent),
-        for (int i = 1; i < podium.length; i++) ...[
-          _verticalDivider(context),
-          _buildSecondary(context, podium[i]),
-        ],
+        Expanded(
+          flex: 5,
+          child: first.item.buildPodiumRow(
+            context: context,
+            podium: PodiumContext(
+              rank: 1,
+              value: first.value,
+              accent: accent,
+            ),
+          ),
+        ),
+        _verticalDivider(context),
+        Expanded(
+          flex: 5,
+          child: Row(
+            children: [
+              if (second != null)
+                Expanded(
+                  child: second.item.buildPodiumRow(
+                    context: context,
+                    podium: PodiumContext(
+                      rank: 2,
+                      value: second.value,
+                      accent: accent,
+                    ),
+                  ),
+                ),
+              if (second != null && third != null)
+                _verticalDivider(context, height: 20),
+              if (third != null)
+                Expanded(
+                  child: third.item.buildPodiumRow(
+                    context: context,
+                    podium: PodiumContext(
+                      rank: 3,
+                      value: third.value,
+                      accent: accent,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
-  // ───────────────── FIRST ─────────────────
-
-  Widget _buildFirst(
-      BuildContext context, PodiumEntry podiumEntry, Color accent) {
-    return Expanded(
-      flex: 4,
-      child: Row(
-        children: [
-          if (podiumEntry.item.displayImage != null)
-            CircleAvatar(
-              radius: 18,
-              backgroundImage: AssetImage(podiumEntry.item.displayImage!),
-            ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              podiumEntry.item.displayLabel,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: ColorPalette.textPrimary(context),
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          _buildValueChip(context, podiumEntry.value, accent),
-        ],
-      ),
-    );
-  }
-
-  // ───────────────── SECONDARY ─────────────────
-
-  Widget _buildSecondary(BuildContext context, PodiumEntry podiumEntry) {
-    return Expanded(
-      flex: 3,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Text(
-              podiumEntry.item.displayLabel,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: ColorPalette.textPrimary(context),
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            podiumEntry.value.toString(),
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: ColorPalette.textPrimary(context),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ───────────────── VALUE CHIP ─────────────────
-
-  Widget _buildValueChip(BuildContext context, num value, Color accent) {
-    final textColor = accent.computeLuminance() > 0.5
-        ? ColorPalette.textPrimaryLight
-        : ColorPalette.textPrimaryDark;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: accent,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        value.toString(),
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        ),
-      ),
-    );
-  }
-
-  // ───────────────── DIVIDER ─────────────────
-
-  Widget _verticalDivider(BuildContext context) {
+  Widget _verticalDivider(BuildContext context, {double height = 24}) {
     return Container(
       width: 1,
-      height: 24,
+      height: height,
       margin: const EdgeInsets.symmetric(horizontal: 8),
       color: ColorPalette.border(context),
     );

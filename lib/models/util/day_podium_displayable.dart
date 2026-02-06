@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
-import 'package:scorescope/models/util/podium_displayable.dart';
+import 'package:scorescope/models/util/basic_podium_displayable.dart';
 
-class DayPodiumDisplayable implements PodiumDisplayable {
+class DayPodiumDisplayable extends BasicPodiumDisplayable {
   final DateTime day;
 
   DayPodiumDisplayable(this.day);

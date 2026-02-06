@@ -50,11 +50,6 @@ class _CommentsPageState extends State<CommentsPage> {
   String? _currentUserId;
 
   final ScrollController _scrollController = ScrollController();
-
-  // ------------------------------------------------------------
-  // INIT
-  // ------------------------------------------------------------
-
   @override
   void initState() {
     super.initState();
@@ -63,10 +58,8 @@ class _CommentsPageState extends State<CommentsPage> {
     _initCurrentUser();
 
     if (widget.entry != null) {
-      // ✅ Mode A : données déjà disponibles
       _initFromEntry(widget.entry!);
     } else {
-      // 🔵 Mode B : reconstruction depuis IDs
       _loadEntryFromIds();
     }
   }
@@ -129,10 +122,6 @@ class _CommentsPageState extends State<CommentsPage> {
     }
   }
 
-  // ------------------------------------------------------------
-  // CURRENT USER
-  // ------------------------------------------------------------
-
   Future<void> _initCurrentUser() async {
     try {
       final current = await RepositoryProvider.userRepository.getCurrentUser();
@@ -142,10 +131,6 @@ class _CommentsPageState extends State<CommentsPage> {
     }
     if (mounted) setState(() {});
   }
-
-  // ------------------------------------------------------------
-  // COMMENTS / REACTIONS
-  // ------------------------------------------------------------
 
   Future<void> _refreshCommentsAndReactions() async {
     if (_entry == null || _matchData == null) return;
@@ -222,10 +207,6 @@ class _CommentsPageState extends State<CommentsPage> {
       if (mounted) setState(() => _loadingReactionOp = false);
     }
   }
-
-  // ------------------------------------------------------------
-  // UI
-  // ------------------------------------------------------------
 
   Widget _buildCommentItem(BuildContext context, Commentaire c, int index) {
     final user = _userCache[c.authorId];
@@ -402,8 +383,7 @@ class _CommentsPageState extends State<CommentsPage> {
                               fontSize: 16,
                               color: ColorPalette.textPrimary(context),
                             ),
-                            textAlign:
-                                TextAlign.start, // <-- exactement comme avant
+                            textAlign: TextAlign.start,
                           ),
                         ),
                         if (_comments.isNotEmpty)

@@ -1,4 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:scorescope/models/util/podium_context.dart';
+
 abstract class PodiumDisplayable {
-  String get displayLabel;
-  String? get displayImage;
+  Widget buildPodiumRow({
+    required BuildContext context,
+    required PodiumContext podium,
+  });
+
+  Widget buildPodiumCard({
+    required BuildContext context,
+    required PodiumContext podium,
+  });
 }

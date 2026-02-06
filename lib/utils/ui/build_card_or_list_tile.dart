@@ -62,35 +62,64 @@ Widget buildGridOrList({
   if (showCards) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: GridView.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.2,
-        children: [...statsWidgets, ...graphWidgets],
-      ),
-    );
-  } else {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ...statsWidgets.map((w) => Padding(
+      child: CustomScrollView(
+        slivers: [
+          SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => statsWidgets[index],
+              childCount: statsWidgets.length,
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.2,
+            ),
+          ),
+
+          if (graphWidgets.isNotEmpty) ...[
+            const SliverToBoxAdapter(
+              child: Divider(height: 48),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: w,
-                )),
-            if (graphWidgets.isNotEmpty) ...[
-              const Divider(height: 32),
-              ...graphWidgets.map((w) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: w,
-                  )),
-            ],
+                  child: graphWidgets[index],
+                ),
+                childCount: graphWidgets.length,
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ...statsWidgets.map(
+            (widget) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: widget,
+            ),
+          ),
+          if (graphWidgets.isNotEmpty) ...[
+            const Divider(height: 32),
+            const SizedBox(height: 12),
+            ...graphWidgets.map(
+              (widget) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: widget,
+              ),
+            ),
+          ],
+        ],
+      ),
+    ),
+  );
 }

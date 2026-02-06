@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
+import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class PodiumCard<T> extends StatelessWidget {
@@ -39,8 +40,6 @@ class PodiumCard<T> extends StatelessWidget {
     );
   }
 
-  /// ───────────────── TITLE ─────────────────
-
   Widget _buildTitle(BuildContext context) {
     return FittedBox(
       fit: BoxFit.scaleDown,
@@ -53,8 +52,6 @@ class PodiumCard<T> extends StatelessWidget {
       ),
     );
   }
-
-  /// ───────────────── CONTENT SWITCH ─────────────────
 
   Widget _buildContent(BuildContext context, Color accent) {
     if (items.isEmpty) {
@@ -72,8 +69,6 @@ class PodiumCard<T> extends StatelessWidget {
     return _buildPodium(context, items.take(3).toList(), accent);
   }
 
-  /// ───────────────── EMPTY STATE ─────────────────
-
   Widget _buildEmptyState(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -87,9 +82,9 @@ class PodiumCard<T> extends StatelessWidget {
               color: ColorPalette.accent(context),
             ),
             Text(
+              emptyStateText,
               maxLines: 2,
               textAlign: TextAlign.center,
-              emptyStateText,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -100,184 +95,95 @@ class PodiumCard<T> extends StatelessWidget {
     );
   }
 
-  /// ───────────────── SINGLE (HERO) ─────────────────
-
   Widget _buildSingle(
-      BuildContext context, PodiumEntry podiumEntry, Color accent, bool large) {
-    final singleRow = Row(
-      children: [
-        if (podiumEntry.item.displayImage != null)
-          Image.asset(
-            width: large ? 32 : 28,
-            height: large ? 32 : 28,
-            podiumEntry.item.displayImage!,
-            fit: BoxFit.contain,
-          ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  podiumEntry.item.displayLabel,
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: ColorPalette.textPrimary(context),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildValueChip(context, podiumEntry.value, accent, large: large),
-            ],
-          ),
-        ),
-      ],
+    BuildContext context,
+    PodiumEntry podiumEntry,
+    Color accent,
+    bool large,
+  ) {
+    final content = podiumEntry.item.buildPodiumCard(
+      context: context,
+      podium: PodiumContext(
+        rank: 1,
+        value: podiumEntry.value,
+        accent: accent,
+      ),
     );
+
     if (large) {
       return Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            singleRow,
-          ],
-        ),
+        child: Center(child: content),
       );
-    } else {
-      return singleRow;
     }
+
+    return content;
   }
 
-  /// ───────────────── DUO ─────────────────
-
-  Widget _buildDuo(BuildContext context, List<PodiumEntry> duo, Color accent) {
-    final first = duo[0];
-    final second = duo[1];
-
+  Widget _buildDuo(
+    BuildContext context,
+    List<PodiumEntry> duo,
+    Color accent,
+  ) {
     return Column(
       children: [
-        _buildSingle(context, first, accent, false),
+        duo[0].item.buildPodiumCard(
+              context: context,
+              podium: PodiumContext(
+                rank: 1,
+                value: duo[0].value,
+                accent: accent,
+              ),
+            ),
         Divider(color: ColorPalette.border(context)),
-        _buildSecondaryRow(context, 2, second),
+        duo[1].item.buildPodiumCard(
+              context: context,
+              podium: PodiumContext(
+                rank: 2,
+                value: duo[1].value,
+                accent: accent,
+              ),
+            ),
       ],
     );
   }
 
-  /// ───────────────── PODIUM (3) ─────────────────
-
   Widget _buildPodium(
-      BuildContext context, List<PodiumEntry> podium, Color accent) {
-    final first = podium[0];
-
+    BuildContext context,
+    List<PodiumEntry> podium,
+    Color accent,
+  ) {
     return Column(
       children: [
-        Row(
-          children: [
-            if (first.item.displayImage != null)
-              Image.asset(
-                width: 32,
-                height: 32,
-                first.item.displayImage!,
-                fit: BoxFit.contain,
-              ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    first.item.displayLabel,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: ColorPalette.textPrimary(context),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  _buildValueChip(context, first.value, accent),
-                ],
+        podium[0].item.buildPodiumCard(
+              context: context,
+              podium: PodiumContext(
+                rank: 1,
+                value: podium[0].value,
+                accent: accent,
               ),
             ),
-          ],
-        ),
         Divider(
           color: ColorPalette.border(context),
           height: 12,
         ),
-        _buildSecondaryRow(context, 2, podium[1]),
-        if (podium.length > 2) _buildSecondaryRow(context, 3, podium[2]),
-      ],
-    );
-  }
-
-  /// ───────────────── SECONDARY ROW ─────────────────
-
-  Widget _buildSecondaryRow(
-      BuildContext context, int index, PodiumEntry podiumEntry) {
-    return Row(
-      children: [
-        Text(
-          '$index.',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: index == 2 ? Colors.grey : Colors.brown,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            podiumEntry.item.displayLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: ColorPalette.textPrimary(context),
+        podium[1].item.buildPodiumCard(
+              context: context,
+              podium: PodiumContext(
+                rank: 2,
+                value: podium[1].value,
+                accent: accent,
+              ),
             ),
-          ),
-        ),
-        Text(
-          podiumEntry.value.toString(),
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: ColorPalette.textPrimary(context),
-            height: 0.9,
-          ),
-        ),
+        if (podium.length > 2)
+          podium[2].item.buildPodiumCard(
+                context: context,
+                podium: PodiumContext(
+                  rank: 3,
+                  value: podium[2].value,
+                  accent: accent,
+                ),
+              ),
       ],
-    );
-  }
-
-  /// ───────────────── VALUE CHIP ─────────────────
-
-  Widget _buildValueChip(
-    BuildContext context,
-    num value,
-    Color accent, {
-    bool large = false,
-  }) {
-    final textColor = accent.computeLuminance() > 0.5
-        ? ColorPalette.textPrimaryLight
-        : ColorPalette.textPrimaryDark;
-
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: large ? 12 : 10,
-        vertical: large ? 6 : 4,
-      ),
-      decoration: BoxDecoration(
-        color: accent,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        value.toString(),
-        style: TextStyle(
-          fontSize: large ? 20 : 16,
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        ),
-      ),
     );
   }
 }

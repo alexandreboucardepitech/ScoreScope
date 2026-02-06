@@ -43,7 +43,7 @@ class StatsMatchsOnglet extends StatelessWidget {
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Moyenne buts / match',
+        title: 'Moyenne différence buts / match',
         value: data.moyenneDiffButsParMatch.toStringAsFixed(1),
         icon: Icons.balance,
       ),

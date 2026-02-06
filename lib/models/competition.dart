@@ -1,6 +1,6 @@
-import 'package:scorescope/models/util/podium_displayable.dart';
+import 'package:scorescope/models/util/basic_podium_displayable.dart';
 
-class Competition implements PodiumDisplayable {
+class Competition extends BasicPodiumDisplayable {
   final String id;
   final String nom;
   final String? logoUrl;
