@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
 import 'package:scorescope/widgets/profile/header.dart';
 import 'package:scorescope/widgets/profile/matchs_favoris.dart';
@@ -480,6 +481,24 @@ class _ProfileViewState extends State<ProfileView> {
                       nbMatchs: userNbMatchsRegardes?.toString() ?? '0',
                     )
                   : null,
+              actions: [
+                if (isMe && !_isScrolled)
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () {},
+                  ),
+                if (!isMe && !_isScrolled)
+                  IconButton(
+                    icon: const Icon(Icons.bar_chart),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => StatsView(user: widget.user),
+                        ),
+                      );
+                    },
+                  ),
+              ],
             ),
             SliverToBoxAdapter(
               child: Container(

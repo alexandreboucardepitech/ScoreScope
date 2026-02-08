@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/statistiques/loader/stats_loader_widget.dart';
 
 class StatsView extends StatefulWidget {
-  const StatsView({super.key});
+  final AppUser user;
+
+  const StatsView({super.key, required this.user});
 
   @override
   State<StatsView> createState() => _StatsViewState();
@@ -16,11 +19,39 @@ class _StatsViewState extends State<StatsView> {
   bool _onlyPublicMatches = false;
   DateTimeRange? _dateRange;
   int? _saison; // exemple : 2025 pour la saison 2025/2026
+  AppUser? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final user = await RepositoryProvider.userRepository.getCurrentUser();
+      if (mounted) setState(() => _currentUser = user);
+    } catch (e) {
+      // Si échec, laisse _currentUser null — on n'interrompt pas l'UI.
+      if (mounted) setState(() => _currentUser = null);
+    }
+  }
 
   void _toggleView() {
     setState(() {
       _showCards = !_showCards;
     });
+  }
+
+  bool isCurrentUser() {
+    if (_currentUser == null) {
+      _loadCurrentUser();
+      return true;
+    } else if (widget.user.uid != _currentUser!.uid) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   Future<void> _pickPeriodOrSeason() async {
@@ -118,26 +149,22 @@ class _StatsViewState extends State<StatsView> {
     }
 
     if (choice == 'season') {
-      final user = await RepositoryProvider.userRepository.getCurrentUser();
       List<int> saisons = [];
-      if (user != null) {
-        List<MatchUserData> userMatches =
-            await RepositoryProvider.userRepository.fetchUserAllMatchUserData(
-                userId: user.uid, onlyPublic: _onlyPublicMatches);
+      List<MatchUserData> userMatches =
+          await RepositoryProvider.userRepository.fetchUserAllMatchUserData(
+        userId: widget.user.uid,
+        onlyPublic: isCurrentUser() ? _onlyPublicMatches : true,
+      );
 
-        for (MatchUserData match in userMatches) {
-          final matchDate = match.matchDate;
-          if (matchDate != null) {
-            final saison =
-                matchDate.month >= 8 ? matchDate.year : matchDate.year - 1;
-            if (!saisons.contains(saison)) {
-              saisons.add(saison);
-            }
+      for (MatchUserData match in userMatches) {
+        final matchDate = match.matchDate;
+        if (matchDate != null) {
+          final saison =
+              matchDate.month >= 8 ? matchDate.year : matchDate.year - 1;
+          if (!saisons.contains(saison)) {
+            saisons.add(saison);
           }
         }
-      } else {
-        // normalement ça arrive jamais car on a toujours un utilisateur
-        saisons = List<int>.generate(5, (index) => DateTime.now().year - index);
       }
       final pickedYear = await showDialog<int>(
         context: context,
@@ -260,11 +287,16 @@ class _StatsViewState extends State<StatsView> {
           backgroundColor: ColorPalette.tileBackground(context),
           elevation: 0,
           surfaceTintColor: Colors.transparent,
-          title: Text(
-            'Mes statistiques',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(context),
-              fontWeight: FontWeight.bold,
+          title: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              isCurrentUser()
+                  ? 'Mes statistiques'
+                  : 'Statistiques de ${widget.user.displayName}',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           iconTheme: IconThemeData(color: ColorPalette.textPrimary(context)),
@@ -283,34 +315,35 @@ class _StatsViewState extends State<StatsView> {
               onPressed: _toggleView,
               tooltip: _showCards ? 'Afficher en liste' : 'Afficher en cards',
             ),
-            PopupMenuButton(
-              icon:
-                  Icon(Icons.more_vert, color: ColorPalette.opposite(context)),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  enabled: false,
-                  child: StatefulBuilder(
-                    builder: (context, setStateMenu) {
-                      return CheckboxListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          'Matchs publics uniquement',
-                          style: TextStyle(
-                              color: ColorPalette.textPrimary(context)),
-                        ),
-                        value: _onlyPublicMatches,
-                        onChanged: (value) {
-                          setState(() {
-                            _onlyPublicMatches = value ?? false;
-                          });
-                          setStateMenu(() {});
-                        },
-                      );
-                    },
+            if (isCurrentUser())
+              PopupMenuButton(
+                icon: Icon(Icons.more_vert,
+                    color: ColorPalette.opposite(context)),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    enabled: false,
+                    child: StatefulBuilder(
+                      builder: (context, setStateMenu) {
+                        return CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            'Matchs publics uniquement',
+                            style: TextStyle(
+                                color: ColorPalette.textPrimary(context)),
+                          ),
+                          value: _onlyPublicMatches,
+                          onChanged: (value) {
+                            setState(() {
+                              _onlyPublicMatches = value ?? false;
+                            });
+                            setStateMenu(() {});
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
         body: Column(
@@ -372,39 +405,51 @@ class _StatsViewState extends State<StatsView> {
                 children: [
                   StatsLoaderWidget(
                     showCards: _showCards,
-                    onlyPublicMatches: _onlyPublicMatches,
+                    onlyPublicMatches:
+                        isCurrentUser() ? _onlyPublicMatches : true,
                     dateRange: _dateRange,
                     onglet: StatsOnglet.generales,
+                    user: widget.user,
                   ),
                   StatsLoaderWidget(
                     showCards: _showCards,
-                    onlyPublicMatches: _onlyPublicMatches,
+                    onlyPublicMatches:
+                        isCurrentUser() ? _onlyPublicMatches : true,
                     dateRange: _dateRange,
                     onglet: StatsOnglet.matchs,
+                    user: widget.user,
                   ),
                   StatsLoaderWidget(
                     showCards: _showCards,
-                    onlyPublicMatches: _onlyPublicMatches,
+                    onlyPublicMatches:
+                        isCurrentUser() ? _onlyPublicMatches : true,
                     dateRange: _dateRange,
                     onglet: StatsOnglet.equipes,
+                    user: widget.user,
                   ),
                   StatsLoaderWidget(
                     showCards: _showCards,
-                    onlyPublicMatches: _onlyPublicMatches,
+                    onlyPublicMatches:
+                        isCurrentUser() ? _onlyPublicMatches : true,
                     dateRange: _dateRange,
                     onglet: StatsOnglet.joueurs,
+                    user: widget.user,
                   ),
                   StatsLoaderWidget(
                     showCards: _showCards,
-                    onlyPublicMatches: _onlyPublicMatches,
+                    onlyPublicMatches:
+                        isCurrentUser() ? _onlyPublicMatches : true,
                     dateRange: _dateRange,
                     onglet: StatsOnglet.competitions,
+                    user: widget.user,
                   ),
                   StatsLoaderWidget(
                     showCards: _showCards,
-                    onlyPublicMatches: _onlyPublicMatches,
+                    onlyPublicMatches:
+                        isCurrentUser() ? _onlyPublicMatches : true,
                     dateRange: _dateRange,
                     onglet: StatsOnglet.habitudes,
+                    user: widget.user,
                   ),
                 ],
               ),

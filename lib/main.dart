@@ -98,7 +98,16 @@ class _HomePageState extends State<HomePage> {
     _pages = [
       AllMatchesView(), // Matchs
       FilActuAmisView(onBackPressed: goToFirstTab), // Amis
-      StatsView(), // Stats
+      // Stats
+      FutureBuilder<AppUser?>(
+        future: RepositoryProvider.userRepository.getCurrentUser(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return StatsView(user: snapshot.data!);
+        },
+      ),
       // Profil
       FutureBuilder<AppUser?>(
         future: RepositoryProvider.userRepository.getCurrentUser(),

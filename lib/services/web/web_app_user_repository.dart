@@ -39,41 +39,31 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<String>> getUserMatchsRegardesId(
-      {required String userId,
-      bool onlyPublic = false,
-      DateTimeRange? dateRange}) async {
-    final matchUserDataSnapshot = onlyPublic
-        ? await _usersCollection
-            .doc(userId)
-            .collection('matchUserData')
-            .where('private', isEqualTo: false)
-            .where('matchDate',
-                isGreaterThanOrEqualTo: dateRange != null
-                    ? Timestamp.fromDate(dateRange.start)
-                    : null)
-            .where('matchDate',
-                isLessThanOrEqualTo: dateRange != null
-                    ? Timestamp.fromDate(dateRange.end)
-                    : null)
-            .get()
-        : await _usersCollection
-            .doc(userId)
-            .collection('matchUserData')
-            .where('matchDate',
-                isGreaterThanOrEqualTo: dateRange != null
-                    ? Timestamp.fromDate(dateRange.start)
-                    : null)
-            .where('matchDate',
-                isLessThanOrEqualTo: dateRange != null
-                    ? Timestamp.fromDate(dateRange.end)
-                    : null)
-            .get();
+  Future<List<String>> getUserMatchsRegardesId({
+    required String userId,
+    bool onlyPublic = false,
+    DateTimeRange? dateRange,
+  }) async {
+    Query<Map<String, dynamic>> query =
+        _usersCollection.doc(userId).collection('matchUserData');
 
-    return matchUserDataSnapshot.docs
-        .where((d) => !onlyPublic || (d.data()['private'] == false))
-        .map((d) => d.data()['matchId'] as String)
-        .toList();
+    if (onlyPublic) {
+      query = query.where('private', isEqualTo: false);
+    }
+    if (dateRange != null) {
+      query = query
+          .where(
+            'matchDate',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(dateRange.start),
+          )
+          .where(
+            'matchDate',
+            isLessThanOrEqualTo: Timestamp.fromDate(dateRange.end),
+          );
+    }
+    final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
+
+    return snapshot.docs.map((doc) => doc.data()['matchId'] as String).toList();
   }
 
   @override
@@ -203,7 +193,8 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<void> matchFavori(String matchId, String userId, DateTime matchDate, bool favori) async {
+  Future<void> matchFavori(
+      String matchId, String userId, DateTime matchDate, bool favori) async {
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -245,8 +236,8 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<void> setVisionnageMatch(
-      String matchId, String userId, DateTime matchDate, VisionnageMatch visionnageMatch) async {
+  Future<void> setVisionnageMatch(String matchId, String userId,
+      DateTime matchDate, VisionnageMatch visionnageMatch) async {
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -350,52 +341,34 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<MatchUserData>> fetchUserAllMatchUserData(
-      {required String userId,
-      bool onlyPublic = false,
-      DateTimeRange? dateRange}) async {
-    final matchUserDataSnapshot = onlyPublic
-        ? await _usersCollection
-            .doc(userId)
-            .collection('matchUserData')
-            .where('private', isEqualTo: false)
-            .where('matchDate',
-                isGreaterThanOrEqualTo: dateRange != null
-                    ? Timestamp.fromDate(dateRange.start)
-                    : null)
-            .where('matchDate',
-                isLessThanOrEqualTo: dateRange != null
-                    ? Timestamp.fromDate(dateRange.end)
-                    : null)
-            .get()
-        : await _usersCollection
-            .doc(userId)
-            .collection('matchUserData')
-            .where('matchDate',
-                isGreaterThanOrEqualTo: dateRange != null
-                    ? Timestamp.fromDate(dateRange.start)
-                    : null)
-            .where('matchDate',
-                isLessThanOrEqualTo: dateRange != null
-                    ? Timestamp.fromDate(dateRange.end)
-                    : null)
-            .get();
+  Future<List<MatchUserData>> fetchUserAllMatchUserData({
+    required String userId,
+    bool onlyPublic = false,
+    DateTimeRange? dateRange,
+  }) async {
+    Query<Map<String, dynamic>> query =
+        _usersCollection.doc(userId).collection('matchUserData');
 
-    List<MatchUserData> matchUserDataList = [];
-
-    for (var doc in matchUserDataSnapshot.docs) {
-      final data = doc.data();
-      final matchUserData = MatchUserData.fromJson(data);
-      if (onlyPublic) {
-        if (!matchUserData.private) {
-          matchUserDataList.add(matchUserData);
-        }
-      } else {
-        matchUserDataList.add(matchUserData);
-      }
+    if (onlyPublic) {
+      query = query.where('private', isEqualTo: false);
     }
 
-    return matchUserDataList;
+    if (dateRange != null) {
+      query = query
+          .where(
+            'matchDate',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(dateRange.start),
+          )
+          .where(
+            'matchDate',
+            isLessThanOrEqualTo: Timestamp.fromDate(dateRange.end),
+          );
+    }
+    final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
+
+    return snapshot.docs
+        .map((doc) => MatchUserData.fromJson(doc.data()))
+        .toList();
   }
 
   @override

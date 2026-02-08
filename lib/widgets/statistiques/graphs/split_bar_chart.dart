@@ -40,6 +40,13 @@ class SplitBarChart extends StatelessWidget {
               children: List.generate(values.length, (i) {
                 final v = values[i];
 
+                if (total == 0) {
+                  return Expanded(
+                    child: Container(
+                      color: ColorPalette.surfaceSecondary(context),
+                    ),
+                  );
+                }
                 return Expanded(
                   flex: (v.value / total * 1000).round(),
                   child: Container(
