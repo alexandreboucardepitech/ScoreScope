@@ -13,6 +13,11 @@ class DayPodiumDisplayable extends BasicPodiumDisplayable {
   String get displayLabel => DateFormat.yMd().format(day);
 
   @override
+  Future<String?> getColor() async {
+    return null;
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DayPodiumDisplayable &&

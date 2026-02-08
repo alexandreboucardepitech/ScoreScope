@@ -10,21 +10,18 @@ Widget buildSimpleStatCardOrListTile({
   required String title,
   required String value,
   required IconData icon,
-  Color? accentColor,
 }) {
   if (showCards) {
     return SimpleStatCard(
       title: title,
       value: value,
       icon: icon,
-      accentColor: accentColor,
     );
   } else {
     return SimpleStatListItem(
       title: title,
       value: value,
       icon: icon,
-      accentColor: accentColor,
     );
   }
 }
@@ -35,21 +32,18 @@ Widget buildPodiumCardOrListTile<T>({
   required List<PodiumEntry> items,
   String Function(T)? imageExtractor,
   required String emptyStateText,
-  Color? accentColor,
 }) {
   if (showCards) {
     return PodiumCard<T>(
       title: title,
       items: items,
       emptyStateText: emptyStateText,
-      accentColor: accentColor,
     );
   } else {
     return PodiumListItem<T>(
       title: title,
       items: items,
       emptyStateText: emptyStateText,
-      accentColor: accentColor,
     );
   }
 }
@@ -76,7 +70,6 @@ Widget buildGridOrList({
               childAspectRatio: 1.2,
             ),
           ),
-
           if (graphWidgets.isNotEmpty) ...[
             const SliverToBoxAdapter(
               child: Divider(height: 48),

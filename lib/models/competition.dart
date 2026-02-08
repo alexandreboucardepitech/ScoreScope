@@ -15,6 +15,11 @@ class Competition extends BasicPodiumDisplayable {
   @override
   String? get displayImage => logoUrl;
 
+  @override
+  Future<String?> getColor() async {
+    return null;
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'nom': nom,

@@ -24,6 +24,11 @@ class Equipe extends BasicPodiumDisplayable {
   @override
   String? get displayImage => logoPath;
 
+  @override
+  Future<String?> getColor() async {
+    return couleurPrincipale;
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'nom': nom,

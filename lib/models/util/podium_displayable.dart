@@ -11,4 +11,6 @@ abstract class PodiumDisplayable {
     required BuildContext context,
     required PodiumContext podium,
   });
+
+  Future<String?> getColor();
 }

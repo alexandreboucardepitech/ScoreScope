@@ -61,6 +61,11 @@ class MatchModel implements PodiumDisplayable {
   bool get isScheduled => status == MatchStatus.scheduled;
 
   @override
+  Future<String?> getColor() async {
+    return null;
+  }
+
+  @override
   Widget buildPodiumCard({
     required BuildContext context,
     required PodiumContext podium,
@@ -132,7 +137,7 @@ class MatchModel implements PodiumDisplayable {
           buildValueChip(
             context,
             podium.value,
-            podium.accent ?? ColorPalette.accent(context),
+            ColorPalette.accent(context),
             large: isFirst,
           ),
         ],
@@ -256,7 +261,7 @@ class MatchModel implements PodiumDisplayable {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: podium.accent ?? ColorPalette.accent(context),
+              color: ColorPalette.accent(context),
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(

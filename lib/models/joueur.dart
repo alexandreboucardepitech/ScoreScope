@@ -1,4 +1,6 @@
+import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
+import 'package:scorescope/services/repository_provider.dart';
 
 class Joueur extends BasicPodiumDisplayable {
   final String? id;
@@ -25,6 +27,17 @@ class Joueur extends BasicPodiumDisplayable {
 
   @override
   String? get displayImage => picture;
+
+  @override
+  Future<String?> getColor() async {
+    Equipe? equipe =
+        await RepositoryProvider.equipeRepository.fetchEquipeById(equipeId);
+    if (equipe != null) {
+      return equipe.couleurPrincipale;
+    } else {
+      return null;
+    }
+  }
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,

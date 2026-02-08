@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
 
 abstract class BasicPodiumDisplayable implements PodiumDisplayable {
   String get displayLabel;
@@ -13,7 +14,9 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
     required PodiumContext podium,
   }) {
     final isFirst = podium.isFirst;
-    final accent = podium.accent ?? ColorPalette.textPrimary(context);
+    Color color = podium.color != null
+        ? fromHex(podium.color!)
+        : ColorPalette.accent(context);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -29,7 +32,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
         Expanded(
           child: isFirst
               ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     FittedBox(
@@ -48,7 +51,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
                     buildValueChip(
                       context,
                       podium.value,
-                      accent,
+                      color,
                       large: isFirst,
                     ),
                   ],
@@ -94,24 +97,22 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
     required PodiumContext podium,
   }) {
     final isFirst = podium.isFirst;
-    final accent = podium.accent ?? ColorPalette.textPrimary(context);
+    Color color = podium.color != null
+        ? fromHex(podium.color!)
+        : ColorPalette.accent(context);
 
-    final textColor = accent.computeLuminance() > 0.5
+    final textColor = color.computeLuminance() > 0.5
         ? ColorPalette.textPrimaryLight
         : ColorPalette.textPrimaryDark;
 
     return Row(
       children: [
-        // ───── AVATAR (only for first) ─────
         if (isFirst && displayImage != null)
           CircleAvatar(
             radius: 18,
             backgroundImage: AssetImage(displayImage!),
           ),
-
         if (isFirst) const SizedBox(width: 8),
-
-        // ───── LABEL ─────
         Expanded(
           child: Text(
             displayLabel,
@@ -123,15 +124,12 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
             ),
           ),
         ),
-
         const SizedBox(width: 6),
-
-        // ───── VALUE ─────
         if (isFirst)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: accent,
+              color: color,
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(

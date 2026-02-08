@@ -6,36 +6,36 @@ import 'package:scorescope/utils/ui/Color_palette.dart';
 class PodiumCard<T> extends StatelessWidget {
   final String title;
   final List<PodiumEntry> items;
-
-  final Color? accentColor;
   final String emptyStateText;
 
   const PodiumCard({
     super.key,
     required this.title,
     required this.items,
-    this.accentColor,
     this.emptyStateText = 'Aucune donnée disponible',
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorAccent = accentColor ?? ColorPalette.accent(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: ColorPalette.tileBackground(context),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorPalette.border(context)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle(context),
-          const SizedBox(height: 4),
-          _buildContent(context, colorAccent),
-        ],
+    return GestureDetector(
+      onTap: () {
+        print("coucou test");
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: ColorPalette.tileBackground(context),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: ColorPalette.border(context)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTitle(context),
+            const SizedBox(height: 4),
+            _buildContent(context),
+          ],
+        ),
       ),
     );
   }
@@ -53,20 +53,20 @@ class PodiumCard<T> extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, Color accent) {
+  Widget _buildContent(BuildContext context) {
     if (items.isEmpty) {
       return _buildEmptyState(context);
     }
 
     if (items.length == 1) {
-      return _buildSingle(context, items.first, accent, true);
+      return _buildSingle(context, items.first, true);
     }
 
     if (items.length == 2) {
-      return _buildDuo(context, items.take(2).toList(), accent);
+      return _buildDuo(context, items.take(2).toList());
     }
 
-    return _buildPodium(context, items.take(3).toList(), accent);
+    return _buildPodium(context, items.take(3).toList());
   }
 
   Widget _buildEmptyState(BuildContext context) {
@@ -98,7 +98,6 @@ class PodiumCard<T> extends StatelessWidget {
   Widget _buildSingle(
     BuildContext context,
     PodiumEntry podiumEntry,
-    Color accent,
     bool large,
   ) {
     final content = podiumEntry.item.buildPodiumCard(
@@ -106,7 +105,7 @@ class PodiumCard<T> extends StatelessWidget {
       podium: PodiumContext(
         rank: 1,
         value: podiumEntry.value,
-        accent: accent,
+        color: podiumEntry.color,
       ),
     );
 
@@ -122,7 +121,6 @@ class PodiumCard<T> extends StatelessWidget {
   Widget _buildDuo(
     BuildContext context,
     List<PodiumEntry> duo,
-    Color accent,
   ) {
     return Column(
       children: [
@@ -131,7 +129,7 @@ class PodiumCard<T> extends StatelessWidget {
               podium: PodiumContext(
                 rank: 1,
                 value: duo[0].value,
-                accent: accent,
+                color: duo[0].color,
               ),
             ),
         Divider(color: ColorPalette.border(context)),
@@ -140,7 +138,7 @@ class PodiumCard<T> extends StatelessWidget {
               podium: PodiumContext(
                 rank: 2,
                 value: duo[1].value,
-                accent: accent,
+                color: duo[1].color,
               ),
             ),
       ],
@@ -150,7 +148,6 @@ class PodiumCard<T> extends StatelessWidget {
   Widget _buildPodium(
     BuildContext context,
     List<PodiumEntry> podium,
-    Color accent,
   ) {
     return Column(
       children: [
@@ -159,7 +156,7 @@ class PodiumCard<T> extends StatelessWidget {
               podium: PodiumContext(
                 rank: 1,
                 value: podium[0].value,
-                accent: accent,
+                color: podium[0].color,
               ),
             ),
         Divider(
@@ -171,7 +168,7 @@ class PodiumCard<T> extends StatelessWidget {
               podium: PodiumContext(
                 rank: 2,
                 value: podium[1].value,
-                accent: accent,
+                color: podium[1].color,
               ),
             ),
         if (podium.length > 2)
@@ -180,7 +177,7 @@ class PodiumCard<T> extends StatelessWidget {
                 podium: PodiumContext(
                   rank: 3,
                   value: podium[2].value,
-                  accent: accent,
+                  color: podium[2].color,
                 ),
               ),
       ],

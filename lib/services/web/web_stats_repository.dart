@@ -50,11 +50,13 @@ class WebStatsRepository implements IStatsRepository {
       nbCompetitionsDifferentes: competitionsDifferentes.length,
       moyenneNotes:
           await StatsLoader.getMoyenneNotes(matchsVusUser: matchsVusUser),
-      meilleursButeurs: StatsLoader.getPodiumFromMap<Joueur>(buteursDifferents),
+      meilleursButeurs:
+          await StatsLoader.getPodiumFromMap<Joueur>(buteursDifferents),
       equipesLesPlusVues:
-          StatsLoader.getPodiumFromMap<Equipe>(equipesDifferentes),
+          await StatsLoader.getPodiumFromMap<Equipe>(equipesDifferentes),
       competitionsLesPlusSuivies:
-          StatsLoader.getPodiumFromMap<Competition>(competitionsDifferentes),
+          await StatsLoader.getPodiumFromMap<Competition>(
+              competitionsDifferentes),
       mvpsLesPlusVotes:
           await StatsLoader.getMvpsLesPlusVotes(matchsVusUser: matchsVusUser),
     );
@@ -113,16 +115,16 @@ class WebStatsRepository implements IStatsRepository {
 
     return StatsEquipesData(
       equipesLesPlusVues:
-          StatsLoader.getPodiumFromMap<Equipe>(equipesDifferentes),
+          await StatsLoader.getPodiumFromMap<Equipe>(equipesDifferentes),
       nbEquipesDifferentes: equipesDifferentes.length,
       equipesLesPlusVuesGagner:
-          StatsLoader.getEquipesLesPlusVuesGagner(matchsVusModels),
+          await StatsLoader.getEquipesLesPlusVuesGagner(matchsVusModels),
       equipesLesPlusVuesPerdre:
-          StatsLoader.getEquipesLesPlusVuesPerdre(matchsVusModels),
+          await StatsLoader.getEquipesLesPlusVuesPerdre(matchsVusModels),
       equipesPlusDeButsMarques:
-          StatsLoader.getEquipesLesPlusVuesMarquer(matchsVusModels),
+          await StatsLoader.getEquipesLesPlusVuesMarquer(matchsVusModels),
       equipesPlusDeButsEncaisses:
-          StatsLoader.getEquipesLesPlusVuesEncaisser(matchsVusModels),
+          await StatsLoader.getEquipesLesPlusVuesEncaisser(matchsVusModels),
       matchsVusParEquipe: matchsVusParEquipe,
     );
   }
@@ -161,12 +163,14 @@ class WebStatsRepository implements IStatsRepository {
     );
 
     return StatsJoueursData(
-      meilleursButeurs: StatsLoader.getPodiumFromMap<Joueur>(buteursDifferents),
-      titularisations: StatsLoader.getPodiumFromMap<Joueur>(titularisations),
+      meilleursButeurs:
+          await StatsLoader.getPodiumFromMap<Joueur>(buteursDifferents),
+      titularisations:
+          await StatsLoader.getPodiumFromMap<Joueur>(titularisations),
       mvpsLesPlusVotes:
           await StatsLoader.getMvpsLesPlusVotes(matchsVusUser: matchsVusUser),
       meilleursButeursUnMatch:
-          StatsLoader.getPodiumFromMap<Joueur>(meilleursButeursUnMatch),
+          await StatsLoader.getPodiumFromMap<Joueur>(meilleursButeursUnMatch),
       butsParJoueur: butsParJoueur,
     );
   }
@@ -185,11 +189,14 @@ class WebStatsRepository implements IStatsRepository {
 
     return StatsCompetitionsData(
         competitionsLesPlusSuivies:
-            StatsLoader.getPodiumFromMap<Competition>(competitionsDifferentes),
+            await StatsLoader.getPodiumFromMap<Competition>(
+                competitionsDifferentes),
         nbCompetitionsDifferentes: competitionsDifferentes.length,
-        butsParCompetition: StatsLoader.getButsParCompetition(matchsVusModels),
+        butsParCompetition:
+            await StatsLoader.getButsParCompetition(matchsVusModels),
         competitionsMoyButs:
-            StatsLoader.getMoyenneButsParMatchParCompetition(matchsVusModels),
+            await StatsLoader.getMoyenneButsParMatchParCompetition(
+                matchsVusModels),
         pourcentageMatchsCompetitions:
             StatsLoader.getPourcentageMatchsCompetitions(matchsVusModels),
         typesCompetitions: [
@@ -217,7 +224,7 @@ class WebStatsRepository implements IStatsRepository {
       matchsPlusReactions: await StatsLoader.getMatchsPlusReactions(
           matchsVusUser: matchsVusUser),
       joursLePlusDeMatchs:
-          StatsLoader.getJoursAvecLePlusDeMatchs(matchsVusUser: matchsVusUser),
+          await StatsLoader.getJoursAvecLePlusDeMatchs(matchsVusUser: matchsVusUser),
       typeVisionnage:
           await StatsLoader.getTypeVisionnage(matchsVusUser: matchsVusUser),
       matchsVusParMois:

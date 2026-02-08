@@ -90,7 +90,7 @@ class PodiumListItem<T> extends StatelessWidget {
       podium: PodiumContext(
         rank: 1,
         value: podiumEntry.value,
-        accent: accent,
+        color: podiumEntry.color,
       ),
     );
   }
@@ -113,7 +113,7 @@ class PodiumListItem<T> extends StatelessWidget {
             podium: PodiumContext(
               rank: 1,
               value: first.value,
-              accent: accent,
+              color: first.color,
             ),
           ),
         ),
@@ -129,7 +129,7 @@ class PodiumListItem<T> extends StatelessWidget {
                     podium: PodiumContext(
                       rank: 2,
                       value: second.value,
-                      accent: accent,
+                      color: second.color,
                     ),
                   ),
                 ),
@@ -142,7 +142,7 @@ class PodiumListItem<T> extends StatelessWidget {
                     podium: PodiumContext(
                       rank: 3,
                       value: third.value,
-                      accent: accent,
+                      color: third.color,
                     ),
                   ),
                 ),
