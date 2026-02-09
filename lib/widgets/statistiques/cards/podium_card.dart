@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/show_podium_details_popup.dart';
 
 class PodiumCard<T> extends StatelessWidget {
   final String title;
@@ -18,9 +19,12 @@ class PodiumCard<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        print("coucou test");
-      },
+      onTap: () => showPodiumDetailsPopup(
+        context: context,
+        title: title,
+        watchedMatchesCount: 0,
+        entries: items,
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: ColorPalette.tileBackground(context),

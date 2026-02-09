@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/show_podium_details_popup.dart';
 
 class PodiumListItem<T> extends StatelessWidget {
   final String title;
@@ -22,26 +23,34 @@ class PodiumListItem<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = accentColor ?? ColorPalette.accent(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: ColorPalette.tileBackground(context),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ColorPalette.border(context)),
+    return GestureDetector(
+      onTap: () => showPodiumDetailsPopup(
+        context: context,
+        title: title,
+        watchedMatchesCount: 0,
+        entries: items,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              color: ColorPalette.textSecondary(context),
+      child: Container(
+        decoration: BoxDecoration(
+          color: ColorPalette.tileBackground(context),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: ColorPalette.border(context)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                color: ColorPalette.textSecondary(context),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          _buildContent(context, accent),
-        ],
+            const SizedBox(height: 8),
+            _buildContent(context, accent),
+          ],
+        ),
       ),
     );
   }
