@@ -4,11 +4,7 @@ import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 
 class MockAmitieRepository implements IAmitieRepository {
-  static final MockAmitieRepository _instance =
-      MockAmitieRepository._internal();
-  factory MockAmitieRepository() => _instance;
-
-  MockAmitieRepository._internal() {
+  MockAmitieRepository() {
     _seed();
   }
 

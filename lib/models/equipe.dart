@@ -25,6 +25,9 @@ class Equipe extends BasicPodiumDisplayable {
   String? get displayImage => logoPath;
 
   @override
+  String? get longDisplayLabel => null;
+
+  @override
   Future<String?> getColor() async {
     return couleurPrincipale;
   }

@@ -6,15 +6,15 @@ import 'package:scorescope/services/repositories/i_notification_repository.dart'
 
 class MockNotificationRepository implements INotificationRepository {
   MockNotificationRepository() {
-    _initSeed();
+    _seed();
   }
 
   final Map<String, PostNotification> _notifications = {};
 
-  late final Future<void> _seedingFuture = _initSeed();
+  late final Future<void> _seedingFuture = _seed();
   Future<void> get ready => _seedingFuture;
 
-  Future<void> _initSeed() async {
+  Future<void> _seed() async {
     await MockAppUserRepository().ready;
 
     final now = DateTime.now().toUtc();

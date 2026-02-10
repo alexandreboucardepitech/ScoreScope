@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
 import 'equipe.dart';
@@ -338,6 +340,66 @@ class MatchModel implements PodiumDisplayable {
         ],
       );
     }
+  }
+
+  @override
+  Widget buildDetailsLine(
+      {required BuildContext context, required PodiumContext podium}) {
+    final textStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: ColorPalette.textPrimary(context),
+    );
+
+    AppUser? user = RepositoryProvider.userRepository.currentUser;
+
+    final bool isHomeFavorite =
+        user?.equipesPrefereesId.contains(equipeDomicile.id) ?? false;
+    final bool isAwayFavorite =
+        user?.equipesPrefereesId.contains(equipeExterieur.id) ?? false;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Text(
+          equipeDomicile.code ?? equipeDomicile.nomCourt ?? equipeDomicile.nom,
+          style: textStyle.copyWith(
+            color: scoreEquipeDomicile > scoreEquipeExterieur
+                ? ColorPalette.accent(context)
+                : ColorPalette.textPrimary(context),
+          ),
+        ),
+        const SizedBox(width: 6),
+        buildTeamLogo(
+          context,
+          equipeDomicile.logoPath,
+          isFavorite: isHomeFavorite,
+          size: 28,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '$scoreEquipeDomicile - $scoreEquipeExterieur',
+          style: textStyle,
+        ),
+        const SizedBox(width: 6),
+        buildTeamLogo(
+          context,
+          equipeExterieur.logoPath,
+          isFavorite: isAwayFavorite,
+          size: 28,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          equipeExterieur.code ??
+              equipeExterieur.nomCourt ??
+              equipeExterieur.nom,
+          style: textStyle.copyWith(
+            color: scoreEquipeExterieur > scoreEquipeDomicile
+                ? ColorPalette.accent(context)
+                : ColorPalette.textPrimary(context),
+          ),
+        ),
+      ],
+    );
   }
 
   int getNbViewers() {

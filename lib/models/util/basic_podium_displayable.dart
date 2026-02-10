@@ -6,6 +6,7 @@ import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
 
 abstract class BasicPodiumDisplayable implements PodiumDisplayable {
   String get displayLabel;
+  String? get longDisplayLabel;
   String? get displayImage;
 
   @override
@@ -149,6 +150,21 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
             ),
           ),
       ],
+    );
+  }
+
+  @override
+  Widget buildDetailsLine({
+    required BuildContext context,
+    required PodiumContext podium,
+  }) {
+    return Text(
+      longDisplayLabel ?? displayLabel,
+      maxLines: 1,
+      style: TextStyle(
+        color: ColorPalette.textPrimary(context),
+        fontWeight: podium.rank <= 3 ? FontWeight.bold : FontWeight.normal,
+      ),
     );
   }
 }

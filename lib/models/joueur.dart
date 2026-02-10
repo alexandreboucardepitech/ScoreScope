@@ -29,6 +29,9 @@ class Joueur extends BasicPodiumDisplayable {
   String? get displayImage => picture;
 
   @override
+  String? get longDisplayLabel => fullName;
+
+  @override
   Future<String?> getColor() async {
     Equipe? equipe =
         await RepositoryProvider.equipeRepository.fetchEquipeById(equipeId);

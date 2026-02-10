@@ -10,9 +10,10 @@ import 'package:scorescope/services/mock/mock_match_repository.dart';
 import 'package:scorescope/services/repositories/i_app_user_repository.dart';
 
 class MockAppUserRepository implements IAppUserRepository {
-  static final MockAppUserRepository _instance =
-      MockAppUserRepository._internal();
-  factory MockAppUserRepository() => _instance;
+  MockAppUserRepository({String currentUserId = 'u_alex'})
+      : _currentUserId = currentUserId {
+    _seedingFuture = _seed();
+  }
 
   late final Future<void> _seedingFuture;
 
@@ -21,11 +22,6 @@ class MockAppUserRepository implements IAppUserRepository {
   final List<AppUser> _users = [];
 
   final String _currentUserId;
-
-  MockAppUserRepository._internal({String currentUserId = 'u_alex'})
-      : _currentUserId = currentUserId {
-    _seedingFuture = _seed();
-  }
 
   Future<void> _seed() async {
     final equipeRepository = MockEquipeRepository();
@@ -246,6 +242,7 @@ class MockAppUserRepository implements IAppUserRepository {
     await _seedingFuture;
     final found = _users.firstWhere((u) => u.uid == _currentUserId,
         orElse: () => _users.first);
+    currentUser = found;
     return found;
   }
 
@@ -647,4 +644,8 @@ class MockAppUserRepository implements IAppUserRepository {
       }
     });
   }
+
+  @override
+  AppUser?
+      currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
 }

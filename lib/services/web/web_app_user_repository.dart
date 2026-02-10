@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
@@ -8,8 +7,6 @@ import 'package:scorescope/models/match_user_data.dart';
 import '../../models/app_user.dart';
 import '../repositories/i_app_user_repository.dart';
 
-/// Simple HTTP implementation of [IAppUserRepository].
-/// Adjust endpoints and error handling to match your backend.
 class WebAppUserRepository implements IAppUserRepository {
   final CollectionReference<Map<String, dynamic>> _usersCollection =
       FirebaseFirestore.instance.collection('users');
@@ -183,7 +180,8 @@ class WebAppUserRepository implements IAppUserRepository {
     data['matchsUserData'] =
         matchUserDataSnapshot.docs.map((d) => d.data()).toList();
 
-    return AppUser.fromJson(json: data, userId: firebaseUser.uid);
+    currentUser = AppUser.fromJson(json: data, userId: firebaseUser.uid);
+    return currentUser;
   }
 
   @override
@@ -448,4 +446,7 @@ class WebAppUserRepository implements IAppUserRepository {
       debugPrint(stack.toString());
     }
   }
+
+  @override
+  AppUser? currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
 }

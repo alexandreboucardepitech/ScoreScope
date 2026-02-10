@@ -4,6 +4,8 @@ import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 
 abstract class IAppUserRepository {
+  AppUser? currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
+
   Future<List<AppUser>> fetchAllUsers();
   Future<AppUser?> fetchUserById(String id);
   Future<List<String>> getUserEquipesPrefereesId(String userId);

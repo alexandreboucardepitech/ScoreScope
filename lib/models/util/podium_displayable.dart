@@ -12,5 +12,10 @@ abstract class PodiumDisplayable {
     required PodiumContext podium,
   });
 
+  Widget buildDetailsLine({
+    required BuildContext context,
+    required PodiumContext podium,
+  });
+
   Future<String?> getColor();
 }

@@ -10,22 +10,18 @@ import 'package:scorescope/services/repository_provider.dart';
 
 class MockPostRepository implements IPostRepository {
   MockPostRepository() {
-    _initSeed();
+    _seed();
   }
 
   // in-memory storage keyed by "$ownerUserId|$matchId"
   final Map<String, List<Commentaire>> _comments = {};
   final Map<String, List<Reaction>> _reactions = {};
 
-  // small ready future to ensure seed finished if needed externally
-  late final Future<void> _seedingFuture = _initSeed();
+  late final Future<void> _seedingFuture = _seed();
 
   Future<void> get ready => _seedingFuture;
 
-  // -----------------------
-  // Seed
-  // -----------------------
-  Future<void> _initSeed() async {
+  Future<void> _seed() async {
     await MockAppUserRepository().ready;
 
     final allUsers = await MockAppUserRepository().fetchAllUsers();

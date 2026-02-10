@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
+import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
@@ -232,13 +233,9 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              entry.item.toString(),
-              style: TextStyle(
-                color: ColorPalette.textPrimary(context),
-                fontSize: 15,
-                fontWeight: rank <= 3 ? FontWeight.w600 : FontWeight.normal,
-              ),
+            child: entry.item.buildDetailsLine(
+              context: context,
+              podium: PodiumContext(rank: rank, value: entry.value),
             ),
           ),
           const SizedBox(width: 8),
@@ -249,7 +246,7 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
               _valueChipColor(context),
               large: true,
             )
-          else
+          else ...[
             Text(
               entry.value.toString(),
               style: TextStyle(
@@ -257,6 +254,8 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
+            const SizedBox(width: 10),
+          ],
         ],
       ),
     );

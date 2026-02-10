@@ -38,93 +38,86 @@ enum Environment {
 class RepositoryProvider {
   static Environment environment = Environment.web;
 
+  static IEquipeRepository? _equipeRepository;
   static IEquipeRepository get equipeRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockEquipeRepository();
-      case Environment.web:
-        return WebEquipeRepository();
-    }
+    return _equipeRepository ??= environment == Environment.mock
+        ? MockEquipeRepository()
+        : WebEquipeRepository();
   }
 
+  static IMatchRepository? _matchRepository;
   static IMatchRepository get matchRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockMatchRepository();
-      case Environment.web:
-        return WebMatchRepository();
-    }
+    return _matchRepository ??= environment == Environment.mock
+        ? MockMatchRepository()
+        : WebMatchRepository();
   }
 
+  static IJoueurRepository? _joueurRepository;
   static IJoueurRepository get joueurRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockJoueurRepository();
-      case Environment.web:
-        return WebJoueurRepository();
-    }
+    return _joueurRepository ??= environment == Environment.mock
+        ? MockJoueurRepository()
+        : WebJoueurRepository();
   }
 
+  static IAppUserRepository? _userRepository;
   static IAppUserRepository get userRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockAppUserRepository();
-      case Environment.web:
-        return WebAppUserRepository();
-    }
+    return _userRepository ??= environment == Environment.mock
+        ? MockAppUserRepository()
+        : WebAppUserRepository();
   }
 
+  static IAmitieRepository? _amitieRepository;
   static IAmitieRepository get amitieRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockAmitieRepository();
-      case Environment.web:
-        return WebAmitieRepository();
-    }
+    return _amitieRepository ??= environment == Environment.mock
+        ? MockAmitieRepository()
+        : WebAmitieRepository();
   }
 
+  static IPostRepository? _postRepository;
   static IPostRepository get postRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockPostRepository();
-      case Environment.web:
-        return WebPostRepository();
-    }
+    return _postRepository ??= environment == Environment.mock
+        ? MockPostRepository()
+        : WebPostRepository();
   }
 
+  static INotificationRepository? _notificationRepository;
   static INotificationRepository get notificationRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockNotificationRepository();
-      case Environment.web:
-        return WebNotificationRepository();
-    }
+    return _notificationRepository ??= environment == Environment.mock
+        ? MockNotificationRepository()
+        : WebNotificationRepository();
   }
 
+  static ICompetitionRepository? _competitionRepository;
   static ICompetitionRepository get competitionRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockCompetitionRepository();
-      case Environment.web:
-        return WebCompetitionRepository();
-    }
+    return _competitionRepository ??= environment == Environment.mock
+        ? MockCompetitionRepository()
+        : WebCompetitionRepository();
   }
 
+  static IRechercheRepository? _rechercheRepository;
   static IRechercheRepository get rechercheRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockRechercheRepository();
-      case Environment.web:
-        return WebRechercheRepository();
-    }
+    return _rechercheRepository ??= environment == Environment.mock
+        ? MockRechercheRepository()
+        : WebRechercheRepository();
   }
 
+  static IStatsRepository? _statsRepository;
   static IStatsRepository get statsRepository {
-    switch (environment) {
-      case Environment.mock:
-        return MockStatsRepository();
-      case Environment.web:
-        return WebStatsRepository();
-    }
+    return _statsRepository ??= environment == Environment.mock
+        ? MockStatsRepository()
+        : WebStatsRepository();
+  }
+
+  static void reset() {
+    _equipeRepository = null;
+    _matchRepository = null;
+    _joueurRepository = null;
+    _userRepository = null;
+    _amitieRepository = null;
+    _postRepository = null;
+    _notificationRepository = null;
+    _competitionRepository = null;
+    _rechercheRepository = null;
+    _statsRepository = null;
   }
 }

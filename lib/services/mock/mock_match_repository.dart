@@ -13,17 +13,11 @@ import '../repositories/i_equipe_repository.dart';
 // import 'package:uuid/uuid.dart';
 
 class MockMatchRepository implements IMatchRepository {
-  static final MockMatchRepository _instance = MockMatchRepository._internal();
-
-  late final Future<void> _seedingFuture; // { changed code }
-
-  MockMatchRepository._internal() {
-    _seedingFuture = _seed(); // { changed code }
-  } // { changed code }
-
-  factory MockMatchRepository() {
-    return _instance;
+  MockMatchRepository() {
+    _seedingFuture = _seed();
   }
+
+  late final Future<void> _seedingFuture;
 
   Future<void> get ready => _seedingFuture;
 
@@ -230,7 +224,8 @@ class MockMatchRepository implements IMatchRepository {
       match.mvpVotes.remove(userId);
     }
 
-    await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, matchDate, joueurId);
+    await MockAppUserRepository()
+        .setMvpVoteForMatch(userId, matchId, matchDate, joueurId);
 
     await Future.delayed(const Duration(milliseconds: 50));
   }
@@ -245,7 +240,8 @@ class MockMatchRepository implements IMatchRepository {
     match.mvpVotes.remove(userId);
 
     // supprimer le mvpVoteId dans l'user data (en le mettant à null)
-    await MockAppUserRepository().setMvpVoteForMatch(userId, matchId, match.date, null);
+    await MockAppUserRepository()
+        .setMvpVoteForMatch(userId, matchId, match.date, null);
 
     await Future.delayed(const Duration(milliseconds: 50));
   }

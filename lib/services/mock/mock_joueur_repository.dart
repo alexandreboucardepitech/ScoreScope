@@ -7,16 +7,11 @@ import '../repositories/i_joueur_repository.dart';
 import '../../utils/string/string_helper.dart';
 
 class MockJoueurRepository implements IJoueurRepository {
-  static final MockJoueurRepository _instance =
-      MockJoueurRepository._internal();
-
-  late final Future<void> _seedingFuture;
-
-  MockJoueurRepository._internal() {
+  MockJoueurRepository() {
     _seedingFuture = _seed();
   }
 
-  factory MockJoueurRepository() => _instance;
+  late final Future<void> _seedingFuture;
 
   Future<void> get ready => _seedingFuture;
 

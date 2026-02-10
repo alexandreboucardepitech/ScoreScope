@@ -16,6 +16,9 @@ class Competition extends BasicPodiumDisplayable {
   String? get displayImage => logoUrl;
 
   @override
+  String? get longDisplayLabel => null;
+
+  @override
   Future<String?> getColor() async {
     return null;
   }
@@ -36,4 +39,7 @@ class Competition extends BasicPodiumDisplayable {
       popularite: json['popularite'] as int? ?? 0,
     );
   }
+
+  @override
+  String toString() => nom;
 }

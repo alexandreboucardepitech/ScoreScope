@@ -4,16 +4,11 @@ import '../repositories/i_equipe_repository.dart';
 import '../../utils/string/string_helper.dart';
 
 class MockEquipeRepository implements IEquipeRepository {
-  static final MockEquipeRepository _instance =
-      MockEquipeRepository._internal();
-
-  late final Future<void> _seedingFuture;
-
-  MockEquipeRepository._internal() {
+  MockEquipeRepository() {
     _seedingFuture = _seed();
   }
 
-  factory MockEquipeRepository() => _instance;
+  late final Future<void> _seedingFuture;
 
   Future<void> get ready => _seedingFuture;
 

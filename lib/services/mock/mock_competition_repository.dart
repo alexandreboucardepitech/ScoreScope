@@ -4,16 +4,11 @@ import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/repositories/i_competition_repository.dart';
 
 class MockCompetitionRepository implements ICompetitionRepository {
-  static final MockCompetitionRepository _instance =
-      MockCompetitionRepository._internal();
-
-  late final Future<void> _seedingFuture;
-
-  MockCompetitionRepository._internal() {
+  MockCompetitionRepository() {
     _seedingFuture = _seed();
   }
 
-  factory MockCompetitionRepository() => _instance;
+  late final Future<void> _seedingFuture;
 
   Future<void> get ready => _seedingFuture;
 
