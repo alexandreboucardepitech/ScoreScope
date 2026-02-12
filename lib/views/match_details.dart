@@ -52,8 +52,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     } catch (e) {
       debugPrint('Erreur lors du fetch du match: $e');
     } finally {
-      if (!mounted) return;
-      setState(() => _isFetchingMatch = false);
+      if (mounted) {
+        setState(() => _isFetchingMatch = false);
+      }
     }
   }
 
@@ -83,8 +84,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       }
     } catch (_) {
     } finally {
-      if (!mounted) return;
-      setState(() => _isProcessingPrivacy = false);
+      if (mounted) {
+        setState(() => _isProcessingPrivacy = false);
+      }
     }
   }
 
@@ -127,8 +129,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         ),
       );
     } finally {
-      if (!mounted) return;
-      setState(() => _isUpdatingFavori = false);
+      if (mounted) {
+        setState(() => _isUpdatingFavori = false);
+      }
     }
   }
 
@@ -318,8 +321,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         ),
       );
     } finally {
-      if (!mounted) return;
-      setState(() => _isProcessingPrivacy = false);
+      if (mounted) {
+        setState(() => _isProcessingPrivacy = false);
+      }
     }
   }
 
@@ -357,8 +361,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                 Text('Erreur lors de la suppression du match (réessayez)')),
       );
     } finally {
-      if (!mounted) return;
-      setState(() => _isProcessingPrivacy = false);
+      if (mounted) {
+        setState(() => _isProcessingPrivacy = false);
+      }
     }
   }
 

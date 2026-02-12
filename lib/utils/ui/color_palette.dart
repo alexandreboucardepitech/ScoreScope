@@ -77,6 +77,9 @@ class ColorPalette {
   static const Color shimmerSecondaryLight = Color(0xFFF4E9FB);
   static const Color shimmerSecondaryDark = Color(0xFF2A1B3A);
 
+  static const Color shimmerTertiaryLight = Color(0xFFF6EEFC);
+  static const Color shimmerTertiaryDark = Color(0xFF3A2750);
+
   // ----- OPPOSITE -----
   static const Color oppositeLight = Color(0xFF0F0416);
   static const Color oppositeDark = Color(0xFFF4E9FB);
@@ -153,6 +156,9 @@ class ColorPalette {
 
   static Color shimmerSecondary(BuildContext context) =>
       isDark(context) ? shimmerSecondaryDark : shimmerSecondaryLight;
+
+  static Color shimmerTertiary(BuildContext context) =>
+      isDark(context) ? shimmerTertiaryDark : shimmerTertiaryLight;
 
   static Color opposite(BuildContext context) =>
       isDark(context) ? oppositeDark : oppositeLight;

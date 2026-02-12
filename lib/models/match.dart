@@ -343,11 +343,15 @@ class MatchModel implements PodiumDisplayable {
   }
 
   @override
-  Widget buildDetailsLine(
-      {required BuildContext context, required PodiumContext podium}) {
+  Widget buildDetailsLine({
+    required BuildContext context,
+    required PodiumContext podium,
+    bool large = true,
+  }) {
+    final logoSize = large ? 32.0 : 20.0;
     final textStyle = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
+      fontSize: large ? 16 : 14,
+      fontWeight: large ? FontWeight.bold : FontWeight.normal,
       color: ColorPalette.textPrimary(context),
     );
 
@@ -373,7 +377,7 @@ class MatchModel implements PodiumDisplayable {
           context,
           equipeDomicile.logoPath,
           isFavorite: isHomeFavorite,
-          size: 28,
+          size: logoSize,
         ),
         const SizedBox(width: 6),
         Text(
@@ -385,7 +389,7 @@ class MatchModel implements PodiumDisplayable {
           context,
           equipeExterieur.logoPath,
           isFavorite: isAwayFavorite,
-          size: 28,
+          size: logoSize,
         ),
         const SizedBox(width: 6),
         Text(

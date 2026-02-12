@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/stats/stats_generales_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 
 class StatsGeneralesOnglet extends StatelessWidget {
   final bool showCards;
   final StatsGeneralesData data;
+  final AppUser user;
 
   const StatsGeneralesOnglet({
     super.key,
     required this.data,
     this.showCards = true,
+    required this.user,
   });
 
   @override
@@ -32,18 +35,21 @@ class StatsGeneralesOnglet extends StatelessWidget {
         title: 'Équipes les plus vues',
         items: data.equipesLesPlusVues,
         emptyStateText: 'Aucune équipe',
+        user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Compétitions les plus suivies',
         items: data.competitionsLesPlusSuivies,
         emptyStateText: 'Aucune compétition',
+        user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Joueurs les plus vus marquer',
         items: data.meilleursButeurs,
         emptyStateText: 'Aucun buteur',
+        user: user,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
@@ -77,9 +83,10 @@ class StatsGeneralesOnglet extends StatelessWidget {
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'MVP le plus voté',
+        title: 'MVP les plus voté',
         items: data.mvpsLesPlusVotes,
         emptyStateText: 'Aucun MVP',
+        user: user,
       ),
     ];
 

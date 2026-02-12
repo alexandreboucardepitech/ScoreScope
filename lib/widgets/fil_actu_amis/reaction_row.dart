@@ -640,8 +640,8 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
         ),
       );
     }
-    final initial = (user?.displayName?.isNotEmpty == true)
-        ? user!.displayName![0].toUpperCase()
+    final initial = (user?.displayName.isNotEmpty == true)
+        ? user!.displayName[0].toUpperCase()
         : '?';
     return Container(
       width: size,

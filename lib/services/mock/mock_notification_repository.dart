@@ -189,7 +189,7 @@ class MockNotificationRepository implements INotificationRepository {
       matchId: matchId,
     );
 
-    if (!notif.reactionCounts.values.contains(authorId)) {
+    if (!notif.reactionCounts.keys.contains(authorId)) {
       notif.reactionCounts[authorId] = 0;
     }
 

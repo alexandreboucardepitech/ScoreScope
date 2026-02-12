@@ -92,8 +92,9 @@ class _InfosTabState extends State<InfosTab> {
         userVoteNoteMatch = null;
       });
     } finally {
-      if (!mounted) return;
-      setState(() => _loadingMvp = false);
+      if (mounted) {
+        setState(() => _loadingMvp = false);
+      }
     }
   }
 

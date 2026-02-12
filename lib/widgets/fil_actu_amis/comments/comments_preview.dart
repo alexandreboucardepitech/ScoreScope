@@ -94,10 +94,10 @@ class CommentsPreview extends StatelessWidget {
                               ? Text(
                                   (userCache[c.authorId]
                                               ?.displayName
-                                              ?.isNotEmpty ==
+                                              .isNotEmpty ==
                                           true
                                       ? userCache[c.authorId]!
-                                          .displayName![0]
+                                          .displayName[0]
                                           .toUpperCase()
                                       : c.authorId.isNotEmpty
                                           ? c.authorId[0].toUpperCase()

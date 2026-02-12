@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/stats_equipes_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
@@ -7,11 +8,13 @@ import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 class StatsEquipesOnglet extends StatelessWidget {
   final bool showCards;
   final StatsEquipesData data;
+  final AppUser user;
 
   const StatsEquipesOnglet({
     super.key,
     required this.data,
     this.showCards = true,
+    required this.user,
   });
 
   @override
@@ -28,30 +31,35 @@ class StatsEquipesOnglet extends StatelessWidget {
         title: 'Équipes les plus vues',
         items: data.equipesLesPlusVues,
         emptyStateText: 'Aucune équipe',
+        user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Équipes les plus vues gagner',
         items: data.equipesLesPlusVuesGagner,
         emptyStateText: 'Aucune donnée',
+        user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Équipes les vues perdre',
+        title: 'Équipes les plus vues perdre',
         items: data.equipesLesPlusVuesPerdre,
         emptyStateText: 'Aucune donnée',
+        user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Buts marqués',
         items: data.equipesPlusDeButsMarques,
         emptyStateText: 'Aucune donnée',
+        user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Buts encaissés',
         items: data.equipesPlusDeButsEncaisses,
         emptyStateText: 'Aucune donnée',
+        user: user,
       ),
     ];
 

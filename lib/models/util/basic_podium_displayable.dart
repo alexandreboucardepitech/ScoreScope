@@ -157,10 +157,14 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
   Widget buildDetailsLine({
     required BuildContext context,
     required PodiumContext podium,
+    bool large = true,
   }) {
     return Text(
-      longDisplayLabel ?? displayLabel,
+      large
+          ? longDisplayLabel ?? displayLabel
+          : displayLabel, // si large : on prend le long si il existe, sinon le court
       maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: TextStyle(
         color: ColorPalette.textPrimary(context),
         fontWeight: podium.rank <= 3 ? FontWeight.bold : FontWeight.normal,

@@ -331,7 +331,7 @@ class WebAppUserRepository implements IAppUserRepository {
     final queryLower = prefix.toLowerCase();
 
     final filtered = allUsers.where((u) {
-      final name = u.displayName?.toLowerCase() ?? '';
+      final name = u.displayName.toLowerCase();
       return name.contains(queryLower);
     }).toList();
 
@@ -448,5 +448,6 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  AppUser? currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
+  AppUser?
+      currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
 }

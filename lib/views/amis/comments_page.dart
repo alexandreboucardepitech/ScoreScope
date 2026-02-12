@@ -174,7 +174,9 @@ class _CommentsPageState extends State<CommentsPage> {
     if (_currentUserId == null ||
         _loadingReactionOp ||
         _entry == null ||
-        _matchData == null) return;
+        _matchData == null) {
+      return;
+    }
 
     setState(() => _loadingReactionOp = true);
 
@@ -251,7 +253,7 @@ class _CommentsPageState extends State<CommentsPage> {
               alignment: Alignment.center,
               child: user?.photoUrl == null
                   ? Text(
-                      user?.displayName?.characters.first.toUpperCase() ?? '?',
+                      user?.displayName.characters.first.toUpperCase() ?? '?',
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontWeight: FontWeight.bold,

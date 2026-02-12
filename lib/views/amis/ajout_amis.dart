@@ -178,12 +178,12 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
                     ? NetworkImage(u.photoUrl!)
                     : null,
                 child: (u.photoUrl == null || u.photoUrl!.isEmpty)
-                    ? Text((u.displayName != null && u.displayName!.isNotEmpty)
-                        ? u.displayName![0].toUpperCase()
+                    ? Text((u.displayName.isNotEmpty)
+                        ? u.displayName[0].toUpperCase()
                         : '?')
                     : null,
               ),
-              title: Text(u.displayName ?? 'Utilisateur sans nom'),
+              title: Text(u.displayName),
               onTap: () {
                 Navigator.push(
                   context,

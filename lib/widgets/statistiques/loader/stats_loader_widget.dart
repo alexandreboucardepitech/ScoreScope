@@ -28,7 +28,7 @@ class StatsLoaderWidget extends StatefulWidget {
   final bool onlyPublicMatches;
   final DateTimeRange? dateRange;
   final StatsOnglet onglet;
-  final AppUser? user;
+  final AppUser user;
 
   const StatsLoaderWidget({
     super.key,
@@ -66,29 +66,25 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
   }
 
   Future<dynamic> _loadStats() async {
-    if (widget.user == null) {
-      return null;
-    }
-
     switch (widget.onglet) {
       case StatsOnglet.generales:
         return RepositoryProvider.statsRepository.fetchStatsGenerales(
-            widget.user!.uid, widget.onlyPublicMatches, widget.dateRange);
+            widget.user.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.matchs:
         return RepositoryProvider.statsRepository.fetchStatsMatchs(
-            widget.user!.uid, widget.onlyPublicMatches, widget.dateRange);
+            widget.user.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.equipes:
         return RepositoryProvider.statsRepository.fetchStatsEquipes(
-            widget.user!.uid, widget.onlyPublicMatches, widget.dateRange);
+            widget.user.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.joueurs:
         return RepositoryProvider.statsRepository.fetchStatsJoueurs(
-            widget.user!.uid, widget.onlyPublicMatches, widget.dateRange);
+            widget.user.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.competitions:
         return RepositoryProvider.statsRepository.fetchStatsCompetitions(
-            widget.user!.uid, widget.onlyPublicMatches, widget.dateRange);
+            widget.user.uid, widget.onlyPublicMatches, widget.dateRange);
       case StatsOnglet.habitudes:
         return RepositoryProvider.statsRepository.fetchStatsHabitudes(
-            widget.user!.uid, widget.onlyPublicMatches, widget.dateRange);
+            widget.user.uid, widget.onlyPublicMatches, widget.dateRange);
     }
   }
 
@@ -116,31 +112,37 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
             return StatsGeneralesOnglet(
               showCards: widget.showCards,
               data: data as StatsGeneralesData,
+              user: widget.user,
             );
           case StatsOnglet.matchs:
             return StatsMatchsOnglet(
               showCards: widget.showCards,
               data: data as StatsMatchsData,
+              user: widget.user,
             );
           case StatsOnglet.equipes:
             return StatsEquipesOnglet(
               showCards: widget.showCards,
               data: data as StatsEquipesData,
+              user: widget.user,
             );
           case StatsOnglet.joueurs:
             return StatsJoueursOnglet(
               showCards: widget.showCards,
               data: data as StatsJoueursData,
+              user: widget.user,
             );
           case StatsOnglet.competitions:
             return StatsCompetitionsOnglet(
               showCards: widget.showCards,
               data: data as StatsCompetitionsData,
+              user: widget.user,
             );
           case StatsOnglet.habitudes:
             return StatsHabitudesOnglet(
               showCards: widget.showCards,
               data: data as StatsHabitudesData,
+              user: widget.user,
             );
         }
       },

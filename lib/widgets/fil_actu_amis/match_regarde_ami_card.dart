@@ -204,8 +204,8 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
                       : null,
                   child: friend.photoUrl == null
                       ? Text(
-                          (friend.displayName?.isNotEmpty == true
-                              ? friend.displayName![0].toUpperCase()
+                          (friend.displayName.isNotEmpty == true
+                              ? friend.displayName[0].toUpperCase()
                               : '?'),
                           style: TextStyle(
                               color: ColorPalette.textPrimary(context),
@@ -228,7 +228,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(friend.displayName ?? 'Utilisateur',
+                      Text(friend.displayName,
                           style: TextStyle(
                               color: ColorPalette.textPrimary(context),
                               fontWeight: FontWeight.w800,

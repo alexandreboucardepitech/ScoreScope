@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/widgets/statistiques/cards/podium_card.dart';
 import 'package:scorescope/widgets/statistiques/cards/simple_stat_card.dart';
@@ -32,18 +33,21 @@ Widget buildPodiumCardOrListTile<T>({
   required List<PodiumEntry> items,
   String Function(T)? imageExtractor,
   required String emptyStateText,
+  required AppUser user,
 }) {
   if (showCards) {
     return PodiumCard<T>(
       title: title,
       items: items,
       emptyStateText: emptyStateText,
+      user: user,
     );
   } else {
     return PodiumListItem<T>(
       title: title,
       items: items,
       emptyStateText: emptyStateText,
+      user: user,
     );
   }
 }

@@ -131,8 +131,14 @@ class MockAppUserRepository implements IAppUserRepository {
   @override
   Future<List<String>> getUserEquipesPrefereesId(String userId) async {
     await _seedingFuture;
-    final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
     return user.uid.isEmpty ? [] : user.equipesPrefereesId;
   }
 
@@ -142,8 +148,14 @@ class MockAppUserRepository implements IAppUserRepository {
       bool onlyPublic = false,
       DateTimeRange? dateRange}) async {
     await _seedingFuture;
-    final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
     if (user.uid.isEmpty) return [];
     final matchsRegardes = onlyPublic
         ? user.matchsUserData
@@ -164,8 +176,14 @@ class MockAppUserRepository implements IAppUserRepository {
   @override
   Future<int> getUserNbMatchsRegardes(String userId, bool onlyPublic) async {
     await _seedingFuture;
-    final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
     if (user.uid.isEmpty) return 0;
     final matchsRegardes = onlyPublic
         ? user.matchsUserData.where((m) => m.private == false).toList()
@@ -176,8 +194,14 @@ class MockAppUserRepository implements IAppUserRepository {
   @override
   Future<int> getUserNbButs(String userId, bool onlyPublic) async {
     await _seedingFuture;
-    final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
     int nbButs = 0;
     MatchModel? match;
     for (MatchUserData data in user.matchsUserData) {
@@ -226,8 +250,14 @@ class MockAppUserRepository implements IAppUserRepository {
   Future<List<String>> getUserMatchsFavorisId(
       String userId, bool onlyPublic) async {
     await _seedingFuture;
-    final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
     if (user.uid.isEmpty) return [];
     final favoris = user.matchsUserData
         .where((m) => m.favourite == true)
@@ -428,8 +458,14 @@ class MockAppUserRepository implements IAppUserRepository {
   Future<VisionnageMatch> getVisionnageMatch(
       String userId, String matchId) async {
     await _seedingFuture;
-    final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
     if (user.uid.isEmpty) return VisionnageMatch.tele;
     final matchData = user.matchsUserData.firstWhere(
         (m) => m.matchId == matchId,
@@ -502,8 +538,14 @@ class MockAppUserRepository implements IAppUserRepository {
   @override
   Future<bool> getMatchPrivacy(String userId, String matchId) async {
     await _seedingFuture;
-    final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
     if (user.uid.isEmpty) return false;
     final matchData = user.matchsUserData.firstWhere(
         (m) => m.matchId == matchId,
@@ -581,7 +623,7 @@ class MockAppUserRepository implements IAppUserRepository {
     final queryLower = prefix.toLowerCase();
 
     final filtered = _users.where((u) {
-      final name = u.displayName?.toLowerCase() ?? '';
+      final name = u.displayName.toLowerCase();
       return name.contains(queryLower);
     }).toList();
 
@@ -594,8 +636,14 @@ class MockAppUserRepository implements IAppUserRepository {
       bool onlyPublic = false,
       DateTimeRange? dateRange}) async {
     await _seedingFuture;
-    final user = _users.firstWhere((u) => u.uid == userId,
-        orElse: () => AppUser(uid: '', createdAt: DateTime.now()));
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
     if (user.uid.isEmpty) return [];
     if (onlyPublic) {
       return user.matchsUserData.where((m) => m.private == false).toList();

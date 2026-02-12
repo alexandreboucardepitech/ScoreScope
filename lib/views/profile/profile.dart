@@ -354,10 +354,11 @@ class _ProfileViewState extends State<ProfileView> {
             content: Text("Erreur lors de l'action sur l'utilisateur.")),
       );
     } finally {
-      if (!mounted) return;
-      _setStateAndRemeasure(() {
-        _isPerformingFriendAction = false;
-      });
+      if (mounted) {
+        _setStateAndRemeasure(() {
+          _isPerformingFriendAction = false;
+        });
+      }
     }
   }
 
@@ -475,7 +476,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               title: _isScrolled
                   ? ProfileScrolledTitle(
-                      username: userToUse.displayName ?? 'Utilisateur',
+                      username: userToUse.displayName,
                       nbAmis: userNbAmis?.toString() ?? '0',
                       nbButs: userNbButs?.toString() ?? '0',
                       nbMatchs: userNbMatchsRegardes?.toString() ?? '0',

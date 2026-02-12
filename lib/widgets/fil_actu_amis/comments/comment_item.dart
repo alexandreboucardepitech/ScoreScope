@@ -56,9 +56,9 @@ class CommentItem extends StatelessWidget {
             alignment: Alignment.center,
             child: user?.photoUrl == null
                 ? Text(
-                    (user?.displayName?.isNotEmpty == true
-                            ? user!.displayName![0].toUpperCase()
-                            : '?'),
+                    (user?.displayName.isNotEmpty == true
+                        ? user!.displayName[0].toUpperCase()
+                        : '?'),
                     style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontWeight: FontWeight.bold),

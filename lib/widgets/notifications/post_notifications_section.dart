@@ -351,7 +351,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
               user?.photoUrl != null ? NetworkImage(user!.photoUrl!) : null,
           child: user?.photoUrl == null
               ? Text(
-                  user?.displayName?.characters.first.toUpperCase() ?? '?',
+                  user?.displayName.characters.first.toUpperCase() ?? '?',
                   style: TextStyle(
                     color: ColorPalette.textPrimary(context),
                   ),

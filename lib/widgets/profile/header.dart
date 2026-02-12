@@ -139,29 +139,21 @@ class _HeaderState extends State<Header> {
               ? NetworkImage(widget.user.photoUrl!)
               : null,
           child: widget.user.photoUrl == null &&
-                  (widget.user.displayName?.isNotEmpty ?? false)
-              ? Text(widget.user.displayName!.substring(0, 1).toUpperCase(),
+                  (widget.user.displayName.isNotEmpty)
+              ? Text(widget.user.displayName.substring(0, 1).toUpperCase(),
                   style: TextStyle(
                       fontSize: 36, color: ColorPalette.textAccent(context)))
               : null,
         ),
         const SizedBox(height: 12),
-        if (widget.user.displayName != null &&
-            widget.user.displayName!.isNotEmpty)
-          Text(
-            widget.user.displayName!,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: ColorPalette.textPrimary(context),
-                ),
-          )
-        else
-          Container(
-            width: 160,
-            height: 22,
-            color: Colors.transparent,
-          ),
+        Text(
+          widget.user.displayName,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: ColorPalette.textPrimary(context),
+              ),
+        ),
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),

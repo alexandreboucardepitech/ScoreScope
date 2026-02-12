@@ -4,8 +4,8 @@ import 'package:scorescope/models/match.dart';
 
 class AppUser {
   final String uid;
+  final String displayName;
   final String? email;
-  final String? displayName;
   final String? bio;
   final String? photoUrl;
   final DateTime createdAt;
@@ -15,8 +15,8 @@ class AppUser {
 
   AppUser({
     required this.uid,
+    required this.displayName,
     this.email,
-    this.displayName,
     this.bio,
     this.photoUrl,
     required this.createdAt,
@@ -41,8 +41,8 @@ class AppUser {
   }) {
     return AppUser(
       uid: userId ?? json['uid'] as String,
+      displayName: json['displayName'],
       email: json['email'] as String?,
-      displayName: json['displayName'] as String?,
       bio: json['bio'] as String?,
       photoUrl: json['photoUrl'] as String?,
       createdAt: (json['createdAt'] is Timestamp)
@@ -69,8 +69,8 @@ class AppUser {
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
-      'email': email,
       'displayName': displayName,
+      'email': email,
       'bio': bio,
       'photoUrl': photoUrl,
       'createdAt': createdAt,
