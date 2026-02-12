@@ -1,6 +1,6 @@
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
-import 'package:scorescope/services/web/web_app_user_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/stats/stats_loader.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
@@ -12,14 +12,15 @@ Future<List<PodiumEntry<T>>> loadOneStatForOneUser<T extends PodiumDisplayable>(
   String userId,
   String statToLoad,
 ) async {
-  final List<String> matchsVusIds =
-      await WebAppUserRepository().getUserMatchsRegardesId(userId: userId);
+  final List<String> matchsVusIds = await RepositoryProvider.userRepository
+      .getUserMatchsRegardesId(userId: userId, onlyPublic: true);
 
   final List<MatchModel> matchsVusModels =
       await StatsLoader.getMatchModelsFromIds(matchsVusIds);
 
-  final List<MatchUserData> matchsVusUser =
-      await WebAppUserRepository().fetchUserAllMatchUserData(userId: userId);
+  final List<MatchUserData> matchsVusUser = await RepositoryProvider
+      .userRepository
+      .fetchUserAllMatchUserData(userId: userId, onlyPublic: true);
 
   switch (statToLoad) {
     case 'Équipes les plus vues':

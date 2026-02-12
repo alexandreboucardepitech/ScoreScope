@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
-import 'package:scorescope/widgets/statistiques/podium_detail_popup.dart';
+import 'package:scorescope/widgets/statistiques/details/podium_detail_popup.dart';
 
 void showPodiumDetailsPopup<T extends PodiumDisplayable>({
   required BuildContext context,

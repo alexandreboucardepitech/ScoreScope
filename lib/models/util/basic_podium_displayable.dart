@@ -167,7 +167,8 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         color: ColorPalette.textPrimary(context),
-        fontWeight: podium.rank <= 3 ? FontWeight.bold : FontWeight.normal,
+        fontWeight:
+            (podium.rank ?? 4) <= 3 ? FontWeight.bold : FontWeight.normal,
       ),
     );
   }

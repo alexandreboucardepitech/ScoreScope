@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
@@ -8,6 +10,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/stats/load_one_stat_for_one_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
+import 'package:scorescope/widgets/statistiques/details/friends_comparison_bottom_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
 class PodiumDetailsPopup<T extends PodiumDisplayable> extends StatefulWidget {
@@ -32,10 +35,11 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
     extends State<PodiumDetailsPopup<T>> {
   final TextEditingController _searchController = TextEditingController();
   late List<PodiumEntry<T>> _filteredEntries;
+  late List<PodiumEntry<T>> _filteredComparisonEntries;
 
   bool _comparisonMode = false;
   AppUser? _comparisonUser;
-  late List<PodiumEntry<T>> _comparisonEntries;
+  late List<PodiumEntry<T>> _comparisonEntries = [];
 
   bool _isComparisonLoading = false;
 
@@ -43,6 +47,7 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
   void initState() {
     super.initState();
     _filteredEntries = widget.entries;
+    _filteredComparisonEntries = _comparisonEntries;
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -50,6 +55,9 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredEntries = widget.entries.where((entry) {
+        return entry.item.toString().toLowerCase().contains(query);
+      }).toList();
+      _filteredComparisonEntries = _comparisonEntries.where((entry) {
         return entry.item.toString().toLowerCase().contains(query);
       }).toList();
     });
@@ -142,13 +150,22 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
               AppUser? targetUser;
 
               if (widget.user.uid == currentUser.uid) {
+                Map<AppUser, int> friendsMatchesCount = {};
+                List<AppUser> friends = await RepositoryProvider
+                    .amitieRepository
+                    .fetchFriendsForUser(currentUser.uid);
+                for (AppUser friend in friends) {
+                  int nbMatchsRegardes = await RepositoryProvider.userRepository
+                      .getUserNbMatchsRegardes(
+                    friend.uid,
+                    true,
+                  );
+                  friendsMatchesCount[friend] = nbMatchsRegardes;
+                }
                 targetUser = await showModalBottomSheet<AppUser>(
                   context: context,
-                  builder: (_) => const SizedBox(
-                    height: 200,
-                    child:
-                        Center(child: Text('Bottom sheet pour choisir un ami')),
-                  ),
+                  builder: (_) => FriendsComparisonBottomSheet(
+                      friendsMatchesCount: friendsMatchesCount),
                 );
 
                 if (targetUser == null) return;
@@ -171,6 +188,7 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
 
               setState(() {
                 _comparisonEntries = comparisonEntriesLoaded;
+                _filteredComparisonEntries = comparisonEntriesLoaded;
                 _isComparisonLoading = false;
               });
             },
@@ -245,26 +263,36 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
             Expanded(
               child: ListView.separated(
                 padding: EdgeInsets.zero,
-                itemCount: _filteredEntries.length,
+                itemCount: max(
+                    _filteredEntries.length, _filteredComparisonEntries.length),
                 separatorBuilder: (_, __) => Divider(
                   height: 1,
                   color: ColorPalette.divider(context),
                 ),
                 itemBuilder: (context, index) {
-                  final entry = _filteredEntries[index];
+                  PodiumEntry<T>? baseEntry;
+                  int? baseRank;
+                  if (_filteredEntries.length > index) {
+                    baseEntry = _filteredEntries[index];
+                    baseRank =
+                        widget.entries.indexOf(_filteredEntries[index]) + 1;
+                  }
 
+                  int? comparisonRank;
                   PodiumEntry<T>? comparisonEntry;
                   if (_isComparisonLoading == false &&
                       _comparisonMode &&
-                      _comparisonEntries.length > index) {
-                    comparisonEntry = _comparisonEntries[index];
+                      _filteredComparisonEntries.length > index) {
+                    comparisonEntry = _filteredComparisonEntries[index];
+                    comparisonRank = _comparisonEntries
+                            .indexOf(_filteredComparisonEntries[index]) +
+                        1;
                   }
 
-                  final rank = widget.entries.indexOf(entry) + 1;
-
                   return _PodiumRow(
-                    rank: rank,
-                    baseEntry: entry,
+                    baseRank: baseRank,
+                    comparisonRank: comparisonRank,
+                    baseEntry: baseEntry,
                     comparisonEntry: comparisonEntry,
                     comparisonMode: _comparisonMode,
                     shimmer: _isComparisonLoading,
@@ -402,21 +430,23 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
 }
 
 class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
-  final int rank;
-  final PodiumEntry<T> baseEntry;
+  final int? baseRank;
+  final int? comparisonRank;
+  final PodiumEntry<T>? baseEntry;
   final PodiumEntry<T>? comparisonEntry;
   final bool comparisonMode;
   final bool shimmer;
 
   const _PodiumRow({
-    required this.rank,
+    this.baseRank,
+    this.comparisonRank,
     required this.baseEntry,
     this.comparisonEntry,
     required this.comparisonMode,
     this.shimmer = false,
   });
 
-  Color _rankColor(BuildContext context) {
+  Color _rankColor(BuildContext context, int rank) {
     switch (rank) {
       case 1:
         return const Color(0xFFFFD700);
@@ -438,7 +468,8 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
 
   Widget _buildSingleSide({
     required BuildContext context,
-    required PodiumEntry<T> entry,
+    required int rank,
+    PodiumEntry<T>? entry,
     bool large = true,
     bool shimmer = false,
   }) {
@@ -452,7 +483,7 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
               rank.toString(),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: _rankColor(context),
+                color: _rankColor(context, rank),
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
@@ -475,7 +506,7 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
                 ),
               ),
             ),
-          ] else
+          ] else if (entry != null) ...[
             Expanded(
               child: entry.item.buildDetailsLine(
                 context: context,
@@ -483,6 +514,9 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
                 large: large,
               ),
             ),
+          ] else ...[
+            Expanded(child: SizedBox()),
+          ],
           const SizedBox(width: 8),
           if (shimmer) ...[
             Shimmer.fromColors(
@@ -499,7 +533,7 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
                 ),
               ),
             ),
-          ] else ...[
+          ] else if (entry != null) ...[
             if (rank <= 3)
               buildValueChip(
                 context,
@@ -534,38 +568,49 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
           ? IntrinsicHeight(
               child: Row(
                 children: [
-                  Expanded(
-                    child: _buildSingleSide(
-                      context: context,
-                      entry: baseEntry,
-                      large: false,
-                    ),
-                  ),
-                  Container(
-                    width: 1,
-                    color: ColorPalette.divider(context),
-                  ),
-                  if (comparisonEntry != null)
-                    Expanded(
-                      child: _buildSingleSide(
-                        context: context,
-                        entry: comparisonEntry!,
-                        large: false,
-                      ),
-                    ),
-                  if (comparisonEntry == null && shimmer)
+                  if (baseEntry != null) ...[
                     Expanded(
                       child: _buildSingleSide(
                         context: context,
                         entry: baseEntry,
                         large: false,
-                        shimmer: true,
+                        rank: baseRank!,
                       ),
                     ),
+                  ] else
+                    Expanded(child: SizedBox()),
+                  Container(
+                    width: 1,
+                    color: ColorPalette.divider(context),
+                  ),
+                  if (comparisonEntry != null) ...[
+                    Expanded(
+                      child: _buildSingleSide(
+                        context: context,
+                        entry: comparisonEntry,
+                        large: false,
+                        rank: comparisonRank!,
+                      ),
+                    ),
+                  ] else if (shimmer) ...[
+                    Expanded(
+                      child: _buildSingleSide(
+                        context: context,
+                        large: false,
+                        shimmer: true,
+                        rank: baseRank!,
+                      ),
+                    ),
+                  ] else
+                    Expanded(child: SizedBox()),
                 ],
               ),
             )
-          : _buildSingleSide(context: context, entry: baseEntry),
+          : _buildSingleSide(
+              context: context,
+              entry: baseEntry,
+              rank: baseRank!,
+            ),
     );
   }
 }

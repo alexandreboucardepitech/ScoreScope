@@ -1,11 +1,11 @@
 
 class PodiumContext {
-  final int rank;
+  final int? rank;
   final num value;
   final String? color;
 
   const PodiumContext({
-    required this.rank,
+    this.rank,
     required this.value,
     this.color,
   });
