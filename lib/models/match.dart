@@ -67,6 +67,73 @@ class MatchModel implements PodiumDisplayable {
     return null;
   }
 
+  Widget compactMatchDisplay(
+      {num? value, double logoSize = 32, TextStyle? textStyle}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  equipeDomicile.logoPath != null
+                      ? Image.asset(
+                          equipeDomicile.logoPath!,
+                          width: logoSize,
+                          height: logoSize,
+                          fit: BoxFit.contain,
+                        )
+                      : Flexible(
+                          child: Text(
+                            equipeDomicile.code ??
+                                equipeDomicile.nomCourt ??
+                                equipeDomicile.nom,
+                            overflow: TextOverflow.ellipsis,
+                            style: textStyle,
+                          ),
+                        ),
+                  const SizedBox(width: 4),
+                  equipeExterieur.logoPath != null
+                      ? Image.asset(
+                          equipeExterieur.logoPath!,
+                          width: logoSize,
+                          height: logoSize,
+                          fit: BoxFit.contain,
+                        )
+                      : Flexible(
+                          child: Text(
+                            equipeExterieur.code ??
+                                equipeExterieur.nomCourt ??
+                                equipeExterieur.nom,
+                            overflow: TextOverflow.ellipsis,
+                            style: textStyle,
+                          ),
+                        ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '$scoreEquipeDomicile - $scoreEquipeExterieur',
+                style: textStyle,
+              ),
+            ],
+          ),
+        ),
+        if (value != null)
+          Text(
+            value.toString(),
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget buildPodiumCard({
     required BuildContext context,
@@ -277,67 +344,10 @@ class MatchModel implements PodiumDisplayable {
         ],
       );
     } else {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    equipeDomicile.logoPath != null
-                        ? Image.asset(
-                            equipeDomicile.logoPath!,
-                            width: logoSize,
-                            height: logoSize,
-                            fit: BoxFit.contain,
-                          )
-                        : Flexible(
-                            child: Text(
-                              equipeDomicile.code ??
-                                  equipeDomicile.nomCourt ??
-                                  equipeDomicile.nom,
-                              overflow: TextOverflow.ellipsis,
-                              style: textStyle,
-                            ),
-                          ),
-                    const SizedBox(width: 4),
-                    equipeExterieur.logoPath != null
-                        ? Image.asset(
-                            equipeExterieur.logoPath!,
-                            width: logoSize,
-                            height: logoSize,
-                            fit: BoxFit.contain,
-                          )
-                        : Flexible(
-                            child: Text(
-                              equipeExterieur.code ??
-                                  equipeExterieur.nomCourt ??
-                                  equipeExterieur.nom,
-                              overflow: TextOverflow.ellipsis,
-                              style: textStyle,
-                            ),
-                          ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$scoreEquipeDomicile - $scoreEquipeExterieur',
-                  style: textStyle,
-                ),
-              ],
-            ),
-          ),
-          Text(
-            podium.value.toString(),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+      return compactMatchDisplay(
+        value: podium.value,
+        logoSize: logoSize,
+        textStyle: textStyle,
       );
     }
   }
@@ -361,49 +371,58 @@ class MatchModel implements PodiumDisplayable {
         user?.equipesPrefereesId.contains(equipeDomicile.id) ?? false;
     final bool isAwayFavorite =
         user?.equipesPrefereesId.contains(equipeExterieur.id) ?? false;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(
-          equipeDomicile.code ?? equipeDomicile.nomCourt ?? equipeDomicile.nom,
-          style: textStyle.copyWith(
-            color: scoreEquipeDomicile > scoreEquipeExterieur
-                ? ColorPalette.accent(context)
-                : ColorPalette.textPrimary(context),
+    if (large) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            equipeDomicile.code ??
+                equipeDomicile.nomCourt ??
+                equipeDomicile.nom,
+            style: textStyle.copyWith(
+              color: scoreEquipeDomicile > scoreEquipeExterieur
+                  ? ColorPalette.accent(context)
+                  : ColorPalette.textPrimary(context),
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        buildTeamLogo(
-          context,
-          equipeDomicile.logoPath,
-          isFavorite: isHomeFavorite,
-          size: logoSize,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          '$scoreEquipeDomicile - $scoreEquipeExterieur',
-          style: textStyle,
-        ),
-        const SizedBox(width: 6),
-        buildTeamLogo(
-          context,
-          equipeExterieur.logoPath,
-          isFavorite: isAwayFavorite,
-          size: logoSize,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          equipeExterieur.code ??
-              equipeExterieur.nomCourt ??
-              equipeExterieur.nom,
-          style: textStyle.copyWith(
-            color: scoreEquipeExterieur > scoreEquipeDomicile
-                ? ColorPalette.accent(context)
-                : ColorPalette.textPrimary(context),
+          const SizedBox(width: 6),
+          buildTeamLogo(
+            context,
+            equipeDomicile.logoPath,
+            isFavorite: isHomeFavorite,
+            size: logoSize,
           ),
-        ),
-      ],
-    );
+          const SizedBox(width: 6),
+          Text(
+            '$scoreEquipeDomicile - $scoreEquipeExterieur',
+            style: textStyle,
+          ),
+          const SizedBox(width: 6),
+          buildTeamLogo(
+            context,
+            equipeExterieur.logoPath,
+            isFavorite: isAwayFavorite,
+            size: logoSize,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            equipeExterieur.code ??
+                equipeExterieur.nomCourt ??
+                equipeExterieur.nom,
+            style: textStyle.copyWith(
+              color: scoreEquipeExterieur > scoreEquipeDomicile
+                  ? ColorPalette.accent(context)
+                  : ColorPalette.textPrimary(context),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return compactMatchDisplay(
+        logoSize: logoSize,
+        textStyle: textStyle,
+      );
+    }
   }
 
   int getNbViewers() {

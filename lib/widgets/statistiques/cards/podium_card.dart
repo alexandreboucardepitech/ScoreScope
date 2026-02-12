@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/podium_context.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/show_podium_details_popup.dart';
 
@@ -22,11 +23,14 @@ class PodiumCard<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        int nbMatchsRegardes = await RepositoryProvider.userRepository
+            .getUserNbMatchsRegardes(user.uid,
+                user.uid != RepositoryProvider.userRepository.currentUser?.uid);
         return showPodiumDetailsPopup(
           context: context,
           title: title,
-          watchedMatchesCount: user.matchsUserData.length,
+          watchedMatchesCount: nbMatchsRegardes,
           entries: items,
           user: user,
         );
