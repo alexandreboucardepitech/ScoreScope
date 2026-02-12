@@ -162,12 +162,17 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             onPressed: () => _openSearch(context),
           ),
           IconButton(
-            icon: Icon(
-              Icons.calendar_today_outlined,
-              color: ColorPalette.textPrimary(context),
-            ),
-            onPressed: () {},
-          ),
+              icon: Icon(
+                Icons.calendar_today_outlined,
+                color: ColorPalette.textPrimary(context),
+              ),
+              onPressed: () async {
+                final datePicked =
+                    await _openDatePicker(context, _selectedDate);
+                if (datePicked != null) {
+                  _onDateSelected(datePicked);
+                }
+              }),
         ],
       ),
       body: Column(
@@ -366,4 +371,72 @@ void _openSearch(BuildContext context) {
     ),
     builder: (_) => const RechercheView(),
   );
+}
+
+Future<DateTime?> _openDatePicker(
+  BuildContext context,
+  DateTime selectedDate,
+) async {
+  final pickedDate = await showDatePicker(
+    context: context,
+    initialDate: selectedDate,
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2100),
+    helpText: 'Sélectionner une date',
+    cancelText: 'Annuler',
+    confirmText: 'Appliquer',
+    builder: (context, child) {
+      final baseTheme = Theme.of(context);
+      return Theme(
+        data: baseTheme.copyWith(
+          scaffoldBackgroundColor: ColorPalette.background(context),
+          dialogTheme: DialogThemeData(
+            backgroundColor: ColorPalette.surface(context),
+          ),
+          colorScheme: baseTheme.colorScheme.copyWith(
+            primary: ColorPalette.accent(context),
+            onPrimary: ColorPalette.opposite(context),
+            surface: ColorPalette.surface(context),
+            onSurface: ColorPalette.textPrimary(context),
+            outline: ColorPalette.border(context),
+          ),
+          dividerColor: ColorPalette.divider(context),
+          textTheme: baseTheme.textTheme.apply(
+            bodyColor: ColorPalette.textPrimary(context),
+            displayColor: ColorPalette.textPrimary(context),
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              foregroundColor: ColorPalette.accentVariant(context),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: ColorPalette.tileBackground(context),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: ColorPalette.border(context),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: ColorPalette.accent(context),
+                width: 2,
+              ),
+            ),
+          ),
+        ),
+        child:
+            ClipRRect(borderRadius: BorderRadius.circular(20), child: child!),
+      );
+    },
+  );
+
+  return pickedDate;
 }
