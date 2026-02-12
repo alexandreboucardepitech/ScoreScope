@@ -170,7 +170,15 @@ class WebMatchRepository implements IMatchRepository {
 
   @override
   Future<void> enleverVote(String matchId, String userId) async {
-    await _collection.doc(matchId).collection('mvpVotes').doc(userId).delete();
+    final vote = _collection.doc(matchId).collection('mvpVotes').doc(userId);
+    final voteDoc = await vote.get();
+    if (voteDoc.exists) {
+      await _collection
+          .doc(matchId)
+          .collection('mvpVotes')
+          .doc(userId)
+          .delete();
+    }
 
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')

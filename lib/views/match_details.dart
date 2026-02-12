@@ -41,9 +41,11 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
   }
 
   Future<void> _fetchMatch() async {
+    if (_isFetchingMatch) return;
+
     setState(() => _isFetchingMatch = true);
+
     try {
-      if (_isFetchingMatch) return;
       final freshMatch = await RepositoryProvider.matchRepository
           .fetchMatchById(_currentMatch.id);
       if (!mounted) return;
@@ -336,6 +338,11 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       final currentUser =
           await RepositoryProvider.userRepository.getCurrentUser();
       if (currentUser == null) throw Exception('Utilisateur non connecté');
+
+      _currentMatch.mvpVotes
+          .removeWhere((userId, voteId) => userId == currentUser.uid);
+      _currentMatch.notesDuMatch
+          .removeWhere((userId, note) => userId == currentUser.uid);
 
       // Supprimer côté repo
       await RepositoryProvider.userRepository
