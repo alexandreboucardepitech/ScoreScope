@@ -27,15 +27,20 @@ class ProfileAction extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isMe) {
       return ElevatedButton.icon(
-        onPressed: () {
+        onPressed: () async {
           if (user != null) {
-            Navigator.of(context).push(
+            String? editProfile = await Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => EditProfileView(
-                  user: user!,
-                ),
+                builder: (_) {
+                  return EditProfileView(
+                    user: user!,
+                  );
+                },
               ),
             );
+            if (editProfile != null && editProfile == 'profileEdited') {
+              onActionRequested?.call(editProfile);
+            }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(

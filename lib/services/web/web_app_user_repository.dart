@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
@@ -12,6 +15,10 @@ class WebAppUserRepository implements IAppUserRepository {
       FirebaseFirestore.instance.collection('users');
   final CollectionReference<Map<String, dynamic>> _matchsCollection =
       FirebaseFirestore.instance.collection('matchs');
+
+  @override
+  AppUser?
+      currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
 
   @override
   Future<List<AppUser>> fetchAllUsers() async {
@@ -448,6 +455,46 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  AppUser?
-      currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
+  Future<void> editProfile({
+    required String userId,
+    File? newProfilePicture,
+    String? newUsername,
+    String? newBio,
+    List<String>? newEquipesPrefereesId,
+    List<String>? newCompetitionsPrefereesId,
+    bool photoRemoved = false,
+  }) async {
+    final userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+
+    final docSnapshot = await userDocRef.get();
+
+    if (docSnapshot.exists) {
+      String? downloadUrl;
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('profile_pictures')
+          .child('$userId.jpg');
+
+      if (newProfilePicture != null) {
+        await ref.putFile(newProfilePicture);
+        downloadUrl = await ref.getDownloadURL();
+      } else if (photoRemoved) {
+        await ref.delete();
+      }
+
+      await userDocRef.update({
+        if (newUsername != null) 'displayName': newUsername,
+        if (newBio != null) 'bio': newBio,
+        if (downloadUrl != null || photoRemoved == true)
+          'photoUrl': downloadUrl,
+        if (newEquipesPrefereesId != null)
+          'equipesPrefereesId': newEquipesPrefereesId,
+        if (newCompetitionsPrefereesId != null)
+          'competitionsPrefereesId': newCompetitionsPrefereesId,
+      });
+    } else {
+      throw Exception("Ce profil n'existe pas");
+    }
+  }
 }

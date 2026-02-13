@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -22,6 +23,10 @@ class MockAppUserRepository implements IAppUserRepository {
   final List<AppUser> _users = [];
 
   final String _currentUserId;
+
+  @override
+  AppUser?
+      currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
 
   Future<void> _seed() async {
     final equipeRepository = MockEquipeRepository();
@@ -694,6 +699,35 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  AppUser?
-      currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
+  Future<void> editProfile({
+    required String userId,
+    File? newProfilePicture,
+    String? newUsername,
+    String? newBio,
+    List<String>? newEquipesPrefereesId,
+    List<String>? newCompetitionsPrefereesId,
+    bool photoRemoved = false,
+  }) async {
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: newUsername ?? user.displayName,
+      bio: newBio ?? user.bio,
+      photoUrl: newProfilePicture != null || photoRemoved
+          ? newProfilePicture!.path
+          : user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: newEquipesPrefereesId ?? user.equipesPrefereesId,
+      matchsUserData: user.matchsUserData,
+      competitionsPrefereesId:
+          newCompetitionsPrefereesId ?? user.competitionsPrefereesId,
+    );
+
+    _users[userIdx] = newUser;
+  }
 }

@@ -1,18 +1,22 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 
 abstract class IAppUserRepository {
-  AppUser? currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
+  AppUser?
+      currentUser; // à utiliser que quand on ne peut vraiment pas faire d'async
 
   Future<List<AppUser>> fetchAllUsers();
   Future<AppUser?> fetchUserById(String id);
   Future<List<String>> getUserEquipesPrefereesId(String userId);
-  Future<List<String>> getUserMatchsRegardesId(
-      {required String userId,
-      bool onlyPublic = false,
-      DateTimeRange? dateRange});
+  Future<List<String>> getUserMatchsRegardesId({
+    required String userId,
+    bool onlyPublic = false,
+    DateTimeRange? dateRange,
+  });
   Future<int> getUserNbMatchsRegardes(String userId, bool onlyPublic);
   Future<int> getUserNbButs(String userId, bool onlyPublic);
   Future<int> getUserNbMatchsRegardesParEquipe(
@@ -29,10 +33,20 @@ abstract class IAppUserRepository {
   Future<bool> getMatchPrivacy(String userId, String matchId);
   Future<AppUser?> getCurrentUser();
   Future<List<AppUser>> searchUsersByPrefix(String prefix, {int limit = 50});
-  Future<List<MatchUserData>> fetchUserAllMatchUserData(
-      {required String userId,
-      bool onlyPublic = false,
-      DateTimeRange? dateRange});
+  Future<List<MatchUserData>> fetchUserAllMatchUserData({
+    required String userId,
+    bool onlyPublic = false,
+    DateTimeRange? dateRange,
+  });
   Future<MatchUserData?> fetchUserMatchUserData(String userId, String matchId);
   Future<void> removeMatchUserData(String userId, String matchId);
+  Future<void> editProfile({
+    required String userId,
+    File? newProfilePicture,
+    String? newUsername,
+    String? newBio,
+    List<String>? newEquipesPrefereesId,
+    List<String>? newCompetitionsPrefereesId,
+    bool photoRemoved = false,
+  });
 }

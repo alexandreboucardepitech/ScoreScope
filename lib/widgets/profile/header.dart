@@ -20,6 +20,7 @@ class Header extends StatefulWidget {
   final String? currentUserId;
   final bool isPerformingFriendAction;
   final void Function(String action)? onActionRequested;
+  final void Function(void)? onProfileEdited;
 
   /// Callback appelé quand le contenu du header est "prêt" (après image / layout)
   final VoidCallback? onContentReady;
@@ -39,6 +40,7 @@ class Header extends StatefulWidget {
     this.currentUserId,
     this.isPerformingFriendAction = false,
     this.onActionRequested,
+    this.onProfileEdited,
     this.onContentReady,
   });
 
@@ -132,7 +134,6 @@ class _HeaderState extends State<Header> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Avatar : on utilise Image.network indirectement via backgroundImage pour compatibilité
         CircleAvatar(
           radius: 60,
           backgroundImage: widget.user.photoUrl != null

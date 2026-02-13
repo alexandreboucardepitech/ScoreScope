@@ -128,7 +128,6 @@ class _ProfileViewState extends State<ProfileView> {
     _setStateAndRemeasure(() => _isLoadingCurrentUser = true);
     try {
       final user = await userRepository.getCurrentUser();
-      if (!mounted) return;
       _setStateAndRemeasure(() {
         currentUser = user;
         _isLoadingCurrentUser = false;
@@ -144,14 +143,14 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _loadFriendship() async {
-    if (widget.user.uid == currentUser?.uid) {
+    if (_displayedUser?.uid == currentUser?.uid) {
       _setStateAndRemeasure(() => friendship = null);
       return;
     }
 
     try {
       final Amitie? rel = await amitieRepository.friendshipByUsersId(
-          widget.user.uid, currentUser!.uid);
+          _displayedUser!.uid, currentUser!.uid);
       if (!mounted) return;
       _setStateAndRemeasure(() {
         friendship = rel;
@@ -165,7 +164,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   void _loadProfileData() {
-    final uid = widget.user.uid;
+    final uid = _displayedUser?.uid ?? widget.user.uid;
     _loadTeams(uid);
     _loadMatchsRegardes(uid);
     _loadFavoris(uid);
@@ -185,7 +184,7 @@ class _ProfileViewState extends State<ProfileView> {
 
       if (!mounted) return;
 
-      final base = widget.user;
+      final base = _displayedUser ?? widget.user;
       final updatedUser = AppUser(
         uid: base.uid,
         email: base.email,
@@ -314,6 +313,16 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> _handleFriendAction(String action) async {
     if (currentUser == null) return;
+
+    if (action == 'profileEdited') {
+      final user = await RepositoryProvider.userRepository
+          .fetchUserById(_displayedUser?.uid ?? widget.user.uid);
+      setState(() {
+        _displayedUser = user;
+      });
+      return;
+    }
+
     if (_isPerformingFriendAction) return;
 
     _setStateAndRemeasure(() {
@@ -324,24 +333,34 @@ class _ProfileViewState extends State<ProfileView> {
       switch (action) {
         case 'send':
           await amitieRepository.sendFriendRequest(
-              currentUser!.uid, widget.user.uid);
+            currentUser!.uid,
+            _displayedUser?.uid ?? widget.user.uid,
+          );
           break;
         case 'cancel':
           await amitieRepository.removeFriend(
-              currentUser!.uid, widget.user.uid);
+            currentUser!.uid,
+            _displayedUser?.uid ?? widget.user.uid,
+          );
           break;
         case 'accept':
           await amitieRepository.acceptFriendRequest(
-              currentUser!.uid, widget.user.uid);
+            currentUser!.uid,
+            _displayedUser?.uid ?? widget.user.uid,
+          );
           break;
         case 'remove':
           await amitieRepository.removeFriend(
-              currentUser!.uid, widget.user.uid);
+            currentUser!.uid,
+            _displayedUser?.uid ?? widget.user.uid,
+          );
           break;
       }
 
       await _loadFriendship();
-      await _loadUserNbAmis(widget.user.uid);
+      await _loadUserNbAmis(
+        _displayedUser?.uid ?? widget.user.uid,
+      );
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -464,7 +483,8 @@ class _ProfileViewState extends State<ProfileView> {
                             onActionRequested: (action) =>
                                 _handleFriendAction(action),
                             onStatusChanged: (newStatus) {
-                              _loadUserNbAmis(widget.user.uid);
+                              _loadUserNbAmis(
+                                  _displayedUser?.uid ?? widget.user.uid);
                             },
                             onContentReady: () {
                               WidgetsBinding.instance.addPostFrameCallback(

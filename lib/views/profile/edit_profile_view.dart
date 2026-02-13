@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
@@ -23,6 +24,8 @@ class _EditProfileViewState extends State<EditProfileView> {
   List<String> _equipesPrefereesId = [];
 
   bool _hasChanges = false;
+  bool _isSaving = false;
+  bool _photoRemoved = false;
 
   @override
   void initState() {
@@ -40,7 +43,8 @@ class _EditProfileViewState extends State<EditProfileView> {
     final changed = _displayNameController.text != widget.user.displayName ||
         _bioController.text != (widget.user.bio ?? '') ||
         !_listEquals(_equipesPrefereesId, widget.user.equipesPrefereesId) ||
-        _profilePicture != null;
+        _profilePicture != null ||
+        _photoRemoved == true;
     setState(() => _hasChanges = changed);
   }
 
@@ -71,8 +75,29 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   void _saveChanges() async {
-    // TODO
-    Navigator.of(context).pop();
+    if (_hasChanges == false || _isSaving) return;
+
+    setState(() => _isSaving = true);
+
+    await RepositoryProvider.userRepository.editProfile(
+      userId: widget.user.uid,
+      newUsername: _displayNameController.text != widget.user.displayName
+          ? _displayNameController.text
+          : null,
+      newBio: _bioController.text != (widget.user.bio ?? '')
+          ? _bioController.text
+          : null,
+      newProfilePicture: _profilePicture,
+      newEquipesPrefereesId: null, // TODO
+      newCompetitionsPrefereesId: null, //TODO
+      photoRemoved: _photoRemoved,
+    );
+
+    if (!mounted) return;
+
+    setState(() => _isSaving = false);
+
+    Navigator.of(context).pop('profileEdited');
   }
 
   @override
@@ -82,13 +107,24 @@ class _EditProfileViewState extends State<EditProfileView> {
     super.dispose();
   }
 
+  void _pickImage() async {
+    ImagePicker picker = ImagePicker();
+    XFile? imageUploaded = await picker.pickImage(source: ImageSource.gallery);
+    if (imageUploaded == null) return;
+    setState(() {
+      _profilePicture = File(imageUploaded.path);
+      _photoRemoved = false;
+      _checkChanges();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     ImageProvider? imageProvider;
 
-    if (_profilePicture != null) {
+    if (_profilePicture != null && _photoRemoved == false) {
       imageProvider = FileImage(_profilePicture!);
-    } else if (widget.user.photoUrl != null) {
+    } else if (widget.user.photoUrl != null && _photoRemoved == false) {
       imageProvider = NetworkImage(widget.user.photoUrl!);
     }
 
@@ -106,15 +142,25 @@ class _EditProfileViewState extends State<EditProfileView> {
         actions: [
           TextButton(
             onPressed: _hasChanges ? _saveChanges : null,
-            child: Text(
-              "Enregistrer",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: _hasChanges
-                    ? ColorPalette.buttonPrimary(context)
-                    : ColorPalette.buttonDisabled(context),
-              ),
-            ),
+            child: _isSaving
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor:
+                          AlwaysStoppedAnimation(ColorPalette.accent(context)),
+                    ),
+                  )
+                : Text(
+                    "Enregistrer",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _hasChanges
+                          ? ColorPalette.buttonPrimary(context)
+                          : ColorPalette.buttonDisabled(context),
+                    ),
+                  ),
           ),
         ],
       ),
@@ -126,46 +172,76 @@ class _EditProfileViewState extends State<EditProfileView> {
             Center(
               child: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: ColorPalette.pictureBackground(context),
-                    backgroundImage: imageProvider,
-                    child: imageProvider == null
-                        ? Text(
-                            widget.user.displayName.characters.first
-                                .toUpperCase(),
-                            style: TextStyle(
-                              color: ColorPalette.textSecondary(context),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 32,
-                            ),
-                          )
-                        : null,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () async {
-                        ImagePicker picker = ImagePicker();
-                        XFile? imageUploaded =
-                            await picker.pickImage(source: ImageSource.gallery);
-                        if (imageUploaded == null) {
-                          return;
-                        }
-                        setState(() {
-                          _profilePicture = File(imageUploaded.path);
-                          _checkChanges();
-                        });
-                      },
-                      child: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: ColorPalette.accent(context),
-                        child: Icon(Icons.edit,
-                            size: 16, color: ColorPalette.opposite(context)),
-                      ),
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: ColorPalette.pictureBackground(context),
+                      backgroundImage: imageProvider,
+                      child: imageProvider == null
+                          ? Text(
+                              '+',
+                              style: TextStyle(
+                                color: ColorPalette.textSecondary(context),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 32,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
+
+                  if ((_profilePicture != null ||
+                          widget.user.photoUrl != null) &&
+                      _photoRemoved == false)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: Center(
+                          child: Container(
+                            height: 32,
+                            width: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: ColorPalette.background(context)
+                                  .withOpacity(0.5),
+                            ),
+                            child: Icon(
+                              Icons.edit,
+                              size: 20,
+                              color: ColorPalette.accent(context),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  // bouton delete
+                  if ((_profilePicture != null ||
+                          widget.user.photoUrl != null) &&
+                      _photoRemoved == false)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _photoRemoved = true;
+                            _profilePicture = null;
+                            _checkChanges();
+                          });
+                        },
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.red,
+                          child: Icon(
+                            Icons.delete,
+                            size: 16,
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
