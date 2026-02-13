@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/views/profile/edit_profile_view.dart';
 
 /// Presentational widget: affiche uniquement le statut fourni et
 /// émet des intentions d'action via `onActionRequested`.
@@ -27,9 +28,23 @@ class ProfileAction extends StatelessWidget {
     if (isMe) {
       return ElevatedButton.icon(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Click sur "modifier le profil"')),
-          );
+          if (user != null) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => EditProfileView(
+                  user: user!,
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  "Erreur : aucun utilisateur n'est spécifié",
+                ),
+              ),
+            );
+          }
         },
         icon: Icon(Icons.edit, size: 16, color: ColorPalette.accent(context)),
         label: Text('Modifier le profil',

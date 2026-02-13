@@ -10,10 +10,10 @@ class DayPodiumDisplayable extends BasicPodiumDisplayable {
   String? get displayImage => null;
 
   @override
-  String get displayLabel => DateFormat.yMd().format(day);
+  String get displayLabel => DateFormat('dd/MM/yy').format(day);
 
   @override
-  String? get longDisplayLabel => null;
+  String? get longDisplayLabel => DateFormat('dd/MM/yyyy').format(day);
 
   @override
   Future<String?> getColor() async {

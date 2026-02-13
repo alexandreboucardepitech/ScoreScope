@@ -11,12 +11,15 @@ class EquipesPreferees extends StatefulWidget {
   final AppUser user;
   final bool isLoading;
   final bool isMe;
-  const EquipesPreferees(
-      {super.key,
-      required this.teamsId,
-      required this.user,
-      required this.isMe,
-      this.isLoading = false});
+  final bool displayTitle;
+  const EquipesPreferees({
+    super.key,
+    required this.teamsId,
+    required this.user,
+    required this.isMe,
+    this.isLoading = false,
+    this.displayTitle = true,
+  });
 
   @override
   State<EquipesPreferees> createState() => _EquipesPrefereesState();
@@ -129,13 +132,16 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Équipes préférées',
-          style: TextStyle(
-            color: ColorPalette.textPrimary(context),
+        if (widget.displayTitle) ...[
+          Text(
+            'Équipes préférées',
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         Wrap(
           spacing: 8,
           runSpacing: 8,
