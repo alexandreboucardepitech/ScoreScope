@@ -319,6 +319,7 @@ class _ProfileViewState extends State<ProfileView> {
           .fetchUserById(_displayedUser?.uid ?? widget.user.uid);
       setState(() {
         _displayedUser = user;
+        _loadProfileData();
       });
       return;
     }

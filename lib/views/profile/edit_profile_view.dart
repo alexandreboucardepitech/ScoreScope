@@ -6,6 +6,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/widgets/util/teams_bottom_sheet.dart';
 
 class EditProfileView extends StatefulWidget {
   final AppUser user;
@@ -56,22 +57,25 @@ class _EditProfileViewState extends State<EditProfileView> {
     return true;
   }
 
-  void _openTeamsBottomSheet() {
-    showModalBottomSheet(
+  void _openTeamsBottomSheet() async {
+    List<String>? nouvellesEquipesPreferees =
+        await showModalBottomSheet<List<String>>(
       context: context,
-      builder: (context) {
-        return Container(
-          height: 300,
-          color: ColorPalette.surfaceSecondary(context),
-          child: Center(
-            child: Text(
-              'Sélection des équipes (à implémenter)',
-              style: TextStyle(color: ColorPalette.textSecondary(context)),
-            ),
-          ),
-        );
-      },
+      isScrollControlled: true,
+    backgroundColor: ColorPalette.surface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => TeamsBottomSheet(
+        equipesPreferees: _equipesPrefereesId,
+      ),
     );
+    if (nouvellesEquipesPreferees != null) {
+      setState(() {
+        _equipesPrefereesId = nouvellesEquipesPreferees;
+        _checkChanges();
+      });
+    }
   }
 
   void _saveChanges() async {
@@ -88,7 +92,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           ? _bioController.text
           : null,
       newProfilePicture: _profilePicture,
-      newEquipesPrefereesId: null, // TODO
+      newEquipesPrefereesId: _equipesPrefereesId,
       newCompetitionsPrefereesId: null, //TODO
       photoRemoved: _photoRemoved,
     );

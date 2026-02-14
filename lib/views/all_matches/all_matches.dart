@@ -4,7 +4,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/all_matches/recherche_view.dart';
-import 'package:scorescope/widgets/all_matches/competitions_bottom_sheet.dart';
+import 'package:scorescope/widgets/util/competitions_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 import '../../services/repositories/i_match_repository.dart';
 import '../../models/match.dart';

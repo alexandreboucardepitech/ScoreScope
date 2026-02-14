@@ -145,11 +145,14 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
               elevation: 0,
             ),
             child: _isSaving
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white))
+                      strokeWidth: 2,
+                      color: ColorPalette.textPrimary(context),
+                    ),
+                  )
                 : Text(
                     "Valider la sélection",
                     style: TextStyle(

@@ -125,7 +125,6 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
     }
 
     final ids = widget.teamsId ?? [];
-    if (ids.isEmpty) return const SizedBox.shrink();
 
     final display = ids.toList();
     return Column(
@@ -142,25 +141,39 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
           ),
           const SizedBox(height: 8),
         ],
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: display.map((teamId) {
-            final equipe = _loadedEquipe[teamId];
-            final nbMatchs = _loadedNbMatchs[teamId];
+        if (display.isNotEmpty)
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: display.map((teamId) {
+              final equipe = _loadedEquipe[teamId];
+              final nbMatchs = _loadedNbMatchs[teamId];
 
-            if (equipe == null) return const _EquipeCellShimmer();
+              if (equipe == null) return const _EquipeCellShimmer();
 
-            return SizedBox(
-              width: (MediaQuery.of(context).size.width - 16 * 2 - 8) / 2,
-              child: EquipePrefereeTile(
-                equipe: equipe,
-                user: widget.user,
-                nbMatchsRegardes: nbMatchs,
+              return SizedBox(
+                width: (MediaQuery.of(context).size.width - 16 * 2 - 8) / 2,
+                child: EquipePrefereeTile(
+                  equipe: equipe,
+                  user: widget.user,
+                  nbMatchsRegardes: nbMatchs,
+                ),
+              );
+            }).toList(),
+          )
+        else
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Text(
+                "Aucune équipe préférée",
+                style: TextStyle(
+                  color: ColorPalette.textSecondary(context),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            );
-          }).toList(),
-        )
+            ),
+          )
       ],
     );
   }
