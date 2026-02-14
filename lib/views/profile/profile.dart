@@ -193,6 +193,7 @@ class _ProfileViewState extends State<ProfileView> {
         photoUrl: base.photoUrl,
         createdAt: base.createdAt,
         equipesPrefereesId: base.equipesPrefereesId,
+        competitionsPrefereesId: base.competitionsPrefereesId,
         matchsUserData: data,
       );
 
@@ -408,6 +409,17 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
+  void _onTeamTap(String teamId, String teamName) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Allez sur les détails de l'équipe $teamName",
+        ),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -590,6 +602,7 @@ class _ProfileViewState extends State<ProfileView> {
                     user: userToUse,
                     isMe: isMe,
                     isLoading: equipesLoading,
+                    onTeamTap: _onTeamTap,
                   ),
                   const Divider(height: 32),
                   MatchsRegardes(

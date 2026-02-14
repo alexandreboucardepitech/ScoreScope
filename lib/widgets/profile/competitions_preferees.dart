@@ -1,47 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
-import 'package:scorescope/models/equipe.dart';
+import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
-import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
 import 'package:shimmer/shimmer.dart';
 
-class EquipesPreferees extends StatefulWidget {
-  final List<String>? teamsId;
+class CompetitionsPreferees extends StatefulWidget {
+  final List<String>? competitionsId;
   final AppUser user;
   final bool isLoading;
   final bool isMe;
   final bool displayTitle;
-  final void Function(String teamId, String teamName)? onTeamTap;
+  final void Function(String competitionId, String competitionName)?
+      onCompetitionTap;
 
-  const EquipesPreferees({
+  const CompetitionsPreferees({
     super.key,
-    required this.teamsId,
+    required this.competitionsId,
     required this.user,
     required this.isMe,
     this.isLoading = false,
     this.displayTitle = true,
-    this.onTeamTap,
+    this.onCompetitionTap,
   });
 
   @override
-  State<EquipesPreferees> createState() => _EquipesPrefereesState();
+  State<CompetitionsPreferees> createState() => _CompetitionsPrefereesState();
 }
 
-class _EquipesPrefereesState extends State<EquipesPreferees> {
-  final equipesRepo = RepositoryProvider.equipeRepository;
+class _CompetitionsPrefereesState extends State<CompetitionsPreferees> {
+  final competitionsRepo = RepositoryProvider.competitionRepository;
   final userRepo = RepositoryProvider.userRepository;
 
-  // cache séparé pour les équipes et pour le nombre de matchs
-  final Map<String, Equipe?> _loadedEquipe = {};
+  // cache séparé pour les compétitions et pour le nombre de matchs
+  final Map<String, Competition?> _loadedCompetition = {};
   final Map<String, int?> _loadedNbMatchs = {};
 
   // sets pour éviter de lancer plusieurs fetchs simultanés
-  final Set<String> _fetchingEquipe = {};
+  final Set<String> _fetchingCompetition = {};
   final Set<String> _fetchingNb = {};
 
   @override
-  void didUpdateWidget(covariant EquipesPreferees oldWidget) {
+  void didUpdateWidget(covariant CompetitionsPreferees oldWidget) {
     super.didUpdateWidget(oldWidget);
     _ensureFetch();
   }
@@ -53,74 +53,75 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
   }
 
   void _ensureFetch() {
-    final ids = widget.teamsId ?? [];
+    final ids = widget.competitionsId ?? [];
 
-    // lancer fetch équipe si nécessaire
+    // lancer fetch compétition si nécessaire
     for (final id in ids) {
-      if (!_loadedEquipe.containsKey(id) && !_fetchingEquipe.contains(id)) {
-        _fetchEquipe(id);
+      if (!_loadedCompetition.containsKey(id) &&
+          !_fetchingCompetition.contains(id)) {
+        _fetchCompetition(id);
       }
       if (!_loadedNbMatchs.containsKey(id) && !_fetchingNb.contains(id)) {
-        _fetchNbMatchsParEquipe(id);
+        _fetchNbMatchsParCompetition(id);
       }
     }
 
     // cleanup : retirer les clés qui ne sont plus présentes
-    _loadedEquipe.keys
+    _loadedCompetition.keys
         .where((k) => !ids.contains(k))
         .toList()
-        .forEach(_loadedEquipe.remove);
+        .forEach(_loadedCompetition.remove);
     _loadedNbMatchs.keys
         .where((k) => !ids.contains(k))
         .toList()
         .forEach(_loadedNbMatchs.remove);
   }
 
-  Future<void> _fetchEquipe(String id) async {
-    _fetchingEquipe.add(id);
+  Future<void> _fetchCompetition(String id) async {
+    _fetchingCompetition.add(id);
     setState(() {
-      _loadedEquipe.putIfAbsent(id, () => null); // placeholder
+      _loadedCompetition.putIfAbsent(id, () => null); // placeholder
     });
     try {
-      final equipe = await equipesRepo.fetchEquipeById(id);
+      final competition = await competitionsRepo.fetchCompetitionById(id);
       if (!mounted) return;
       setState(() {
-        _loadedEquipe[id] = equipe;
+        _loadedCompetition[id] = competition;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _loadedEquipe[id] =
+        _loadedCompetition[id] =
             null; // erreur -> on garde null pour indiquer l'échec
       });
     } finally {
-      _fetchingEquipe.remove(id);
+      _fetchingCompetition.remove(id);
     }
   }
 
-  Future<void> _fetchNbMatchsParEquipe(String equipeId) async {
-    _fetchingNb.add(equipeId);
+  Future<void> _fetchNbMatchsParCompetition(String competitionId) async {
+    _fetchingNb.add(competitionId);
     setState(() {
-      _loadedNbMatchs.putIfAbsent(equipeId, () => null); // placeholder
+      _loadedNbMatchs.putIfAbsent(competitionId, () => null); // placeholder
     });
     try {
-      final nb = await userRepo.getUserNbMatchsRegardesParEquipe(
+      final nb = await userRepo.getUserNbMatchsRegardesParCompetition(
         widget.user.uid,
-        equipeId,
+        competitionId,
         widget.isMe ? false : true,
       );
       if (!mounted) return;
       setState(() {
-        _loadedNbMatchs[equipeId] = nb;
+        _loadedNbMatchs[competitionId] = nb;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _loadedNbMatchs[equipeId] =
+        _loadedNbMatchs[competitionId] =
             0; // ou null selon ce que tu préfères afficher en erreur
       });
     } finally {
-      _fetchingNb.remove(equipeId);
+      _fetchingNb.remove(competitionId);
     }
   }
 
@@ -130,7 +131,7 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
       return _buildGlobalShimmer();
     }
 
-    final ids = widget.teamsId ?? [];
+    final ids = widget.competitionsId ?? [];
 
     final display = ids.toList();
     return Column(
@@ -139,7 +140,7 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
       children: [
         if (widget.displayTitle) ...[
           Text(
-            'Équipes préférées',
+            'Compétitions préférées',
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
               fontWeight: FontWeight.w600,
@@ -152,19 +153,19 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
             spacing: 8,
             runSpacing: 8,
             children: display.map((teamId) {
-              final equipe = _loadedEquipe[teamId];
+              final competition = _loadedCompetition[teamId];
               final nbMatchs = _loadedNbMatchs[teamId];
 
-              if (equipe == null) return const _EquipeCellShimmer();
+              if (competition == null) return const _CompetitionCellShimmer();
 
               return SizedBox(
                 width: (MediaQuery.of(context).size.width - 16 * 2 - 8) / 2,
                 height: 80,
-                child: EquipePrefereeTile(
-                  equipe: equipe,
+                child: CompetitionPrefereeTile(
+                  competition: competition,
                   user: widget.user,
                   nbMatchsRegardes: nbMatchs,
-                  onTap: widget.onTeamTap,
+                  onTap: widget.onCompetitionTap,
                 ),
               );
             }).toList(),
@@ -174,7 +175,7 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Text(
-                "Aucune équipe préférée",
+                "Aucune compétition préférée",
                 style: TextStyle(
                   color: ColorPalette.textSecondary(context),
                   fontWeight: FontWeight.w600,
@@ -210,7 +211,7 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 8,
               ),
-              itemBuilder: (_, __) => const _EquipeCellShimmer(),
+              itemBuilder: (_, __) => const _CompetitionCellShimmer(),
             ),
           ],
         ),
@@ -220,8 +221,8 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
 }
 
 // tuile shimmer inchangée
-class _EquipeCellShimmer extends StatelessWidget {
-  const _EquipeCellShimmer();
+class _CompetitionCellShimmer extends StatelessWidget {
+  const _CompetitionCellShimmer();
 
   @override
   Widget build(BuildContext context) {
@@ -254,15 +255,15 @@ class _EquipeCellShimmer extends StatelessWidget {
   }
 }
 
-class EquipePrefereeTile extends StatelessWidget {
-  final Equipe equipe;
+class CompetitionPrefereeTile extends StatelessWidget {
+  final Competition competition;
   final AppUser user;
   final int? nbMatchsRegardes;
   final void Function(String teamId, String teamName)? onTap;
 
-  const EquipePrefereeTile({
+  const CompetitionPrefereeTile({
     super.key,
-    required this.equipe,
+    required this.competition,
     required this.user,
     this.nbMatchsRegardes,
     this.onTap,
@@ -270,38 +271,28 @@ class EquipePrefereeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color equipePrimary = equipe.couleurPrincipale != null
-        ? fromHex(equipe.couleurPrincipale!)
-        : ColorPalette.buttonPrimary(context);
-    final Color equipeSecondary = equipe.couleurSecondaire != null
-        ? fromHex(equipe.couleurSecondaire!)
-        : ColorPalette.buttonSecondary(context);
-
-    final Color equipeTextColor = equipePrimary.computeLuminance() > 0.5
-        ? ColorPalette.textPrimaryLight
-        : ColorPalette.textPrimaryDark;
-
     return InkWell(
       onTap: () {
         if (onTap != null) {
-          onTap!(equipe.id, equipe.nom);
+          onTap!(competition.id, competition.nom);
         }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: equipePrimary,
-          border: Border.all(color: equipeSecondary, width: 3),
+          color: ColorPalette.tileSelected(context),
+          border:
+              Border.all(color: ColorPalette.accentVariant(context), width: 3),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            if (equipe.logoPath != null)
+            if (competition.logoUrl != null)
               SizedBox(
                   width: 32,
                   height: 32,
-                  child: Image.asset(equipe.logoPath!, fit: BoxFit.contain))
+                  child: Image.asset(competition.logoUrl!, fit: BoxFit.contain))
             else
               CircleAvatar(radius: 14, child: Icon(Icons.shield, size: 16)),
             const SizedBox(width: 12),
@@ -315,10 +306,10 @@ class EquipePrefereeTile extends StatelessWidget {
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      equipe.nom,
+                      competition.nom,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: equipeTextColor,
+                        color: ColorPalette.textPrimary(context),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -344,7 +335,7 @@ class EquipePrefereeTile extends StatelessWidget {
                         '$nbMatchsRegardes matchs regardés',
                         style: TextStyle(
                           fontSize: 12,
-                          color: equipeTextColor.withValues(alpha: 0.85),
+                          color: ColorPalette.textSecondary(context),
                         ),
                       ),
                     ),

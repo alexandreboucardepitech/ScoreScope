@@ -347,17 +347,23 @@ class _AllMatchesViewState extends State<AllMatchesView> {
 
 void _showCompetitionsSelector(
     BuildContext context, Function onSelected) async {
-  await showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: ColorPalette.surface(context),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) => const CompetitionsBottomSheet(),
-  );
+  AppUser? currentUser =
+      await RepositoryProvider.userRepository.getCurrentUser();
+  if (currentUser != null) {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: ColorPalette.surface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => CompetitionsBottomSheet(
+        competitionsPreferees: currentUser.competitionsPrefereesId,
+      ),
+    );
 
-  onSelected();
+    onSelected();
+  }
 }
 
 void _openSearch(BuildContext context) {

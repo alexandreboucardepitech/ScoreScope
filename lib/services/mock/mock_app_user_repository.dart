@@ -252,6 +252,34 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
+  Future<int> getUserNbMatchsRegardesParCompetition(
+      String userId, String compId, bool onlyPublic) async {
+    await _seedingFuture;
+
+    final List<String> matchsRegardesId =
+        await getUserMatchsRegardesId(userId: userId, onlyPublic: onlyPublic);
+    if (matchsRegardesId.isEmpty) return 0;
+
+    final matchesRepo = MockMatchRepository();
+
+    final futures =
+        matchsRegardesId.map((id) => matchesRepo.fetchMatchById(id));
+    final List<MatchModel?> matches = await Future.wait(futures);
+
+    int nbMatchs = 0;
+
+    for (final match in matches) {
+      if (match == null) continue;
+
+      if (match.competition.id == compId) {
+        nbMatchs++;
+      }
+    }
+
+    return nbMatchs;
+  }
+
+  @override
   Future<List<String>> getUserMatchsFavorisId(
       String userId, bool onlyPublic) async {
     await _seedingFuture;

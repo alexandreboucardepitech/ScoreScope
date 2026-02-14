@@ -258,10 +258,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('Annuler',
-                style: TextStyle(
-                  color: ColorPalette.textPrimary(context),
-                )),
+            child: Text(
+              'Annuler',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(

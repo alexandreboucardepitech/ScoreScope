@@ -4,7 +4,12 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
 class CompetitionsBottomSheet extends StatefulWidget {
-  const CompetitionsBottomSheet({super.key});
+  final List<String> competitionsPreferees;
+
+  const CompetitionsBottomSheet({
+    super.key,
+    required this.competitionsPreferees,
+  });
 
   @override
   State<CompetitionsBottomSheet> createState() =>
@@ -12,41 +17,38 @@ class CompetitionsBottomSheet extends StatefulWidget {
 }
 
 class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
-  late Future<List<Competition>> _futureCompetitions;
-  final Set<String> _selectedIds = {};
+  List<String> _selectedIds = [];
+  List<Competition> _allCompetitions = [];
+
+  bool _isLoading = true;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _futureCompetitions =
-        RepositoryProvider.competitionRepository.fetchAllCompetitions();
-    _loadCurrentPreferences();
+    _loadInitialData();
   }
 
-  void _loadCurrentPreferences() async {
-    final user = await RepositoryProvider.userRepository.getCurrentUser();
-    if (user != null && mounted) {
-      setState(() {
-        _selectedIds.addAll(user.competitionsPrefereesId);
-      });
-    }
+  Future<void> _loadInitialData() async {
+    final competitions =
+        await RepositoryProvider.competitionRepository.fetchAllCompetitions();
+
+    if (!mounted) return;
+
+    competitions.sort((a, b) => b.popularite.compareTo(a.popularite));
+
+    setState(() {
+      _allCompetitions = competitions;
+      _selectedIds = List.from(widget.competitionsPreferees);
+      _isLoading = false;
+    });
   }
 
   Future<void> _handleValidation() async {
     setState(() => _isSaving = true);
 
-    final user = await RepositoryProvider.userRepository.getCurrentUser();
-    if (user == null) return;
-
-    RepositoryProvider.competitionRepository.updateFavoriteCompetitions(
-      userId: user.uid,
-      competitionIds: _selectedIds.toList(),
-    );
-    await Future.delayed(const Duration(milliseconds: 500));
-
     if (mounted) {
-      Navigator.pop(context);
+      Navigator.pop(context, _selectedIds);
     }
   }
 
@@ -58,58 +60,14 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
       ),
       padding: const EdgeInsets.only(top: 12),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(
-              color: ColorPalette.divider(context),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Text(
-            "Sélection des compétitions",
-            style: TextStyle(
-              color: ColorPalette.textPrimary(context),
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          _buildHandle(),
+          _buildTitle(),
           const SizedBox(height: 10),
           Expanded(
-            child: FutureBuilder<List<Competition>>(
-              future: _futureCompetitions,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final allComps = snapshot.data ?? [];
-                allComps.sort((a, b) => b.popularite.compareTo(a.popularite));
-
-                final favoriteComps =
-                    allComps.where((c) => _selectedIds.contains(c.id)).toList();
-                final otherComps = allComps
-                    .where((c) => !_selectedIds.contains(c.id))
-                    .toList();
-
-                return ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    if (favoriteComps.isNotEmpty) ...[
-                      _buildSectionHeader("Mes compétitions favorites"),
-                      ...favoriteComps.map((comp) => _buildAnimatedTile(comp)),
-                      const SizedBox(height: 24),
-                    ],
-                    _buildSectionHeader("Toutes les compétitions"),
-                    ...otherComps.map((comp) => _buildAnimatedTile(comp)),
-                    const SizedBox(height: 100),
-                  ],
-                );
-              },
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _buildContent(),
           ),
           _buildValidationBar(),
         ],
@@ -117,52 +75,48 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
     );
   }
 
-  Widget _buildValidationBar() {
+  Widget _buildHandle() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: 40,
+      height: 4,
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: ColorPalette.surface(context),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
+        color: ColorPalette.divider(context),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  Widget _buildTitle() {
+    return Text(
+      "Sélection des compétitions",
+      style: TextStyle(
+        color: ColorPalette.textPrimary(context),
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    final favoriteComps =
+        _allCompetitions.where((c) => _selectedIds.contains(c.id)).toList();
+
+    final otherComps =
+        _allCompetitions.where((c) => !_selectedIds.contains(c.id)).toList();
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      children: [
+        if (favoriteComps.isNotEmpty) ...[
+          _buildSectionHeader("Mes compétitions favorites"),
+          ...favoriteComps.map(_buildAnimatedTile),
+          const SizedBox(height: 24),
         ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            onPressed: _isSaving ? null : _handleValidation,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorPalette.accent(context),
-              foregroundColor: ColorPalette.textAccent(context),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              elevation: 0,
-            ),
-            child: _isSaving
-                ? SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: ColorPalette.textPrimary(context),
-                    ),
-                  )
-                : Text(
-                    "Valider la sélection",
-                    style: TextStyle(
-                        color: ColorPalette.textPrimary(context),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
-          ),
-        ),
-      ),
+        _buildSectionHeader("Toutes les compétitions"),
+        ...otherComps.map(_buildAnimatedTile),
+        const SizedBox(height: 100),
+      ],
     );
   }
 
@@ -213,8 +167,10 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
         padding: const EdgeInsets.all(6),
         child: comp.logoUrl != null
             ? Image.asset(comp.logoUrl!, fit: BoxFit.contain)
-            : Icon(Icons.emoji_events,
-                color: ColorPalette.textSecondary(context)),
+            : Icon(
+                Icons.emoji_events,
+                color: ColorPalette.textSecondary(context),
+              ),
       ),
       activeColor: ColorPalette.accent(context),
       checkColor: ColorPalette.textAccent(context),
@@ -228,6 +184,57 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
           }
         });
       },
+    );
+  }
+
+  Widget _buildValidationBar() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: ColorPalette.surface(context),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: _isSaving ? null : _handleValidation,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.accent(context),
+              foregroundColor: ColorPalette.textAccent(context),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: _isSaving
+                ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: ColorPalette.textPrimary(context),
+                    ),
+                  )
+                : Text(
+                    "Valider la sélection",
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(context),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+          ),
+        ),
+      ),
     );
   }
 }

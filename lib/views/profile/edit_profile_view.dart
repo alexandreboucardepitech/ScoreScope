@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/widgets/profile/competitions_preferees.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/widgets/util/competitions_bottom_sheet.dart';
 import 'package:scorescope/widgets/util/teams_bottom_sheet.dart';
 
 class EditProfileView extends StatefulWidget {
@@ -23,6 +25,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   File? _profilePicture;
   List<String> _equipesPrefereesId = [];
+  List<String> _competitionsPrefereesId = [];
 
   bool _hasChanges = false;
   bool _isSaving = false;
@@ -35,6 +38,7 @@ class _EditProfileViewState extends State<EditProfileView> {
         TextEditingController(text: widget.user.displayName);
     _bioController = TextEditingController(text: widget.user.bio ?? '');
     _equipesPrefereesId = List.from(widget.user.equipesPrefereesId);
+    _competitionsPrefereesId = List.from(widget.user.competitionsPrefereesId);
 
     _displayNameController.addListener(_checkChanges);
     _bioController.addListener(_checkChanges);
@@ -44,6 +48,8 @@ class _EditProfileViewState extends State<EditProfileView> {
     final changed = _displayNameController.text != widget.user.displayName ||
         _bioController.text != (widget.user.bio ?? '') ||
         !_listEquals(_equipesPrefereesId, widget.user.equipesPrefereesId) ||
+        !_listEquals(
+            _competitionsPrefereesId, widget.user.competitionsPrefereesId) ||
         _profilePicture != null ||
         _photoRemoved == true;
     setState(() => _hasChanges = changed);
@@ -62,7 +68,7 @@ class _EditProfileViewState extends State<EditProfileView> {
         await showModalBottomSheet<List<String>>(
       context: context,
       isScrollControlled: true,
-    backgroundColor: ColorPalette.surface(context),
+      backgroundColor: ColorPalette.surface(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -73,6 +79,26 @@ class _EditProfileViewState extends State<EditProfileView> {
     if (nouvellesEquipesPreferees != null) {
       setState(() {
         _equipesPrefereesId = nouvellesEquipesPreferees;
+        _checkChanges();
+      });
+    }
+  }
+
+  void _openCompetitionsBottomSheet() async {
+    List<String>? nouvellesCompetitionsPreferees = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: ColorPalette.surface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => CompetitionsBottomSheet(
+        competitionsPreferees: _competitionsPrefereesId,
+      ),
+    );
+    if (nouvellesCompetitionsPreferees != null) {
+      setState(() {
+        _competitionsPrefereesId = nouvellesCompetitionsPreferees;
         _checkChanges();
       });
     }
@@ -93,7 +119,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           : null,
       newProfilePicture: _profilePicture,
       newEquipesPrefereesId: _equipesPrefereesId,
-      newCompetitionsPrefereesId: null, //TODO
+      newCompetitionsPrefereesId: _competitionsPrefereesId,
       photoRemoved: _photoRemoved,
     );
 
@@ -120,6 +146,114 @@ class _EditProfileViewState extends State<EditProfileView> {
       _photoRemoved = false;
       _checkChanges();
     });
+  }
+
+  void _onTeamTap(String teamId, String teamName) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ColorPalette.surface(context),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          "Supprimer $teamName ?",
+          style: TextStyle(
+              color: ColorPalette.textAccent(context),
+              fontWeight: FontWeight.bold,
+              fontSize: 18),
+        ),
+        content: Text(
+          "Voulez-vous supprimer $teamName de vos équipes préférées ?",
+          style:
+              TextStyle(color: ColorPalette.textPrimary(context), fontSize: 16),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'Annuler',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () async {
+              List<String> newEquipesPreferees = [];
+              newEquipesPreferees.addAll(_equipesPrefereesId);
+              newEquipesPreferees.remove(teamId);
+              setState(() {
+                _equipesPrefereesId = newEquipesPreferees;
+              });
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Supprimer',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onCompetitionTap(String competitionId, String competitionName) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ColorPalette.surface(context),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          "Supprimer $competitionName ?",
+          style: TextStyle(
+              color: ColorPalette.textAccent(context),
+              fontWeight: FontWeight.bold,
+              fontSize: 18),
+        ),
+        content: Text(
+          "Voulez-vous supprimer $competitionName de vos compétitions préférées ?",
+          style:
+              TextStyle(color: ColorPalette.textPrimary(context), fontSize: 16),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'Annuler',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () async {
+              List<String> newCompetitionsPreferees = [];
+              newCompetitionsPreferees.addAll(_competitionsPrefereesId);
+              newCompetitionsPreferees.remove(competitionId);
+              setState(() {
+                _competitionsPrefereesId = newCompetitionsPreferees;
+              });
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Supprimer',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -334,7 +468,36 @@ class _EditProfileViewState extends State<EditProfileView> {
               isMe: true,
               isLoading: false,
               displayTitle: false,
+              onTeamTap: _onTeamTap,
             ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Compétitions préférées',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: ColorPalette.textSecondary(context)),
+                ),
+                TextButton(
+                  onPressed: _openCompetitionsBottomSheet,
+                  child: Text(
+                    'Modifier',
+                    style: TextStyle(color: ColorPalette.accent(context)),
+                  ),
+                ),
+              ],
+            ),
+            CompetitionsPreferees(
+              competitionsId: _competitionsPrefereesId,
+              user: widget.user,
+              isMe: true,
+              isLoading: false,
+              displayTitle: false,
+              onCompetitionTap: _onCompetitionTap,
+            ),
+            const SizedBox(height: 32),
           ],
         ),
       ),

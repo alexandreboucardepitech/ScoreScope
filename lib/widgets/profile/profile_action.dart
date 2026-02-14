@@ -201,11 +201,13 @@ class ProfileAction extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         backgroundColor: ColorPalette.surface(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("Amitié",
-            style: TextStyle(
-                color: ColorPalette.textAccent(context),
-                fontWeight: FontWeight.bold,
-                fontSize: 18)),
+        title: Text(
+          "Amitié",
+          style: TextStyle(
+              color: ColorPalette.textAccent(context),
+              fontWeight: FontWeight.bold,
+              fontSize: 18),
+        ),
         content: Text(
           _getDialogString(isSentByMe),
           style:

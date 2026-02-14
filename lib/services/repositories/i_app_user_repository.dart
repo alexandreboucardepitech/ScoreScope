@@ -21,6 +21,8 @@ abstract class IAppUserRepository {
   Future<int> getUserNbButs(String userId, bool onlyPublic);
   Future<int> getUserNbMatchsRegardesParEquipe(
       String userId, String equipeId, bool onlyPublic);
+  Future<int> getUserNbMatchsRegardesParCompetition(
+      String userId, String compId, bool onlyPublic);
   Future<List<String>> getUserMatchsFavorisId(String userId, bool onlyPublic);
   Future<void> matchFavori(
       String matchId, String userId, DateTime matchDate, bool favori);
