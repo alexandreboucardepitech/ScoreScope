@@ -9,6 +9,7 @@ class AppUser {
   final String? bio;
   final String? photoUrl;
   final DateTime createdAt;
+  final bool privateAccount;
   final List<String> equipesPrefereesId;
   final List<String> competitionsPrefereesId;
   final List<MatchUserData> matchsUserData;
@@ -20,6 +21,7 @@ class AppUser {
     this.bio,
     this.photoUrl,
     required this.createdAt,
+    this.privateAccount = false,
     this.equipesPrefereesId = const [],
     this.competitionsPrefereesId = const [],
     this.matchsUserData = const [],
@@ -45,6 +47,7 @@ class AppUser {
       email: json['email'] as String?,
       bio: json['bio'] as String?,
       photoUrl: json['photoUrl'] as String?,
+      privateAccount: json['privateAccount'] as bool? ?? false,
       createdAt: (json['createdAt'] is Timestamp)
           ? (json['createdAt'] as Timestamp).toDate()
           : (json['createdAt'] is String
@@ -73,6 +76,7 @@ class AppUser {
       'email': email,
       'bio': bio,
       'photoUrl': photoUrl,
+      'privateAccount': privateAccount,
       'createdAt': createdAt,
       'equipesPrefereesId': equipesPrefereesId,
       'competitionsPrefereesId': competitionsPrefereesId,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/users/can_access_private_infos.dart';
+import 'package:scorescope/views/profile/friends_page.dart';
 import 'package:scorescope/widgets/profile/profile_action.dart';
 import 'package:scorescope/widgets/profile/stat_tile.dart';
 import 'package:shimmer/shimmer.dart';
@@ -17,7 +19,7 @@ class Header extends StatefulWidget {
   final int? userNbAmis;
   final Function(String)? onStatusChanged;
   final Amitie? friendship;
-  final String? currentUserId;
+  final AppUser? currentUser;
   final bool isPerformingFriendAction;
   final void Function(String action)? onActionRequested;
   final void Function(void)? onProfileEdited;
@@ -37,7 +39,7 @@ class Header extends StatefulWidget {
     this.userNbAmis,
     this.onStatusChanged,
     this.friendship,
-    this.currentUserId,
+    this.currentUser,
     this.isPerformingFriendAction = false,
     this.onActionRequested,
     this.onProfileEdited,
@@ -175,35 +177,63 @@ class _HeaderState extends State<Header> {
                 ),
         ),
         const SizedBox(height: 12),
-        SizedBox(
-          height: 44,
-          child: Center(
-            child: ProfileAction(
-              amitie: widget.friendship,
-              user: widget.user,
-              isMe: widget.isMe,
-              currentUserId: widget.currentUserId,
-              onActionRequested: widget.isPerformingFriendAction
-                  ? null
-                  : widget.onActionRequested,
+        if (widget.currentUser != null)
+          SizedBox(
+            height: 44,
+            child: Center(
+              child: ProfileAction(
+                amitie: widget.friendship,
+                user: widget.user,
+                isMe: widget.isMe,
+                currentUserId: widget.currentUser!.uid,
+                onActionRequested: widget.isPerformingFriendAction
+                    ? null
+                    : widget.onActionRequested,
+              ),
             ),
           ),
-        ),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               child: Align(
                 alignment: Alignment.center,
-                child: ProfileStatTile(
-                  label: 'Amis',
-                  labelHeight: statsLabelHeight,
-                  valueWidget: widget.isLoadingNbAmis
-                      ? const _ShimmerBox(width: 24, height: 12)
-                      : Text(widget.userNbAmis?.toString() ?? '0',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: ColorPalette.textPrimary(context))),
+                child: InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  onTap: () {
+                    if ((widget.isMe ||
+                            canAccessPrivateInfos(
+                                widget.friendship, widget.user)) &&
+                        widget.currentUser != null &&
+                        widget.isLoadingNbAmis == false &&
+                        widget.userNbAmis != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FriendsPage(
+                            currentUser: widget.currentUser!,
+                            displayedUser: widget.user,
+                            friends: [],
+                            receivedRequests: [],
+                            sentRequests: [],
+                            isMe: widget.isMe,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: ProfileStatTile(
+                    label: 'Amis',
+                    labelHeight: statsLabelHeight,
+                    valueWidget: widget.isLoadingNbAmis
+                        ? const _ShimmerBox(width: 24, height: 12)
+                        : Text(widget.userNbAmis?.toString() ?? '0',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ColorPalette.textPrimary(context))),
+                  ),
                 ),
               ),
             ),

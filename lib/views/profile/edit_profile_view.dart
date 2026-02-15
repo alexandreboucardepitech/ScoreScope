@@ -286,8 +286,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor:
-                          AlwaysStoppedAnimation(ColorPalette.accent(context)),
+                      valueColor: AlwaysStoppedAnimation(
+                        ColorPalette.accent(context),
+                      ),
                     ),
                   )
                 : Text(
@@ -393,8 +394,10 @@ class _EditProfileViewState extends State<EditProfileView> {
             const SizedBox(height: 4),
             TextField(
               controller: _displayNameController,
+              maxLength: 20,
               style: TextStyle(color: ColorPalette.textPrimary(context)),
               decoration: InputDecoration(
+                counterText: '',
                 filled: true,
                 fillColor: ColorPalette.surface(context),
                 enabledBorder: OutlineInputBorder(
@@ -424,7 +427,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                 color: ColorPalette.textPrimary(context),
               ),
               maxLines: 4,
+              maxLength: 80,
               decoration: InputDecoration(
+                counterText: '',
                 filled: true,
                 fillColor: ColorPalette.surface(context),
                 enabledBorder: OutlineInputBorder(

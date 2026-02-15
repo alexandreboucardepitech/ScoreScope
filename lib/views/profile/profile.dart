@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/users/can_access_private_infos.dart';
 import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
 import 'package:scorescope/widgets/profile/header.dart';
@@ -40,6 +41,7 @@ class _ProfileViewState extends State<ProfileView> {
   bool _isLoadingNbMatchsRegardes = true;
   bool _isLoadingNbButs = true;
   bool _isLoadingNbAmis = true;
+  bool _isLoadingFriendship = true;
 
   bool _isScrolled = false;
 
@@ -143,6 +145,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _loadFriendship() async {
+    _setStateAndRemeasure(() => _isLoadingFriendship = true);
     if (_displayedUser?.uid == currentUser?.uid) {
       _setStateAndRemeasure(() => friendship = null);
       return;
@@ -154,11 +157,13 @@ class _ProfileViewState extends State<ProfileView> {
       if (!mounted) return;
       _setStateAndRemeasure(() {
         friendship = rel;
+        _isLoadingFriendship = false;
       });
     } catch (_) {
       if (!mounted) return;
       _setStateAndRemeasure(() {
         friendship = null;
+        _isLoadingFriendship = false;
       });
     }
   }
@@ -194,6 +199,7 @@ class _ProfileViewState extends State<ProfileView> {
         createdAt: base.createdAt,
         equipesPrefereesId: base.equipesPrefereesId,
         competitionsPrefereesId: base.competitionsPrefereesId,
+        privateAccount: base.privateAccount,
         matchsUserData: data,
       );
 
@@ -447,6 +453,9 @@ class _ProfileViewState extends State<ProfileView> {
       },
       child: Scaffold(
         body: NestedScrollView(
+          physics: canAccessPrivateInfos(friendship, userToUse)
+              ? const ClampingScrollPhysics()
+              : const NeverScrollableScrollPhysics(),
           controller: _scrollController,
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
@@ -491,7 +500,7 @@ class _ProfileViewState extends State<ProfileView> {
                                 _isLoadingNbAmis || _isLoadingMatchUserData,
                             userNbAmis: userNbAmis,
                             friendship: friendship,
-                            currentUserId: currentUser?.uid,
+                            currentUser: currentUser,
                             isPerformingFriendAction: _isPerformingFriendAction,
                             onActionRequested: (action) =>
                                 _handleFriendAction(action),
@@ -516,108 +525,170 @@ class _ProfileViewState extends State<ProfileView> {
                     )
                   : null,
               actions: [
-                if (isMe && !_isScrolled)
-                  IconButton(
-                    icon: const Icon(Icons.settings),
-                    onPressed: () {},
-                  ),
-                if (!isMe && !_isScrolled)
-                  IconButton(
-                    icon: const Icon(Icons.bar_chart),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => StatsView(user: widget.user),
-                        ),
-                      );
-                    },
-                  ),
+                if (_isLoadingCurrentUser)
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation(
+                        ColorPalette.textPrimary(context),
+                      ),
+                    ),
+                  )
+                else ...[
+                  if (isMe && !_isScrolled)
+                    IconButton(
+                      icon: const Icon(Icons.settings),
+                      onPressed: () {},
+                    ),
+                  if (!isMe &&
+                      !_isScrolled &&
+                      canAccessPrivateInfos(friendship, userToUse))
+                    IconButton(
+                      icon: const Icon(Icons.bar_chart),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => StatsView(user: userToUse),
+                          ),
+                        );
+                      },
+                    ),
+                ],
               ],
             ),
-            SliverToBoxAdapter(
-              child: Container(
-                color: ColorPalette.background(context),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: TextButton(
-                        onPressed: () => _scrollToSection(_equipesKey),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Équipes préférées',
-                            style: TextStyle(
-                              color: ColorPalette.textPrimary(context),
-                              fontWeight: FontWeight.w600,
+            if (canAccessPrivateInfos(friendship, userToUse))
+              SliverToBoxAdapter(
+                child: Container(
+                  color: ColorPalette.background(context),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: TextButton(
+                          onPressed: () => _scrollToSection(_equipesKey),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'Équipes préférées',
+                              style: TextStyle(
+                                color: ColorPalette.textPrimary(context),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Flexible(
-                      child: TextButton(
-                        onPressed: () => _scrollToSection(_matchsRegardesKey),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Derniers matchs',
-                            style: TextStyle(
-                              color: ColorPalette.textPrimary(context),
+                      Flexible(
+                        child: TextButton(
+                          onPressed: () => _scrollToSection(_matchsRegardesKey),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'Derniers matchs',
+                              style: TextStyle(
+                                color: ColorPalette.textPrimary(context),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Flexible(
-                      child: TextButton(
-                        onPressed: () => _scrollToSection(_matchsFavorisKey),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Matchs favoris',
-                            style: TextStyle(
-                              color: ColorPalette.textPrimary(context),
+                      Flexible(
+                        child: TextButton(
+                          onPressed: () => _scrollToSection(_matchsFavorisKey),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'Matchs favoris',
+                              style: TextStyle(
+                                color: ColorPalette.textPrimary(context),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
           ],
           body: Container(
             color: ColorPalette.background(context),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  EquipesPreferees(
-                    teamsId: userEquipesPrefereesId,
-                    user: userToUse,
-                    isMe: isMe,
-                    isLoading: equipesLoading,
-                    onTeamTap: _onTeamTap,
+            child: (canAccessPrivateInfos(friendship, userToUse) ||
+                    _isLoadingFriendship)
+                ? SingleChildScrollView(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        EquipesPreferees(
+                          teamsId: userEquipesPrefereesId,
+                          user: userToUse,
+                          isMe: isMe,
+                          isLoading: equipesLoading,
+                          onTeamTap: _onTeamTap,
+                        ),
+                        const Divider(height: 32),
+                        MatchsRegardes(
+                          matchesId: userMatchsRegardesId,
+                          isLoading: matchsRegardesLoading,
+                          user: userToUse,
+                        ),
+                        const Divider(height: 32),
+                        MatchsFavoris(
+                          matchsFavorisId: userMatchsFavorisId,
+                          isLoading: matchsFavorisLoading,
+                        ),
+                      ],
+                    ),
+                  )
+                : Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                        padding: const EdgeInsets.only(top: 60), // ajuste ici
+                        child: Container(
+                          width: 300,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: ColorPalette.border(context),
+                              width: 5,
+                            ),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.lock,
+                                color: ColorPalette.accent(context),
+                                size: 50,
+                              ),
+                              SizedBox(
+                                height: 12,
+                              ),
+                              Text(
+                                "Ce compte est privé.",
+                                style: TextStyle(
+                                  color: ColorPalette.textPrimary(context),
+                                  fontSize: 24,
+                                ),
+                              ),
+                              Text(
+                                "Ajoutez cet ami pour suivre son actualité !",
+                                style: TextStyle(
+                                  color: ColorPalette.textSecondary(context),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
                   ),
-                  const Divider(height: 32),
-                  MatchsRegardes(
-                    matchesId: userMatchsRegardesId,
-                    isLoading: matchsRegardesLoading,
-                    user: userToUse,
-                  ),
-                  const Divider(height: 32),
-                  MatchsFavoris(
-                    matchsFavorisId: userMatchsFavorisId,
-                    isLoading: matchsFavorisLoading,
-                  ),
-                ],
-              ),
-            ),
           ),
         ),
       ),

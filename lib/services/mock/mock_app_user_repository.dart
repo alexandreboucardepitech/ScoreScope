@@ -43,6 +43,8 @@ class MockAppUserRepository implements IAppUserRepository {
         bio:
             "coucou moi c'est alex et j'aime le foot (bah oui c'est mon nom t con)",
         equipesPrefereesId: ["2", "3"], // fc nantes / barça
+        competitionsPrefereesId: ["1", "2"], // ligue 1 / laliga
+        privateAccount: false,
         matchsUserData: [
           MatchUserData(
             matchId: "1",
@@ -73,6 +75,8 @@ class MockAppUserRepository implements IAppUserRepository {
         displayName: 'marie_goal',
         email: 'marie@example.com',
         equipesPrefereesId: ["1"], //psg
+        competitionsPrefereesId: ["1", "3"], // ligue 1 / ldc
+        privateAccount: true,
         matchsUserData: [
           MatchUserData(
             matchId: "1",
@@ -96,6 +100,8 @@ class MockAppUserRepository implements IAppUserRepository {
         displayName: 'jules_fan',
         email: 'jules@example.com',
         equipesPrefereesId: ["3", "4"], // barça / real madrid (hein ?)
+        competitionsPrefereesId: ["2"], // laliga
+        privateAccount: false,
         matchsUserData: [
           MatchUserData(
             matchId: "2",
@@ -354,6 +360,8 @@ class MockAppUserRepository implements IAppUserRepository {
       photoUrl: user.photoUrl,
       createdAt: user.createdAt,
       equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      privateAccount: user.privateAccount,
       matchsUserData: updated,
     );
 
@@ -411,6 +419,8 @@ class MockAppUserRepository implements IAppUserRepository {
       photoUrl: user.photoUrl,
       createdAt: user.createdAt,
       equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      privateAccount: user.privateAccount,
       matchsUserData: updated,
     );
 
@@ -473,6 +483,8 @@ class MockAppUserRepository implements IAppUserRepository {
       photoUrl: user.photoUrl,
       createdAt: user.createdAt,
       equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      privateAccount: user.privateAccount,
       matchsUserData: updated,
     );
 
@@ -560,6 +572,8 @@ class MockAppUserRepository implements IAppUserRepository {
       photoUrl: user.photoUrl,
       createdAt: user.createdAt,
       equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      privateAccount: user.privateAccount,
       matchsUserData: updated,
     );
 
@@ -640,6 +654,8 @@ class MockAppUserRepository implements IAppUserRepository {
       photoUrl: user.photoUrl,
       createdAt: user.createdAt,
       equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      privateAccount: user.privateAccount,
       matchsUserData: updated,
     );
 
@@ -706,6 +722,8 @@ class MockAppUserRepository implements IAppUserRepository {
       photoUrl: user.photoUrl,
       createdAt: user.createdAt,
       equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      privateAccount: user.privateAccount,
       matchsUserData: updated,
     );
     _users[userIdx] = newUser;
@@ -754,6 +772,7 @@ class MockAppUserRepository implements IAppUserRepository {
       matchsUserData: user.matchsUserData,
       competitionsPrefereesId:
           newCompetitionsPrefereesId ?? user.competitionsPrefereesId,
+      privateAccount: user.privateAccount,
     );
 
     _users[userIdx] = newUser;
