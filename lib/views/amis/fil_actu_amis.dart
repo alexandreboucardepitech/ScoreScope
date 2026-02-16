@@ -195,9 +195,12 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
         return;
       }
 
-      final List<UserMatchEntry> repoEntries = await RepositoryProvider
-          .postRepository
-          .fetchFriendsMatchesUserData(currentUser.uid);
+      final List<UserMatchEntry> repoEntries =
+          await RepositoryProvider.postRepository.fetchFriendsMatchesUserData(
+        userId: currentUser.uid,
+        onlyPublic: true,
+        daysLimit: 14,
+      );
 
       if (!mounted) return;
 
@@ -302,7 +305,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.group_outlined,
-                size: 64, color: ColorPalette.pictureBackground(context)),
+                size: 64, color: ColorPalette.accent(context)),
             const SizedBox(height: 12),
             Text(
               "Aucune activité récente de vos amis.",

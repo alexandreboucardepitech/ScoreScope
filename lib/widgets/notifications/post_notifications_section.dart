@@ -113,12 +113,14 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
                 ),
               )
             : Center(
-                child: Text(
-                  'Aucune nouvelle notification',
-                  style: TextStyle(
-                    color: ColorPalette.textSecondary(context),
-                  ),
-                ),
+                child: newTiles.isNotEmpty
+                    ? Text(
+                        'Aucune nouvelle notification',
+                        style: TextStyle(
+                          color: ColorPalette.textSecondary(context),
+                        ),
+                      )
+                    : null,
               ),
         if (oldTiles.isNotEmpty) ...[
           _sectionHeader(context, 'Déjà vues'),

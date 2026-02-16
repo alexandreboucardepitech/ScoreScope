@@ -111,20 +111,34 @@ class MockPostRepository implements IPostRepository {
   // FRIENDS' MATCH USERDATA FETCH (kept behaviour)
   // -------------------------
   @override
-  Future<List<UserMatchEntry>> fetchFriendsMatchesUserData(
-      String userId) async {
+  Future<List<UserMatchEntry>> fetchFriendsMatchesUserData({
+    required String userId,
+    bool onlyPublic = true,
+    int? daysLimit,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 200));
 
     final friends =
         await RepositoryProvider.amitieRepository.fetchFriendsForUser(userId);
     if (friends.isEmpty) return [];
 
+    final now = DateTime.now().toUtc();
+    final DateTime? cutoff =
+        daysLimit != null ? now.subtract(Duration(days: daysLimit)) : null;
+
     final List<UserMatchEntry> result = [];
 
     for (final friend in friends) {
       final friendMatches = await MockAppUserRepository()
-          .fetchUserAllMatchUserData(userId: friend.uid, onlyPublic: true);
+          .fetchUserAllMatchUserData(
+              userId: friend.uid, onlyPublic: onlyPublic);
+
       for (final md in friendMatches) {
+        if (cutoff != null &&
+            md.watchedAt != null &&
+            md.watchedAt!.isBefore(cutoff)) {
+          continue;
+        }
         result.add(UserMatchEntry(user: friend, matchData: md));
       }
     }

@@ -12,8 +12,8 @@ class WebPostRepository implements IPostRepository {
       FirebaseFirestore.instance.collection('users');
 
   @override
-  Future<List<UserMatchEntry>> fetchFriendsMatchesUserData(
-    String userId, {
+  Future<List<UserMatchEntry>> fetchFriendsMatchesUserData({
+    required String userId,
     bool onlyPublic = true,
     int? daysLimit,
   }) async {
