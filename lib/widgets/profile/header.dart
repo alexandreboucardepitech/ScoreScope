@@ -215,9 +215,6 @@ class _HeaderState extends State<Header> {
                           builder: (_) => FriendsPage(
                             currentUser: widget.currentUser!,
                             displayedUser: widget.user,
-                            friends: [],
-                            receivedRequests: [],
-                            sentRequests: [],
                             isMe: widget.isMe,
                           ),
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
+import 'package:scorescope/utils/string/get_friendship_action_snackbar_message.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/users/can_access_private_infos.dart';
 import 'package:scorescope/views/statistiques/stats_view.dart';
@@ -372,7 +373,7 @@ class _ProfileViewState extends State<ProfileView> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_getSnackbarMessage(action))),
+        SnackBar(content: Text(getFriendshipActionSnackbarMessage(action))),
       );
     } catch (e) {
       if (!mounted) return;
@@ -386,21 +387,6 @@ class _ProfileViewState extends State<ProfileView> {
           _isPerformingFriendAction = false;
         });
       }
-    }
-  }
-
-  String _getSnackbarMessage(String action) {
-    switch (action) {
-      case 'send':
-        return "Demande d'ami envoyée avec succès!";
-      case 'cancel':
-        return "Demande d'ami annulée avec succès!";
-      case 'accept':
-        return "Demande acceptée !";
-      case 'remove':
-        return "Ami retiré avec succès!";
-      default:
-        return "Action effectuée avec succès!";
     }
   }
 

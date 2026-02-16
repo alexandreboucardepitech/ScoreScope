@@ -52,12 +52,17 @@ class ProfileAction extends StatelessWidget {
           }
         },
         icon: Icon(Icons.edit, size: 16, color: ColorPalette.accent(context)),
-        label: Text('Modifier le profil',
-            style: TextStyle(color: ColorPalette.textPrimary(context))),
+        label: Text(
+          'Modifier le profil',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: ColorPalette.buttonSecondary(context),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         ),
       );
