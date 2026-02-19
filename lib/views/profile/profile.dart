@@ -4,6 +4,7 @@ import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/utils/string/get_friendship_action_snackbar_message.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/users/can_access_private_infos.dart';
+import 'package:scorescope/views/profile/options_view.dart';
 import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
 import 'package:scorescope/widgets/profile/header.dart';
@@ -596,7 +597,17 @@ class _ProfileViewState extends State<ProfileView> {
                   if (isMe && !_isScrolled)
                     IconButton(
                       icon: const Icon(Icons.settings),
-                      onPressed: () {},
+                      onPressed: () {
+                        if (currentUser != null) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => OptionsView(
+                                currentUser: currentUser!,
+                              ),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   if (!isMe &&
                       !_isScrolled &&
