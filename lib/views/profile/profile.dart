@@ -200,7 +200,7 @@ class _ProfileViewState extends State<ProfileView> {
         createdAt: base.createdAt,
         equipesPrefereesId: base.equipesPrefereesId,
         competitionsPrefereesId: base.competitionsPrefereesId,
-        privateAccount: base.privateAccount,
+        private: base.private,
         matchsUserData: data,
       );
 
@@ -363,6 +363,17 @@ class _ProfileViewState extends State<ProfileView> {
             currentUser!.uid,
             _displayedUser?.uid ?? widget.user.uid,
           );
+        case 'block':
+          await amitieRepository.blockUser(
+            currentUser!.uid,
+            _displayedUser?.uid ?? widget.user.uid,
+          );
+          break;
+        case 'unblock':
+          await amitieRepository.unblockUser(
+            currentUser!.uid,
+            _displayedUser?.uid ?? widget.user.uid,
+          );
           break;
       }
 
@@ -412,6 +423,61 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  void _confirmBlockUser() async {
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ColorPalette.surface(context),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          "Bloquer ${widget.user.displayName}?",
+          style: TextStyle(
+              color: ColorPalette.textAccent(context),
+              fontWeight: FontWeight.bold,
+              fontSize: 18),
+        ),
+        content: Text(
+          "Voulez-vous bloquer ${widget.user.displayName}?\nCet utilisateur ne pourra plus accéder à vos posts",
+          style:
+              TextStyle(color: ColorPalette.textPrimary(context), fontSize: 16),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              "Annuler",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () async {
+              if (currentUser != null && _displayedUser != null) {
+                await RepositoryProvider.amitieRepository
+                    .blockUser(currentUser!.uid, _displayedUser!.uid);
+              }
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Bloquer',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    setState(() {
+      _init();
+    });
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -439,7 +505,11 @@ class _ProfileViewState extends State<ProfileView> {
       },
       child: Scaffold(
         body: NestedScrollView(
-          physics: canAccessPrivateInfos(friendship, userToUse)
+          physics: canAccessPrivateInfos(
+            friendship: friendship,
+            userToAccessInfos: userToUse,
+            isMe: isMe,
+          )
               ? const ClampingScrollPhysics()
               : const NeverScrollableScrollPhysics(),
           controller: _scrollController,
@@ -530,7 +600,11 @@ class _ProfileViewState extends State<ProfileView> {
                     ),
                   if (!isMe &&
                       !_isScrolled &&
-                      canAccessPrivateInfos(friendship, userToUse))
+                      canAccessPrivateInfos(
+                        friendship: friendship,
+                        userToAccessInfos: userToUse,
+                        isMe: isMe,
+                      ))
                     IconButton(
                       icon: const Icon(Icons.bar_chart),
                       onPressed: () {
@@ -541,10 +615,34 @@ class _ProfileViewState extends State<ProfileView> {
                         );
                       },
                     ),
+                  if (!isMe && !_isScrolled)
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: ColorPalette.textPrimary(context),
+                      ),
+                      onSelected: (value) {},
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          onTap: _confirmBlockUser,
+                          value: 'bloquer',
+                          child: Text(
+                            'Bloquer',
+                            style: TextStyle(
+                              color: ColorPalette.textPrimary(context),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ],
             ),
-            if (canAccessPrivateInfos(friendship, userToUse))
+            if (canAccessPrivateInfos(
+              friendship: friendship,
+              userToAccessInfos: userToUse,
+              isMe: isMe,
+            ))
               SliverToBoxAdapter(
                 child: Container(
                   color: ColorPalette.background(context),
@@ -603,7 +701,11 @@ class _ProfileViewState extends State<ProfileView> {
           ],
           body: Container(
             color: ColorPalette.background(context),
-            child: (canAccessPrivateInfos(friendship, userToUse) ||
+            child: (canAccessPrivateInfos(
+                      friendship: friendship,
+                      userToAccessInfos: userToUse,
+                      isMe: isMe,
+                    ) ||
                     _isLoadingFriendship)
                 ? SingleChildScrollView(
                     padding:

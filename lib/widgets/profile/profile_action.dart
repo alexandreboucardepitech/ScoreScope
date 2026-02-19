@@ -72,11 +72,12 @@ class ProfileAction extends StatelessWidget {
     final isSentByMe = (currentUserId != null) &&
         (amitie != null) &&
         (amitie!.firstUserId == currentUserId) &&
-        status == 'pending';
+        (status == 'pending' || status == 'blocked');
 
     String label;
     IconData icon;
-    bool isClickable = status != 'blocked';
+    bool isClickable =
+        (status != 'blocked') || (status == 'blocked' && isSentByMe);
 
     switch (status) {
       case 'accepted':
@@ -99,8 +100,12 @@ class ProfileAction extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: isClickable ? () => _showDialog(context, isSentByMe) : null,
       icon: Icon(icon, size: 16, color: ColorPalette.accent(context)),
-      label: Text(label,
-          style: TextStyle(color: ColorPalette.textPrimary(context))),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: ColorPalette.textPrimary(context),
+        ),
+      ),
       style: ElevatedButton.styleFrom(
         disabledBackgroundColor: ColorPalette.buttonDisabled(context),
         backgroundColor: ColorPalette.buttonSecondary(context),
@@ -111,40 +116,56 @@ class ProfileAction extends StatelessWidget {
   }
 
   void _showDialog(BuildContext context, bool isSentByMe) {
-    if (amitie?.status == 'blocked') return;
-
     final status = amitie?.status ?? 'none';
     final List<Widget> actions = <Widget>[];
 
     if (status == 'none') {
       actions.addAll([
         TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text("Annuler",
-                style: TextStyle(color: ColorPalette.textPrimary(context)))),
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            "Annuler",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+            ),
+          ),
+        ),
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
             onActionRequested?.call('send');
           },
-          child: Text("Envoyer",
-              style: TextStyle(color: ColorPalette.textPrimary(context))),
+          child: Text(
+            "Envoyer",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+            ),
+          ),
         ),
       ]);
     } else if (status == 'pending') {
       if (isSentByMe) {
         actions.addAll([
           TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text("Annuler",
-                  style: TextStyle(color: ColorPalette.textPrimary(context)))),
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              "Annuler",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               onActionRequested?.call('cancel');
             },
-            child: Text("Retirer la demande",
-                style: TextStyle(color: ColorPalette.textPrimary(context))),
+            child: Text(
+              "Retirer la demande",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
         ]);
       } else {
@@ -187,16 +208,49 @@ class ProfileAction extends StatelessWidget {
     } else if (status == 'accepted') {
       actions.addAll([
         TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text("Annuler",
-                style: TextStyle(color: ColorPalette.textPrimary(context)))),
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            "Annuler",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+            ),
+          ),
+        ),
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
             onActionRequested?.call('remove');
           },
-          child: Text("Retirer",
-              style: TextStyle(color: ColorPalette.textPrimary(context))),
+          child: Text(
+            "Retirer",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+            ),
+          ),
+        ),
+      ]);
+    } else if (status == 'blocked') {
+      actions.addAll([
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            "Annuler",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            onActionRequested?.call('unblock');
+          },
+          child: Text(
+            "Débloquer",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+            ),
+          ),
         ),
       ]);
     }
@@ -236,7 +290,7 @@ class ProfileAction extends StatelessWidget {
           return "Accepter la demande d'ami de $displayName ?";
         }
       case 'blocked':
-        return "Vous avez bloqué cet utilisateur.";
+        return "Voulez-vous débloquer $displayName ?";
       default:
         return "Voulez-vous envoyer une demande d'ami à $displayName ?";
     }

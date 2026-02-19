@@ -33,12 +33,14 @@ class FriendRequestsSection extends StatelessWidget {
       children: [
         _sectionHeader(context, 'Demandes d\'amis'),
         if (requests.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              'Aucune demande reçue',
-              style: TextStyle(
-                color: ColorPalette.textSecondary(context),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Aucune demande reçue',
+                style: TextStyle(
+                  color: ColorPalette.textSecondary(context),
+                ),
               ),
             ),
           ),

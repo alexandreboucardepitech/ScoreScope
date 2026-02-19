@@ -273,6 +273,7 @@ class MockPostRepository implements IPostRepository {
     required String ownerUserId,
     required String matchId,
     int? limit,
+    bool removeBlockedUsersComments = false,
   }) async {
     await MockAppUserRepository().ready;
     await Future.delayed(const Duration(milliseconds: 120));
@@ -282,6 +283,15 @@ class MockPostRepository implements IPostRepository {
     final copy = List<Commentaire>.from(list);
     if (limit != null && limit < copy.length) {
       return copy.take(limit).toList();
+    }
+    if (removeBlockedUsersComments &&
+        RepositoryProvider.userRepository.currentUser != null) {
+      final blockedUsers = await RepositoryProvider.amitieRepository
+          .fetchBlockedUsers(
+              RepositoryProvider.userRepository.currentUser!.uid, 'both');
+      copy.removeWhere((commentaire) => blockedUsers.any((blockedUser) =>
+          blockedUser.firstUserId == commentaire.authorId ||
+          blockedUser.secondUserId == commentaire.authorId));
     }
     return copy;
   }
@@ -351,6 +361,7 @@ class MockPostRepository implements IPostRepository {
     required String ownerUserId,
     required String matchId,
     int? limit,
+    bool removeBlockedUsersReactions = false,
   }) async {
     await MockAppUserRepository().ready;
     await Future.delayed(const Duration(milliseconds: 120));
@@ -362,6 +373,15 @@ class MockPostRepository implements IPostRepository {
 
     if (limit != null && limit < copy.length) {
       return copy.take(limit).toList();
+    }
+    if (removeBlockedUsersReactions &&
+        RepositoryProvider.userRepository.currentUser != null) {
+      final blockedUsers = await RepositoryProvider.amitieRepository
+          .fetchBlockedUsers(
+              RepositoryProvider.userRepository.currentUser!.uid, 'both');
+      copy.removeWhere((reaction) => blockedUsers.any((blockedUser) =>
+          blockedUser.firstUserId == reaction.userId ||
+          blockedUser.secondUserId == reaction.userId));
     }
     return copy;
   }

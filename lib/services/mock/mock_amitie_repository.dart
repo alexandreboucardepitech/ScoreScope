@@ -15,7 +15,7 @@ class MockAmitieRepository implements IAmitieRepository {
       Amitie(
         firstUserId: 'u_alex',
         secondUserId: 'u_marie',
-        status: 'confirmed',
+        status: 'accepted',
         createdAt: DateTime.parse('2024-01-01T12:00:00Z'),
       ),
     );
@@ -31,10 +31,15 @@ class MockAmitieRepository implements IAmitieRepository {
   }
 
   @override
-  Future<List<Amitie>> fetchFriendshipsForUser(String userId) async {
+  Future<List<Amitie>> fetchFriendshipsForUser({
+    required String userId,
+    bool alsoGetBlockedUsers = false,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 200));
     return _friendships
-        .where((a) => a.firstUserId == userId || a.secondUserId == userId)
+        .where((amitie) =>
+            amitie.firstUserId == userId || amitie.secondUserId == userId)
+        .where((amitie) => alsoGetBlockedUsers || amitie.status != 'blocked')
         .toList();
   }
 
@@ -43,9 +48,9 @@ class MockAmitieRepository implements IAmitieRepository {
     await Future.delayed(const Duration(milliseconds: 200));
 
     final acceptedFriendships = _friendships
-        .where((a) =>
-            (a.firstUserId == userId || a.secondUserId == userId) &&
-            a.status == 'confirmed')
+        .where((amitie) =>
+            (amitie.firstUserId == userId || amitie.secondUserId == userId) &&
+            amitie.status == 'accepted')
         .toList();
 
     final friends = <AppUser>[];
@@ -67,7 +72,7 @@ class MockAmitieRepository implements IAmitieRepository {
     final friends = _friendships
         .where((a) =>
             (a.firstUserId == userId || a.secondUserId == userId) &&
-            a.status == 'confirmed')
+            a.status == 'accepted')
         .toList();
     return friends.length;
   }
@@ -86,6 +91,29 @@ class MockAmitieRepository implements IAmitieRepository {
     return _friendships
         .where((a) => a.status == 'pending' && a.firstUserId == userId)
         .toList();
+  }
+
+  @override
+  Future<List<Amitie>> fetchBlockedUsers(
+      String userId, String blockType) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    if (blockType == 'blocking') {
+      return _friendships
+          .where((a) => a.status == 'blocked' && a.firstUserId == userId)
+          .toList();
+    } else if (blockType == 'blocked') {
+      return _friendships
+          .where((a) => a.status == 'blocked' && a.secondUserId == userId)
+          .toList();
+    } else if (blockType == 'both') {
+      return _friendships
+          .where((a) =>
+              a.status == 'blocked' &&
+              (a.firstUserId == userId || a.secondUserId == userId))
+          .toList();
+    } else {
+      throw ArgumentError('Invalid blockType: $blockType');
+    }
   }
 
   @override
@@ -111,7 +139,7 @@ class MockAmitieRepository implements IAmitieRepository {
       _friendships[index] = Amitie(
         firstUserId: _friendships[index].firstUserId,
         secondUserId: _friendships[index].secondUserId,
-        status: 'confirmed',
+        status: 'accepted',
         createdAt: _friendships[index].createdAt,
       );
     }
@@ -131,6 +159,33 @@ class MockAmitieRepository implements IAmitieRepository {
     _friendships.removeWhere((a) =>
         (a.firstUserId == userId1 && a.secondUserId == userId2) ||
         (a.firstUserId == userId2 && a.secondUserId == userId1));
+  }
+
+  @override
+  Future<void> blockUser(String fromUserId, String toUserId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final index = _friendships.indexWhere((a) =>
+        (a.firstUserId == fromUserId && a.secondUserId == toUserId) ||
+        (a.firstUserId == toUserId && a.secondUserId == fromUserId));
+    if (index != -1) {
+      _friendships[index] = Amitie(
+        firstUserId: _friendships[index].firstUserId,
+        secondUserId: _friendships[index].secondUserId,
+        status: 'blocked',
+        createdAt: _friendships[index].createdAt,
+      );
+    }
+  }
+
+  @override
+  Future<void> unblockUser(String fromUserId, String toUserId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final index = _friendships.indexWhere((a) =>
+        (a.firstUserId == fromUserId && a.secondUserId == toUserId) ||
+        (a.firstUserId == toUserId && a.secondUserId == fromUserId));
+    if (index != -1) {
+      _friendships.removeAt(index);
+    }
   }
 
   @override

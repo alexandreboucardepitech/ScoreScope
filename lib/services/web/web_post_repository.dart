@@ -232,6 +232,7 @@ class WebPostRepository implements IPostRepository {
     required String ownerUserId,
     required String matchId,
     int? limit,
+    bool removeBlockedUsersComments = false,
   }) async {
     final parentRef = await _findMatchUserDataDocRef(
       ownerUserId: ownerUserId,
@@ -243,7 +244,26 @@ class WebPostRepository implements IPostRepository {
     if (limit != null) query = query.limit(limit);
 
     final snap = await query.get();
-    return snap.docs
+    var docs = snap.docs;
+    if (removeBlockedUsersComments &&
+        RepositoryProvider.userRepository.currentUser != null) {
+      final currentUserId = RepositoryProvider.userRepository.currentUser!.uid;
+      final blockedUsers = await RepositoryProvider.amitieRepository
+          .fetchBlockedUsers(currentUserId, 'both');
+      final blockedIds = blockedUsers.map((b) {
+        if (b.firstUserId == currentUserId) {
+          return b.secondUserId;
+        } else {
+          return b.firstUserId;
+        }
+      }).toList();
+      docs.removeWhere((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final authorId = data['authorId'] as String;
+        return blockedIds.contains(authorId);
+      });
+    }
+    return docs
         .map(
             (d) => Commentaire.fromJson(d.data() as Map<String, dynamic>, d.id))
         .toList();
@@ -320,6 +340,7 @@ class WebPostRepository implements IPostRepository {
     required String ownerUserId,
     required String matchId,
     int? limit,
+    bool removeBlockedUsersReactions = false,
   }) async {
     final parentRef = await _findMatchUserDataDocRef(
       ownerUserId: ownerUserId,
@@ -332,7 +353,26 @@ class WebPostRepository implements IPostRepository {
     if (limit != null) query = query.limit(limit);
 
     final snap = await query.get();
-    return snap.docs
+    var docs = snap.docs;
+    if (removeBlockedUsersReactions &&
+        RepositoryProvider.userRepository.currentUser != null) {
+      final currentUserId = RepositoryProvider.userRepository.currentUser!.uid;
+      final blockedUsers = await RepositoryProvider.amitieRepository
+          .fetchBlockedUsers(currentUserId, 'both');
+      final blockedIds = blockedUsers.map((b) {
+        if (b.firstUserId == currentUserId) {
+          return b.secondUserId;
+        } else {
+          return b.firstUserId;
+        }
+      }).toList();
+      docs.removeWhere((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final userId = data['userId'] as String;
+        return blockedIds.contains(userId);
+      });
+    }
+    return docs
         .map((d) => Reaction.fromJson(d.data() as Map<String, dynamic>, d.id))
         .toList();
   }

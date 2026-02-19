@@ -29,7 +29,8 @@ class _FriendsPageState extends State<FriendsPage>
 
   bool _isLoading = true;
 
-  List<Amitie> _friendships = [];
+  List<Amitie> _displayedUserFriendships = [];
+  List<Amitie> _currentUserFriendships = [];
 
   List<_FriendEntry> _friends = [];
   List<_FriendEntry> _receivedRequests = [];
@@ -59,14 +60,41 @@ class _FriendsPageState extends State<FriendsPage>
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
 
-    final friendships = await RepositoryProvider.amitieRepository
-        .fetchFriendshipsForUser(widget.displayedUser.uid);
+    final friendships =
+        await RepositoryProvider.amitieRepository.fetchFriendshipsForUser(
+      userId: widget.displayedUser.uid,
+      alsoGetBlockedUsers: false,
+    );
 
-    _friendships = friendships;
+    _displayedUserFriendships = friendships;
+
+    if (widget.isMe) {
+      _currentUserFriendships = friendships;
+    } else {
+      final currentUserFriendships =
+          await RepositoryProvider.amitieRepository.fetchFriendshipsForUser(
+        userId: widget.currentUser.uid,
+        alsoGetBlockedUsers: true,
+      );
+      _currentUserFriendships = currentUserFriendships;
+    }
 
     await _separateFriendships();
 
     setState(() => _isLoading = false);
+  }
+
+  Amitie? _getCurrentUserAmitieForUser(String otherUserId) {
+    try {
+      return _currentUserFriendships.firstWhere(
+        (amitie) => ((amitie.firstUserId == widget.currentUser.uid &&
+                amitie.secondUserId == otherUserId) ||
+            (amitie.firstUserId == otherUserId &&
+                amitie.secondUserId == widget.currentUser.uid)),
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> _separateFriendships() async {
@@ -74,7 +102,7 @@ class _FriendsPageState extends State<FriendsPage>
     List<_FriendEntry> received = [];
     List<_FriendEntry> sent = [];
 
-    for (Amitie amitie in _friendships) {
+    for (Amitie amitie in _displayedUserFriendships) {
       final isCurrentUserFirst = amitie.firstUserId == widget.currentUser.uid;
 
       final isDisplayedUserFirst =
@@ -89,12 +117,30 @@ class _FriendsPageState extends State<FriendsPage>
       if (user == null) continue;
 
       if (amitie.status == "accepted") {
-        friends.add(_FriendEntry(user: user, amitie: amitie));
+        friends.add(
+          _FriendEntry(
+            user: user,
+            amitie: amitie,
+            currentUserAmitie: _getCurrentUserAmitieForUser(otherUserId),
+          ),
+        );
       } else if (amitie.status == "pending" && widget.isMe) {
         if (isCurrentUserFirst) {
-          sent.add(_FriendEntry(user: user, amitie: amitie));
+          sent.add(
+            _FriendEntry(
+              user: user,
+              amitie: amitie,
+              currentUserAmitie: _getCurrentUserAmitieForUser(otherUserId),
+            ),
+          );
         } else {
-          received.add(_FriendEntry(user: user, amitie: amitie));
+          received.add(
+            _FriendEntry(
+              user: user,
+              amitie: amitie,
+              currentUserAmitie: _getCurrentUserAmitieForUser(otherUserId),
+            ),
+          );
         }
       }
     }
@@ -251,10 +297,15 @@ class _FriendsPageState extends State<FriendsPage>
         case 'remove':
           await RepositoryProvider.amitieRepository
               .removeFriend(widget.currentUser.uid, user.uid);
+        case 'block':
+          await RepositoryProvider.amitieRepository
+              .blockUser(widget.currentUser.uid, user.uid);
+          break;
+        case 'unblock':
+          await RepositoryProvider.amitieRepository
+              .unblockUser(widget.currentUser.uid, user.uid);
           break;
       }
-
-      // await _loadData();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -289,7 +340,7 @@ class _FriendsPageState extends State<FriendsPage>
 
         return FriendListItem(
           user: entry.user,
-          amitie: entry.amitie,
+          currentUserAmitie: entry.currentUserAmitie,
           currentUser: widget.currentUser,
           isMe: widget.currentUser.uid == entry.user.uid,
           onActionRequested: _handleFriendAction,
@@ -302,13 +353,17 @@ class _FriendsPageState extends State<FriendsPage>
 class _FriendEntry {
   final AppUser user;
   final Amitie amitie;
+  final Amitie? currentUserAmitie;
 
-  _FriendEntry({required this.user, required this.amitie});
+  _FriendEntry(
+      {required this.user,
+      required this.amitie,
+      required this.currentUserAmitie});
 }
 
 class FriendListItem extends StatelessWidget {
   final AppUser user;
-  final Amitie? amitie;
+  final Amitie? currentUserAmitie;
   final AppUser currentUser;
   final bool isMe;
   final void Function(String action, AppUser user)? onActionRequested;
@@ -318,7 +373,7 @@ class FriendListItem extends StatelessWidget {
     required this.user,
     required this.currentUser,
     required this.isMe,
-    this.amitie,
+    this.currentUserAmitie,
     this.onActionRequested,
   });
 
@@ -357,7 +412,7 @@ class FriendListItem extends StatelessWidget {
           ? null
           : ProfileAction(
               user: user,
-              amitie: amitie,
+              amitie: currentUserAmitie,
               isMe: isMe,
               currentUserId: currentUser.uid,
               onActionRequested: (action) {

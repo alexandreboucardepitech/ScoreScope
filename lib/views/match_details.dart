@@ -499,7 +499,10 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                   ),
           ),
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: ColorPalette.opposite(context)),
+            icon: Icon(
+              Icons.more_vert,
+              color: ColorPalette.buttonSecondary(context),
+            ),
             onSelected: (value) {},
             itemBuilder: (context) => [
               PopupMenuItem(

@@ -205,7 +205,10 @@ class _HeaderState extends State<Header> {
                   onTap: () {
                     if ((widget.isMe ||
                             canAccessPrivateInfos(
-                                widget.friendship, widget.user)) &&
+                              friendship: widget.friendship,
+                              userToAccessInfos: widget.user,
+                              isMe: widget.isMe,
+                            )) &&
                         widget.currentUser != null &&
                         widget.isLoadingNbAmis == false &&
                         widget.userNbAmis != null) {

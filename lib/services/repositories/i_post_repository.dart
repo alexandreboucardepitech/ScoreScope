@@ -37,6 +37,7 @@ abstract class IPostRepository {
     required String ownerUserId,
     required String matchId,
     int? limit,
+    bool removeBlockedUsersComments = false,
   });
 
   Future<void> addReaction({
@@ -57,5 +58,6 @@ abstract class IPostRepository {
     required String ownerUserId,
     required String matchId,
     int? limit,
+    bool removeBlockedUsersReactions = false,
   });
 }

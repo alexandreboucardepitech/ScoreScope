@@ -8,6 +8,10 @@ String getFriendshipActionSnackbarMessage(String action) {
       return "Demande acceptée !";
     case 'remove':
       return "Ami retiré avec succès!";
+    case 'block':
+      return "Utilisateur bloqué avec succès!";
+    case 'unblock':
+      return "Utilisateur débloqué avec succès!";
     default:
       return "Action effectuée avec succès!";
   }

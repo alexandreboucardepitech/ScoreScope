@@ -142,13 +142,15 @@ class _CommentsPageState extends State<CommentsPage> {
       final reactions = await RepositoryProvider.postRepository.fetchReactions(
         ownerUserId: ownerUserId,
         matchId: matchId,
-        limit: 50,
+        limit: 100,
+        removeBlockedUsersReactions: true,
       );
 
       final comments = await RepositoryProvider.postRepository.fetchComments(
         ownerUserId: ownerUserId,
         matchId: matchId,
         limit: 1000,
+        removeBlockedUsersComments: true,
       );
 
       _matchData!.reactions = List.from(reactions);

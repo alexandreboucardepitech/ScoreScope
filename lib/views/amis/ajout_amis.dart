@@ -20,6 +20,7 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
   String _query = '';
   AppUser? _currentUser;
   Future<List<AppUser>>? _searchFuture;
+  List<String> _blockedUserIds = [];
 
   static const int _minCharsToSearch = 2;
   static const Duration _debounceDuration = Duration(milliseconds: 300);
@@ -28,10 +29,11 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
   @override
   void initState() {
     super.initState();
-    _loadCurrentUser();
-
-    // Écoute la barre de recherche et déclenche les recherches avec debounce.
-    _searchController.addListener(_onSearchTextChanged);
+    _loadCurrentUser().then((_) {
+      _loadBlockedUsers();
+      // Écoute la barre de recherche et déclenche les recherches avec debounce.
+      _searchController.addListener(_onSearchTextChanged);
+    });
   }
 
   @override
@@ -49,6 +51,28 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
     } catch (e) {
       // Si échec, laisse _currentUser null — on n'interrompt pas l'UI.
       if (mounted) setState(() => _currentUser = null);
+    }
+  }
+
+  Future<void> _loadBlockedUsers() async {
+    if (_currentUser == null) return;
+    try {
+      // on récupère à la fois ceux que j'ai bloqués et ceux qui m'ont bloqué
+      final blockedUsersFriendships = await RepositoryProvider.amitieRepository
+          .fetchBlockedUsers(_currentUser!.uid, 'both');
+      if (mounted) {
+        setState(() {
+          _blockedUserIds = blockedUsersFriendships.map((friendship) {
+            if (friendship.firstUserId == _currentUser!.uid) {
+              return friendship.secondUserId;
+            } else {
+              return friendship.firstUserId;
+            }
+          }).toList();
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _blockedUserIds = []);
     }
   }
 
@@ -74,9 +98,17 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
   }
 
   /// Exclure l'utilisateur courant
-  List<AppUser> _excludeCurrentUser(List<AppUser> users) {
-    if (_currentUser == null) return users;
-    return users.where((u) => u.uid != _currentUser!.uid).toList();
+  List<AppUser> _excludeCurrentUser(
+      {required List<AppUser> rawUsers, bool excludeBlocked = false}) {
+    if (_currentUser == null) return rawUsers;
+    var users =
+        rawUsers.where((user) => user.uid != _currentUser!.uid).toList();
+
+    if (excludeBlocked) {
+      users =
+          users.where((user) => !_blockedUserIds.contains(user.uid)).toList();
+    }
+    return users;
   }
 
   @override
@@ -161,7 +193,8 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
         }
 
         final rawUsers = snapshot.data ?? <AppUser>[];
-        final users = _excludeCurrentUser(rawUsers);
+        final users =
+            _excludeCurrentUser(rawUsers: rawUsers, excludeBlocked: true);
 
         if (users.isEmpty) {
           return const Center(child: Text('Aucun utilisateur trouvé.'));

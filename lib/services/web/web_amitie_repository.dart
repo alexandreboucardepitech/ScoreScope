@@ -24,14 +24,41 @@ class WebAmitieRepository implements IAmitieRepository {
   }
 
   @override
-  Future<List<Amitie>> fetchFriendshipsForUser(String userId) async {
-    final querySnapshot = await _friendshipsCollection
-        .where('firstUserId', isEqualTo: userId)
-        .get();
+  Future<List<Amitie>> fetchFriendshipsForUser(
+      {required String userId, bool alsoGetBlockedUsers = false}) async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot;
+    if (alsoGetBlockedUsers) {
+      querySnapshot = await _friendshipsCollection
+          .where('firstUserId', isEqualTo: userId)
+          .get();
+    } else {
+      querySnapshot = await _friendshipsCollection
+          .where('firstUserId', isEqualTo: userId)
+          .where(
+        'status',
+        whereIn: [
+          'accepted',
+          'pending',
+        ],
+      ).get();
+    }
 
-    final secondQuerySnapshot = await _friendshipsCollection
-        .where('secondUserId', isEqualTo: userId)
-        .get();
+    QuerySnapshot<Map<String, dynamic>> secondQuerySnapshot;
+    if (alsoGetBlockedUsers) {
+      secondQuerySnapshot = await _friendshipsCollection
+          .where('secondUserId', isEqualTo: userId)
+          .get();
+    } else {
+      secondQuerySnapshot = await _friendshipsCollection
+          .where('secondUserId', isEqualTo: userId)
+          .where(
+        'status',
+        whereIn: [
+          'accepted',
+          'pending',
+        ],
+      ).get();
+    }
 
     final allDocs = [...querySnapshot.docs, ...secondQuerySnapshot.docs];
 
@@ -40,13 +67,16 @@ class WebAmitieRepository implements IAmitieRepository {
 
   @override
   Future<List<AppUser>> fetchFriendsForUser(String userId) async {
-    final allFriendships = await fetchFriendshipsForUser(userId);
+    final allFriendships = await fetchFriendshipsForUser(
+      userId: userId,
+      alsoGetBlockedUsers: false,
+    );
 
     final acceptedFriendIds = allFriendships
-        .map((f) {
-          return f.firstUserId == userId ? f.secondUserId : f.firstUserId;
-        })
-        .whereType<String>()
+        .where((amitie) => amitie.status == 'accepted')
+        .map((amitie) => amitie.firstUserId == userId
+            ? amitie.secondUserId
+            : amitie.firstUserId)
         .toList();
 
     if (acceptedFriendIds.isEmpty) return [];
@@ -72,8 +102,7 @@ class WebAmitieRepository implements IAmitieRepository {
           if (data != null) {
             try {
               friends.add(AppUser.fromJson(json: data, userId: snap.id));
-            } catch (_) {
-            }
+            } catch (_) {}
           }
         }
       }
@@ -124,6 +153,39 @@ class WebAmitieRepository implements IAmitieRepository {
   }
 
   @override
+  Future<List<Amitie>> fetchBlockedUsers(
+      String userId, String blockType) async {
+    if (blockType != 'blocking' &&
+        blockType != 'blocked' &&
+        blockType != 'both') {
+      throw ArgumentError('Invalid blockType: $blockType');
+    }
+    List<QuerySnapshot<Map<String, dynamic>>> snapshots = [];
+
+    if (blockType == 'blocking' || blockType == 'both') {
+      final blockingSnapshot = await _friendshipsCollection
+          .where('firstUserId', isEqualTo: userId)
+          .where('status', isEqualTo: 'blocked')
+          .get();
+
+      snapshots.add(blockingSnapshot);
+    }
+
+    if (blockType == 'blocked' || blockType == 'both') {
+      final blockedSnapshot = await _friendshipsCollection
+          .where('secondUserId', isEqualTo: userId)
+          .where('status', isEqualTo: 'blocked')
+          .get();
+
+      snapshots.add(blockedSnapshot);
+    }
+
+    final allDocs = snapshots.expand((snapshot) => snapshot.docs).toList();
+
+    return allDocs.map((doc) => Amitie.fromJson(json: doc.data())).toList();
+  }
+
+  @override
   Future<void> sendFriendRequest(String fromUserId, String toUserId) async {
     await _friendshipsCollection.add({
       'firstUserId': fromUserId,
@@ -165,12 +227,38 @@ class WebAmitieRepository implements IAmitieRepository {
   }
 
   @override
+  Future<void> blockUser(String fromUserId, String toUserId) async {
+    final docRef = await _findFriendshipDoc(fromUserId, toUserId);
+    if (docRef != null) {
+      await docRef.update({'status': 'blocked'});
+    } else {
+      await _friendshipsCollection.add({
+        'firstUserId': fromUserId,
+        'secondUserId': toUserId,
+        'status': 'blocked',
+        'createdAt': DateTime.now(),
+      });
+    }
+  }
+
+  @override
+  Future<void> unblockUser(String fromUserId, String toUserId) async {
+    final docRef = await _findFriendshipDoc(fromUserId, toUserId);
+    if (docRef != null) {
+      await docRef.delete();
+    }
+  }
+
+  @override
   Future<Amitie?> friendshipByUsersId(String userId1, String userId2) async {
     try {
-      final querySnapshot = await _friendshipsCollection
-          .where('firstUserId', whereIn: [userId1, userId2]).where(
-              'secondUserId',
-              whereIn: [userId1, userId2]).get();
+      final querySnapshot = await _friendshipsCollection.where(
+        'firstUserId',
+        whereIn: [userId1, userId2],
+      ).where(
+        'secondUserId',
+        whereIn: [userId1, userId2],
+      ).get();
 
       if (querySnapshot.docs.isEmpty) return null;
 

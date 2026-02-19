@@ -80,13 +80,15 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
       final reactions = await RepositoryProvider.postRepository.fetchReactions(
         ownerUserId: ownerId,
         matchId: matchId,
-        limit: 50,
+        limit: 100,
+        removeBlockedUsersReactions: true,
       );
 
       final comments = await RepositoryProvider.postRepository.fetchComments(
         ownerUserId: ownerId,
         matchId: matchId,
         limit: commentsLimit,
+        removeBlockedUsersComments: true,
       );
 
       matchData.reactions = List<Reaction>.from(reactions);
