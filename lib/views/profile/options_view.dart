@@ -5,6 +5,7 @@ import 'package:scorescope/views/profile/options_onglets/compte/options_compte.d
 import 'package:scorescope/views/profile/options_onglets/confidentialite/options_confidentialite.dart';
 import 'package:scorescope/views/profile/options_onglets/notifications/options_notifications.dart';
 import 'package:scorescope/views/profile/options_onglets/preferences/options_preferences.dart';
+import 'package:scorescope/views/profile/options_onglets/support/options_support.dart';
 
 class OptionsView extends StatelessWidget {
   final AppUser currentUser;
@@ -93,7 +94,12 @@ class OptionsView extends StatelessWidget {
             title: 'Support & Informations',
             icon: Icons.info_outline,
             onTap: () {
-              // Navigator.push vers SupportView
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const OptionsSupportView(),
+                ),
+              );
             },
           ),
         ],
