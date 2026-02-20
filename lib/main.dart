@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/app_theme.dart';
@@ -31,21 +33,58 @@ void main() async {
 
   await initializeDateFormatting('fr_FR', null);
 
-  runApp(MyApp(authService: authService));
+  runApp(InitialApp(authService: authService));
+}
+
+class InitialApp extends StatelessWidget {
+  final AuthService authService;
+  const InitialApp({super.key, required this.authService});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<AppUser?>(
+      future: RepositoryProvider.userRepository.getCurrentUser(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        final currentUser = snapshot.data;
+        final themeController = ThemeController();
+        themeController.initialize(
+          currentUser?.options.theme ?? ThemeOptions.system,
+        );
+
+        return ChangeNotifierProvider.value(
+          value: themeController,
+          child: MyApp(authService: authService),
+        );
+      },
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
   final AuthService authService;
 
-  const MyApp({super.key, required this.authService});
+  const MyApp({
+    super.key,
+    required this.authService,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final themeController = context.watch<ThemeController>();
+
     return MaterialApp(
+      title: 'ScoreScope',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
-      title: 'ScoreScope',
+      themeMode: themeController.themeMode,
       home: AuthGate(authService: authService),
     );
   }
@@ -83,7 +122,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-
   late final List<Widget> _pages;
 
   @override

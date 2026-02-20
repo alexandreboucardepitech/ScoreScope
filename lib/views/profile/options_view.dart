@@ -4,6 +4,7 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/options_compte.dart';
 import 'package:scorescope/views/profile/options_onglets/confidentialite/options_confidentialite.dart';
 import 'package:scorescope/views/profile/options_onglets/notifications/options_notifications.dart';
+import 'package:scorescope/views/profile/options_onglets/preferences/options_preferences.dart';
 
 class OptionsView extends StatelessWidget {
   final AppUser currentUser;
@@ -78,7 +79,13 @@ class OptionsView extends StatelessWidget {
             title: 'Préférences',
             icon: Icons.tune_outlined,
             onTap: () {
-              // Navigator.push vers PreferencesSettingsView
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      OptionsPreferencesView(currentUser: currentUser),
+                ),
+              );
             },
           ),
           _buildOptionTile(

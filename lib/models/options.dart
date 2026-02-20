@@ -1,6 +1,7 @@
 import 'package:scorescope/models/enum/language_options.dart';
 import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/services/repository_provider.dart';
 
 class Options {
   final bool allNotifications;
@@ -40,7 +41,7 @@ class Options {
         'emailNotifications': emailNotifications,
         'language': language.name,
         'theme': theme.name,
-        'defaultVisionnageMatch': defaultVisionnageMatch.name,
+        'defaultVisionnageMatch': defaultVisionnageMatch.label,
       };
 
   factory Options.fromJson(Map<String, dynamic> json) {
@@ -49,7 +50,9 @@ class Options {
     final theme = ThemeOptions.fromString(json['theme'] as String?) ??
         ThemeOptions.system;
     final defaultVisionnageMatch = VisionnageMatchExt.fromString(
-            json['defaultVisionnageMatch'] as String? ?? 'Télé') ??
+            json['defaultVisionnageMatch'] as String) ??
+        RepositoryProvider
+            .userRepository.currentUser?.options.defaultVisionnageMatch ??
         VisionnageMatch.tele;
 
     return Options(

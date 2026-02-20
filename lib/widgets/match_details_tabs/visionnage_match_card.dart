@@ -46,7 +46,7 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
       setState(() {
         _loading = true;
         _isSaving = false;
-        _currentType = VisionnageMatch.tele; // valeur par défaut temporaire
+        _currentType = _defaultVisionnage();
       });
       _loadTypeVisionnage();
     }
@@ -66,7 +66,7 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
         if (!mounted) return;
         setState(() {
           _loading = false;
-          _currentType = VisionnageMatch.tele;
+          _currentType = _defaultVisionnage();
         });
         return;
       }
@@ -83,9 +83,15 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _currentType = VisionnageMatch.tele;
+        _currentType = _defaultVisionnage();
       });
     }
+  }
+
+  VisionnageMatch _defaultVisionnage() {
+    return RepositoryProvider
+            .userRepository.currentUser?.options.defaultVisionnageMatch ??
+        VisionnageMatch.tele;
   }
 
   Future<void> _handleTap() async {

@@ -263,11 +263,16 @@ class WebAppUserRepository implements IAppUserRepository {
         .collection('matchUserData')
         .doc(matchId)
         .get();
-    if (!doc.exists) return VisionnageMatch.tele;
+    if (!doc.exists) {
+      return currentUser?.options.defaultVisionnageMatch ??
+          VisionnageMatch.tele;
+    }
     final data = doc.data()!;
     final VisionnageMatch? visionnageValue =
         VisionnageMatchExt.fromString(data['visionnageMatch']);
-    return visionnageValue ?? VisionnageMatch.tele;
+    return visionnageValue ??
+        currentUser?.options.defaultVisionnageMatch ??
+        VisionnageMatch.tele;
   }
 
   @override

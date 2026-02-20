@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/post/commentaire.dart';
 import 'package:scorescope/models/post/reaction.dart';
+import 'package:scorescope/services/repository_provider.dart';
 
 class MatchUserData {
   final String matchId;
@@ -113,8 +114,12 @@ class MatchUserData {
       note: json['note'] as int?,
       mvpVoteId: json['mvpVoteId'] as String?,
       visionnageMatch: json['visionnageMatch'] == null
-          ? VisionnageMatch.tele
+          ? RepositoryProvider
+                  .userRepository.currentUser?.options.defaultVisionnageMatch ??
+              VisionnageMatch.tele
           : VisionnageMatchExt.fromString(json['visionnageMatch']) ??
+              RepositoryProvider
+                  .userRepository.currentUser?.options.defaultVisionnageMatch ??
               VisionnageMatch.tele,
       private: json['private'] as bool? ?? false,
       watchedAt: json['watchedAt'] is Timestamp
