@@ -746,4 +746,17 @@ class WebAppUserRepository implements IAppUserRepository {
       throw Exception("Ce profil n'existe pas");
     }
   }
+
+  @override
+  Future<void> updatePrivateAccount({
+    required String userId,
+    required bool isPrivate,
+  }) async {
+    final userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+
+    await userDocRef.update({
+      'private': isPrivate,
+    });
+  }
 }

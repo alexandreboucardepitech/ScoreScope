@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/options_compte.dart';
+import 'package:scorescope/views/profile/options_onglets/confidentialite/options_confidentialite.dart';
 import 'package:scorescope/views/profile/options_onglets/notifications/options_notifications.dart';
 
 class OptionsView extends StatelessWidget {
@@ -63,7 +64,13 @@ class OptionsView extends StatelessWidget {
             title: 'Confidentialité',
             icon: Icons.lock_outline,
             onTap: () {
-              // Navigator.push vers PrivacySettingsView
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      OptionsConfidentialiteView(currentUser: currentUser),
+                ),
+              );
             },
           ),
           _buildOptionTile(
