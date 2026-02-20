@@ -777,4 +777,50 @@ class MockAppUserRepository implements IAppUserRepository {
 
     _users[userIdx] = newUser;
   }
+
+  @override
+  Future<void> updateEmail({
+    required String userId,
+    required String newEmail,
+  }) async {
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: newEmail,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      matchsUserData: user.matchsUserData,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      private: user.private,
+    );
+
+    _users[userIdx] = newUser;
+  }
+
+  @override
+  Future<void> updatePassword({
+    required String userId,
+    required String newPassword,
+  }) async {
+    // pas de mot de passe dans le mock
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
+
+  @override
+  Future<void> deleteAccount({
+    required String uid,
+    required String? email,
+    required String password,
+    required List<String> providers,
+  }) async {
+    await Future.delayed(const Duration(seconds: 1));
+    print("Mock delete account for $uid");
+  }
 }

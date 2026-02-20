@@ -51,4 +51,18 @@ abstract class IAppUserRepository {
     List<String>? newCompetitionsPrefereesId,
     bool photoRemoved = false,
   });
+  Future<void> updateEmail({
+    required String userId,
+    required String newEmail,
+  });
+  Future<void> updatePassword({
+    required String userId,
+    required String newPassword,
+  });
+  Future<void> deleteAccount({
+    required String uid,
+    required String? email,
+    required String password,
+    required List<String> providers,
+  });
 }

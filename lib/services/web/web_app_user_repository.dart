@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/services/repository_provider.dart';
 
 import '../../models/app_user.dart';
 import '../repositories/i_app_user_repository.dart';
@@ -521,6 +522,174 @@ class WebAppUserRepository implements IAppUserRepository {
       });
     } else {
       throw Exception("Ce profil n'existe pas");
+    }
+  }
+
+  @override
+  Future<void> updateEmail({
+    required String userId,
+    required String newEmail,
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null || user.uid != userId) {
+      throw Exception("Utilisateur invalide.");
+    }
+
+    await user.verifyBeforeUpdateEmail(newEmail);
+
+    final userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+    await userDocRef.update({
+      'email': newEmail,
+    });
+  }
+
+  @override
+  Future<void> updatePassword({
+    required String userId,
+    required String newPassword,
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null || user.uid != userId) {
+      throw Exception("Utilisateur invalide.");
+    }
+
+    await user.updatePassword(newPassword);
+  }
+
+  @override
+  Future<void> deleteAccount({
+    required String uid,
+    required String? email,
+    required String password,
+    required List<String> providers,
+  }) async {
+    final auth = FirebaseAuth.instance;
+    final firestore = FirebaseFirestore.instance;
+    final user = auth.currentUser;
+
+    if (user == null) {
+      throw Exception("Utilisateur non connecté");
+    }
+
+    /// 1️⃣ Reauth obligatoire
+    if (email == null) {
+      throw Exception("Email introuvable.");
+    }
+
+    final credential = EmailAuthProvider.credential(
+      email: email,
+      password: password,
+    );
+
+    await user.reauthenticateWithCredential(credential);
+
+    /// 2️⃣ Vérifier si déjà supprimé
+    final userRef = firestore.collection('users').doc(uid);
+    final userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      throw Exception("Document utilisateur introuvable.");
+    }
+
+    if (userDoc.data()?['deleted'] == true) {
+      throw Exception("Compte déjà supprimé.");
+    }
+
+    /// 3️⃣ Supprimer amitiés
+    await RepositoryProvider.amitieRepository.removeAllFriendshipsForUser(uid);
+
+    /// 4️⃣ Décrémenter popularité des compétitions
+    final competitions = List<String>.from(
+      userDoc.data()?['competitionsPrefereesId'] ?? [],
+    );
+
+    for (final compId in competitions) {
+      await firestore.collection('competitions').doc(compId).update({
+        'popularite': FieldValue.increment(-1),
+      });
+    }
+
+    /// 5️⃣ Supprimer matchUserData + sous-collections reactions / comments
+    final matchUserDataSnapshot =
+        await userRef.collection('matchUserData').get();
+
+    for (final matchDoc in matchUserDataSnapshot.docs) {
+      // 🔥 Supprimer reactions
+      final reactionsSnapshot =
+          await matchDoc.reference.collection('reactions').get();
+      await _deleteInBatches(firestore, reactionsSnapshot.docs);
+
+      // 🔥 Supprimer comments
+      final commentsSnapshot =
+          await matchDoc.reference.collection('comments').get();
+      await _deleteInBatches(firestore, commentsSnapshot.docs);
+    }
+
+    // 🔥 Supprimer les documents matchUserData eux-mêmes
+    await _deleteInBatches(firestore, matchUserDataSnapshot.docs);
+
+    /// 6️⃣ Supprimer postNotifications
+    final postNotificationsSnapshot =
+        await userRef.collection('postNotifications').get();
+    await _deleteInBatches(firestore, postNotificationsSnapshot.docs);
+
+    /// 7️⃣ Supprimer votes MVP et notes dans chaque match
+    final matchesSnapshot = await firestore.collection('matchs').get();
+    for (final matchDoc in matchesSnapshot.docs) {
+      // MVP votes
+      final mvpVotesSnapshot = await matchDoc.reference
+          .collection('mvpVotes')
+          .where('userId', isEqualTo: uid)
+          .get();
+      for (final voteDoc in mvpVotesSnapshot.docs) {
+        await voteDoc.reference.delete();
+      }
+
+      // Notes
+      final notesSnapshot = await matchDoc.reference
+          .collection('notes')
+          .where('userId', isEqualTo: uid)
+          .get();
+      for (final noteDoc in notesSnapshot.docs) {
+        await noteDoc.reference.delete();
+      }
+    }
+
+    /// 8️⃣ Soft delete user
+    await userRef.update({
+      'deleted': true,
+      'displayName': 'Utilisateur supprimé',
+      'photoUrl': null,
+      'email': null,
+      'competitionsPrefereesId': [],
+      'bio': null,
+      'equipesPrefereesId': [],
+      'private': null,
+      'deletedAt': FieldValue.serverTimestamp(),
+    });
+
+    /// 🔟 Supprimer compte Auth
+    await user.delete();
+  }
+
+  Future<void> _deleteInBatches(
+    FirebaseFirestore firestore,
+    List<QueryDocumentSnapshot> docs,
+  ) async {
+    const chunkSize = 450; // sécurité sous limite 500
+
+    for (var i = 0; i < docs.length; i += chunkSize) {
+      final batch = firestore.batch();
+      final chunk = docs.skip(i).take(chunkSize);
+
+      for (final doc in chunk) {
+        batch.delete(doc.reference);
+      }
+
+      await batch.commit();
     }
   }
 }

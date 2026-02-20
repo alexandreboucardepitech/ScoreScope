@@ -162,6 +162,21 @@ class AuthService {
     _currentGoogleUser = null;
   }
 
+  Future<void> reauthenticate(String password) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null || user.email == null) {
+      throw Exception("Utilisateur non authentifié.");
+    }
+
+    final credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: password,
+    );
+
+    await user.reauthenticateWithCredential(credential);
+  }
+
   Stream<User?> get userChanges => _auth.userChanges();
   GoogleSignInAccount? get currentGoogleUser => _currentGoogleUser;
 }

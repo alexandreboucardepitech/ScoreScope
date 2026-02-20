@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
-import 'package:scorescope/views/profile/blocked_users_view.dart';
+import 'package:scorescope/views/profile/options_onglets/compte/options_compte.dart';
 
 class OptionsView extends StatelessWidget {
   final AppUser currentUser;
@@ -16,7 +16,7 @@ class OptionsView extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Options',
+          'Paramètres',
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -31,41 +31,49 @@ class OptionsView extends StatelessWidget {
         children: [
           _buildOptionTile(
             context,
-            title: 'Modifier le profil',
+            title: 'Compte',
             icon: Icons.person_outline,
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      OptionsCompteView(currentUser: currentUser),
+                ),
+              );
+            },
           ),
           _buildOptionTile(
             context,
             title: 'Notifications',
-            icon: Icons.notifications_none,
-            onTap: () {},
+            icon: Icons.notifications_outlined,
+            onTap: () {
+              // Navigator.push vers NotificationsSettingsView
+            },
           ),
           _buildOptionTile(
             context,
             title: 'Confidentialité',
             icon: Icons.lock_outline,
-            onTap: () {},
-          ),
-          _buildOptionTile(
-            context,
-            title: 'Liste des utilisateurs bloqués',
-            icon: Icons.block_outlined,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BlockedUsersView(currentUser: currentUser),
-                ),
-              );
+              // Navigator.push vers PrivacySettingsView
             },
-            isImportant: true,
           ),
           _buildOptionTile(
             context,
-            title: 'À propos',
+            title: 'Préférences',
+            icon: Icons.tune_outlined,
+            onTap: () {
+              // Navigator.push vers PreferencesSettingsView
+            },
+          ),
+          _buildOptionTile(
+            context,
+            title: 'Support & Informations',
             icon: Icons.info_outline,
-            onTap: () {},
+            onTap: () {
+              // Navigator.push vers SupportView
+            },
           ),
         ],
       ),
@@ -89,6 +97,8 @@ class OptionsView extends StatelessWidget {
         ),
       ),
       child: ListTile(
+        splashColor: Colors.transparent,
+        hoverColor: Colors.transparent,
         leading: Icon(
           icon,
           color: isImportant

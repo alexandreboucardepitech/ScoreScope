@@ -19,4 +19,5 @@ abstract class IAmitieRepository {
   Future<void> unblockUser(String fromUserId, String toUserId);
   Future<Amitie?> friendshipByUsersId(String userId1, String userId2);
   Future<int> getUserNbPendingFriendRequests(String userId);
+  Future<void> removeAllFriendshipsForUser(String userId);
 }

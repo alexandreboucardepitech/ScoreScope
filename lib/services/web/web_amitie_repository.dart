@@ -278,4 +278,21 @@ class WebAmitieRepository implements IAmitieRepository {
 
     return querySnapshot.docs.length;
   }
+
+  @override
+  Future<void> removeAllFriendshipsForUser(String userId) async {
+    final querySnapshot = await _friendshipsCollection
+        .where('firstUserId', isEqualTo: userId)
+        .get();
+    final secondQuerySnapshot = await _friendshipsCollection
+        .where('secondUserId', isEqualTo: userId)
+        .get();
+
+    for (final doc in querySnapshot.docs) {
+      await doc.reference.delete();
+    }
+    for (final doc in secondQuerySnapshot.docs) {
+      await doc.reference.delete();
+    }
+  }
 }

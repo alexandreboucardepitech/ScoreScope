@@ -500,8 +500,12 @@ class _ProfileViewState extends State<ProfileView> {
     return PopScope<bool>(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && widget.onBackPressed != null) {
-          widget.onBackPressed!();
+        if (!didPop) {
+          if (widget.onBackPressed != null) {
+            widget.onBackPressed!();
+          } else {
+            Navigator.of(context).pop(result);
+          }
         }
       },
       child: Scaffold(

@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/app_user.dart';
 
@@ -15,7 +14,7 @@ class FirestoreService {
     String? email,
     String? displayName,
     String? photoUrl,
-    List<Map<String, String>>? equipePrefereesJson,
+    List<Map<String, String>>? equipesPrefereesJson,
   }) async {
     final ref = userDocRef(uid);
     final snap = await ref.get();
@@ -26,7 +25,9 @@ class FirestoreService {
         'displayName': displayName,
         'photoUrl': photoUrl,
         'createdAt': FieldValue.serverTimestamp(),
-        'equipePrefereesId': equipePrefereesJson ?? [],
+        'equipesPrefereesId': equipesPrefereesJson ?? [],
+        'competitionsPrefereesId': [],
+        'privateAccount': false,
       });
     } else {
       // Optionnel : mise à jour minimale si certaines infos sont manquantes
@@ -36,10 +37,12 @@ class FirestoreService {
         if ((data['email'] == null || data['email'] == '') && email != null) {
           updateData['email'] = email;
         }
-        if ((data['displayName'] == null || data['displayName'] == '') && displayName != null) {
+        if ((data['displayName'] == null || data['displayName'] == '') &&
+            displayName != null) {
           updateData['displayName'] = displayName;
         }
-        if ((data['photoUrl'] == null || data['photoUrl'] == '') && photoUrl != null) {
+        if ((data['photoUrl'] == null || data['photoUrl'] == '') &&
+            photoUrl != null) {
           updateData['photoUrl'] = photoUrl;
         }
       }

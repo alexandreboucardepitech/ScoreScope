@@ -214,4 +214,11 @@ class MockAmitieRepository implements IAmitieRepository {
         .toList();
     return pendingRequests.length;
   }
+
+  @override
+  Future<void> removeAllFriendshipsForUser(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    _friendships.removeWhere(
+        (a) => a.firstUserId == userId || a.secondUserId == userId);
+  }
 }
