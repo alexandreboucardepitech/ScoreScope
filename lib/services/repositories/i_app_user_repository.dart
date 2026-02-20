@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/enum/language_options.dart';
+import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 
@@ -64,5 +66,20 @@ abstract class IAppUserRepository {
     required String? email,
     required String password,
     required List<String> providers,
+  });
+
+  Future<void> updateOptions({
+    required String userId,
+    bool? allNotifications,
+    bool? newFollowers,
+    bool? likes,
+    bool? comments,
+    bool? replies,
+    bool? favoriteTeamMatch,
+    bool? results,
+    bool? emailNotifications,
+    LanguageOptions? language,
+    ThemeOptions? theme,
+    VisionnageMatch? defaultVisionnageMatch,
   });
 }

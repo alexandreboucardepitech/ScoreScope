@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/options_compte.dart';
+import 'package:scorescope/views/profile/options_onglets/notifications/options_notifications.dart';
 
 class OptionsView extends StatelessWidget {
   final AppUser currentUser;
@@ -48,7 +49,13 @@ class OptionsView extends StatelessWidget {
             title: 'Notifications',
             icon: Icons.notifications_outlined,
             onTap: () {
-              // Navigator.push vers NotificationsSettingsView
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      OptionsNotificationsView(currentUser: currentUser),
+                ),
+              );
             },
           ),
           _buildOptionTile(

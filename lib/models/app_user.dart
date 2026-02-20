@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/models/options.dart';
 
 class AppUser {
   final String uid;
@@ -13,6 +14,7 @@ class AppUser {
   final List<String> equipesPrefereesId;
   final List<String> competitionsPrefereesId;
   final List<MatchUserData> matchsUserData;
+  final Options options;
 
   AppUser({
     required this.uid,
@@ -25,7 +27,8 @@ class AppUser {
     this.equipesPrefereesId = const [],
     this.competitionsPrefereesId = const [],
     this.matchsUserData = const [],
-  });
+    Options? options,
+  }) : options = options ?? Options();
 
   MatchUserData? getMatchUserDataByMatch({MatchModel? match, String? matchId}) {
     for (MatchUserData matchData in matchsUserData) {
@@ -66,6 +69,9 @@ class AppUser {
               ?.map((e) => MatchUserData.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      options: json['options'] != null
+          ? Options.fromJson(json['options'] as Map<String, dynamic>)
+          : Options(),
     );
   }
 
@@ -81,6 +87,7 @@ class AppUser {
       'equipesPrefereesId': equipesPrefereesId,
       'competitionsPrefereesId': competitionsPrefereesId,
       'matchsUserData': matchsUserData,
+      'options': options.toJson(),
     };
   }
 }

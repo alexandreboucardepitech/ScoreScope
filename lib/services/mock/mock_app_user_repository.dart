@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/enum/language_options.dart';
+import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/models/options.dart';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
 import 'package:scorescope/services/mock/mock_match_repository.dart';
 import 'package:scorescope/services/repositories/i_app_user_repository.dart';
@@ -822,5 +825,59 @@ class MockAppUserRepository implements IAppUserRepository {
   }) async {
     await Future.delayed(const Duration(seconds: 1));
     print("Mock delete account for $uid");
+  }
+
+  @override
+  Future<void> updateOptions({
+    required String userId,
+    bool? allNotifications,
+    bool? newFollowers,
+    bool? likes,
+    bool? comments,
+    bool? replies,
+    bool? favoriteTeamMatch,
+    bool? results,
+    bool? emailNotifications,
+    LanguageOptions? language,
+    ThemeOptions? theme,
+    VisionnageMatch? defaultVisionnageMatch,
+  }) async {
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+    final currentOptions = user.options;
+
+    final newOptions = Options(
+      allNotifications: allNotifications ?? currentOptions.allNotifications,
+      newFollowers: newFollowers ?? currentOptions.newFollowers,
+      likes: likes ?? currentOptions.likes,
+      comments: comments ?? currentOptions.comments,
+      replies: replies ?? currentOptions.replies,
+      favoriteTeamMatch: favoriteTeamMatch ?? currentOptions.favoriteTeamMatch,
+      results: results ?? currentOptions.results,
+      emailNotifications:
+          emailNotifications ?? currentOptions.emailNotifications,
+      language: language ?? currentOptions.language,
+      theme: theme ?? currentOptions.theme,
+      defaultVisionnageMatch:
+          defaultVisionnageMatch ?? currentOptions.defaultVisionnageMatch,
+    );
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      matchsUserData: user.matchsUserData,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      private: user.private,
+      options: newOptions,
+    );
+
+    _users[userIdx] = newUser;
   }
 }

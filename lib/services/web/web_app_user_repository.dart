@@ -4,8 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/enum/language_options.dart';
+import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/models/options.dart';
 import 'package:scorescope/services/repository_provider.dart';
 
 import '../../models/app_user.dart';
@@ -690,6 +693,57 @@ class WebAppUserRepository implements IAppUserRepository {
       }
 
       await batch.commit();
+    }
+  }
+
+  @override
+  Future<void> updateOptions({
+    required String userId,
+    bool? allNotifications,
+    bool? newFollowers,
+    bool? likes,
+    bool? comments,
+    bool? replies,
+    bool? favoriteTeamMatch,
+    bool? results,
+    bool? emailNotifications,
+    LanguageOptions? language,
+    ThemeOptions? theme,
+    VisionnageMatch? defaultVisionnageMatch,
+  }) async {
+    final userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+
+    final docSnapshot = await userDocRef.get();
+
+    if (docSnapshot.exists) {
+      final currentData = docSnapshot.data()!;
+      final currentOptions = currentData['options'] != null
+          ? Options.fromJson(currentData['options'] as Map<String, dynamic>)
+          : Options();
+
+      final updatedOptions = Options(
+        allNotifications: allNotifications ?? currentOptions.allNotifications,
+        newFollowers: newFollowers ?? currentOptions.newFollowers,
+        likes: likes ?? currentOptions.likes,
+        comments: comments ?? currentOptions.comments,
+        replies: replies ?? currentOptions.replies,
+        favoriteTeamMatch:
+            favoriteTeamMatch ?? currentOptions.favoriteTeamMatch,
+        results: results ?? currentOptions.results,
+        emailNotifications:
+            emailNotifications ?? currentOptions.emailNotifications,
+        language: language ?? currentOptions.language,
+        theme: theme ?? currentOptions.theme,
+        defaultVisionnageMatch:
+            defaultVisionnageMatch ?? currentOptions.defaultVisionnageMatch,
+      );
+
+      await userDocRef.update({
+        'options': updatedOptions.toJson(),
+      });
+    } else {
+      throw Exception("Ce profil n'existe pas");
     }
   }
 }
