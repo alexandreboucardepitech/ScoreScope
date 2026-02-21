@@ -33,47 +33,105 @@ void main() async {
 
   await initializeDateFormatting('fr_FR', null);
 
-  runApp(InitialApp(authService: authService));
+  runApp(const RootApp());
 }
 
-class InitialApp extends StatelessWidget {
-  final AuthService authService;
-  const InitialApp({super.key, required this.authService});
+class RootApp extends StatefulWidget {
+  const RootApp({super.key});
+
+  @override
+  State<RootApp> createState() => RootAppState();
+}
+
+class RootAppState extends State<RootApp> {
+  // Key unique pour forcer rebuild complet
+  Key _appKey = UniqueKey();
+
+  void restartApp() {
+    setState(() {
+      _appKey = UniqueKey();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<AppUser?>(
-      future: RepositoryProvider.userRepository.getCurrentUser(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const MaterialApp(
-            home: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
-          );
-        }
+    return InitialApp(
+      key: _appKey,
+      authService: AuthService(),
+    );
+  }
+}
 
-        final currentUser = snapshot.data;
-        final themeController = ThemeController();
-        themeController.initialize(
-          currentUser?.options.theme ?? ThemeOptions.system,
-        );
+enum AppState { loading, unauthenticated, authenticated }
 
-        return ChangeNotifierProvider.value(
-          value: themeController,
-          child: MyApp(authService: authService),
-        );
-      },
+class InitialApp extends StatefulWidget {
+  final AuthService authService;
+
+  const InitialApp({super.key, required this.authService});
+
+  static _InitialAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_InitialAppState>();
+
+  @override
+  State<InitialApp> createState() => _InitialAppState();
+}
+
+class _InitialAppState extends State<InitialApp> {
+  final ThemeController _themeController = ThemeController();
+  AppState _appState = AppState.loading;
+  AppUser? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  Future<void> restartApp() async {
+    setState(() {
+      _appState = AppState.loading;
+      _currentUser = null;
+    });
+    await _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+
+    if (firebaseUser == null) {
+      _themeController.initialize(ThemeOptions.system);
+      setState(() => _appState = AppState.unauthenticated);
+    } else {
+      final user = await RepositoryProvider.userRepository.getCurrentUser();
+      _currentUser = user;
+      _themeController.initialize(user?.options.theme ?? ThemeOptions.system);
+      setState(() => _appState = AppState.authenticated);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: _themeController,
+      child: MyApp(
+        authService: widget.authService,
+        appState: _appState,
+        currentUser: _currentUser,
+      ),
     );
   }
 }
 
 class MyApp extends StatelessWidget {
   final AuthService authService;
+  final AppState appState;
+  final AppUser? currentUser;
 
   const MyApp({
     super.key,
     required this.authService,
+    required this.appState,
+    required this.currentUser,
   });
 
   @override
@@ -85,36 +143,30 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeController.themeMode,
-      home: AuthGate(authService: authService),
+      home: _buildHome(),
     );
   }
-}
 
-class AuthGate extends StatelessWidget {
-  final AuthService authService;
+  Widget _buildHome() {
+    switch (appState) {
+      case AppState.loading:
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
 
-  const AuthGate({super.key, required this.authService});
+      case AppState.unauthenticated:
+        return const LoginView();
 
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: authService.userChanges,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        final user = snapshot.data;
-        return user == null ? const LoginView() : const HomePage();
-      },
-    );
+      case AppState.authenticated:
+        return HomePage(user: currentUser!);
+    }
   }
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final AppUser user;
+
+  const HomePage({super.key, required this.user});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -122,50 +174,27 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  late final List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // On définit le callback qui fera revenir à l'onglet 0
-    void goToFirstTab() {
-      setState(() => _currentIndex = 0);
-    }
-
-    _pages = [
-      AllMatchesView(), // Matchs
-      FilActuAmisView(onBackPressed: goToFirstTab), // Amis
-      // Stats
-      FutureBuilder<AppUser?>(
-        future: RepositoryProvider.userRepository.getCurrentUser(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return StatsView(user: snapshot.data!);
-        },
-      ),
-      // Profil
-      FutureBuilder<AppUser?>(
-        future: RepositoryProvider.userRepository.getCurrentUser(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return ProfileView(user: snapshot.data!, onBackPressed: goToFirstTab);
-        },
-      ),
-    ];
-  }
 
   @override
   Widget build(BuildContext context) {
+    final pages = [
+      AllMatchesView(),
+      FilActuAmisView(
+        onBackPressed: () => setState(() => _currentIndex = 0),
+      ),
+      StatsView(user: widget.user),
+      ProfileView(
+        user: widget.user,
+        onBackPressed: () => setState(() => _currentIndex = 0),
+      ),
+    ];
+
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ColorPalette.background(context),
         selectedItemColor: ColorPalette.accent(context),
+        unselectedItemColor: ColorPalette.textPrimary(context),
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
         onTap: (index) => setState(() => _currentIndex = index),

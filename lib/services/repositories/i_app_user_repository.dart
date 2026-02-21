@@ -75,13 +75,13 @@ abstract class IAppUserRepository {
     required String userId,
     required String newPassword,
   });
+  Future<void> signOut();
   Future<void> deleteAccount({
     required String uid,
     required String? email,
     required String password,
     required List<String> providers,
   });
-
   Future<void> updateOptions({
     required String userId,
     bool? allNotifications,

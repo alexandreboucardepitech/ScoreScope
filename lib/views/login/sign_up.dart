@@ -44,10 +44,7 @@ class _SignUpViewState extends State<SignUpView> {
         _passwordController.text.trim(),
       );
       if (user != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
+        InitialApp.of(context)?.restartApp();
       } else {
         _showError('Impossible de créer le compte.');
       }

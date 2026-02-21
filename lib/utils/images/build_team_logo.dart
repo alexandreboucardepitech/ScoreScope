@@ -8,7 +8,7 @@ Widget buildTeamLogo(BuildContext context, String? path,
     height: size,
     child: path != null
         ? Image.asset(path, fit: BoxFit.contain)
-        : Icon(Icons.shield, size: 20, color: ColorPalette.divider(context)),
+        : Icon(Icons.shield, size: 20, color: ColorPalette.textPrimary(context)),
   );
 
   if (!isFavorite) {

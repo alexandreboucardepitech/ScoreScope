@@ -42,10 +42,7 @@ class _LoginViewState extends State<LoginView> {
       );
       if (mounted) {
         if (user != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => HomePage()),
-          );
+          InitialApp.of(context)?.restartApp();
         } else {
           _showError('Connexion annulée ou impossible.');
         }

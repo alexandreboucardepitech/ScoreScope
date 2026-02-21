@@ -600,7 +600,10 @@ class _ProfileViewState extends State<ProfileView> {
                 else ...[
                   if (isMe && !_isScrolled)
                     IconButton(
-                      icon: const Icon(Icons.settings),
+                      icon: Icon(
+                        Icons.settings,
+                        color: ColorPalette.textPrimary(context),
+                      ),
                       onPressed: () {
                         if (currentUser != null) {
                           Navigator.of(context).push(

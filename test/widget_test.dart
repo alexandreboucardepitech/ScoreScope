@@ -16,7 +16,11 @@ void main() {
     // Build our app and trigger a frame.
     final authService = AuthService();
     await authService.initialize();
-    await tester.pumpWidget(MyApp(authService: authService));
+    await tester.pumpWidget(MyApp(
+      authService: authService,
+      appState: AppState.unauthenticated,
+      currentUser: null,
+    ));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

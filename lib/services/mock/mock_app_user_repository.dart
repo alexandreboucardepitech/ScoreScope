@@ -823,8 +823,13 @@ class MockAppUserRepository implements IAppUserRepository {
     required String password,
     required List<String> providers,
   }) async {
+    // pas de suppression de compte dans le mock
     await Future.delayed(const Duration(seconds: 1));
-    print("Mock delete account for $uid");
+  }
+
+  @override
+  Future<void> signOut() async {
+    await Future.delayed(const Duration(milliseconds: 100));
   }
 
   @override

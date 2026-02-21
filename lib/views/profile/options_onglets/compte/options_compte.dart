@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/main.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/change_email.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/change_password.dart';
@@ -87,6 +86,15 @@ class OptionsCompteView extends StatelessWidget {
 
           _buildOptionTile(
             context,
+            title: "Se déconnecter",
+            icon: Icons.logout_outlined,
+            onTap: () {
+              _showDisconnectDialog(context);
+            },
+          ),
+
+          _buildOptionTile(
+            context,
             title: "Supprimer le compte",
             icon: Icons.delete_outline,
             isDestructive: true,
@@ -164,6 +172,57 @@ class OptionsCompteView extends StatelessWidget {
     );
   }
 
+  void _showDisconnectDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          "Se déconnecter",
+          style: TextStyle(
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
+        content: Text(
+          "Voulez-vous vraiment vous déconnecter ?",
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              "Annuler",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await RepositoryProvider.userRepository.signOut();
+
+              RootAppState? root =
+                  context.findAncestorStateOfType<RootAppState>();
+              root?.restartApp();
+
+              InitialApp.of(context)?.restartApp();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.accent(context),
+            ),
+            child: Text(
+              "Se déconnecter",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showDeleteDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -218,14 +277,13 @@ class OptionsCompteView extends StatelessWidget {
                     content: Text("Compte supprimé avec succès."),
                   ),
                 );
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (_) => AuthGate(
-                      authService: AuthService(),
-                    ),
-                  ),
-                  (route) => false,
-                );
+                await RepositoryProvider.userRepository.signOut();
+
+                RootAppState? root =
+                    context.findAncestorStateOfType<RootAppState>();
+                root?.restartApp();
+
+                InitialApp.of(context)?.restartApp();
               } catch (e) {
                 if (!context.mounted) return;
 

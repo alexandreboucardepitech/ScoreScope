@@ -568,6 +568,11 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  @override
   Future<void> deleteAccount({
     required String uid,
     required String? email,
