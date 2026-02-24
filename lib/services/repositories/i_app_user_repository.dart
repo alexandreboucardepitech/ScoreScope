@@ -50,6 +50,7 @@ abstract class IAppUserRepository {
   );
   Future<bool> getMatchPrivacy(String userId, String matchId);
   Future<AppUser?> getCurrentUser();
+  Future<Map<String, dynamic>?> getRawCurrentUserData();
   Future<List<AppUser>> searchUsersByPrefix(String prefix, {int limit = 50});
   Future<List<MatchUserData>> fetchUserAllMatchUserData({
     required String userId,

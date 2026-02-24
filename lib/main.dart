@@ -10,12 +10,13 @@ import 'package:scorescope/utils/ui/app_theme.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/amis/fil_actu_amis.dart';
 import 'package:scorescope/views/login/login.dart';
+import 'package:scorescope/views/profile/edit_profile_view.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'firebase_options.dart';
 import 'views/all_matches/all_matches.dart';
 import 'package:intl/date_symbol_data_local.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,13 +24,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Déconnexion automatique au début pour test :
+  await GoogleSignIn.instance.disconnect();
+  await FirebaseAuth.instance.signOut();
+
   // Initialiser AuthService (et GoogleSignIn) avant runApp
   final authService = AuthService();
   await authService.initialize();
-
-  // Déconnexion automatique au début pour test :
-  // await GoogleSignIn.instance.disconnect();
-  // await FirebaseAuth.instance.signOut();
 
   await initializeDateFormatting('fr_FR', null);
 
@@ -62,7 +63,12 @@ class RootAppState extends State<RootApp> {
   }
 }
 
-enum AppState { loading, unauthenticated, authenticated }
+enum AppState {
+  loading,
+  unauthenticated,
+  onboarding,
+  authenticated,
+}
 
 class InitialApp extends StatefulWidget {
   final AuthService authService;
@@ -101,12 +107,36 @@ class _InitialAppState extends State<InitialApp> {
     if (firebaseUser == null) {
       _themeController.initialize(ThemeOptions.system);
       setState(() => _appState = AppState.unauthenticated);
-    } else {
-      final user = await RepositoryProvider.userRepository.getCurrentUser();
-      _currentUser = user;
-      _themeController.initialize(user?.options.theme ?? ThemeOptions.system);
-      setState(() => _appState = AppState.authenticated);
+      return;
     }
+
+    final rawData =
+        await RepositoryProvider.userRepository.getRawCurrentUserData();
+
+    bool isOnboarding = rawData == null ||
+        rawData['displayName'] == null ||
+        rawData['displayName'].toString().isEmpty;
+
+    AppUser user;
+
+    if (isOnboarding) {
+      // Crée un AppUser temporaire minimal pour le formulaire onboarding
+      user = AppUser(
+        uid: firebaseUser.uid,
+        displayName: '',
+        createdAt: DateTime.now(),
+      );
+      _currentUser = user;
+      _themeController.initialize(user.options.theme);
+      setState(() => _appState = AppState.onboarding);
+      return;
+    }
+
+    // Cas classique : on a toutes les infos
+    user = AppUser.fromJson(json: rawData, userId: firebaseUser.uid);
+    _currentUser = user;
+    _themeController.initialize(user.options.theme);
+    setState(() => _appState = AppState.authenticated);
   }
 
   @override
@@ -156,6 +186,9 @@ class MyApp extends StatelessWidget {
 
       case AppState.unauthenticated:
         return const LoginView();
+
+      case AppState.onboarding:
+        return EditProfileView(user: currentUser!, isOnboarding: true);
 
       case AppState.authenticated:
         return HomePage(user: currentUser!);

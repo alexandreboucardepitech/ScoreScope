@@ -222,6 +222,15 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
+  Future<Map<String, dynamic>?> getRawCurrentUserData() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) return null;
+
+    final doc = await _usersCollection.doc(firebaseUser.uid).get();
+    return doc.data();
+  }
+
+  @override
   Future<bool> isMatchFavori(String userId, String matchId) async {
     List<String> matchsFavoris = await getUserMatchsFavorisId(userId, false);
     return matchsFavoris.contains(matchId);

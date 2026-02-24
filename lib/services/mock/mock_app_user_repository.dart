@@ -318,6 +318,39 @@ class MockAppUserRepository implements IAppUserRepository {
     return found;
   }
 
+  @override
+  Future<Map<String, dynamic>?> getRawCurrentUserData() async {
+    await _seedingFuture;
+    final user = _users.firstWhere((u) => u.uid == _currentUserId,
+        orElse: () => _users.first);
+    if (user.uid.isEmpty) return null;
+    return {
+      'uid': user.uid,
+      'displayName': user.displayName,
+      'email': user.email,
+      'bio': user.bio,
+      'photoUrl': user.photoUrl,
+      'createdAt': user.createdAt.toIso8601String(),
+      'private': user.private,
+      'equipesPrefereesId': user.equipesPrefereesId,
+      'competitionsPrefereesId': user.competitionsPrefereesId,
+      'matchsUserData': user.matchsUserData
+          .map((m) => {
+                'matchId': m.matchId,
+                'favourite': m.favourite,
+                'mvpVoteId': m.mvpVoteId,
+                'note': m.note,
+                'visionnageMatch': m.visionnageMatch.toString(),
+                'private': m.private,
+                'comments': m.comments,
+                'reactions': m.reactions,
+                'matchDate': m.matchDate?.toIso8601String(),
+                'watchedAt': m.watchedAt?.toIso8601String(),
+              })
+          .toList(),
+    };
+  }
+
   Future<void> setNoteForMatch(
       String userId, String matchId, DateTime matchDate, int? note) async {
     await _seedingFuture;

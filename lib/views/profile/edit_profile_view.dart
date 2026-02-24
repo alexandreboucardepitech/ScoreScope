@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:scorescope/main.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/widgets/profile/competitions_preferees.dart';
@@ -12,8 +13,13 @@ import 'package:scorescope/widgets/util/teams_bottom_sheet.dart';
 
 class EditProfileView extends StatefulWidget {
   final AppUser user;
+  final bool isOnboarding;
 
-  const EditProfileView({super.key, required this.user});
+  const EditProfileView({
+    super.key,
+    required this.user,
+    this.isOnboarding = false,
+  });
 
   @override
   State<EditProfileView> createState() => _EditProfileViewState();
@@ -40,8 +46,10 @@ class _EditProfileViewState extends State<EditProfileView> {
     _equipesPrefereesId = List.from(widget.user.equipesPrefereesId);
     _competitionsPrefereesId = List.from(widget.user.competitionsPrefereesId);
 
-    _displayNameController.addListener(_checkChanges);
-    _bioController.addListener(_checkChanges);
+    if (!widget.isOnboarding) {
+      _displayNameController.addListener(_checkChanges);
+      _bioController.addListener(_checkChanges);
+    }
   }
 
   void _checkChanges() {
@@ -107,6 +115,13 @@ class _EditProfileViewState extends State<EditProfileView> {
   void _saveChanges() async {
     if (_hasChanges == false || _isSaving) return;
 
+    if (widget.isOnboarding && _displayNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Le nom d'utilisateur est obligatoire")),
+      );
+      return;
+    }
+
     setState(() => _isSaving = true);
 
     await RepositoryProvider.userRepository.editProfile(
@@ -127,7 +142,11 @@ class _EditProfileViewState extends State<EditProfileView> {
 
     setState(() => _isSaving = false);
 
-    Navigator.of(context).pop('profileEdited');
+    if (widget.isOnboarding) {
+      InitialApp.of(context)?.restartApp();
+    } else {
+      Navigator.of(context).pop('profileEdited');
+    }
   }
 
   @override
@@ -269,39 +288,42 @@ class _EditProfileViewState extends State<EditProfileView> {
     return Scaffold(
       backgroundColor: ColorPalette.background(context),
       appBar: AppBar(
+        automaticallyImplyLeading: !widget.isOnboarding,
         backgroundColor: ColorPalette.background(context),
         title: Text(
-          'Modifier le profil',
+          widget.isOnboarding ? 'Créer votre profil' : 'Modifier le profil',
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
           ),
         ),
         iconTheme: IconThemeData(color: ColorPalette.textPrimary(context)),
-        actions: [
-          TextButton(
-            onPressed: _hasChanges ? _saveChanges : null,
-            child: _isSaving
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(
-                        ColorPalette.accent(context),
-                      ),
-                    ),
-                  )
-                : Text(
-                    "Enregistrer",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: _hasChanges
-                          ? ColorPalette.buttonPrimary(context)
-                          : ColorPalette.buttonDisabled(context),
-                    ),
-                  ),
-          ),
-        ],
+        actions: widget.isOnboarding
+            ? null
+            : [
+                TextButton(
+                  onPressed: _hasChanges ? _saveChanges : null,
+                  child: _isSaving
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(
+                              ColorPalette.accent(context),
+                            ),
+                          ),
+                        )
+                      : Text(
+                          "Enregistrer",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: _hasChanges
+                                ? ColorPalette.buttonPrimary(context)
+                                : ColorPalette.buttonDisabled(context),
+                          ),
+                        ),
+                ),
+              ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -502,6 +524,41 @@ class _EditProfileViewState extends State<EditProfileView> {
               displayTitle: false,
               onCompetitionTap: _onCompetitionTap,
             ),
+            if (widget.isOnboarding) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _saveChanges,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorPalette.accent(context),
+                    foregroundColor: ColorPalette.textAccent(context),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _isSaving
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        )
+                      : Text(
+                          "Continuer",
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                ),
+              ),
+            ],
             const SizedBox(height: 32),
           ],
         ),

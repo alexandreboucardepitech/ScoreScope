@@ -28,21 +28,28 @@ class AuthService {
     if (!_isGoogleSignInInitialized) await initialize();
   }
 
-  // -------------------- Email / Password --------------------
+  // ------------- Email / Password + vérif email -------------
   Future<User?> signUp(String email, String password) async {
     final credentials = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
-    if (credentials.user != null) {
+
+    final user = credentials.user;
+
+    if (user != null) {
+      // 🔥 Envoi email vérification
+      await user.sendEmailVerification();
+
       await FirestoreService().createUserIfNotExists(
-        uid: credentials.user!.uid,
-        email: credentials.user!.email,
-        displayName: credentials.user!.displayName,
-        photoUrl: credentials.user!.photoURL,
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoUrl: user.photoURL,
       );
     }
-    return credentials.user;
+
+    return user;
   }
 
   Future<User?> signIn(String email, String password) async {
@@ -50,15 +57,33 @@ class AuthService {
       email: email,
       password: password,
     );
-    if (credentials.user != null) {
-      await FirestoreService().createUserIfNotExists(
-        uid: credentials.user!.uid,
-        email: credentials.user!.email,
-        displayName: credentials.user!.displayName,
-        photoUrl: credentials.user!.photoURL,
+
+    final user = credentials.user;
+
+    if (user == null) {
+      return null;
+    }
+
+    await user.reload();
+    final refreshedUser = _auth.currentUser;
+
+    if (refreshedUser == null || !refreshedUser.emailVerified) {
+      await _auth.signOut();
+      throw FirebaseAuthException(
+        code: "email-not-verified",
+        message: "Veuillez vérifier votre email avant de vous connecter.",
       );
     }
-    return credentials.user;
+
+    // Seulement si vérifié
+    await FirestoreService().createUserIfNotExists(
+      uid: refreshedUser.uid,
+      email: refreshedUser.email,
+      displayName: refreshedUser.displayName,
+      photoUrl: refreshedUser.photoURL,
+    );
+
+    return refreshedUser;
   }
 
   Future<User?> signInWithGoogle() async {
