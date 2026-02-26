@@ -12,6 +12,7 @@ class EquipesPreferees extends StatefulWidget {
   final bool isLoading;
   final bool isMe;
   final bool displayTitle;
+  final bool displayNbMatchs;
   final void Function(String teamId, String teamName)? onTeamTap;
 
   const EquipesPreferees({
@@ -21,6 +22,7 @@ class EquipesPreferees extends StatefulWidget {
     required this.isMe,
     this.isLoading = false,
     this.displayTitle = true,
+    this.displayNbMatchs = true,
     this.onTeamTap,
   });
 
@@ -131,8 +133,8 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
     }
 
     final ids = widget.teamsId ?? [];
-
     final display = ids.toList();
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,26 +150,44 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
           const SizedBox(height: 8),
         ],
         if (display.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: display.map((teamId) {
-              final equipe = _loadedEquipe[teamId];
-              final nbMatchs = _loadedNbMatchs[teamId];
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const spacing = 8.0;
+              const crossAxisCount = 2;
 
-              if (equipe == null) return const _EquipeCellShimmer();
+              final totalSpacing = spacing * (crossAxisCount - 1);
+              final itemWidth =
+                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
 
-              return SizedBox(
-                width: (MediaQuery.of(context).size.width - 16 * 2 - 8) / 2,
-                height: 80,
-                child: EquipePrefereeTile(
-                  equipe: equipe,
-                  user: widget.user,
-                  nbMatchsRegardes: nbMatchs,
-                  onTap: widget.onTeamTap,
-                ),
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: display.map((teamId) {
+                  final equipe = _loadedEquipe[teamId];
+                  final nbMatchs = _loadedNbMatchs[teamId];
+
+                  if (equipe == null) {
+                    return SizedBox(
+                      width: itemWidth,
+                      height: 80,
+                      child: const _EquipeCellShimmer(),
+                    );
+                  }
+
+                  return SizedBox(
+                    width: itemWidth,
+                    height: 80,
+                    child: EquipePrefereeTile(
+                      equipe: equipe,
+                      user: widget.user,
+                      nbMatchsRegardes: nbMatchs,
+                      displayNbMatchs: widget.displayNbMatchs,
+                      onTap: widget.onTeamTap,
+                    ),
+                  );
+                }).toList(),
               );
-            }).toList(),
+            },
           )
         else
           Center(
@@ -181,7 +201,7 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
                 ),
               ),
             ),
-          )
+          ),
       ],
     );
   }
@@ -258,6 +278,7 @@ class EquipePrefereeTile extends StatelessWidget {
   final Equipe equipe;
   final AppUser user;
   final int? nbMatchsRegardes;
+  final bool displayNbMatchs;
   final void Function(String teamId, String teamName)? onTap;
 
   const EquipePrefereeTile({
@@ -265,6 +286,7 @@ class EquipePrefereeTile extends StatelessWidget {
     required this.equipe,
     required this.user,
     this.nbMatchsRegardes,
+    required this.displayNbMatchs,
     this.onTap,
   });
 
@@ -323,31 +345,34 @@ class EquipePrefereeTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  if (nbMatchsRegardes == null)
-                    SizedBox(
-                      width: 80,
-                      height: 14,
-                      child: Shimmer.fromColors(
-                        baseColor: ColorPalette.shimmerPrimary(context),
-                        highlightColor: ColorPalette.shimmerSecondary(context),
-                        child: Container(
-                          color: ColorPalette.surface(context),
+                  if (displayNbMatchs) ...[
+                    const SizedBox(height: 4),
+                    if (nbMatchsRegardes == null)
+                      SizedBox(
+                        width: 80,
+                        height: 14,
+                        child: Shimmer.fromColors(
+                          baseColor: ColorPalette.shimmerPrimary(context),
+                          highlightColor:
+                              ColorPalette.shimmerSecondary(context),
+                          child: Container(
+                            color: ColorPalette.surface(context),
+                          ),
+                        ),
+                      )
+                    else
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '$nbMatchsRegardes matchs regardés',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: equipeTextColor.withValues(alpha: 0.85),
+                          ),
                         ),
                       ),
-                    )
-                  else
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '$nbMatchsRegardes matchs regardés',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: equipeTextColor.withValues(alpha: 0.85),
-                        ),
-                      ),
-                    ),
+                  ],
                 ],
               ),
             ),

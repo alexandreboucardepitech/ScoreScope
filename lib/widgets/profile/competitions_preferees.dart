@@ -11,6 +11,7 @@ class CompetitionsPreferees extends StatefulWidget {
   final bool isLoading;
   final bool isMe;
   final bool displayTitle;
+  final bool displayNbMatchs;
   final void Function(String competitionId, String competitionName)?
       onCompetitionTap;
 
@@ -21,6 +22,7 @@ class CompetitionsPreferees extends StatefulWidget {
     required this.isMe,
     this.isLoading = false,
     this.displayTitle = true,
+    this.displayNbMatchs = true,
     this.onCompetitionTap,
   });
 
@@ -132,8 +134,8 @@ class _CompetitionsPrefereesState extends State<CompetitionsPreferees> {
     }
 
     final ids = widget.competitionsId ?? [];
-
     final display = ids.toList();
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,26 +151,44 @@ class _CompetitionsPrefereesState extends State<CompetitionsPreferees> {
           const SizedBox(height: 8),
         ],
         if (display.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: display.map((teamId) {
-              final competition = _loadedCompetition[teamId];
-              final nbMatchs = _loadedNbMatchs[teamId];
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const spacing = 8.0;
+              const crossAxisCount = 2;
 
-              if (competition == null) return const _CompetitionCellShimmer();
+              final totalSpacing = spacing * (crossAxisCount - 1);
+              final itemWidth =
+                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
 
-              return SizedBox(
-                width: (MediaQuery.of(context).size.width - 16 * 2 - 8) / 2,
-                height: 80,
-                child: CompetitionPrefereeTile(
-                  competition: competition,
-                  user: widget.user,
-                  nbMatchsRegardes: nbMatchs,
-                  onTap: widget.onCompetitionTap,
-                ),
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: display.map((competitionId) {
+                  final competition = _loadedCompetition[competitionId];
+                  final nbMatchs = _loadedNbMatchs[competitionId];
+
+                  if (competition == null) {
+                    return SizedBox(
+                      width: itemWidth,
+                      height: 80,
+                      child: const _CompetitionCellShimmer(),
+                    );
+                  }
+
+                  return SizedBox(
+                    width: itemWidth,
+                    height: 80,
+                    child: CompetitionPrefereeTile(
+                      competition: competition,
+                      user: widget.user,
+                      nbMatchsRegardes: nbMatchs,
+                      displayNbMatchs: widget.displayNbMatchs,
+                      onTap: widget.onCompetitionTap,
+                    ),
+                  );
+                }).toList(),
               );
-            }).toList(),
+            },
           )
         else
           Center(
@@ -182,7 +202,7 @@ class _CompetitionsPrefereesState extends State<CompetitionsPreferees> {
                 ),
               ),
             ),
-          )
+          ),
       ],
     );
   }
@@ -259,6 +279,7 @@ class CompetitionPrefereeTile extends StatelessWidget {
   final Competition competition;
   final AppUser user;
   final int? nbMatchsRegardes;
+  final bool displayNbMatchs;
   final void Function(String teamId, String teamName)? onTap;
 
   const CompetitionPrefereeTile({
@@ -266,6 +287,7 @@ class CompetitionPrefereeTile extends StatelessWidget {
     required this.competition,
     required this.user,
     this.nbMatchsRegardes,
+    required this.displayNbMatchs,
     this.onTap,
   });
 
@@ -314,31 +336,34 @@ class CompetitionPrefereeTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  if (nbMatchsRegardes == null)
-                    SizedBox(
-                      width: 80,
-                      height: 14,
-                      child: Shimmer.fromColors(
-                        baseColor: ColorPalette.shimmerPrimary(context),
-                        highlightColor: ColorPalette.shimmerSecondary(context),
-                        child: Container(
-                          color: ColorPalette.surface(context),
+                  if (displayNbMatchs) ...[
+                    const SizedBox(height: 4),
+                    if (nbMatchsRegardes == null)
+                      SizedBox(
+                        width: 80,
+                        height: 14,
+                        child: Shimmer.fromColors(
+                          baseColor: ColorPalette.shimmerPrimary(context),
+                          highlightColor:
+                              ColorPalette.shimmerSecondary(context),
+                          child: Container(
+                            color: ColorPalette.surface(context),
+                          ),
+                        ),
+                      )
+                    else
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '$nbMatchsRegardes matchs regardés',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: ColorPalette.textSecondary(context),
+                          ),
                         ),
                       ),
-                    )
-                  else
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '$nbMatchsRegardes matchs regardés',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: ColorPalette.textSecondary(context),
-                        ),
-                      ),
-                    ),
+                  ],
                 ],
               ),
             ),

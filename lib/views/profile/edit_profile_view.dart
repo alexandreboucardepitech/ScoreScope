@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -37,6 +38,9 @@ class _EditProfileViewState extends State<EditProfileView> {
   bool _isSaving = false;
   bool _photoRemoved = false;
 
+  bool _showOnboardingCards = false;
+  int _onboardingStep = 0;
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +53,13 @@ class _EditProfileViewState extends State<EditProfileView> {
     if (!widget.isOnboarding) {
       _displayNameController.addListener(_checkChanges);
       _bioController.addListener(_checkChanges);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _showOnboardingCards = true;
+          _onboardingStep = 0;
+        });
+      });
     }
   }
 
@@ -275,8 +286,285 @@ class _EditProfileViewState extends State<EditProfileView> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildWelcomeCard() {
+    return Column(
+      children: [
+        Icon(
+          Icons.sports_soccer,
+          size: 72,
+          color: ColorPalette.accent(context),
+        ),
+        const SizedBox(height: 52),
+        Text(
+          "Bienvenue sur ScoreScope !",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Partage ton expérience football avec tes amis.",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+        const Spacer(),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _onboardingStep = 1;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.accent(context),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text("Continuer"),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTeamsCard() {
+    return Column(
+      children: [
+        Icon(
+          Icons.shield,
+          size: 72,
+          color: ColorPalette.accent(context),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          "Choisis tes équipes préférées",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Expanded(
+          child: SingleChildScrollView(
+            child: EquipesPreferees(
+              teamsId: _equipesPrefereesId,
+              user: widget.user,
+              isMe: true,
+              isLoading: false,
+              displayTitle: false,
+              displayNbMatchs: false,
+              onTeamTap: _onTeamTap,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: _openTeamsBottomSheet,
+          child: Text(
+            "Ajouter des équipes",
+            style: TextStyle(color: ColorPalette.accent(context)),
+          ),
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _onboardingStep = 2;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.accent(context),
+            ),
+            child: const Text("Continuer"),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCompetitionsCard() {
+    return Column(
+      children: [
+        Icon(
+          Icons.emoji_events,
+          size: 72,
+          color: ColorPalette.accent(context),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          "Choisis tes compétitions préférées",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Expanded(
+          child: SingleChildScrollView(
+            child: CompetitionsPreferees(
+              competitionsId: _competitionsPrefereesId,
+              user: widget.user,
+              isMe: true,
+              isLoading: false,
+              displayTitle: false,
+              displayNbMatchs: false,
+              onCompetitionTap: _onCompetitionTap,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: _openCompetitionsBottomSheet,
+          child: Text(
+            "Ajouter des compétitions",
+            style: TextStyle(color: ColorPalette.accent(context)),
+          ),
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _onboardingStep = 3;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.accent(context),
+            ),
+            child: const Text("Continuer"),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStartCard() {
+    return Column(
+      children: [
+        Icon(
+          Icons.rocket_launch,
+          size: 72,
+          color: ColorPalette.accent(context),
+        ),
+        const SizedBox(height: 52),
+        Text(
+          "Commence l'aventure ScoreScope !",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Personnalise ton profil pour entrer dans l'app.",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+        const Spacer(),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _showOnboardingCards = false;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorPalette.accent(context),
+            ),
+            child: const Text("Terminer"),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOnboardingCard() {
+    switch (_onboardingStep) {
+      case 0:
+        return _buildWelcomeCard();
+      case 1:
+        return _buildTeamsCard();
+      case 2:
+        return _buildCompetitionsCard();
+      case 3:
+        return _buildStartCard();
+      default:
+        return SizedBox.shrink();
+    }
+  }
+
+  Widget _buildOnboardingOverlay() {
+    return Positioned.fill(
+      child: Stack(
+        children: [
+          // Blur background
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Container(
+              color: Colors.black.withOpacity(0.3),
+            ),
+          ),
+
+          Center(
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width * 0.95,
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              decoration: BoxDecoration(
+                color: ColorPalette.surface(context),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: _buildOnboardingCard(),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 8,
+                    child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _showOnboardingCards = false;
+                        });
+                      },
+                      child: Text(
+                        "Passer",
+                        style: TextStyle(
+                          color: ColorPalette.textAccent(context),
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainContent() {
     ImageProvider? imageProvider;
 
     if (_profilePicture != null && _photoRemoved == false) {
@@ -285,6 +573,248 @@ class _EditProfileViewState extends State<EditProfileView> {
       imageProvider = NetworkImage(widget.user.photoUrl!);
     }
 
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: ColorPalette.pictureBackground(context),
+                    backgroundImage: imageProvider,
+                    child: imageProvider == null
+                        ? Text(
+                            '+',
+                            style: TextStyle(
+                              color: ColorPalette.textSecondary(context),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 32,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+
+                if ((_profilePicture != null || widget.user.photoUrl != null) &&
+                    _photoRemoved == false)
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: Center(
+                        child: Container(
+                          height: 32,
+                          width: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: ColorPalette.background(context)
+                                .withOpacity(0.5),
+                          ),
+                          child: Icon(
+                            Icons.edit,
+                            size: 20,
+                            color: ColorPalette.accent(context),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // bouton delete
+                if ((_profilePicture != null || widget.user.photoUrl != null) &&
+                    _photoRemoved == false)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _photoRemoved = true;
+                          _profilePicture = null;
+                          _checkChanges();
+                        });
+                      },
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.red,
+                        child: Icon(
+                          Icons.delete,
+                          size: 16,
+                          color: ColorPalette.textPrimary(context),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            "Nom d'utilisateur",
+            style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: ColorPalette.textSecondary(context)),
+          ),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _displayNameController,
+            maxLength: 20,
+            style: TextStyle(color: ColorPalette.textPrimary(context)),
+            decoration: InputDecoration(
+              counterText: '',
+              filled: true,
+              fillColor: ColorPalette.surface(context),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: ColorPalette.border(context)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: ColorPalette.accent(context),
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Bio',
+            style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: ColorPalette.textSecondary(context)),
+          ),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _bioController,
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+            ),
+            maxLines: 4,
+            maxLength: 80,
+            decoration: InputDecoration(
+              counterText: '',
+              filled: true,
+              fillColor: ColorPalette.surface(context),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: ColorPalette.border(context),
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: ColorPalette.accent(context),
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Équipes préférées',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: ColorPalette.textSecondary(context)),
+              ),
+              TextButton(
+                onPressed: _openTeamsBottomSheet,
+                child: Text(
+                  'Modifier',
+                  style: TextStyle(color: ColorPalette.accent(context)),
+                ),
+              ),
+            ],
+          ),
+          EquipesPreferees(
+            teamsId: _equipesPrefereesId,
+            user: widget.user,
+            isMe: true,
+            isLoading: false,
+            displayTitle: false,
+            displayNbMatchs: true,
+            onTeamTap: _onTeamTap,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Compétitions préférées',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: ColorPalette.textSecondary(context)),
+              ),
+              TextButton(
+                onPressed: _openCompetitionsBottomSheet,
+                child: Text(
+                  'Modifier',
+                  style: TextStyle(color: ColorPalette.accent(context)),
+                ),
+              ),
+            ],
+          ),
+          CompetitionsPreferees(
+            competitionsId: _competitionsPrefereesId,
+            user: widget.user,
+            isMe: true,
+            isLoading: false,
+            displayTitle: false,
+            displayNbMatchs: true,
+            onCompetitionTap: _onCompetitionTap,
+          ),
+          if (widget.isOnboarding) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _saveChanges,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorPalette.accent(context),
+                  foregroundColor: ColorPalette.textAccent(context),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: _isSaving
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: ColorPalette.textPrimary(context),
+                        ),
+                      )
+                    : Text(
+                        "Continuer",
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorPalette.background(context),
       appBar: AppBar(
@@ -325,243 +855,11 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
               ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Stack(
-                children: [
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: ColorPalette.pictureBackground(context),
-                      backgroundImage: imageProvider,
-                      child: imageProvider == null
-                          ? Text(
-                              '+',
-                              style: TextStyle(
-                                color: ColorPalette.textSecondary(context),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 32,
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-
-                  if ((_profilePicture != null ||
-                          widget.user.photoUrl != null) &&
-                      _photoRemoved == false)
-                    Positioned.fill(
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: Center(
-                          child: Container(
-                            height: 32,
-                            width: 32,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: ColorPalette.background(context)
-                                  .withOpacity(0.5),
-                            ),
-                            child: Icon(
-                              Icons.edit,
-                              size: 20,
-                              color: ColorPalette.accent(context),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // bouton delete
-                  if ((_profilePicture != null ||
-                          widget.user.photoUrl != null) &&
-                      _photoRemoved == false)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _photoRemoved = true;
-                            _profilePicture = null;
-                            _checkChanges();
-                          });
-                        },
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Colors.red,
-                          child: Icon(
-                            Icons.delete,
-                            size: 16,
-                            color: ColorPalette.textPrimary(context),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              "Nom d'utilisateur",
-              style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: ColorPalette.textSecondary(context)),
-            ),
-            const SizedBox(height: 4),
-            TextField(
-              controller: _displayNameController,
-              maxLength: 20,
-              style: TextStyle(color: ColorPalette.textPrimary(context)),
-              decoration: InputDecoration(
-                counterText: '',
-                filled: true,
-                fillColor: ColorPalette.surface(context),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: ColorPalette.border(context)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: ColorPalette.accent(context),
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Bio',
-              style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: ColorPalette.textSecondary(context)),
-            ),
-            const SizedBox(height: 4),
-            TextField(
-              controller: _bioController,
-              style: TextStyle(
-                color: ColorPalette.textPrimary(context),
-              ),
-              maxLines: 4,
-              maxLength: 80,
-              decoration: InputDecoration(
-                counterText: '',
-                filled: true,
-                fillColor: ColorPalette.surface(context),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: ColorPalette.border(context),
-                    width: 1.5,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: ColorPalette.accent(context),
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Équipes préférées',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: ColorPalette.textSecondary(context)),
-                ),
-                TextButton(
-                  onPressed: _openTeamsBottomSheet,
-                  child: Text(
-                    'Modifier',
-                    style: TextStyle(color: ColorPalette.accent(context)),
-                  ),
-                ),
-              ],
-            ),
-            EquipesPreferees(
-              teamsId: _equipesPrefereesId,
-              user: widget.user,
-              isMe: true,
-              isLoading: false,
-              displayTitle: false,
-              onTeamTap: _onTeamTap,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Compétitions préférées',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: ColorPalette.textSecondary(context)),
-                ),
-                TextButton(
-                  onPressed: _openCompetitionsBottomSheet,
-                  child: Text(
-                    'Modifier',
-                    style: TextStyle(color: ColorPalette.accent(context)),
-                  ),
-                ),
-              ],
-            ),
-            CompetitionsPreferees(
-              competitionsId: _competitionsPrefereesId,
-              user: widget.user,
-              isMe: true,
-              isLoading: false,
-              displayTitle: false,
-              onCompetitionTap: _onCompetitionTap,
-            ),
-            if (widget.isOnboarding) ...[
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _saveChanges,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorPalette.accent(context),
-                    foregroundColor: ColorPalette.textAccent(context),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: _isSaving
-                      ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: ColorPalette.textPrimary(context),
-                          ),
-                        )
-                      : Text(
-                          "Continuer",
-                          style: TextStyle(
-                            color: ColorPalette.textPrimary(context),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 32),
-          ],
-        ),
+      body: Stack(
+        children: [
+          _buildMainContent(),
+          if (_showOnboardingCards) _buildOnboardingOverlay(),
+        ],
       ),
     );
   }
