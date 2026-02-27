@@ -194,4 +194,31 @@ class WebMatchRepository implements IMatchRepository {
       });
     }
   }
+
+  @override
+  Future<List<MatchModel>> fetchTeamAllMatches(String teamId) async {
+    final snapshot =
+        await _collection.where('equipeDomicileId', isEqualTo: teamId).get();
+
+    final snapshot2 =
+        await _collection.where('equipeExterieurId', isEqualTo: teamId).get();
+
+    final allDocs = [...snapshot.docs, ...snapshot2.docs];
+
+    final futures = allDocs.map((doc) async {
+      final data = doc.data();
+
+      final mvpVotesSnapshot =
+          await _collection.doc(doc.id).collection('mvpVotes').get();
+      data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
+
+      final notesSnapshot =
+          await _collection.doc(doc.id).collection('notes').get();
+      data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
+
+      return await MatchModel.fromJson(json: data, matchId: doc.id);
+    }).toList();
+
+    return await Future.wait(futures);
+  }
 }

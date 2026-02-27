@@ -6,6 +6,7 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/stats/graph/stat_value.dart';
 import 'package:scorescope/models/stats/graph/time_stat_value.dart';
+import 'package:scorescope/models/stats/player_stats.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/day_podium_displayable.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
@@ -682,5 +683,62 @@ class StatsLoader {
     }
 
     return result;
+  }
+
+  static Future<PlayerStats> getPlayerStats(Joueur joueur) async {
+    if (RepositoryProvider.userRepository.currentUser == null) {
+      throw Exception("L'utilisateur n'est pas connecté");
+    }
+    final String userId = RepositoryProvider.userRepository.currentUser!.uid;
+    String equipeId = joueur.equipeId;
+    List<MatchModel> matchsEquipe =
+        await RepositoryProvider.matchRepository.fetchTeamAllMatches(equipeId);
+    List<MatchModel> matchsJoueur = matchsEquipe.where((match) {
+      return match.joueursEquipeDomicile.contains(joueur) ||
+          match.joueursEquipeExterieur.contains(joueur);
+    }).toList();
+    List<MatchModel> matchsEquipeVusUser =
+        await RepositoryProvider.userRepository.fetchUserMatchsRegardes(
+      userId: userId,
+      onlyPublic: false,
+      equipeId: equipeId,
+    );
+    List<MatchModel> matchsJoueurVusUser = matchsEquipeVusUser.where((match) {
+      return match.joueursEquipeDomicile.contains(joueur) ||
+          match.joueursEquipeExterieur.contains(joueur);
+    }).toList();
+    final int matchsJoues = matchsJoueur.length;
+    final int matchsVus = matchsJoueurVusUser.length;
+    final int buts = matchsJoueur
+        .map((match) => match.butsEquipeDomicile + match.butsEquipeExterieur)
+        .expand((buts) => buts)
+        .where((but) => but.buteur == joueur)
+        .length;
+    final int butsVus = matchsJoueurVusUser
+        .map((match) => match.butsEquipeDomicile + match.butsEquipeExterieur)
+        .expand((buts) => buts)
+        .where((but) => but.buteur == joueur)
+        .length;
+    final int passesDes = 0;
+    final int passesDesVues = 0;
+    final int votesMvp = matchsJoueur.fold(
+      0,
+      (sum, match) =>
+          sum + match.mvpVotes.values.where((id) => id == joueur.id).length,
+    );
+    final int votesMvpVus = matchsJoueurVusUser.fold(
+      0,
+      (sum, match) => sum + (match.mvpVotes[userId] == joueur.id ? 1 : 0),
+    );
+    return PlayerStats(
+      butsMarques: buts,
+      userButsMarques: butsVus,
+      matchsJoues: matchsJoues,
+      userMatchsJoues: matchsVus,
+      passesDes: passesDes,
+      userPassesDes: passesDesVues,
+      votesMvp: votesMvp,
+      userVotesMvp: votesMvpVus,
+    );
   }
 }

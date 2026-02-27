@@ -5,6 +5,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/language_options.dart';
 import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 
 abstract class IAppUserRepository {
@@ -101,5 +102,11 @@ abstract class IAppUserRepository {
   Future<void> updatePrivateAccount({
     required String userId,
     required bool isPrivate,
+  });
+
+  Future<List<MatchModel>> fetchUserMatchsRegardes({
+    required String userId,
+    required bool onlyPublic,
+    String? equipeId,
   });
 }

@@ -256,4 +256,15 @@ class MockMatchRepository implements IMatchRepository {
     match.notesDuMatch.remove(userId);
     match.mvpVotes.remove(userId);
   }
+
+  @override
+  Future<List<MatchModel>> fetchTeamAllMatches(String teamId) async {
+    await _seedingFuture;
+    await Future.delayed(const Duration(milliseconds: 200));
+    List<MatchModel> teamMatches = _matches.where((match) {
+      return match.equipeDomicile.id == teamId ||
+          match.equipeExterieur.id == teamId;
+    }).toList();
+    return teamMatches;
+  }
 }

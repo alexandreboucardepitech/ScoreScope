@@ -7,9 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/enum/language_options.dart';
 import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/options.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/services/web/web_match_repository.dart';
 
 import '../../models/app_user.dart';
 import '../repositories/i_app_user_repository.dart';
@@ -777,5 +779,36 @@ class WebAppUserRepository implements IAppUserRepository {
     await userDocRef.update({
       'private': isPrivate,
     });
+  }
+
+  @override
+  Future<List<MatchModel>> fetchUserMatchsRegardes(
+      {required String userId,
+      required bool onlyPublic,
+      String? equipeId}) async {
+    final List<String> matchsRegardesId = await getUserMatchsRegardesId(
+      userId: userId,
+      onlyPublic: onlyPublic,
+    );
+
+    if (matchsRegardesId.isEmpty) return [];
+
+    final matchesRepo = WebMatchRepository();
+
+    final futures =
+        matchsRegardesId.map((id) => matchesRepo.fetchMatchById(id));
+    final List<MatchModel?> matches = await Future.wait(futures);
+
+    if (equipeId != null) {
+      return matches
+          .where((m) =>
+              m != null &&
+              (m.equipeDomicile.id == equipeId ||
+                  m.equipeExterieur.id == equipeId))
+          .map((m) => m!)
+          .toList();
+    } else {
+      return matches.whereType<MatchModel>().toList();
+    }
   }
 }

@@ -11,4 +11,5 @@ abstract class IMatchRepository {
   Future<void> noterMatch(String matchId, String userId, DateTime matchDate, int? note);
   Future<void> voterPourMVP(String matchId, String userId, DateTime matchDate, String? joueurId);
   Future<void> enleverVote(String matchId, String userId);
+  Future<List<MatchModel>> fetchTeamAllMatches(String teamId);
 }

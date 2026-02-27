@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/views/details/player_details_page.dart';
 import '../../models/joueur.dart';
 
 class MvpCard extends StatefulWidget {
@@ -136,147 +137,159 @@ class _MvpCardState extends State<MvpCard> {
     final hasUserVoted = widget.userVote != null;
     final buttonLabel = hasUserVoted ? 'Changer' : 'Voter';
 
-    return Card(
-      color: ColorPalette.tileBackground(context),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'MVP du match',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: ColorPalette.textPrimary(context),
-                  ),
+    return InkWell(
+      onTap: () {
+        if (mvp != null && mvp.id != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PlayerDetailsPage(playerId: mvp.id!),
             ),
+          );
+        }
+      },
+      child: Card(
+        color: ColorPalette.tileBackground(context),
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'MVP du match',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalette.textPrimary(context),
+                    ),
+              ),
 
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            // LIGNE PRINCIPALE : avatar + infos + bouton
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Avatar du MVP (ou placeholder)
-                _buildAvatar(player: mvp, radius: 28),
+              // LIGNE PRINCIPALE : avatar + infos + bouton
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Avatar du MVP (ou placeholder)
+                  _buildAvatar(player: mvp, radius: 28),
 
-                const SizedBox(width: 12),
+                  const SizedBox(width: 12),
 
-                // Texte (nom / équipe) + info "Votre vote"
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (mvp != null) ...[
-                        Text(
-                          mvp.fullName,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: ColorPalette.textAccent(context),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        if (_loadingEquipe)
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 14,
-                                height: 14,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Chargement équipe...',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: ColorPalette.textSecondary(context),
-                                ),
-                              ),
-                            ],
-                          )
-                        else if (_loadError != null)
+                  // Texte (nom / équipe) + info "Votre vote"
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (mvp != null) ...[
                           Text(
-                            'Équipe indisponible',
+                            mvp.fullName,
                             style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.red,
-                            ),
-                          )
-                        else if (mvpEquipe != null)
-                          Text(
-                            mvpEquipe!.nom,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: ColorPalette.textPrimary(context),
-                            ),
-                          )
-                        else
-                          Text(
-                            'Sois le premier à voter !',
-                            style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
                               color: ColorPalette.textAccent(context),
                             ),
                           ),
-                      ] else ...[
-                        Text(
-                          'Aucun MVP élu',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: ColorPalette.textSecondary(context)),
-                        ),
-                        Text(
-                          'Sois le premier à voter !',
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: ColorPalette.textSecondary(context)),
-                        ),
-                      ],
-
-                      const SizedBox(height: 6),
-
-                      // Affichage du vote de l'utilisateur (si présent)
-                      if (hasUserVoted)
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Votre vote : ${widget.userVote!.fullName}',
+                          const SizedBox(height: 4),
+                          if (_loadingEquipe)
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Chargement équipe...',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: ColorPalette.textSecondary(context),
+                                  ),
+                                ),
+                              ],
+                            )
+                          else if (_loadError != null)
+                            Text(
+                              'Équipe indisponible',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.red,
+                              ),
+                            )
+                          else if (mvpEquipe != null)
+                            Text(
+                              mvpEquipe!.nom,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: ColorPalette.textPrimary(context),
+                              ),
+                            )
+                          else
+                            Text(
+                              'Sois le premier à voter !',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: ColorPalette.textAccent(context),
+                              ),
+                            ),
+                        ] else ...[
+                          Text(
+                            'Aucun MVP élu',
                             style: TextStyle(
-                              fontSize: 13,
-                              color: ColorPalette.textSecondary(context),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: ColorPalette.textSecondary(context)),
+                          ),
+                          Text(
+                            'Sois le premier à voter !',
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: ColorPalette.textSecondary(context)),
+                          ),
+                        ],
+
+                        const SizedBox(height: 6),
+
+                        // Affichage du vote de l'utilisateur (si présent)
+                        if (hasUserVoted)
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'Votre vote : ${widget.userVote!.fullName}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: ColorPalette.textSecondary(context),
+                              ),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                ),
-
-                // Bouton Voter / Changer mon vote
-                ElevatedButton.icon(
-                  onPressed: widget.onVotePressed ?? () {},
-                  icon: Icon(hasUserVoted ? Icons.refresh : Icons.how_to_vote,
-                      size: 18),
-                  label: Text(
-                    buttonLabel,
-                    style: TextStyle(
-                      color: ColorPalette.textPrimary(context),
+                      ],
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle: const TextStyle(fontSize: 14),
-                    backgroundColor: ColorPalette.buttonSecondary(context),
-                  ),
-                )
-              ],
-            ),
-          ],
+
+                  // Bouton Voter / Changer mon vote
+                  ElevatedButton.icon(
+                    onPressed: widget.onVotePressed ?? () {},
+                    icon: Icon(hasUserVoted ? Icons.refresh : Icons.how_to_vote,
+                        size: 18),
+                    label: Text(
+                      buttonLabel,
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(context),
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      textStyle: const TextStyle(fontSize: 14),
+                      backgroundColor: ColorPalette.buttonSecondary(context),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

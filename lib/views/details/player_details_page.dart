@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/models/stats/player_stats.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/stats/stats_loader.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/statistiques/cards/simple_stat_card.dart';
 
@@ -18,14 +20,17 @@ class PlayerDetailsPage extends StatefulWidget {
 
 class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   Joueur? _joueur;
-  bool _isLoading = true;
+  bool _isLoadingPlayer = true;
+
+  PlayerStats? _playerStats;
+  bool _isLoadingPlayerStats = true;
 
   bool _isPersonalMode = true;
 
   @override
   void initState() {
     super.initState();
-    _loadPlayer();
+    _loadPlayer().then((_) => _loadPlayerStats());
   }
 
   Future<void> _loadPlayer() async {
@@ -35,11 +40,26 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
 
       setState(() {
         _joueur = joueur;
-        _isLoading = false;
+        _isLoadingPlayer = false;
       });
     } catch (e) {
       setState(() {
-        _isLoading = false;
+        _isLoadingPlayer = false;
+      });
+    }
+  }
+
+  Future<void> _loadPlayerStats() async {
+    try {
+      final stats = await StatsLoader.getPlayerStats(_joueur!);
+
+      setState(() {
+        _playerStats = stats;
+        _isLoadingPlayerStats = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingPlayerStats = false;
       });
     }
   }
@@ -48,8 +68,8 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _isPersonalMode
-          ? ColorPalette.surfaceSecondary(context)
-          : ColorPalette.surface(context),
+          ? ColorPalette.surface(context)
+          : ColorPalette.background(context),
       appBar: AppBar(
         backgroundColor: _isPersonalMode
             ? ColorPalette.surfaceSecondary(context)
@@ -60,7 +80,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: _isLoading
+      body: _isLoadingPlayer
           ? const Center(child: CircularProgressIndicator())
           : _joueur == null
               ? _buildError()
@@ -84,7 +104,6 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     return CustomScrollView(
       slivers: [
         _buildHeader(),
-        const SliverToBoxAdapter(child: SizedBox(height: 8)),
         SliverToBoxAdapter(child: _buildModeSwitch()),
         _buildStatsBlock(),
       ],
@@ -93,70 +112,80 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
 
   Widget _buildStatsBlock() {
     return SliverToBoxAdapter(
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(top: 16),
-        padding: const EdgeInsets.fromLTRB(12, 24, 12, 56),
-        decoration: BoxDecoration(
-          color: _isPersonalMode
-              ? ColorPalette.surface(context)
-              : ColorPalette.background(context),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _isPersonalMode ? "Mes statistiques" : "Statistiques globales",
-              style: TextStyle(
-                color: ColorPalette.textPrimary(context),
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      child: _isLoadingPlayerStats
+          ? Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: const Center(child: CircularProgressIndicator()),
+            )
+          : Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 56),
+              decoration: BoxDecoration(
+                color: _isPersonalMode
+                    ? ColorPalette.surface(context)
+                    : ColorPalette.background(context),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      _isPersonalMode
+                          ? "Statistiques de mes matchs vus"
+                          : "Statistiques globales",
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(context),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1.2,
+                    children: [
+                      SimpleStatCard(
+                        title: _isPersonalMode ? "Matchs vus" : "Matchs joués",
+                        value: _isPersonalMode
+                            ? _playerStats!.userMatchsJoues.toString()
+                            : _playerStats!.matchsJoues.toString(),
+                        icon: Icons.sports_soccer,
+                      ),
+                      SimpleStatCard(
+                        title: _isPersonalMode ? "Buts vus" : "Buts marqués",
+                        value: _isPersonalMode
+                            ? _playerStats!.userButsMarques.toString()
+                            : _playerStats!.butsMarques.toString(),
+                        icon: Icons.star,
+                      ),
+                      SimpleStatCard(
+                        title: _isPersonalMode
+                            ? "Psses décisives vues"
+                            : "Passes décisives",
+                        value: _isPersonalMode
+                            ? _playerStats!.userPassesDes.toString()
+                            : _playerStats!.passesDes.toString(),
+                        icon: Icons.trending_up,
+                      ),
+                      SimpleStatCard(
+                        title: _isPersonalMode ? "Mes votes MVP" : "Votes MVP",
+                        value: _isPersonalMode
+                            ? _playerStats!.userVotesMvp.toString()
+                            : _playerStats!.votesMvp.toString(),
+                        icon: Icons.emoji_events,
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.2,
-              children: [
-                SimpleStatCard(
-                  title: "Matchs vus",
-                  value: _isPersonalMode ? "12" : "482",
-                  icon: Icons.sports_soccer,
-                ),
-                SimpleStatCard(
-                  title: "Note moyenne",
-                  value: _isPersonalMode ? "7.8" : "7.4",
-                  icon: Icons.star,
-                ),
-                SimpleStatCard(
-                  title: "MVP votés",
-                  value: _isPersonalMode ? "9" : "315",
-                  icon: Icons.emoji_events,
-                ),
-                SimpleStatCard(
-                  title: "Victoires vues",
-                  value: _isPersonalMode ? "8" : "290",
-                  icon: Icons.trending_up,
-                ),
-                SimpleStatCard(
-                  title: "Buts vus",
-                  value: _isPersonalMode ? "15" : "1120",
-                  icon: Icons.sports,
-                ),
-                SimpleStatCard(
-                  title: "Compétitions",
-                  value: _isPersonalMode ? "3" : "18",
-                  icon: Icons.public,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -213,12 +242,26 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                       }
 
                       final equipe = snapshot.data!;
-                      return Text(
-                        equipe.nom,
-                        style: TextStyle(
-                          color: ColorPalette.textSecondary(context),
-                          fontSize: 14,
-                        ),
+                      return Row(
+                        children: [
+                          if (equipe.logoPath != null) ...[
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: Image.asset(
+                                equipe.logoPath!,
+                              ),
+                            ),
+                            SizedBox(width: 6),
+                          ],
+                          Text(
+                            equipe.nom,
+                            style: TextStyle(
+                              color: ColorPalette.textSecondary(context),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -233,7 +276,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
 
   Widget _buildModeSwitch() {
     return Container(
-      height: 42,
+      height: 52,
       decoration: BoxDecoration(
         color: _isPersonalMode
             ? ColorPalette.surfaceSecondary(context)
@@ -249,7 +292,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
             child: FractionallySizedBox(
               widthFactor: 0.5,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.all(8),
                 child: Container(
                   decoration: BoxDecoration(
                     color: _isPersonalMode

@@ -75,6 +75,7 @@ class InitialApp extends StatefulWidget {
 
   const InitialApp({super.key, required this.authService});
 
+  // ignore: library_private_types_in_public_api
   static _InitialAppState? of(BuildContext context) =>
       context.findAncestorStateOfType<_InitialAppState>();
 
