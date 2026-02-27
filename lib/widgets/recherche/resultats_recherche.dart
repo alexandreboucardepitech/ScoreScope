@@ -6,7 +6,7 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/resultats_recherche_model.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
-import 'package:scorescope/views/match_details.dart';
+import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/widgets/recherche/resultats_section.dart';
 
 class ResultatsRecherche extends StatelessWidget {

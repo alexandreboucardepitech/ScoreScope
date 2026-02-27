@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/views/details/player_details_page.dart';
 
 class Joueur extends BasicPodiumDisplayable {
   final String? id;
@@ -40,6 +42,17 @@ class Joueur extends BasicPodiumDisplayable {
     } else {
       return null;
     }
+  }
+
+  @override
+  GestureTapCallback? onTap(BuildContext context) {
+    if (id == null) return null;
+    return () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PlayerDetailsPage(playerId: id!)),
+      );
+    };
   }
 
   Map<String, dynamic> toJson() => {

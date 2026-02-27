@@ -10,7 +10,7 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/get_reaction_emoji.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
-import 'package:scorescope/views/match_details.dart';
+import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'package:scorescope/widgets/fil_actu_amis/comments/comment_input_field.dart';
 import 'package:scorescope/views/amis/comments_page.dart';

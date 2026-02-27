@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/views/details/player_details_page.dart';
 import 'package:scorescope/widgets/match_details_tabs/infos.dart';
 import 'package:scorescope/widgets/match_details_tabs/mes_amis.dart';
-import '../models/match.dart';
-import '../utils/string/get_lignes_buteurs.dart';
+import '../../models/match.dart';
+import '../../utils/string/get_lignes_buteurs.dart';
 
 class MatchDetailsPage extends StatefulWidget {
   final MatchModel match;
@@ -603,16 +604,32 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: getLignesButeurs(
-                                      buts: _currentMatch.butsEquipeDomicile,
-                                      domicile: true,
-                                      fullName: false)
+                                buts: _currentMatch.butsEquipeDomicile,
+                                domicile: true,
+                                fullName: false,
+                              )
                                   .map(
-                                    (line) => Text(
-                                      line,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color:
-                                            ColorPalette.textSecondary(context),
+                                    (line) => InkWell(
+                                      onTap: () {
+                                        if (line.joueur.id != null) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PlayerDetailsPage(
+                                                playerId: line.joueur.id!,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: Text(
+                                        line.nomJoueur,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: ColorPalette.textSecondary(
+                                              context),
+                                        ),
                                       ),
                                     ),
                                   )
@@ -633,16 +650,32 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: getLignesButeurs(
-                                      buts: _currentMatch.butsEquipeExterieur,
-                                      domicile: false,
-                                      fullName: false)
+                                buts: _currentMatch.butsEquipeExterieur,
+                                domicile: false,
+                                fullName: false,
+                              )
                                   .map(
-                                    (line) => Text(
-                                      line,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color:
-                                            ColorPalette.textSecondary(context),
+                                    (line) => InkWell(
+                                      onTap: () {
+                                        if (line.joueur.id != null) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PlayerDetailsPage(
+                                                playerId: line.joueur.id!,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: Text(
+                                        line.nomJoueur,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: ColorPalette.textSecondary(
+                                              context),
+                                        ),
                                       ),
                                     ),
                                   )

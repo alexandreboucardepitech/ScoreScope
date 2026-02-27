@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
 
 class Competition extends BasicPodiumDisplayable {
@@ -22,6 +23,9 @@ class Competition extends BasicPodiumDisplayable {
   Future<String?> getColor() async {
     return null;
   }
+
+  @override
+  GestureTapCallback? onTap(BuildContext context) => null;
 
   Map<String, dynamic> toJson() => {
         'id': id,

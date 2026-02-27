@@ -19,4 +19,6 @@ abstract class PodiumDisplayable {
   });
 
   Future<String?> getColor();
+
+  GestureTapCallback? onTap(BuildContext context);
 }

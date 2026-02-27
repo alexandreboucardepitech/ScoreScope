@@ -508,10 +508,13 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
             ),
           ] else if (entry != null) ...[
             Expanded(
-              child: entry.item.buildDetailsLine(
-                context: context,
-                podium: PodiumContext(rank: rank, value: entry.value),
-                large: large,
+              child: InkWell(
+                onTap: entry.item.onTap(context),
+                child: entry.item.buildDetailsLine(
+                  context: context,
+                  podium: PodiumContext(rank: rank, value: entry.value),
+                  large: large,
+                ),
               ),
             ),
           ] else ...[

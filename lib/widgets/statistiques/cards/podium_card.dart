@@ -114,12 +114,14 @@ class PodiumCard<T> extends StatelessWidget {
     PodiumEntry podiumEntry,
     bool large,
   ) {
-    final content = podiumEntry.item.buildPodiumCard(
-      context: context,
-      podium: PodiumContext(
-        rank: 1,
-        value: podiumEntry.value,
-        color: podiumEntry.color,
+    final content = InkWell(
+      child: podiumEntry.item.buildPodiumCard(
+        context: context,
+        podium: PodiumContext(
+          rank: 1,
+          value: podiumEntry.value,
+          color: podiumEntry.color,
+        ),
       ),
     );
 
@@ -138,23 +140,27 @@ class PodiumCard<T> extends StatelessWidget {
   ) {
     return Column(
       children: [
-        duo[0].item.buildPodiumCard(
-              context: context,
-              podium: PodiumContext(
-                rank: 1,
-                value: duo[0].value,
-                color: duo[0].color,
+        InkWell(
+          child: duo[0].item.buildPodiumCard(
+                context: context,
+                podium: PodiumContext(
+                  rank: 1,
+                  value: duo[0].value,
+                  color: duo[0].color,
+                ),
               ),
-            ),
+        ),
         Divider(color: ColorPalette.border(context)),
-        duo[1].item.buildPodiumCard(
-              context: context,
-              podium: PodiumContext(
-                rank: 2,
-                value: duo[1].value,
-                color: duo[1].color,
+        InkWell(
+          child: duo[1].item.buildPodiumCard(
+                context: context,
+                podium: PodiumContext(
+                  rank: 2,
+                  value: duo[1].value,
+                  color: duo[1].color,
+                ),
               ),
-            ),
+        ),
       ],
     );
   }
@@ -165,35 +171,41 @@ class PodiumCard<T> extends StatelessWidget {
   ) {
     return Column(
       children: [
-        podium[0].item.buildPodiumCard(
-              context: context,
-              podium: PodiumContext(
-                rank: 1,
-                value: podium[0].value,
-                color: podium[0].color,
+        InkWell(
+          child: podium[0].item.buildPodiumCard(
+                context: context,
+                podium: PodiumContext(
+                  rank: 1,
+                  value: podium[0].value,
+                  color: podium[0].color,
+                ),
               ),
-            ),
+        ),
         Divider(
           color: ColorPalette.border(context),
           height: 12,
         ),
-        podium[1].item.buildPodiumCard(
-              context: context,
-              podium: PodiumContext(
-                rank: 2,
-                value: podium[1].value,
-                color: podium[1].color,
-              ),
-            ),
-        if (podium.length > 2)
-          podium[2].item.buildPodiumCard(
+        InkWell(
+          child: podium[1].item.buildPodiumCard(
                 context: context,
                 podium: PodiumContext(
-                  rank: 3,
-                  value: podium[2].value,
-                  color: podium[2].color,
+                  rank: 2,
+                  value: podium[1].value,
+                  color: podium[1].color,
                 ),
               ),
+        ),
+        if (podium.length > 2)
+          InkWell(
+            child: podium[2].item.buildPodiumCard(
+                  context: context,
+                  podium: PodiumContext(
+                    rank: 3,
+                    value: podium[2].value,
+                    color: podium[2].color,
+                  ),
+                ),
+          ),
       ],
     );
   }

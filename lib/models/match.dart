@@ -9,6 +9,7 @@ import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/views/details/match_details_page.dart';
 
 import 'equipe.dart';
 import 'but.dart';
@@ -65,6 +66,18 @@ class MatchModel implements PodiumDisplayable {
   @override
   Future<String?> getColor() async {
     return null;
+  }
+
+  @override
+  GestureTapCallback? onTap(BuildContext context) {
+    return () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MatchDetailsPage(match: this),
+        ),
+      );
+    };
   }
 
   Widget compactMatchDisplay(

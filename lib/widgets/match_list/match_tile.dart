@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
-import 'package:scorescope/views/match_details.dart';
+import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/get_lignes_buteurs.dart';
+import 'package:scorescope/views/details/player_details_page.dart';
 
 class MatchTile extends StatefulWidget {
   final MatchModel match;
@@ -93,17 +94,30 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     );
   }
 
-  List<Widget> _buildClickableButeurs(List<String> lines,
+  List<Widget> _buildClickableButeurs(List<ButeurLine> lines,
       {required bool alignRight}) {
     return lines.map((line) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 2.0),
-        child: Text(
-          line,
-          textAlign: alignRight ? TextAlign.right : TextAlign.left,
-          style: TextStyle(
-            fontSize: 13,
-            color: ColorPalette.textSecondary(context),
+        child: InkWell(
+          onTap: () {
+            if (line.joueur.id != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PlayerDetailsPage(playerId: line.joueur.id!),
+                ),
+              );
+            }
+          },
+          child: Text(
+            line.nomJoueur,
+            textAlign: alignRight ? TextAlign.right : TextAlign.left,
+            style: TextStyle(
+              fontSize: 13,
+              color: ColorPalette.textSecondary(context),
+            ),
           ),
         ),
       );

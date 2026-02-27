@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'onboarding.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:scorescope/main.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -286,281 +287,71 @@ class _EditProfileViewState extends State<EditProfileView> {
     );
   }
 
-  Widget _buildWelcomeCard() {
-    return Column(
-      children: [
-        Icon(
-          Icons.sports_soccer,
-          size: 72,
-          color: ColorPalette.accent(context),
-        ),
-        const SizedBox(height: 52),
-        Text(
-          "Bienvenue sur ScoreScope !",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: ColorPalette.textAccent(context),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Partage ton expérience football avec tes amis.",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: ColorPalette.textPrimary(context),
-          ),
-        ),
-        const Spacer(),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _onboardingStep = 1;
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorPalette.accent(context),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text("Continuer"),
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildTeamsCard() {
-    return Column(
-      children: [
-        Icon(
-          Icons.shield,
-          size: 72,
-          color: ColorPalette.accent(context),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          "Choisis tes équipes préférées",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: ColorPalette.textAccent(context),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: SingleChildScrollView(
-            child: EquipesPreferees(
-              teamsId: _equipesPrefereesId,
-              user: widget.user,
-              isMe: true,
-              isLoading: false,
-              displayTitle: false,
-              displayNbMatchs: false,
-              onTeamTap: _onTeamTap,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: _openTeamsBottomSheet,
-          child: Text(
-            "Ajouter des équipes",
-            style: TextStyle(color: ColorPalette.accent(context)),
-          ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _onboardingStep = 2;
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorPalette.accent(context),
-            ),
-            child: const Text("Continuer"),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCompetitionsCard() {
-    return Column(
-      children: [
-        Icon(
-          Icons.emoji_events,
-          size: 72,
-          color: ColorPalette.accent(context),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          "Choisis tes compétitions préférées",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: ColorPalette.textAccent(context),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: SingleChildScrollView(
-            child: CompetitionsPreferees(
-              competitionsId: _competitionsPrefereesId,
-              user: widget.user,
-              isMe: true,
-              isLoading: false,
-              displayTitle: false,
-              displayNbMatchs: false,
-              onCompetitionTap: _onCompetitionTap,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: _openCompetitionsBottomSheet,
-          child: Text(
-            "Ajouter des compétitions",
-            style: TextStyle(color: ColorPalette.accent(context)),
-          ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _onboardingStep = 3;
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorPalette.accent(context),
-            ),
-            child: const Text("Continuer"),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStartCard() {
-    return Column(
-      children: [
-        Icon(
-          Icons.rocket_launch,
-          size: 72,
-          color: ColorPalette.accent(context),
-        ),
-        const SizedBox(height: 52),
-        Text(
-          "Commence l'aventure ScoreScope !",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: ColorPalette.textAccent(context),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "Personnalise ton profil pour entrer dans l'app.",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: ColorPalette.textPrimary(context),
-          ),
-        ),
-        const Spacer(),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _showOnboardingCards = false;
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorPalette.accent(context),
-            ),
-            child: const Text("Terminer"),
-          ),
-        ),
-      ],
-    );
-  }
-
+  // Onboarding card builder using new widgets
   Widget _buildOnboardingCard() {
     switch (_onboardingStep) {
       case 0:
-        return _buildWelcomeCard();
+        return WelcomeCard(onContinue: () {
+          setState(() {
+            _onboardingStep = 1;
+          });
+        });
       case 1:
-        return _buildTeamsCard();
+        return TeamsCard(
+          equipesPrefereesWidget: EquipesPreferees(
+            teamsId: _equipesPrefereesId,
+            user: widget.user,
+            isMe: true,
+            isLoading: false,
+            displayTitle: false,
+            displayNbMatchs: false,
+            onTeamTap: _onTeamTap,
+          ),
+          onAddTeams: _openTeamsBottomSheet,
+          onContinue: () {
+            setState(() {
+              _onboardingStep = 2;
+            });
+          },
+        );
       case 2:
-        return _buildCompetitionsCard();
+        return CompetitionsCard(
+          competitionsPrefereesWidget: CompetitionsPreferees(
+            competitionsId: _competitionsPrefereesId,
+            user: widget.user,
+            isMe: true,
+            isLoading: false,
+            displayTitle: false,
+            displayNbMatchs: false,
+            onCompetitionTap: _onCompetitionTap,
+          ),
+          onAddCompetitions: _openCompetitionsBottomSheet,
+          onContinue: () {
+            setState(() {
+              _onboardingStep = 3;
+            });
+          },
+        );
       case 3:
-        return _buildStartCard();
+        return StartCard(onFinish: () {
+          setState(() {
+            _showOnboardingCards = false;
+          });
+        });
       default:
         return SizedBox.shrink();
     }
   }
 
   Widget _buildOnboardingOverlay() {
-    return Positioned.fill(
-      child: Stack(
-        children: [
-          // Blur background
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: Container(
-              color: Colors.black.withOpacity(0.3),
-            ),
-          ),
-
-          Center(
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.95,
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              decoration: BoxDecoration(
-                color: ColorPalette.surface(context),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: _buildOnboardingCard(),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 8,
-                    child: TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _showOnboardingCards = false;
-                        });
-                      },
-                      child: Text(
-                        "Passer",
-                        style: TextStyle(
-                          color: ColorPalette.textAccent(context),
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+    return OnboardingOverlay(
+      card: _buildOnboardingCard(),
+      onSkip: () {
+        setState(() {
+          _showOnboardingCards = false;
+        });
+      },
     );
   }
 

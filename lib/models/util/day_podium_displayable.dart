@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
 
@@ -19,6 +20,9 @@ class DayPodiumDisplayable extends BasicPodiumDisplayable {
   Future<String?> getColor() async {
     return null;
   }
+
+  @override
+  GestureTapCallback? onTap(BuildContext context) => null;
 
   @override
   bool operator ==(Object other) =>

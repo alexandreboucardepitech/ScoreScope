@@ -100,12 +100,14 @@ class PodiumListItem<T> extends StatelessWidget {
     PodiumEntry podiumEntry,
     Color accent,
   ) {
-    return podiumEntry.item.buildPodiumRow(
-      context: context,
-      podium: PodiumContext(
-        rank: 1,
-        value: podiumEntry.value,
-        color: podiumEntry.color,
+    return InkWell(
+      child: podiumEntry.item.buildPodiumRow(
+        context: context,
+        podium: PodiumContext(
+          rank: 1,
+          value: podiumEntry.value,
+          color: podiumEntry.color,
+        ),
       ),
     );
   }
@@ -123,12 +125,14 @@ class PodiumListItem<T> extends StatelessWidget {
       children: [
         Expanded(
           flex: 5,
-          child: first.item.buildPodiumRow(
-            context: context,
-            podium: PodiumContext(
-              rank: 1,
-              value: first.value,
-              color: first.color,
+          child: InkWell(
+            child: first.item.buildPodiumRow(
+              context: context,
+              podium: PodiumContext(
+                rank: 1,
+                value: first.value,
+                color: first.color,
+              ),
             ),
           ),
         ),
@@ -139,12 +143,14 @@ class PodiumListItem<T> extends StatelessWidget {
             children: [
               if (second != null)
                 Expanded(
-                  child: second.item.buildPodiumRow(
-                    context: context,
-                    podium: PodiumContext(
-                      rank: 2,
-                      value: second.value,
-                      color: second.color,
+                  child: InkWell(
+                    child: second.item.buildPodiumRow(
+                      context: context,
+                      podium: PodiumContext(
+                        rank: 2,
+                        value: second.value,
+                        color: second.color,
+                      ),
                     ),
                   ),
                 ),
@@ -152,12 +158,14 @@ class PodiumListItem<T> extends StatelessWidget {
                 _verticalDivider(context, height: 20),
               if (third != null)
                 Expanded(
-                  child: third.item.buildPodiumRow(
-                    context: context,
-                    podium: PodiumContext(
-                      rank: 3,
-                      value: third.value,
-                      color: third.color,
+                  child: InkWell(
+                    child: third.item.buildPodiumRow(
+                      context: context,
+                      podium: PodiumContext(
+                        rank: 3,
+                        value: third.value,
+                        color: third.color,
+                      ),
                     ),
                   ),
                 ),

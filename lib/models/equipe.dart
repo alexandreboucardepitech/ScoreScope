@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
 
 class Equipe extends BasicPodiumDisplayable {
@@ -56,4 +57,7 @@ class Equipe extends BasicPodiumDisplayable {
 
   @override
   String toString() => nom;
+
+  @override
+  GestureTapCallback? onTap(BuildContext context) => null;
 }
