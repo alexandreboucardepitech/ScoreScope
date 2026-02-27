@@ -16,7 +16,7 @@ import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'firebase_options.dart';
 import 'views/all_matches/all_matches.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,8 +25,8 @@ void main() async {
   );
 
   // Déconnexion automatique au début pour test :
-  await GoogleSignIn.instance.disconnect();
-  await FirebaseAuth.instance.signOut();
+  // await GoogleSignIn.instance.disconnect();
+  // await FirebaseAuth.instance.signOut();
 
   // Initialiser AuthService (et GoogleSignIn) avant runApp
   final authService = AuthService();

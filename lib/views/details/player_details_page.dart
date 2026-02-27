@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/widgets/statistiques/cards/simple_stat_card.dart';
 
 class PlayerDetailsPage extends StatefulWidget {
   final String playerId;
@@ -18,6 +19,8 @@ class PlayerDetailsPage extends StatefulWidget {
 class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   Joueur? _joueur;
   bool _isLoading = true;
+
+  bool _isPersonalMode = true;
 
   @override
   void initState() {
@@ -44,11 +47,21 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorPalette.background(context),
+      backgroundColor: _isPersonalMode
+          ? ColorPalette.surfaceSecondary(context)
+          : ColorPalette.surface(context),
+      appBar: AppBar(
+        backgroundColor: _isPersonalMode
+            ? ColorPalette.surfaceSecondary(context)
+            : ColorPalette.surface(context),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : _joueur == null
               ? _buildError()
               : _buildContent(),
@@ -71,22 +84,92 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     return CustomScrollView(
       slivers: [
         _buildHeader(),
-        SliverToBoxAdapter(
-          child: _buildStatsPlaceholder(),
-        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+        SliverToBoxAdapter(child: _buildModeSwitch()),
+        _buildStatsBlock(),
       ],
+    );
+  }
+
+  Widget _buildStatsBlock() {
+    return SliverToBoxAdapter(
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(top: 16),
+        padding: const EdgeInsets.fromLTRB(12, 24, 12, 56),
+        decoration: BoxDecoration(
+          color: _isPersonalMode
+              ? ColorPalette.surface(context)
+              : ColorPalette.background(context),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isPersonalMode ? "Mes statistiques" : "Statistiques globales",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.2,
+              children: [
+                SimpleStatCard(
+                  title: "Matchs vus",
+                  value: _isPersonalMode ? "12" : "482",
+                  icon: Icons.sports_soccer,
+                ),
+                SimpleStatCard(
+                  title: "Note moyenne",
+                  value: _isPersonalMode ? "7.8" : "7.4",
+                  icon: Icons.star,
+                ),
+                SimpleStatCard(
+                  title: "MVP votés",
+                  value: _isPersonalMode ? "9" : "315",
+                  icon: Icons.emoji_events,
+                ),
+                SimpleStatCard(
+                  title: "Victoires vues",
+                  value: _isPersonalMode ? "8" : "290",
+                  icon: Icons.trending_up,
+                ),
+                SimpleStatCard(
+                  title: "Buts vus",
+                  value: _isPersonalMode ? "15" : "1120",
+                  icon: Icons.sports,
+                ),
+                SimpleStatCard(
+                  title: "Compétitions",
+                  value: _isPersonalMode ? "3" : "18",
+                  icon: Icons.public,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildHeader() {
     return SliverToBoxAdapter(
-      child: Container(
-        color: ColorPalette.surface(context),
-        padding: const EdgeInsets.fromLTRB(16, 60, 16, 24),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        color: _isPersonalMode
+            ? ColorPalette.surfaceSecondary(context)
+            : ColorPalette.surface(context),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Photo joueur
             Container(
               width: 72,
               height: 72,
@@ -101,10 +184,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                 ),
               ),
             ),
-
             const SizedBox(width: 16),
-
-            // Infos joueur
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +213,6 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                       }
 
                       final equipe = snapshot.data!;
-
                       return Text(
                         equipe.nom,
                         style: TextStyle(
@@ -152,42 +231,82 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     );
   }
 
-  Widget _buildStatsPlaceholder() {
+  Widget _buildModeSwitch() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      height: 42,
       decoration: BoxDecoration(
-        color: ColorPalette.surfaceSecondary(context),
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        color: _isPersonalMode
+            ? ColorPalette.surfaceSecondary(context)
+            : ColorPalette.surface(context),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Text(
-            "Statistiques",
-            style: TextStyle(
-              color: ColorPalette.textPrimary(context),
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: ColorPalette.tileBackground(context),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Text(
-              "Les statistiques du joueur arriveront bientôt 👀",
-              style: TextStyle(
-                color: ColorPalette.textSecondary(context),
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            alignment:
+                _isPersonalMode ? Alignment.centerLeft : Alignment.centerRight,
+            child: FractionallySizedBox(
+              widthFactor: 0.5,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _isPersonalMode
+                        ? ColorPalette.accent(context)
+                        : ColorPalette.surfaceSecondary(context),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
               ),
             ),
           ),
+          Row(
+            children: [
+              _buildSwitchSide(
+                title: "Mes stats",
+                selected: _isPersonalMode,
+                onTap: () {
+                  if (!_isPersonalMode) {
+                    setState(() => _isPersonalMode = true);
+                  }
+                },
+              ),
+              _buildSwitchSide(
+                title: "Global",
+                selected: !_isPersonalMode,
+                onTap: () {
+                  if (_isPersonalMode) {
+                    setState(() => _isPersonalMode = false);
+                  }
+                },
+              ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSwitchSide({
+    required String title,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Center(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: selected
+                  ? ColorPalette.opposite(context)
+                  : ColorPalette.textSecondary(context),
+              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+            ),
+          ),
+        ),
       ),
     );
   }
