@@ -156,30 +156,28 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                         value: _isPersonalMode
                             ? _playerStats!.userMatchsJoues.toString()
                             : _playerStats!.matchsJoues.toString(),
-                        icon: Icons.sports_soccer,
+                        icon: Icons.sports,
                       ),
                       SimpleStatCard(
                         title: _isPersonalMode ? "Buts vus" : "Buts marqués",
                         value: _isPersonalMode
                             ? _playerStats!.userButsMarques.toString()
                             : _playerStats!.butsMarques.toString(),
-                        icon: Icons.star,
-                      ),
-                      SimpleStatCard(
-                        title: _isPersonalMode
-                            ? "Psses décisives vues"
-                            : "Passes décisives",
-                        value: _isPersonalMode
-                            ? _playerStats!.userPassesDes.toString()
-                            : _playerStats!.passesDes.toString(),
-                        icon: Icons.trending_up,
+                        icon: Icons.sports_soccer,
                       ),
                       SimpleStatCard(
                         title: _isPersonalMode ? "Mes votes MVP" : "Votes MVP",
                         value: _isPersonalMode
                             ? _playerStats!.userVotesMvp.toString()
                             : _playerStats!.votesMvp.toString(),
-                        icon: Icons.emoji_events,
+                        icon: Icons.how_to_vote,
+                      ),
+                      SimpleStatCard(
+                        title: "Élu MVP",
+                        value: _isPersonalMode
+                            ? _playerStats!.userEluMvp.toString()
+                            : _playerStats!.eluMvp.toString(),
+                        icon: Icons.star,
                       ),
                     ],
                   ),

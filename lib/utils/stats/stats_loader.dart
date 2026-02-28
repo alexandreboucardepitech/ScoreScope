@@ -719,8 +719,20 @@ class StatsLoader {
         .expand((buts) => buts)
         .where((but) => but.buteur == joueur)
         .length;
-    final int passesDes = 0;
-    final int passesDesVues = 0;
+    int eluMvp = 0;
+    for (MatchModel match in matchsJoueur) {
+      Joueur? mvp = await match.getMvp();
+      if (mvp?.id == joueur.id) {
+        eluMvp++;
+      }
+    }
+    int eluMvpVu = 0;
+    for (MatchModel match in matchsJoueurVusUser) {
+      Joueur? mvp = await match.getMvp();
+      if (mvp?.id == joueur.id) {
+        eluMvpVu++;
+      }
+    }
     final int votesMvp = matchsJoueur.fold(
       0,
       (sum, match) =>
@@ -735,8 +747,8 @@ class StatsLoader {
       userButsMarques: butsVus,
       matchsJoues: matchsJoues,
       userMatchsJoues: matchsVus,
-      passesDes: passesDes,
-      userPassesDes: passesDesVues,
+      eluMvp: eluMvp,
+      userEluMvp: eluMvpVu,
       votesMvp: votesMvp,
       userVotesMvp: votesMvpVus,
     );
