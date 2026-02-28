@@ -7,6 +7,8 @@ import 'package:scorescope/models/resultats_recherche_model.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
+import 'package:scorescope/views/details/player_details_page.dart';
+import 'package:scorescope/views/details/team_details_page.dart';
 import 'package:scorescope/widgets/recherche/resultats_section.dart';
 
 class ResultatsRecherche extends StatelessWidget {
@@ -56,12 +58,20 @@ class ResultatsRecherche extends StatelessWidget {
           items: resultats.equipes,
           itemBuilder: (equipe) => ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: buildTeamLogo(context, equipe.logoPath,
-                isFavorite:
-                    resultats.user?.equipesPrefereesId.contains(equipe.id) ??
-                        false),
+            leading: buildTeamLogo(
+              context,
+              equipe.logoPath,
+              equipeId: equipe.id,
+            ),
             title: Text(equipe.nom),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TeamDetailsPage(teamId: equipe.id),
+                ),
+              );
+            },
           ),
         ),
         ResultatsSection<Competition>(
@@ -98,7 +108,17 @@ class ResultatsRecherche extends StatelessWidget {
               ),
             ),
             title: Text(joueur.fullName),
-            onTap: () {},
+            onTap: () {
+              if (joueur.id != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PlayerDetailsPage(playerId: joueur.id!),
+                  ),
+                );
+              }
+            },
           ),
         ),
       ],

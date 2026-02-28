@@ -3,7 +3,7 @@ class PlayerStats {
   final int butsMarques;
   final int votesMvp;
   final int eluMvp;
-  
+
   final int userMatchsJoues;
   final int userButsMarques;
   final int userVotesMvp;
@@ -14,7 +14,6 @@ class PlayerStats {
     required this.butsMarques,
     required this.eluMvp,
     required this.votesMvp,
-    
     required this.userMatchsJoues,
     required this.userButsMarques,
     required this.userEluMvp,

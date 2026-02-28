@@ -4,6 +4,7 @@ import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/utils/string/get_friendship_action_snackbar_message.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/users/can_access_private_infos.dart';
+import 'package:scorescope/views/details/team_details_page.dart';
 import 'package:scorescope/views/profile/options_view.dart';
 import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'package:scorescope/widgets/profile/equipes_preferees.dart';
@@ -414,12 +415,10 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   void _onTeamTap(String teamId, String teamName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Allez sur les détails de l'équipe $teamName",
-        ),
-        duration: const Duration(seconds: 1),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TeamDetailsPage(teamId: teamId),
       ),
     );
   }

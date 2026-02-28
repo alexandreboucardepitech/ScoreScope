@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
-import 'package:scorescope/models/stats/stats_generales_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_generales_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 
 class StatsGeneralesOnglet extends StatelessWidget {

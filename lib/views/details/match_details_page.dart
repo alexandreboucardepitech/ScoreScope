@@ -3,6 +3,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
+import 'package:scorescope/views/details/team_details_page.dart';
 import 'package:scorescope/widgets/match_details_tabs/infos.dart';
 import 'package:scorescope/widgets/match_details_tabs/mes_amis.dart';
 import '../../models/match.dart';
@@ -536,26 +537,39 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                    width: 48,
-                                    height: 48,
-                                    child: Image.asset(
-                                        _currentMatch.equipeDomicile.logoPath!,
-                                        fit: BoxFit.contain)),
-                                const SizedBox(height: 6),
-                                Text(
-                                  _currentMatch.equipeDomicile.nom,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: ColorPalette.textPrimary(context),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TeamDetailsPage(
+                                      teamId: _currentMatch.equipeDomicile.id,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                );
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                      width: 48,
+                                      height: 48,
+                                      child: Image.asset(
+                                          _currentMatch
+                                              .equipeDomicile.logoPath!,
+                                          fit: BoxFit.contain)),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    _currentMatch.equipeDomicile.nom,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           Expanded(
@@ -570,26 +584,39 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                             ),
                           ),
                           Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                    width: 48,
-                                    height: 48,
-                                    child: Image.asset(
-                                        _currentMatch.equipeExterieur.logoPath!,
-                                        fit: BoxFit.contain)),
-                                const SizedBox(height: 6),
-                                Text(
-                                  _currentMatch.equipeExterieur.nom,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: ColorPalette.textPrimary(context),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TeamDetailsPage(
+                                      teamId: _currentMatch.equipeExterieur.id,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                );
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                      width: 48,
+                                      height: 48,
+                                      child: Image.asset(
+                                          _currentMatch
+                                              .equipeExterieur.logoPath!,
+                                          fit: BoxFit.contain)),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    _currentMatch.equipeExterieur.nom,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

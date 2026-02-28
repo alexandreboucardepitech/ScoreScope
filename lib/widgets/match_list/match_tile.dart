@@ -266,13 +266,6 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     final match = widget.match;
     final MatchUserData? userData = widget.userData;
 
-    final bool isHomeFavorite =
-        widget.user?.equipesPrefereesId.contains(match.equipeDomicile.id) ??
-            false;
-    final bool isAwayFavorite =
-        widget.user?.equipesPrefereesId.contains(match.equipeExterieur.id) ??
-            false;
-
     return Container(
       color: ColorPalette.tileBackground(context),
       child: Column(
@@ -318,8 +311,9 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                 buildTeamLogo(
                                   context,
                                   match.equipeDomicile.logoPath,
-                                  isFavorite: isHomeFavorite,
+                                  equipeId: match.equipeDomicile.id,
                                   size: 28,
+                                  clickable: false,
                                 ),
                               ],
                             ),
@@ -343,8 +337,9 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                 buildTeamLogo(
                                   context,
                                   match.equipeExterieur.logoPath,
-                                  isFavorite: isAwayFavorite,
+                                  equipeId: match.equipeExterieur.id,
                                   size: 28,
+                                  clickable: false,
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(

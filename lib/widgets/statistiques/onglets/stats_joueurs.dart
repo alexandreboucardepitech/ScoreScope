@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/joueur.dart';
-import 'package:scorescope/models/stats/stats_joueurs_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_joueurs_data.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
-import 'package:scorescope/models/stats/stats_competitions_data.dart';
-import 'package:scorescope/models/stats/stats_equipes_data.dart';
-import 'package:scorescope/models/stats/stats_habitudes_data.dart';
-import 'package:scorescope/models/stats/stats_joueurs_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_competitions_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_equipes_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_habitudes_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_joueurs_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_competitions.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_equipes.dart';
@@ -11,8 +11,8 @@ import 'package:scorescope/widgets/statistiques/onglets/stats_generales.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_habitudes.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_joueurs.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_matchs.dart';
-import 'package:scorescope/models/stats/stats_generales_data.dart';
-import 'package:scorescope/models/stats/stats_matchs_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_generales_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_matchs_data.dart';
 
 enum StatsOnglet {
   generales,

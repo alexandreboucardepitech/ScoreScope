@@ -8,6 +8,7 @@ import 'package:scorescope/models/stats/graph/stat_value.dart';
 import 'package:scorescope/models/stats/graph/time_stat_value.dart';
 import 'package:scorescope/models/stats/player_stats.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
+import 'package:scorescope/models/stats/team_stats.dart';
 import 'package:scorescope/models/util/day_podium_displayable.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
@@ -83,8 +84,7 @@ class StatsLoader {
     return totalButs;
   }
 
-  static Future<double> getMoyenneNotes(
-      {required List<MatchUserData> matchsVusUser}) async {
+  static double getMoyenneNotes({required List<MatchUserData> matchsVusUser}) {
     if (matchsVusUser.isEmpty) return 0;
     double totalNotes = 0;
     int countNotes = 0;
@@ -752,5 +752,194 @@ class StatsLoader {
       votesMvp: votesMvp,
       userVotesMvp: votesMvpVus,
     );
+  }
+
+  static Future<TeamStats> getTeamStats(Equipe equipe) async {
+    if (RepositoryProvider.userRepository.currentUser == null) {
+      throw Exception("L'utilisateur n'est pas connecté");
+    }
+    final String userId = RepositoryProvider.userRepository.currentUser!.uid;
+
+    List<MatchModel> matchsEquipe =
+        await RepositoryProvider.matchRepository.fetchTeamAllMatches(equipe.id);
+
+    List<MatchModel> matchsEquipeVusUser =
+        await RepositoryProvider.userRepository.fetchUserMatchsRegardes(
+      userId: userId,
+      onlyPublic: false,
+      equipeId: equipe.id,
+    );
+
+    final matchIdsEquipe = matchsEquipeVusUser.map((match) => match.id).toSet();
+
+    List<MatchUserData> matchsDataVusUser = await RepositoryProvider
+        .userRepository
+        .fetchUserAllMatchUserData(userId: userId);
+    matchsDataVusUser = matchsDataVusUser
+        .where((matchData) => matchIdsEquipe.contains(matchData.matchId))
+        .toList();
+
+    final int matchsJoues = matchsEquipe.length;
+    final int matchsVus = matchsEquipeVusUser.length;
+    final int butsMarques = matchsEquipe.fold(0, (total, match) {
+      if (match.equipeDomicile.id == equipe.id) {
+        return total + match.scoreEquipeDomicile;
+      } else if (match.equipeExterieur.id == equipe.id) {
+        return total + match.scoreEquipeExterieur;
+      } else {
+        return total;
+      }
+    });
+    final int butsMarquesVus = matchsEquipeVusUser.fold(0, (total, match) {
+      if (match.equipeDomicile.id == equipe.id) {
+        return total + match.scoreEquipeDomicile;
+      } else if (match.equipeExterieur.id == equipe.id) {
+        return total + match.scoreEquipeExterieur;
+      } else {
+        return total;
+      }
+    });
+    final int butsEncaisses = matchsEquipe.fold(0, (total, match) {
+      if (match.equipeDomicile.id == equipe.id) {
+        return total + match.scoreEquipeExterieur;
+      } else if (match.equipeExterieur.id == equipe.id) {
+        return total + match.scoreEquipeDomicile;
+      } else {
+        return total;
+      }
+    });
+    final int butsEncaissesVus = matchsEquipeVusUser.fold(0, (total, match) {
+      if (match.equipeDomicile.id == equipe.id) {
+        return total + match.scoreEquipeExterieur;
+      } else if (match.equipeExterieur.id == equipe.id) {
+        return total + match.scoreEquipeDomicile;
+      } else {
+        return total;
+      }
+    });
+    final int diffButs = matchsEquipe.fold(0, (total, match) {
+      if (match.equipeDomicile.id == equipe.id) {
+        return total + match.scoreEquipeDomicile - match.scoreEquipeExterieur;
+      } else if (match.equipeExterieur.id == equipe.id) {
+        return total + match.scoreEquipeExterieur - match.scoreEquipeDomicile;
+      } else {
+        return total;
+      }
+    });
+    final int diffButsVus = matchsEquipeVusUser.fold(0, (total, match) {
+      if (match.equipeDomicile.id == equipe.id) {
+        return total + match.scoreEquipeDomicile - match.scoreEquipeExterieur;
+      } else if (match.equipeExterieur.id == equipe.id) {
+        return total + match.scoreEquipeExterieur - match.scoreEquipeDomicile;
+      } else {
+        return total;
+      }
+    });
+    List<PodiumEntry<Joueur>> eluMvp =
+        await getMvpsLesPlusVotesListeMatchs(matchs: matchsEquipe);
+    List<PodiumEntry<Joueur>> eluMvpMatchsVusUser =
+        await getMvpsLesPlusVotesListeMatchs(matchs: matchsEquipeVusUser);
+
+    double noteMoyenne = matchsEquipe.isEmpty
+        ? 0
+        : matchsEquipe
+                .map((match) => match.getNoteMoyenne())
+                .fold(0.0, (sum, note) => sum + note) /
+            matchsEquipe.length;
+    double noteMoyenneMatchsUser = getMoyenneNotes(matchsVusUser: matchsDataVusUser);
+
+    List<StatValue> ratioVictoiresDefaites =
+        getPourcentageVictoireEquipe(matchsEquipe, equipe.id);
+    List<StatValue> ratioVictoiresDefaitesVusUser =
+        getPourcentageVictoireEquipe(matchsEquipeVusUser, equipe.id);
+
+    return TeamStats(
+      matchsJoues: matchsJoues,
+      userMatchsJoues: matchsVus,
+      butsMarques: butsMarques,
+      userButsMarques: butsMarquesVus,
+      butsEncaisses: butsEncaisses,
+      userButsEncaisses: butsEncaissesVus,
+      differenceButs: diffButs,
+      userDifferenceButs: diffButsVus,
+      noteMoyenneMatchs: noteMoyenne,
+      userNoteMoyenneMatchs: noteMoyenneMatchsUser,
+      eluMvp: eluMvp,
+      userEluMvp: eluMvpMatchsVusUser,
+      ratioVictoiresDefaites: ratioVictoiresDefaites,
+      userRatioVictoiresDefaites: ratioVictoiresDefaitesVusUser,
+    );
+  }
+
+  static Future<List<PodiumEntry<Joueur>>> getMvpsLesPlusVotesListeMatchs(
+      {required List<MatchModel> matchs}) async {
+    Map<String, int> mvpsCount = {};
+
+    for (final matchData in matchs) {
+      final mvp = await matchData.getMvp();
+      if (mvp != null && mvp.id != null) {
+        mvpsCount[mvp.id!] = (mvpsCount[mvp.id!] ?? 0) + 1;
+      }
+    }
+
+    final podiumEntries = await Future.wait(
+      mvpsCount.entries.map((entry) async {
+        final joueur = await RepositoryProvider.joueurRepository
+            .fetchJoueurById(entry.key);
+        if (joueur == null) return null;
+
+        final color = await joueur.getColor();
+        return PodiumEntry<Joueur>(
+          item: joueur,
+          value: entry.value,
+          color: color,
+        );
+      }),
+    );
+
+    return podiumEntries.whereType<PodiumEntry<Joueur>>().toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+  }
+
+  static List<StatValue> getPourcentageVictoireEquipe(
+      List<MatchModel> matchsVusModels, String equipeId) {
+    int victoires = 0;
+    int nuls = 0;
+    int defaites = 0;
+
+    for (final match in matchsVusModels) {
+      if (match.equipeDomicile.id == equipeId) {
+        if (match.scoreEquipeDomicile > match.scoreEquipeExterieur) {
+          victoires++;
+        } else if (match.scoreEquipeDomicile < match.scoreEquipeExterieur) {
+          defaites++;
+        } else {
+          nuls++;
+        }
+      } else if (match.equipeExterieur.id == equipeId) {
+        if (match.scoreEquipeDomicile > match.scoreEquipeExterieur) {
+          defaites++;
+        } else if (match.scoreEquipeDomicile < match.scoreEquipeExterieur) {
+          victoires++;
+        } else {
+          nuls++;
+        }
+      }
+    }
+
+    final totalMatchs = matchsVusModels.length;
+    if (totalMatchs == 0) {
+      return [
+        StatValue(label: "Victoire", value: 0),
+        StatValue(label: "Nuls", value: 0),
+        StatValue(label: "Défaites", value: 0),
+      ];
+    }
+
+    return [
+      StatValue(label: "Victoires", value: (victoires / totalMatchs) * 100),
+      StatValue(label: "Nuls", value: (nuls / totalMatchs) * 100),
+      StatValue(label: "Défaites", value: (defaites / totalMatchs) * 100),
+    ];
   }
 }

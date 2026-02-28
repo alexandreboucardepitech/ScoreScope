@@ -1,24 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/views/details/team_details_page.dart';
 
-Widget buildTeamLogo(BuildContext context, String? path,
-    {required bool isFavorite, double size = 32}) {
+Widget buildTeamLogo(
+  BuildContext context,
+  String? path, {
+  String? equipeId,
+  double size = 32,
+  bool clickable = true,
+}) {
+  final bool isFavorite = RepositoryProvider
+          .userRepository.currentUser?.equipesPrefereesId
+          .contains(equipeId) ??
+      false;
   final logoWidget = SizedBox(
     width: size,
     height: size,
     child: path != null
         ? Image.asset(path, fit: BoxFit.contain)
-        : Icon(Icons.shield, size: 20, color: ColorPalette.textPrimary(context)),
+        : Icon(Icons.shield,
+            size: 20, color: ColorPalette.textPrimary(context)),
+  );
+
+  final clickableLogoWidget = InkWell(
+    onTap: () {
+      if (equipeId != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TeamDetailsPage(teamId: equipeId),
+          ),
+        );
+      }
+    },
+    child: logoWidget,
   );
 
   if (!isFavorite) {
-    return logoWidget;
+    return clickable ? clickableLogoWidget : logoWidget;
   }
 
   return Stack(
     clipBehavior: Clip.none,
     children: [
-      logoWidget,
+      clickable ? clickableLogoWidget : logoWidget,
       Positioned(
         bottom: -1,
         right: -1,

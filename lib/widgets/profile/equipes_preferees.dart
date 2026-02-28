@@ -321,11 +321,18 @@ class EquipePrefereeTile extends StatelessWidget {
           children: [
             if (equipe.logoPath != null)
               SizedBox(
-                  width: 32,
-                  height: 32,
-                  child: Image.asset(equipe.logoPath!, fit: BoxFit.contain))
+                width: 32,
+                height: 32,
+                child: Image.asset(
+                  equipe.logoPath!,
+                  fit: BoxFit.contain,
+                ),
+              )
             else
-              CircleAvatar(radius: 14, child: Icon(Icons.shield, size: 16)),
+              CircleAvatar(
+                radius: 14,
+                child: Icon(Icons.shield, size: 16),
+              ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

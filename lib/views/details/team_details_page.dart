@@ -1,66 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:scorescope/models/joueur.dart';
-import 'package:scorescope/models/stats/player_stats.dart';
+import 'package:scorescope/models/enum/graph_type.dart';
+import 'package:scorescope/models/equipe.dart';
+import 'package:scorescope/models/stats/team_stats.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/stats/stats_loader.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
-import 'package:scorescope/views/details/team_details_page.dart';
+import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
+import 'package:scorescope/widgets/statistiques/cards/podium_card.dart';
 import 'package:scorescope/widgets/statistiques/cards/simple_stat_card.dart';
 
-class PlayerDetailsPage extends StatefulWidget {
-  final String playerId;
+class TeamDetailsPage extends StatefulWidget {
+  final String teamId;
 
-  const PlayerDetailsPage({
+  const TeamDetailsPage({
     super.key,
-    required this.playerId,
+    required this.teamId,
   });
 
   @override
-  State<PlayerDetailsPage> createState() => _PlayerDetailsPageState();
+  State<TeamDetailsPage> createState() => _TeamDetailsPageState();
 }
 
-class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
-  Joueur? _joueur;
-  bool _isLoadingPlayer = true;
+class _TeamDetailsPageState extends State<TeamDetailsPage> {
+  Equipe? _equipe;
+  bool _isLoadingTeam = true;
 
-  PlayerStats? _playerStats;
-  bool _isLoadingPlayerStats = true;
+  TeamStats? _teamStats;
+  bool _isLoadingTeamStats = true;
 
   bool _isPersonalMode = true;
 
   @override
   void initState() {
     super.initState();
-    _loadPlayer().then((_) => _loadPlayerStats());
+    _loadTeam().then((_) => _loadTeamStats());
   }
 
-  Future<void> _loadPlayer() async {
+  Future<void> _loadTeam() async {
     try {
-      final joueur = await RepositoryProvider.joueurRepository
-          .fetchJoueurById(widget.playerId);
+      final equipe = await RepositoryProvider.equipeRepository
+          .fetchEquipeById(widget.teamId);
 
       setState(() {
-        _joueur = joueur;
-        _isLoadingPlayer = false;
+        _equipe = equipe;
+        _isLoadingTeam = false;
       });
     } catch (e) {
       setState(() {
-        _isLoadingPlayer = false;
+        _isLoadingTeam = false;
       });
     }
   }
 
-  Future<void> _loadPlayerStats() async {
+  Future<void> _loadTeamStats() async {
     try {
-      final stats = await StatsLoader.getPlayerStats(_joueur!);
+      final stats = await StatsLoader.getTeamStats(_equipe!);
 
       setState(() {
-        _playerStats = stats;
-        _isLoadingPlayerStats = false;
+        _teamStats = stats;
+        _isLoadingTeamStats = false;
       });
     } catch (e) {
       setState(() {
-        _isLoadingPlayerStats = false;
+        _isLoadingTeamStats = false;
       });
     }
   }
@@ -81,9 +84,9 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: _isLoadingPlayer
+      body: _isLoadingTeam
           ? const Center(child: CircularProgressIndicator())
-          : _joueur == null
+          : _equipe == null
               ? _buildError()
               : _buildContent(),
     );
@@ -92,7 +95,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   Widget _buildError() {
     return Center(
       child: Text(
-        "Joueur introuvable",
+        "Equipe introuvable",
         style: TextStyle(
           color: ColorPalette.textPrimary(context),
           fontSize: 16,
@@ -113,7 +116,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
 
   Widget _buildStatsBlock() {
     return SliverToBoxAdapter(
-      child: _isLoadingPlayerStats
+      child: _isLoadingTeamStats
           ? Padding(
               padding: const EdgeInsets.all(24.0),
               child: const Center(child: CircularProgressIndicator()),
@@ -155,32 +158,66 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                       SimpleStatCard(
                         title: _isPersonalMode ? "Matchs vus" : "Matchs joués",
                         value: _isPersonalMode
-                            ? _playerStats!.userMatchsJoues.toString()
-                            : _playerStats!.matchsJoues.toString(),
+                            ? _teamStats!.userMatchsJoues.toString()
+                            : _teamStats!.matchsJoues.toString(),
                         icon: Icons.sports,
                       ),
                       SimpleStatCard(
-                        title: _isPersonalMode ? "Buts vus" : "Buts marqués",
+                        title: _isPersonalMode
+                            ? "Différence de buts des matchs vus"
+                            : "Différence de buts",
                         value: _isPersonalMode
-                            ? _playerStats!.userButsMarques.toString()
-                            : _playerStats!.butsMarques.toString(),
+                            ? _teamStats!.userDifferenceButs.toString()
+                            : _teamStats!.differenceButs.toString(),
+                        icon: Icons.balance,
+                      ),
+                      SimpleStatCard(
+                        title: _isPersonalMode
+                            ? "Buts marqués vus"
+                            : "Buts marqués",
+                        value: _isPersonalMode
+                            ? _teamStats!.userButsMarques.toString()
+                            : _teamStats!.butsMarques.toString(),
                         icon: Icons.sports_soccer,
                       ),
                       SimpleStatCard(
-                        title: _isPersonalMode ? "Mes votes MVP" : "Votes MVP",
+                        title: _isPersonalMode
+                            ? "Buts encaissés vus"
+                            : "Buts encaissés",
                         value: _isPersonalMode
-                            ? _playerStats!.userVotesMvp.toString()
-                            : _playerStats!.votesMvp.toString(),
-                        icon: Icons.how_to_vote,
+                            ? _teamStats!.userButsEncaisses.toString()
+                            : _teamStats!.butsEncaisses.toString(),
+                        icon: Icons.shield,
                       ),
                       SimpleStatCard(
-                        title: "Élu MVP",
+                        title: _isPersonalMode
+                            ? "Ma note moyenne des matchs"
+                            : "Note moyenne des matchs",
                         value: _isPersonalMode
-                            ? _playerStats!.userEluMvp.toString()
-                            : _playerStats!.eluMvp.toString(),
+                            ? _teamStats!.userNoteMoyenneMatchs.toString()
+                            : _teamStats!.noteMoyenneMatchs.toString(),
                         icon: Icons.star,
                       ),
+                      if (RepositoryProvider.userRepository.currentUser != null)
+                        PodiumCard(
+                          title: _isPersonalMode
+                              ? "Mon MVP le plus voté"
+                              : "MVP le plus voté",
+                          items: _isPersonalMode
+                              ? _teamStats!.userEluMvp
+                              : _teamStats!.eluMvp,
+                          user: RepositoryProvider.userRepository.currentUser!,
+                        ),
                     ],
+                  ),
+                  GraphCard(
+                    title: _isPersonalMode
+                        ? "Ratio victoires/défaites (mes matchs vus)"
+                        : "Ratio victoires/défaites",
+                    type: GraphType.splitBar,
+                    values: _isPersonalMode
+                        ? _teamStats!.userRatioVictoiresDefaites
+                        : _teamStats!.ratioVictoiresDefaites,
                   ),
                 ],
               ),
@@ -198,84 +235,20 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         child: Row(
           children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: ColorPalette.pictureBackground(context),
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  _joueur!.picture,
-                  fit: BoxFit.cover,
-                ),
-              ),
+            buildTeamLogo(
+              context,
+              _equipe!.logoPath,
+              equipeId: _equipe?.id,
+              size: 72,
+              clickable: false,
             ),
             const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _joueur!.fullName,
-                    style: TextStyle(
-                      color: ColorPalette.textPrimary(context),
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  FutureBuilder(
-                    future: RepositoryProvider.equipeRepository
-                        .fetchEquipeById(_joueur!.equipeId),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Text(
-                          "Chargement...",
-                          style: TextStyle(
-                            color: ColorPalette.textSecondary(context),
-                            fontSize: 14,
-                          ),
-                        );
-                      }
-
-                      final equipe = snapshot.data!;
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  TeamDetailsPage(teamId: equipe.id),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            if (equipe.logoPath != null) ...[
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Image.asset(
-                                  equipe.logoPath!,
-                                ),
-                              ),
-                              SizedBox(width: 6),
-                            ],
-                            Text(
-                              equipe.nom,
-                              style: TextStyle(
-                                color: ColorPalette.textSecondary(context),
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
+            Text(
+              _equipe!.nom,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],

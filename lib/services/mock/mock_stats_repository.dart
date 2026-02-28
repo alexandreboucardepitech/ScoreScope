@@ -5,12 +5,12 @@ import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/stats/graph/stat_value.dart';
-import 'package:scorescope/models/stats/stats_competitions_data.dart';
-import 'package:scorescope/models/stats/stats_equipes_data.dart';
-import 'package:scorescope/models/stats/stats_generales_data.dart';
-import 'package:scorescope/models/stats/stats_habitudes_data.dart';
-import 'package:scorescope/models/stats/stats_joueurs_data.dart';
-import 'package:scorescope/models/stats/stats_matchs_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_competitions_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_equipes_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_generales_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_habitudes_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_joueurs_data.dart';
+import 'package:scorescope/models/stats/onglets/stats_matchs_data.dart';
 import 'package:scorescope/services/repositories/i_stats_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/mock/mock_app_user_repository.dart';
@@ -48,8 +48,7 @@ class MockStatsRepository implements IStatsRepository {
       nbButeursDifferents: buteursDifferents.length,
       nbEquipesDifferentes: equipesDifferentes.length,
       nbCompetitionsDifferentes: competitionsDifferentes.length,
-      moyenneNotes:
-          await StatsLoader.getMoyenneNotes(matchsVusUser: matchsVusUser),
+      moyenneNotes: StatsLoader.getMoyenneNotes(matchsVusUser: matchsVusUser),
       meilleursButeurs:
           await StatsLoader.getPodiumFromMap<Joueur>(buteursDifferents),
       equipesLesPlusVues:
@@ -215,8 +214,7 @@ class MockStatsRepository implements IStatsRepository {
     return StatsHabitudesData(
       mvpsLesPlusVotes:
           await StatsLoader.getMvpsLesPlusVotes(matchsVusUser: matchsVusUser),
-      moyenneNotes:
-          await StatsLoader.getMoyenneNotes(matchsVusUser: matchsVusUser),
+      moyenneNotes: StatsLoader.getMoyenneNotes(matchsVusUser: matchsVusUser),
       matchsMieuxNotes:
           await StatsLoader.getMatchsMieuxNotes(matchsVusUser: matchsVusUser),
       matchsPlusCommentes: await StatsLoader.getMatchsPlusCommentes(

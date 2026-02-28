@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
+import 'package:scorescope/views/details/team_details_page.dart';
 
 class Equipe extends BasicPodiumDisplayable {
   final String id;
@@ -59,5 +60,12 @@ class Equipe extends BasicPodiumDisplayable {
   String toString() => nom;
 
   @override
-  GestureTapCallback? onTap(BuildContext context) => null;
+  GestureTapCallback? onTap(BuildContext context) {
+    return () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => TeamDetailsPage(teamId: id)),
+      );
+    };
+  }
 }

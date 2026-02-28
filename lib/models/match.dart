@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
@@ -378,12 +377,6 @@ class MatchModel implements PodiumDisplayable {
       color: ColorPalette.textPrimary(context),
     );
 
-    AppUser? user = RepositoryProvider.userRepository.currentUser;
-
-    final bool isHomeFavorite =
-        user?.equipesPrefereesId.contains(equipeDomicile.id) ?? false;
-    final bool isAwayFavorite =
-        user?.equipesPrefereesId.contains(equipeExterieur.id) ?? false;
     if (large) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -402,8 +395,9 @@ class MatchModel implements PodiumDisplayable {
           buildTeamLogo(
             context,
             equipeDomicile.logoPath,
-            isFavorite: isHomeFavorite,
+            equipeId: equipeDomicile.id,
             size: logoSize,
+            clickable: false,
           ),
           const SizedBox(width: 6),
           Text(
@@ -414,8 +408,9 @@ class MatchModel implements PodiumDisplayable {
           buildTeamLogo(
             context,
             equipeExterieur.logoPath,
-            isFavorite: isAwayFavorite,
+            equipeId: equipeExterieur.id,
             size: logoSize,
+            clickable: false,
           ),
           const SizedBox(width: 6),
           Text(
