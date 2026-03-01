@@ -20,7 +20,7 @@ class MockEquipeRepository implements IEquipeRepository {
         nom: 'Paris Saint-Germain',
         code: 'PSG',
         id: "1",
-        logoPath: "assets/equipes/fcnantes.png",
+        logoPath: "assets/equipes/psg.png",
         couleurPrincipale: "004170",
         couleurSecondaire: "DA291C",
       ),

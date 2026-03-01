@@ -7,6 +7,7 @@ import 'package:scorescope/services/mock/mock_notification_repository.dart';
 import 'package:scorescope/services/mock/mock_post_repository.dart';
 import 'package:scorescope/services/mock/mock_recherche_repository.dart';
 import 'package:scorescope/services/mock/mock_stats_repository.dart';
+import 'package:scorescope/services/mock/mock_watch_together_repository.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/services/repositories/i_competition_repository.dart';
 import 'package:scorescope/services/repositories/i_equipe_repository.dart';
@@ -17,6 +18,7 @@ import 'package:scorescope/services/repositories/i_notification_repository.dart'
 import 'package:scorescope/services/repositories/i_post_repository.dart';
 import 'package:scorescope/services/repositories/i_recherche_repository.dart';
 import 'package:scorescope/services/repositories/i_stats_repository.dart';
+import 'package:scorescope/services/repositories/i_watch_together_repository.dart';
 import 'package:scorescope/services/web/web_amitie_repository.dart';
 import 'package:scorescope/services/web/web_app_user_repository.dart';
 import 'package:scorescope/services/web/web_competition_repository.dart';
@@ -27,6 +29,7 @@ import 'package:scorescope/services/web/web_notification_repository.dart';
 import 'package:scorescope/services/web/web_post_repository.dart';
 import 'package:scorescope/services/web/web_recherche_repository.dart';
 import 'package:scorescope/services/web/web_stats_repository.dart';
+import 'package:scorescope/services/web/web_watch_together_repository.dart';
 
 import 'mock/mock_equipe_repository.dart';
 
@@ -106,6 +109,13 @@ class RepositoryProvider {
     return _statsRepository ??= environment == Environment.mock
         ? MockStatsRepository()
         : WebStatsRepository();
+  }
+
+  static IWatchTogetherRepository? _watchTogetherRepository;
+  static IWatchTogetherRepository get watchTogetherRepository {
+    return _watchTogetherRepository ??= environment == Environment.mock
+        ? MockWatchTogetherRepository()
+        : WebWatchTogetherRepository();
   }
 
   static void reset() {

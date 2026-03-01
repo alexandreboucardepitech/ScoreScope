@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
@@ -9,18 +10,25 @@ Widget buildTeamLogo(
   String? equipeId,
   double size = 32,
   bool clickable = true,
+  AppUser? user,
 }) {
-  final bool isFavorite = RepositoryProvider
-          .userRepository.currentUser?.equipesPrefereesId
-          .contains(equipeId) ??
-      false;
+  bool isFavorite = false;
+  if (user != null) {
+    isFavorite = user.equipesPrefereesId.contains(equipeId);
+  } else {
+    isFavorite = RepositoryProvider
+            .userRepository.currentUser?.equipesPrefereesId
+            .contains(equipeId) ??
+        false;
+  }
+
   final logoWidget = SizedBox(
     width: size,
     height: size,
     child: path != null
         ? Image.asset(path, fit: BoxFit.contain)
         : Icon(Icons.shield,
-            size: 20, color: ColorPalette.textPrimary(context)),
+            size: size, color: ColorPalette.textPrimary(context)),
   );
 
   final clickableLogoWidget = InkWell(
@@ -55,7 +63,7 @@ Widget buildTeamLogo(
           ),
           child: Icon(
             Icons.star_rounded,
-            size: 14,
+            size: size / 3,
             color: ColorPalette.accent(context),
           ),
         ),

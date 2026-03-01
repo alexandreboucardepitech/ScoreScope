@@ -503,7 +503,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           PopupMenuButton<String>(
             icon: Icon(
               Icons.more_vert,
-              color: ColorPalette.buttonSecondary(context),
+              color: ColorPalette.accent(context),
             ),
             onSelected: (value) {},
             itemBuilder: (context) => [

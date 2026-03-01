@@ -204,23 +204,26 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
           itemCount: users.length,
           separatorBuilder: (_, __) => const Divider(height: 1),
           itemBuilder: (context, index) {
-            final u = users[index];
+            final user = users[index];
             return ListTile(
               leading: CircleAvatar(
-                backgroundImage: (u.photoUrl != null && u.photoUrl!.isNotEmpty)
-                    ? NetworkImage(u.photoUrl!)
-                    : null,
-                child: (u.photoUrl == null || u.photoUrl!.isEmpty)
-                    ? Text((u.displayName.isNotEmpty)
-                        ? u.displayName[0].toUpperCase()
+                backgroundImage:
+                    (user.photoUrl != null && user.photoUrl!.isNotEmpty)
+                        ? NetworkImage(user.photoUrl!)
+                        : null,
+                child: (user.photoUrl == null || user.photoUrl!.isEmpty)
+                    ? Text((user.displayName.isNotEmpty)
+                        ? user.displayName[0].toUpperCase()
                         : '?')
                     : null,
               ),
-              title: Text(u.displayName),
+              title: Text(user.displayName),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProfileView(user: u)),
+                  MaterialPageRoute(
+                    builder: (context) => ProfileView(user: user),
+                  ),
                 );
               },
             );
