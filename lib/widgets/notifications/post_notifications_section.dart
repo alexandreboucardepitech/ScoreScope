@@ -155,6 +155,30 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
       );
     }
 
+    if (notification.watchTogetherInvitationsCounts.isNotEmpty) {
+      // on n'a qu'une tile par utilisateur : si deux utilisateurs nous invitent à voir le même match : on va afficher deux tiles différentes
+      for (String userId in notification.watchTogetherInvitationsCounts.keys) {
+        tiles.add(
+          _NotificationTileData(
+            notification: PostNotification(
+              ownerUserId: notification.ownerUserId,
+              matchId: notification.matchId,
+              newCommentsCount: notification.newCommentsCount,
+              newReactionsCount: notification.newReactionsCount,
+              newWatchTogetherInvitationsCount:
+                  notification.newWatchTogetherInvitationsCount,
+              commentCounts: notification.commentCounts,
+              reactionCounts: notification.reactionCounts,
+              watchTogetherInvitationsCounts: {userId: 1},
+              lastPostActivity: notification.lastPostActivity,
+            ),
+            type: 'watchTogether',
+            isNew: notification.hasNewWatchTogetherInvitations(),
+          ),
+        );
+      }
+    }
+
     return tiles;
   }
 
@@ -170,6 +194,79 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
         ),
       ),
     );
+  }
+
+  void _popupConfirmWatchTogether(
+      _NotificationTileData data, List<AppUser> users) async {
+    final match = widget.matchCache[data.notification.matchId];
+    final currentUser = RepositoryProvider.userRepository.currentUser;
+    if (match == null || users.isEmpty || currentUser == null) return;
+    final owner = users[0];
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: ColorPalette.surface(context),
+        title: Text(
+          'Invitation à regarder le match ensemble',
+          style: TextStyle(
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
+        content: Text(
+          "Acceptez-vous l'invitation à regarder le match avec ${owner.displayName} ?",
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'cancel'),
+            child: Text(
+              'Annuler',
+              style: TextStyle(color: ColorPalette.textSecondary(context)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'refuse'),
+            child: Text(
+              'Refuser',
+              style: TextStyle(color: ColorPalette.textSecondary(context)),
+            ),
+          ),
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorPalette.accent(context),
+              ),
+              onPressed: () => Navigator.pop(context, 'accept'),
+              child: Text(
+                'Accepter',
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(context),
+                  fontWeight: FontWeight.bold,
+                ),
+              )),
+        ],
+      ),
+    );
+
+    switch (result) {
+      case 'accept':
+        await RepositoryProvider.watchTogetherRepository.acceptWatchTogether(
+          matchId: match.id,
+          friendId: currentUser.uid,
+          ownerId: owner.uid,
+        );
+      case 'refuse':
+        await RepositoryProvider.watchTogetherRepository.removeWatchTogether(
+          matchId: match.id,
+          friendId: currentUser.uid,
+          ownerId: owner.uid,
+        );
+      case 'cancel':
+      default:
+        null;
+    }
   }
 
   List<Widget> _buildTiles(
@@ -202,9 +299,17 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
     final notification = data.notification;
     final match = widget.matchCache[notification.matchId];
 
-    final counts = data.type == 'comments'
-        ? notification.commentCounts
-        : notification.reactionCounts;
+    Map<String, int> counts;
+    switch (data.type) {
+      case 'comments':
+        counts = notification.commentCounts;
+      case 'reactions':
+        counts = notification.reactionCounts;
+      case 'watchTogether':
+        counts = notification.watchTogetherInvitationsCounts;
+      default:
+        counts = {};
+    }
 
     final users = counts.keys
         .map((id) => widget.userCache[id])
@@ -224,15 +329,22 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
           );
         }
 
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CommentsPage(
-              matchId: notification.matchId,
-              ownerUserId: notification.ownerUserId,
-            ),
-          ),
-        );
+        switch (data.type) {
+          case 'comments':
+          case 'reactions':
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CommentsPage(
+                  matchId: notification.matchId,
+                  ownerUserId: notification.ownerUserId,
+                ),
+              ),
+            );
+          case 'watchTogether':
+            _popupConfirmWatchTogether(data, users);
+        }
+
         widget.onNotificationOpened();
       },
       child: Container(
@@ -397,13 +509,21 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
     final displayed = users.length > 2 ? users.take(2).toList() : users;
     final remaining = users.length - displayed.length;
 
-    final action = type == 'comments'
-        ? (displayed.length > 1
+    String action;
+    switch (type) {
+      case 'comments':
+        action = displayed.length > 1
             ? 'ont commenté votre match'
-            : 'a commenté votre match')
-        : (displayed.length > 1
+            : 'a commenté votre match';
+      case 'reactions':
+        action = displayed.length > 1
             ? 'ont réagi à votre match'
-            : 'a réagi à votre match');
+            : 'a réagi à votre match';
+      case 'watchTogether':
+        action = 'vous invite à regarder le match ensemble';
+      default:
+        action = 'a interagi avec votre post';
+    }
 
     return TextSpan(
       style: TextStyle(

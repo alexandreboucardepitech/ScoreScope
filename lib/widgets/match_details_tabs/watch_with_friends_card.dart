@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
-enum WatchStatus { confirmed, pending }
+enum WatchStatus { accepted, pending }
 
 class WatchFriend {
   final AppUser user;
@@ -69,13 +69,13 @@ class WatchWithFriendsCard extends StatelessWidget {
   }
 
   Widget _buildStatusChip(BuildContext context, WatchStatus status) {
-    final isConfirmed = status == WatchStatus.confirmed;
+    final isAccepted = status == WatchStatus.accepted;
 
-    final bgColor = isConfirmed
+    final bgColor = isAccepted
         ? ColorPalette.success(context).withOpacity(0.15)
         : ColorPalette.warning(context).withOpacity(0.15);
 
-    final fgColor = isConfirmed
+    final fgColor = isAccepted
         ? ColorPalette.success(context)
         : ColorPalette.warning(context);
 
@@ -88,13 +88,13 @@ class WatchWithFriendsCard extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            isConfirmed ? Icons.check_circle : Icons.schedule,
+            isAccepted ? Icons.check_circle : Icons.schedule,
             size: 14,
             color: fgColor,
           ),
           const SizedBox(width: 4),
           Text(
-            isConfirmed ? "Confirmé" : "En attente",
+            isAccepted ? "Confirmé" : "En attente",
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,

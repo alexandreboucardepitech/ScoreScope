@@ -73,4 +73,29 @@ class MockWatchTogetherRepository implements IWatchTogetherRepository {
         wt.friendId == friendId &&
         wt.matchId == matchId);
   }
+
+  @override
+  Future<void> acceptWatchTogether(
+      {required String matchId,
+      required String ownerId,
+      required String friendId}) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final index = _watchTogether.indexWhere((wt) =>
+        wt.ownerId == ownerId &&
+        wt.friendId == friendId &&
+        wt.matchId == matchId);
+
+    if (index != -1) {
+      _watchTogether[index] = WatchTogether(
+        ownerId: ownerId,
+        friendId: friendId,
+        matchId: matchId,
+        status: 'accepted',
+        createdAt: _watchTogether[index].createdAt,
+      );
+    } else {
+      throw Exception('WatchTogether not found for acceptance');
+    }
+  }
 }

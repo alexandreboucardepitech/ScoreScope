@@ -28,8 +28,10 @@ class MockNotificationRepository implements INotificationRepository {
       matchId: '1',
       commentCounts: {'u_marie': 1},
       reactionCounts: {'u_jules': 1},
+      watchTogetherInvitationsCounts: {},
       newCommentsCount: 1,
       newReactionsCount: 0,
+      newWatchTogetherInvitationsCount: 0,
       lastPostActivity: now.subtract(const Duration(minutes: 30)),
     );
   }
@@ -59,8 +61,10 @@ class MockNotificationRepository implements INotificationRepository {
         matchId: matchId,
         commentCounts: {},
         reactionCounts: {},
+        watchTogetherInvitationsCounts: {'u_marie': 1},
         newCommentsCount: 0,
         newReactionsCount: 0,
+        newWatchTogetherInvitationsCount: 1,
         lastPostActivity: DateTime.now().toUtc(),
       ),
     );
@@ -286,6 +290,71 @@ class MockNotificationRepository implements INotificationRepository {
   }
 
   @override
+  Future<void> notifyNewWatchTogetherInvitation({
+    required String ownerUserId,
+    required String matchId,
+    required String authorId,
+  }) async {
+    await ready;
+    final notif = _getOrCreate(
+      userId: ownerUserId,
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+    );
+
+    if (!notif.watchTogetherInvitationsCounts.keys.contains(authorId)) {
+      notif.watchTogetherInvitationsCounts[authorId] = 0;
+    }
+
+    final counts = Map<String, int>.from(notif.watchTogetherInvitationsCounts);
+    counts[authorId] = (counts[authorId] ?? 0) + 1;
+
+    _notifications[_key(
+      userId: ownerUserId,
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+    )] = notif.copyWith(
+      watchTogetherInvitationsCounts: counts,
+      newWatchTogetherInvitationsCount:
+          notif.newWatchTogetherInvitationsCount + 1,
+      lastPostActivity: DateTime.now().toUtc(),
+    );
+  }
+
+  @override
+  Future<void> notifyWatchTogetherInvitationDeleted({
+    required String ownerUserId,
+    required String matchId,
+    required String authorId,
+  }) async {
+    await ready;
+
+    final key = _key(
+      userId: ownerUserId,
+      ownerUserId: ownerUserId,
+      matchId: matchId,
+    );
+
+    final notif = _notifications[key];
+    if (notif == null) return;
+
+    final counts = Map<String, int>.from(notif.watchTogetherInvitationsCounts);
+    final current = counts[authorId] ?? 0;
+
+    if (current <= 1) {
+      counts.remove(authorId);
+    } else {
+      counts[authorId] = current - 1;
+    }
+
+    _notifications[key] = notif.copyWith(
+      watchTogetherInvitationsCounts: counts,
+      newWatchTogetherInvitationsCount:
+          notif.newWatchTogetherInvitationsCount - 1,
+    );
+  }
+
+  @override
   Future<int> getNumberNotifications({required String userId}) async {
     int count = 0;
     List<PostNotification> notifications =
@@ -294,6 +363,9 @@ class MockNotificationRepository implements INotificationRepository {
     for (PostNotification notif in notifications) {
       if (notif.newCommentsCount > 0) count++;
       if (notif.newReactionsCount > 0) count++;
+      if (notif.newWatchTogetherInvitationsCount > 0) {
+        count += notif.watchTogetherInvitationsCounts.length;
+      }
     }
 
     return count;

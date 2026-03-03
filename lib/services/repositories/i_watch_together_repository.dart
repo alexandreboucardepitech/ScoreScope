@@ -17,4 +17,10 @@ abstract class IWatchTogetherRepository {
     required String ownerId,
     required String friendId,
   });
+
+  Future<void> acceptWatchTogether({
+    required String matchId,
+    required String ownerId,
+    required String friendId,
+  });
 }

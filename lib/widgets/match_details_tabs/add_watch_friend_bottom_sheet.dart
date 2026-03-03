@@ -157,6 +157,14 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
                                       friendId: item.user.uid,
                                     );
 
+                                    await RepositoryProvider
+                                        .notificationRepository
+                                        .notifyNewWatchTogetherInvitation(
+                                      ownerUserId: item.user.uid,
+                                      matchId: widget.matchId,
+                                      authorId: widget.ownerId,
+                                    );
+
                                     Navigator.pop(context);
                                   },
                           );

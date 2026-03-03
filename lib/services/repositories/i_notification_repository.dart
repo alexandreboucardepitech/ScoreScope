@@ -43,5 +43,17 @@ abstract class INotificationRepository {
     int daysLimit = 14,
   });
 
+  Future<void> notifyNewWatchTogetherInvitation({
+    required String ownerUserId,
+    required String matchId,
+    required String authorId,
+  });
+
+  Future<void> notifyWatchTogetherInvitationDeleted({
+    required String ownerUserId,
+    required String matchId,
+    required String authorId,
+  });
+
   Future<int> getNumberNotifications({required String userId});
 }

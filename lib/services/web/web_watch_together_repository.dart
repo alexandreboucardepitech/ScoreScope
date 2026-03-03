@@ -21,8 +21,7 @@ class WebWatchTogetherRepository implements IWatchTogetherRepository {
           .map((doc) => WatchTogether.fromJson(doc.data()))
           .toList();
     } catch (e) {
-      print('Error fetching watchTogether documents: $e');
-      return [];
+      throw Exception('Error fetching watchTogether documents: $e');
     }
   }
 
@@ -41,8 +40,7 @@ class WebWatchTogetherRepository implements IWatchTogetherRepository {
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      print('Error creating watchTogether document: $e');
-      rethrow;
+      throw Exception('Error creating watchTogether document: $e');
     }
   }
 
@@ -58,13 +56,53 @@ class WebWatchTogetherRepository implements IWatchTogetherRepository {
           .where('ownerId', isEqualTo: ownerId)
           .where('friendId', isEqualTo: friendId)
           .get();
+      final querySnapshotReversed = await _watchTogetherCollection
+          .where('matchId', isEqualTo: matchId)
+          .where('ownerId', isEqualTo: friendId)
+          .where('friendId', isEqualTo: ownerId)
+          .get();
 
       for (final doc in querySnapshot.docs) {
         await doc.reference.delete();
       }
+      for (final doc in querySnapshotReversed.docs) {
+        await doc.reference.delete();
+      }
     } catch (e) {
-      print('Error removing watchTogether document: $e');
-      rethrow;
+      throw Exception('Error removing watchTogether document: $e');
+    }
+  }
+
+  @override
+  Future<void> acceptWatchTogether(
+      {required String matchId,
+      required String ownerId,
+      required String friendId}) async {
+    try {
+      final querySnapshot = await _watchTogetherCollection
+          .where('matchId', isEqualTo: matchId)
+          .where('ownerId', isEqualTo: ownerId)
+          .where('friendId', isEqualTo: friendId)
+          .get();
+
+      for (final doc in querySnapshot.docs) {
+        await doc.reference.update({'status': 'accepted'});
+      }
+    } catch (e) {
+      throw Exception('Error accepting watchTogether document: $e');
+    }
+
+    // également créer un autre document dans l'autre sens
+    try {
+      await _watchTogetherCollection.add({
+        'matchId': matchId,
+        'ownerId': friendId,
+        'friendId': ownerId,
+        'status': 'accepted',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Error creating watchTogether document: $e');
     }
   }
 }

@@ -122,8 +122,8 @@ class _InfosTabState extends State<InfosTab> {
         result.add(
           WatchFriend(
             user: friendUser,
-            status: doc.status == "confirmed"
-                ? WatchStatus.confirmed
+            status: doc.status == "accepted"
+                ? WatchStatus.accepted
                 : WatchStatus.pending,
           ),
         );
@@ -289,7 +289,7 @@ class _InfosTabState extends State<InfosTab> {
       ),
     );
 
-    if (confirmed != true) return;
+    if (confirmed == false) return;
 
     final currentUser =
         await RepositoryProvider.userRepository.getCurrentUser();
@@ -299,6 +299,13 @@ class _InfosTabState extends State<InfosTab> {
       ownerId: currentUser.uid,
       friendId: friend.uid,
       matchId: widget.match.id,
+    );
+
+    await RepositoryProvider.notificationRepository
+        .notifyWatchTogetherInvitationDeleted(
+      ownerUserId: friend.uid,
+      matchId: widget.match.id,
+      authorId: currentUser.uid,
     );
 
     await _reloadAll();

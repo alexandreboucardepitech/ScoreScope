@@ -106,6 +106,7 @@ class _NotificationsViewState extends State<NotificationsView> {
 
       userIds.addAll(n.commentCounts.keys);
       userIds.addAll(n.reactionCounts.keys);
+      userIds.addAll(n.watchTogetherInvitationsCounts.keys);
     }
 
     await Future.wait(matchIds.map((id) async {

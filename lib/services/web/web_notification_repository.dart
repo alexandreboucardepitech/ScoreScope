@@ -57,10 +57,15 @@ class WebNotificationRepository implements INotificationRepository {
         await docRef.update({
           'newReactionsCount': 0,
         });
+      case "watchTogether":
+        await docRef.update({
+          'newWatchTogetherInvitationsCount': 0,
+        });
       default:
         await docRef.update({
           'newCommentsCount': 0,
           'newReactionsCount': 0,
+          'newWatchTogetherInvitationsCount': 0,
         });
     }
   }
@@ -76,6 +81,7 @@ class WebNotificationRepository implements INotificationRepository {
       batch.update(doc.reference, {
         'newCommentsCount': 0,
         'newReactionsCount': 0,
+        'newWatchTogetherInvitationsCount': 0,
       });
     }
 
@@ -144,13 +150,15 @@ class WebNotificationRepository implements INotificationRepository {
         matchId: matchId,
       ),
     );
-
-    await docRef.set({
-      'commentCounts': {
-        authorId: FieldValue.increment(-1),
-      },
-      'newCommentsCount': FieldValue.increment(-1),
-    }, SetOptions(merge: true));
+    final docSnapshot = await docRef.get();
+    if (docSnapshot.exists) {
+      await docRef.set({
+        'commentCounts': {
+          authorId: FieldValue.increment(-1),
+        },
+        'newCommentsCount': FieldValue.increment(-1),
+      }, SetOptions(merge: true));
+    }
   }
 
   @override
@@ -165,13 +173,15 @@ class WebNotificationRepository implements INotificationRepository {
         matchId: matchId,
       ),
     );
-
-    await docRef.set({
-      'reactionCounts': {
-        authorId: FieldValue.increment(-1),
-      },
-      'newReactionsCount': FieldValue.increment(-1),
-    }, SetOptions(merge: true));
+    final docSnapshot = await docRef.get();
+    if (docSnapshot.exists) {
+      await docRef.set({
+        'reactionCounts': {
+          authorId: FieldValue.increment(-1),
+        },
+        'newReactionsCount': FieldValue.increment(-1),
+      }, SetOptions(merge: true));
+    }
   }
 
   @override
@@ -196,6 +206,52 @@ class WebNotificationRepository implements INotificationRepository {
   }
 
   @override
+  Future<void> notifyNewWatchTogetherInvitation({
+    required String ownerUserId,
+    required String matchId,
+    required String authorId,
+  }) async {
+    final docRef = _notificationsCol(ownerUserId).doc(
+      _notificationId(ownerUserId: ownerUserId, matchId: matchId),
+    );
+
+    await FirebaseFirestore.instance.runTransaction((tx) async {
+      await docRef.set({
+        'ownerUserId': ownerUserId,
+        'matchId': matchId,
+        'watchTogetherInvitationsCounts': {
+          authorId: FieldValue.increment(1),
+        },
+        'newWatchTogetherInvitationsCount': FieldValue.increment(1),
+        'lastPostActivity': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    });
+  }
+
+  @override
+  Future<void> notifyWatchTogetherInvitationDeleted({
+    required String ownerUserId,
+    required String matchId,
+    required String authorId,
+  }) async {
+    final docRef = _notificationsCol(ownerUserId).doc(
+      _notificationId(
+        ownerUserId: ownerUserId,
+        matchId: matchId,
+      ),
+    );
+    final docSnapshot = await docRef.get();
+    if (docSnapshot.exists) {
+      await docRef.set({
+        'watchTogetherInvitationsCounts': {
+          authorId: FieldValue.increment(-1),
+        },
+        'newWatchTogetherInvitationsCount': FieldValue.increment(-1),
+      }, SetOptions(merge: true));
+    }
+  }
+
+  @override
   Future<int> getNumberNotifications({required String userId}) async {
     int count = 0;
     List<PostNotification> notifications =
@@ -204,6 +260,9 @@ class WebNotificationRepository implements INotificationRepository {
     for (PostNotification notif in notifications) {
       if (notif.newCommentsCount > 0) count++;
       if (notif.newReactionsCount > 0) count++;
+      if (notif.newWatchTogetherInvitationsCount > 0) {
+        count += notif.watchTogetherInvitationsCounts.length;
+      }
     }
 
     return count;
