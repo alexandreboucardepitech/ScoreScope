@@ -7,7 +7,9 @@ import 'package:scorescope/models/post/match_regarde_ami.dart';
 import 'package:scorescope/models/post/commentaire.dart';
 import 'package:scorescope/models/post/reaction.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/models/watch_together.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/string/build_post_display_name.dart';
 import 'package:scorescope/utils/string/get_reaction_emoji.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
@@ -35,17 +37,27 @@ class MatchRegardeAmiCard extends StatefulWidget {
   State<MatchRegardeAmiCard> createState() => _MatchRegardeAmiCardState();
 }
 
-class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
+class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
+    with TickerProviderStateMixin {
   late final MatchRegardeAmi entry;
   late final MatchUserData matchData;
   String? _currentUserId;
   bool _loadingReactionOp = false;
+  List<AppUser> _watchTogetherUsers = [];
+  bool _expandWatchTogether = false;
+
+  late final AnimationController _controller;
+  late final Animation<double> _arrowAnim;
 
   final Map<String, AppUser?> _userCache = {};
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 200), vsync: this);
+    _arrowAnim = Tween<double>(begin: 0.0, end: 0.5).animate(_controller);
+
     entry = widget.entry;
     matchData = entry.matchData;
     if (widget.showInteractions) {
@@ -65,8 +77,30 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _initWatchTogether() async {
+    final List<WatchTogether> watchTogetherList = await RepositoryProvider
+        .watchTogetherRepository
+        .getFriendsWatchedWith(widget.entry.friend.uid, matchData.matchId);
+
+    final List<String> watchTogetherFriendsId = watchTogetherList
+        .where((watchTogether) => watchTogether.status == 'accepted')
+        .map((watchTogether) => watchTogether.friendId)
+        .toList();
+
+    List<AppUser> watchTogetherUsers = [];
+    for (String userId in watchTogetherFriendsId) {
+      final user =
+          await RepositoryProvider.userRepository.fetchUserById(userId);
+      if (user != null) {
+        watchTogetherUsers.add(user);
+      }
+    }
+    _watchTogetherUsers = watchTogetherUsers;
+  }
+
   Future<void> _initLocalState() async {
     await _initCurrentUserOnly();
+    await _initWatchTogether();
     await _refreshCommentsAndReactions(commentsLimit: 3);
   }
 
@@ -167,7 +201,70 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
     return '$dd/$mm/$yyyy $hh:$min';
   }
 
-  @override
+  Widget _avatarCircle(AppUser user, {double size = 28}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: ColorPalette.pictureBackground(context),
+        border: Border.all(
+          color: ColorPalette.border(context),
+          width: 2,
+        ),
+      ),
+      child: ClipOval(
+        child: user.photoUrl != null
+            ? Image.network(
+                user.photoUrl!,
+                fit: BoxFit.cover,
+              )
+            : Center(
+                child: Text(
+                  user.displayName.isNotEmpty
+                      ? user.displayName[0].toUpperCase()
+                      : '?',
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                    fontWeight: FontWeight.w800,
+                    fontSize: size * 0.45,
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildUsersStack(AppUser friend) {
+    final allUsers = [
+      friend,
+      ..._watchTogetherUsers,
+    ];
+
+    final displayUsers = allUsers.take(4).toList();
+
+    const double avatarSize = 32;
+    final double overlap = avatarSize * 0.4;
+
+    return SizedBox(
+      width: avatarSize + (displayUsers.length - 1) * overlap,
+      height: avatarSize,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (int i = displayUsers.length - 1; i >= 0; i--)
+            Positioned(
+              left: i * overlap,
+              child: _avatarCircle(
+                displayUsers[i],
+                size: avatarSize,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final friend = entry.friend;
@@ -175,7 +272,6 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
     final String relativeTime = matchData.watchedAt != null
         ? timeago.format(matchData.watchedAt!, locale: 'fr')
         : '';
-    const double avatarSize = 32;
 
     final Equipe? home = match?.equipeDomicile;
     final Equipe? away = match?.equipeExterieur;
@@ -186,66 +282,102 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.push(
+          GestureDetector(
+            onTap: () {
+              if (_watchTogetherUsers.isEmpty) {
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => ProfileView(
                         user: friend,
                         onBackPressed: () => Navigator.pop(context)),
                   ),
-                ),
-                child: CircleAvatar(
-                  radius: avatarSize / 2,
-                  backgroundColor: ColorPalette.pictureBackground(context),
-                  backgroundImage: friend.photoUrl != null
-                      ? NetworkImage(friend.photoUrl!)
-                      : null,
-                  child: friend.photoUrl == null
-                      ? Text(
-                          (friend.displayName.isNotEmpty == true
-                              ? friend.displayName[0].toUpperCase()
-                              : '?'),
-                          style: TextStyle(
-                              color: ColorPalette.textPrimary(context),
-                              fontWeight: FontWeight.bold),
-                        )
-                      : null,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ProfileView(
-                          user: friend,
-                          onBackPressed: () => Navigator.pop(context)),
-                    ),
-                  ),
+                );
+              } else {
+                setState(() {
+                  _expandWatchTogether = true;
+                });
+              }
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (_expandWatchTogether == false) ...[
+                  _buildUsersStack(friend),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(friend.displayName,
-                          style: TextStyle(
-                              color: ColorPalette.textPrimary(context),
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14)),
+                      buildDisplayNameText(
+                        friend,
+                        _watchTogetherUsers,
+                        context,
+                      ),
                       if (relativeTime.isNotEmpty)
-                        Text(relativeTime,
-                            style: TextStyle(
-                                color: ColorPalette.textSecondary(context),
-                                fontSize: 12)),
+                        Text(
+                          relativeTime,
+                          style: TextStyle(
+                            color: ColorPalette.textSecondary(context),
+                            fontSize: 12,
+                          ),
+                        ),
                     ],
                   ),
                 ),
-              ),
-            ],
+                if (_watchTogetherUsers.isNotEmpty)
+                  IconButton(
+                    splashRadius: 20,
+                    icon: RotationTransition(
+                      turns: _arrowAnim,
+                      child: Icon(
+                        Icons.expand_more,
+                        color: ColorPalette.accent(context),
+                      ),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _expandWatchTogether = !_expandWatchTogether;
+                        if (_expandWatchTogether) {
+                          _controller.forward();
+                        } else {
+                          _controller.reverse();
+                        }
+                      });
+                    },
+                  ),
+              ],
+            ),
           ),
+          if (_expandWatchTogether)
+            for (AppUser user in [friend, ..._watchTogetherUsers]) ...[
+              InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProfileView(
+                      user: user,
+                      onBackPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    _avatarCircle(user, size: 36),
+                    const SizedBox(width: 10),
+                    Text(
+                      user.displayName,
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(context),
+                        fontWeight: FontWeight.w800,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
           const SizedBox(height: 10),
           Stack(
             clipBehavior: Clip.none,
