@@ -208,6 +208,91 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  final ValueNotifier<int> _pendingRequests = ValueNotifier<int>(0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPendingRequests();
+  }
+
+  Future<void> _loadPendingRequests() async {
+    try {
+      final user = await RepositoryProvider.userRepository.getCurrentUser();
+      if (!mounted) return;
+
+      if (user == null) {
+        _pendingRequests.value = 0;
+        return;
+      }
+
+      final nbPending = await RepositoryProvider.amitieRepository
+          .getUserNbPendingFriendRequests(user.uid);
+
+      final nbNotifs = await RepositoryProvider.notificationRepository
+          .getNumberNotifications(userId: user.uid);
+
+      if (!mounted) return;
+
+      _pendingRequests.value = nbPending + nbNotifs;
+    } catch (e, st) {
+      debugPrint("Erreur lors du chargement des demandes : $e\n$st");
+    }
+  }
+
+  Widget _amisIconAvecRequests() {
+    return ValueListenableBuilder<int>(
+      valueListenable: _pendingRequests,
+      builder: (context, count, child) {
+        final has = count > 0;
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(
+              Icons.group,
+              size: 26,
+              color: _currentIndex == 1
+                  ? ColorPalette.accent(context)
+                  : ColorPalette.textPrimary(context),
+            ),
+            if (has)
+              Positioned(
+                right: -6,
+                top: -6,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: ColorPalette.accent(context),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                      )
+                    ],
+                    border: Border.all(
+                      color:
+                          ColorPalette.surface(context).withValues(alpha: 0.12),
+                    ),
+                  ),
+                  child: Text(
+                    count > 99 ? '99+' : count.toString(),
+                    style: TextStyle(
+                      color: ColorPalette.opposite(context),
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -232,13 +317,13 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
         onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.sports_soccer),
             label: 'Matchs',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: _amisIconAvecRequests(),
             label: 'Amis',
           ),
           BottomNavigationBarItem(
