@@ -161,12 +161,12 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: ColorPalette.background(context),
+          color: ColorPalette.accentVariant(context),
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.all(6),
         child: comp.logoUrl != null
-            ? Image.asset(comp.logoUrl!, fit: BoxFit.contain)
+            ? Image.network(comp.logoUrl!, fit: BoxFit.contain)
             : Icon(
                 Icons.emoji_events,
                 color: ColorPalette.textSecondary(context),

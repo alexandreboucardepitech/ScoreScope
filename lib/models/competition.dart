@@ -4,11 +4,17 @@ import 'package:scorescope/models/util/basic_podium_displayable.dart';
 class Competition extends BasicPodiumDisplayable {
   final String id;
   final String nom;
+  final String country;
   final String? logoUrl;
   final int popularite;
 
-  Competition(
-      {required this.id, required this.nom, this.logoUrl, this.popularite = 0});
+  Competition({
+    required this.id,
+    required this.nom,
+    required this.country,
+    this.logoUrl,
+    this.popularite = 0,
+  });
 
   @override
   String get displayLabel => nom;
@@ -30,15 +36,19 @@ class Competition extends BasicPodiumDisplayable {
   Map<String, dynamic> toJson() => {
         'id': id,
         'nom': nom,
+        'country': country,
         if (logoUrl != null) 'logoUrl': logoUrl,
         'popularite': popularite,
       };
 
-  factory Competition.fromJson(
-      {required Map<String, dynamic> json, String? competitionId}) {
+  factory Competition.fromJson({
+    required Map<String, dynamic> json,
+    String? competitionId,
+  }) {
     return Competition(
       id: competitionId ?? json['id'] as String,
       nom: json['nom'] as String,
+      country: json['country'] as String,
       logoUrl: json['logoUrl'] as String?,
       popularite: json['popularite'] as int? ?? 0,
     );

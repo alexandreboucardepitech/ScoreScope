@@ -343,7 +343,8 @@ class _AddMatchViewState extends State<AddMatchView> {
                 SizedBox(
                   width: 32,
                   height: 32,
-                  child: Image.asset(suggestion.logoPath!, fit: BoxFit.contain),
+                  child:
+                      Image.network(suggestion.logoPath!, fit: BoxFit.contain),
                 ),
             ],
           ),
@@ -1021,6 +1022,7 @@ class _AddMatchViewState extends State<AddMatchView> {
                         competition: Competition(
                           id: '',
                           nom: _competitionController.text,
+                          country: _competitionController.text,
                         ), // Compétition vide par défaut
                         date: _matchDate,
                         butsEquipeDomicile: getButObjects(
@@ -1033,12 +1035,8 @@ class _AddMatchViewState extends State<AddMatchView> {
                           _buteursExtCount,
                           _selectedButeursExterieur,
                         ),
-                        joueursEquipeDomicile: _selectedButeursDomicile
-                            .whereType<Joueur>()
-                            .toList(),
-                        joueursEquipeExterieur: _selectedButeursExterieur
-                            .whereType<Joueur>()
-                            .toList(),
+                        joueursEquipeDomicile: [],
+                        joueursEquipeExterieur: [],
                         status: MatchStatus.finished,
                       );
                       Navigator.pop(context, newMatch);

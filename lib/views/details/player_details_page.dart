@@ -206,7 +206,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                 shape: BoxShape.circle,
               ),
               child: ClipOval(
-                child: Image.asset(
+                child: Image.network(
                   _joueur!.picture,
                   fit: BoxFit.cover,
                 ),
@@ -257,7 +257,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                               SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: Image.asset(
+                                child: Image.network(
                                   equipe.logoPath!,
                                 ),
                               ),

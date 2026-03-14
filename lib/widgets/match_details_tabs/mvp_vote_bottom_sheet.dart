@@ -49,7 +49,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
       required Joueur joueur,
       Joueur? initialUserVote,
       Joueur? currentUserVote}) {
-    int nbVotes = joueur.id != null ? match.getNbVotesById(joueur.id!) : 0;
+    int nbVotes = match.getNbVotesById(joueur.id);
     if (joueur == initialUserVote) nbVotes--;
     if (joueur == currentUserVote) nbVotes++;
     return nbVotes;
@@ -186,7 +186,6 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
               ),
             ),
             const SizedBox(height: 12),
-            // Animated currentUserVote en haut (même code que toi, mais utilise currentUserVote d'ici)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: AnimatedSwitcher(
@@ -358,7 +357,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 final player =
                                     widget.match.joueursEquipeDomicile[index];
                                 return playerTile(
-                                    player, () => selectPlayer(player));
+                                    player.joueur, () => selectPlayer(player.joueur));
                               },
                             ),
                           ),
@@ -396,7 +395,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 final player =
                                     widget.match.joueursEquipeExterieur[index];
                                 return playerTile(
-                                    player, () => selectPlayer(player));
+                                    player.joueur, () => selectPlayer(player.joueur));
                               },
                             ),
                           ),

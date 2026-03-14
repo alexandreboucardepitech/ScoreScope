@@ -584,7 +584,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
       return const SizedBox(width: 24, height: 24);
     }
 
-    return Image.asset(
+    return Image.network(
       url,
       width: 24,
       height: 24,

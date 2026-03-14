@@ -52,6 +52,7 @@ class MockAppUserRepository implements IAppUserRepository {
           MatchUserData(
             matchId: "1",
             favourite: true,
+            notifications: false,
             mvpVoteId: "1",
             note: 8,
             visionnageMatch: VisionnageMatch.stade,
@@ -662,6 +663,7 @@ class MockAppUserRepository implements IAppUserRepository {
         note: old.note,
         visionnageMatch: old.visionnageMatch,
         private: privacy,
+        notifications: old.notifications,
         comments: old.comments,
         reactions: old.reactions,
         matchDate: old.matchDate,
@@ -676,6 +678,7 @@ class MockAppUserRepository implements IAppUserRepository {
           note: null,
           visionnageMatch: VisionnageMatch.tele,
           private: privacy,
+          notifications: false,
           matchDate: matchDate,
           watchedAt: DateTime.now(),
         ),
@@ -973,5 +976,70 @@ class MockAppUserRepository implements IAppUserRepository {
     } else {
       return matches.whereType<MatchModel>().toList();
     }
+  }
+
+  @override
+  Future<void> updateMatchNotifications({
+    required String matchId,
+    required String userId,
+    required DateTime matchDate,
+    required bool activateNotifications,
+  }) async {
+    await _seedingFuture;
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final List<MatchUserData> updated = List.from(user.matchsUserData);
+
+    final muIdx = updated.indexWhere((m) => m.matchId == matchId);
+
+    if (muIdx >= 0) {
+      final old = updated[muIdx];
+      updated[muIdx] = MatchUserData(
+        matchId: old.matchId,
+        favourite: old.favourite,
+        mvpVoteId: old.mvpVoteId,
+        note: old.note,
+        visionnageMatch: old.visionnageMatch,
+        private: old.private,
+        notifications: activateNotifications,
+        comments: old.comments,
+        reactions: old.reactions,
+        matchDate: old.matchDate,
+        watchedAt: old.watchedAt,
+      );
+    } else {
+      updated.add(
+        MatchUserData(
+          matchId: matchId,
+          favourite: false,
+          mvpVoteId: null,
+          note: null,
+          visionnageMatch: VisionnageMatch.tele,
+          matchDate: matchDate,
+          watchedAt: DateTime.now(),
+        ),
+      );
+    }
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      private: user.private,
+      matchsUserData: updated,
+      options: user.options,
+    );
+
+    _users[userIdx] = newUser;
+
+    await Future.delayed(const Duration(milliseconds: 30));
   }
 }

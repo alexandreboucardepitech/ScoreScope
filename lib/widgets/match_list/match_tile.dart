@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
+import 'package:scorescope/utils/string/display_score_or_match_date.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/models/match.dart';
@@ -38,9 +40,12 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
 
   bool _isExpanded = false;
 
+  MatchUserData? userData;
+
   @override
   void initState() {
     super.initState();
+    userData = widget.userData;
     _controller = AnimationController(
         duration: const Duration(milliseconds: 200), vsync: this);
     _arrowAnim = Tween<double>(begin: 0.0, end: 0.5).animate(_controller);
@@ -52,8 +57,8 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
 
-    if (widget.userData?.mvpVoteId != null) {
-      _fetchMvpJoueur(widget.userData!.mvpVoteId!);
+    if (userData?.mvpVoteId != null) {
+      _fetchMvpJoueur(userData!.mvpVoteId!);
     }
   }
 
@@ -85,6 +90,53 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     }
   }
 
+  void _toggleNotifications(bool value) async {
+    if (userData != null) {
+      MatchUserData newUserData = MatchUserData(
+        matchId: userData!.matchId,
+        comments: userData!.comments,
+        favourite: userData!.favourite,
+        matchDate: userData!.matchDate,
+        mvpVoteId: userData!.mvpVoteId,
+        note: userData!.note,
+        notifications: value,
+        private: userData!.private,
+        reactions: userData!.reactions,
+        visionnageMatch: userData!.visionnageMatch,
+        watchedAt: userData!.watchedAt,
+      );
+      setState(() {
+        userData = newUserData;
+      });
+    } else {
+      setState(() {
+        userData = MatchUserData(
+          matchId: widget.match.id,
+          notifications: value,
+        );
+      });
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Notifications ${value ? 'activées' : 'désactivées'} pour ${widget.match.equipeDomicile.nomCourt ?? widget.match.equipeDomicile.nom} - ${widget.match.equipeExterieur.nomCourt ?? widget.match.equipeExterieur.nom}',
+        ),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+
+    AppUser? currentUser = RepositoryProvider.userRepository.currentUser;
+    if (currentUser != null) {
+      await RepositoryProvider.userRepository.updateMatchNotifications(
+        matchId: widget.match.id,
+        userId: currentUser.uid,
+        matchDate: widget.match.date,
+        activateNotifications: value,
+      );
+    }
+  }
+
   void _navigateToDetails() {
     Navigator.push(
       context,
@@ -101,15 +153,13 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
         padding: const EdgeInsets.only(bottom: 2.0),
         child: InkWell(
           onTap: () {
-            if (line.joueur.id != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      PlayerDetailsPage(playerId: line.joueur.id!),
-                ),
-              );
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PlayerDetailsPage(playerId: line.joueur.id),
+              ),
+            );
           },
           child: Text(
             line.nomJoueur,
@@ -209,7 +259,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
         final TextPainter textPainter = TextPainter(
           text: TextSpan(text: nomComplet, style: baseStyle),
           maxLines: 2,
-          textDirection: TextDirection.ltr,
+          textDirection: ui.TextDirection.ltr,
           textAlign: align,
           textScaler: MediaQuery.of(context).textScaler,
         )..layout(maxWidth: constraints.maxWidth);
@@ -264,7 +314,9 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final match = widget.match;
-    final MatchUserData? userData = widget.userData;
+
+    final bool displayScore = match.status == MatchStatus.live ||
+        match.status == MatchStatus.finished;
 
     return Container(
       color: ColorPalette.tileBackground(context),
@@ -284,11 +336,17 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                         children: [
                           Padding(
                             padding: const EdgeInsetsDirectional.only(end: 12),
-                            child: SizedBox(
-                              width: 24,
-                              child: Image.asset(
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: ColorPalette.accentVariant(context),
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(6),
+                              child: Image.network(
                                 match.competition.logoUrl ??
-                                    'assets/logos/competitions/ligue1.jpg',
+                                    'https://media.api-sports.io/football/leagues/1.png',
                                 fit: BoxFit.contain,
                               ),
                             ),
@@ -318,15 +376,20 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                               ],
                             ),
                           ),
-                          Container(
-                            width: 44,
-                            alignment: Alignment.center,
-                            child: Text(
-                              '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w900,
-                                color: ColorPalette.textPrimary(context),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: displayScore ? 0.0 : 8.0,
+                            ),
+                            child: Container(
+                              width: 44,
+                              alignment: Alignment.center,
+                              child: Text(
+                                displayScoreOrMatchDate(match),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900,
+                                  color: ColorPalette.textPrimary(context),
+                                ),
                               ),
                             ),
                           ),
@@ -360,14 +423,31 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                IconButton(
-                  splashRadius: 20,
-                  icon: RotationTransition(
-                    turns: _arrowAnim,
-                    child: const Icon(Icons.expand_more),
+                if (match.isScheduled)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: InkWell(
+                      splashColor: Colors.transparent,
+                      onTap: () => _toggleNotifications(
+                        !(userData?.notifications ?? false),
+                      ),
+                      child: Icon(
+                        userData?.notifications ?? false
+                            ? Icons.notifications_active
+                            : Icons.notifications_outlined,
+                        color: ColorPalette.accent(context),
+                      ),
+                    ),
+                  )
+                else
+                  IconButton(
+                    splashRadius: 20,
+                    icon: RotationTransition(
+                      turns: _arrowAnim,
+                      child: const Icon(Icons.expand_more),
+                    ),
+                    onPressed: _toggleExpanded,
                   ),
-                  onPressed: _toggleExpanded,
-                ),
               ],
             ),
           ),
@@ -401,10 +481,12 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsetsDirectional.only(end: 20, start: 20),
-                      child: Icon(Icons.sports_soccer, size: 16),
-                    ),
+                    if (match.scoreEquipeDomicile > 0 ||
+                        match.scoreEquipeExterieur > 0)
+                      const Padding(
+                        padding: EdgeInsetsDirectional.only(end: 20, start: 20),
+                        child: Icon(Icons.sports_soccer, size: 16),
+                      ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,9 +514,10 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (userData.note != null) _buildNoteBadge(userData.note!),
+                    if (userData!.note != null)
+                      _buildNoteBadge(userData!.note!),
                     const Spacer(),
-                    if (userData.mvpVoteId != null) _buildMvpBadge(),
+                    if (userData!.mvpVoteId != null) _buildMvpBadge(),
                   ],
                 ),
               ),

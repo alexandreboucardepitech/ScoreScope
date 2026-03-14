@@ -26,7 +26,7 @@ Widget buildTeamLogo(
     width: size,
     height: size,
     child: path != null
-        ? Image.asset(path, fit: BoxFit.contain)
+        ? Image.network(path, fit: BoxFit.contain)
         : Icon(Icons.shield,
             size: size, color: ColorPalette.textPrimary(context)),
   );

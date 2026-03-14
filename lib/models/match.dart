@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
+import 'package:scorescope/utils/string/parse_map.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 
@@ -23,7 +25,9 @@ enum MatchStatus {
 class MatchModel implements PodiumDisplayable {
   final String id;
   final MatchStatus status;
-  final String? liveMinute;
+  final int? liveMinute;
+  final int? extraTime;
+  final int? saison;
   final Equipe equipeDomicile;
   final Equipe equipeExterieur;
   final Competition competition;
@@ -32,19 +36,21 @@ class MatchModel implements PodiumDisplayable {
   final int scoreEquipeExterieur;
   final List<But> butsEquipeDomicile;
   final List<But> butsEquipeExterieur;
-  final List<Joueur> joueursEquipeDomicile;
-  final List<Joueur> joueursEquipeExterieur;
+  final List<MatchJoueur> joueursEquipeDomicile;
+  final List<MatchJoueur> joueursEquipeExterieur;
   Map<String, String> mvpVotes;
   Map<String, int> notesDuMatch;
 
   MatchModel(
       {required this.id,
       required this.status,
+      this.liveMinute,
+      this.extraTime,
+      this.saison,
       required this.equipeDomicile,
       required this.equipeExterieur,
       required this.competition,
       required this.date,
-      this.liveMinute,
       required this.scoreEquipeDomicile,
       required this.scoreEquipeExterieur,
       required this.joueursEquipeDomicile,
@@ -92,7 +98,7 @@ class MatchModel implements PodiumDisplayable {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   equipeDomicile.logoPath != null
-                      ? Image.asset(
+                      ? Image.network(
                           equipeDomicile.logoPath!,
                           width: logoSize,
                           height: logoSize,
@@ -109,7 +115,7 @@ class MatchModel implements PodiumDisplayable {
                         ),
                   const SizedBox(width: 4),
                   equipeExterieur.logoPath != null
-                      ? Image.asset(
+                      ? Image.network(
                           equipeExterieur.logoPath!,
                           width: logoSize,
                           height: logoSize,
@@ -168,7 +174,7 @@ class MatchModel implements PodiumDisplayable {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(equipeDomicile.logoPath!,
+                    Image.network(equipeDomicile.logoPath!,
                         width: logoSize, height: logoSize),
                     if (equipeDomicile.code != null)
                       Text(
@@ -194,7 +200,7 @@ class MatchModel implements PodiumDisplayable {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(equipeExterieur.logoPath!,
+                    Image.network(equipeExterieur.logoPath!,
                         width: logoSize, height: logoSize),
                     if (equipeExterieur.code != null)
                       Text(
@@ -243,7 +249,7 @@ class MatchModel implements PodiumDisplayable {
               child: Row(
                 children: [
                   equipeDomicile.logoPath != null
-                      ? Image.asset(equipeDomicile.logoPath!,
+                      ? Image.network(equipeDomicile.logoPath!,
                           width: 24, height: 24)
                       : Text(
                           equipeDomicile.code ??
@@ -257,7 +263,7 @@ class MatchModel implements PodiumDisplayable {
                   Text('$scoreEquipeDomicile - $scoreEquipeExterieur'),
                   const SizedBox(width: 4),
                   equipeExterieur.logoPath != null
-                      ? Image.asset(equipeExterieur.logoPath!,
+                      ? Image.network(equipeExterieur.logoPath!,
                           width: 24, height: 24)
                       : Text(
                           equipeExterieur.code ??
@@ -301,7 +307,7 @@ class MatchModel implements PodiumDisplayable {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           equipeDomicile.logoPath != null
-              ? Image.asset(
+              ? Image.network(
                   equipeDomicile.logoPath!,
                   width: logoSize,
                   height: logoSize,
@@ -323,7 +329,7 @@ class MatchModel implements PodiumDisplayable {
           ),
           const SizedBox(width: 6),
           equipeExterieur.logoPath != null
-              ? Image.asset(
+              ? Image.network(
                   equipeExterieur.logoPath!,
                   width: logoSize,
                   height: logoSize,
@@ -521,117 +527,186 @@ class MatchModel implements PodiumDisplayable {
         'id': id,
         'status': status.name,
         'liveMinute': liveMinute,
+        'extraTime': extraTime,
         'competitionId': competition.id,
         'date': date.toIso8601String(),
         'scoreEquipeDomicile': scoreEquipeDomicile,
         'scoreEquipeExterieur': scoreEquipeExterieur,
         'equipeDomicileId': equipeDomicile.id,
         'equipeExterieurId': equipeExterieur.id,
+        'saison': saison,
         'joueursEquipeDomicile':
-            joueursEquipeDomicile.map((j) => j.id).toList(),
+            joueursEquipeDomicile.map((j) => j.toJson()).toList(),
         'joueursEquipeExterieur':
-            joueursEquipeExterieur.map((j) => j.id).toList(),
-        'butsEquipeDomicile': butsEquipeDomicile
-            .map((b) => {'joueurId': b.buteur.id, 'minute': b.minute})
-            .toList(),
-        'butsEquipeExterieur': butsEquipeExterieur
-            .map((b) => {'joueurId': b.buteur.id, 'minute': b.minute})
-            .toList(),
+            joueursEquipeExterieur.map((j) => j.toJson()).toList(),
+        'butsEquipeDomicile':
+            butsEquipeDomicile.map((b) => b.toJson()).toList(),
+        'butsEquipeExterieur':
+            butsEquipeExterieur.map((b) => b.toJson()).toList(),
         'mvpVotes': mvpVotes,
         'notesDuMatch': notesDuMatch,
       };
 
-  static Future<MatchModel> fromJson(
-      {required Map<String, dynamic> json, String? matchId}) async {
-    try {
-      String statusString = json['status'] as String? ?? 'scheduled';
+  static Future<MatchModel> fromMatchId(MatchModelId data) async {
+    final competition = await RepositoryProvider.competitionRepository
+        .fetchCompetitionById(data.competitionId);
 
-      MatchStatus status = MatchStatus.values.firstWhere(
-        (e) => e.name == statusString,
-        orElse: () => MatchStatus.scheduled,
-      );
+    final equipeDom = await RepositoryProvider.equipeRepository
+        .fetchEquipeById(data.equipeDomicileId);
 
-      final competition = await RepositoryProvider.competitionRepository
-          .fetchCompetitionById(json['competitionId']);
+    final equipeExt = await RepositoryProvider.equipeRepository
+        .fetchEquipeById(data.equipeExterieurId);
 
-      final equipeDomicile = await RepositoryProvider.equipeRepository
-          .fetchEquipeById(json['equipeDomicileId']);
-      final equipeExterieur = await RepositoryProvider.equipeRepository
-          .fetchEquipeById(json['equipeExterieurId']);
+    final joueursDom = await Future.wait(
+      data.joueursEquipeDomicileId.map(MatchJoueur.fromMatchJoueurId),
+    );
 
-      final joueursDomicile = <Joueur>[];
-      for (final id in (json['joueursEquipeDomicileId'] as List? ?? [])) {
-        final joueur =
-            await RepositoryProvider.joueurRepository.fetchJoueurById(id);
-        if (joueur != null) joueursDomicile.add(joueur);
-      }
+    final joueursExt = await Future.wait(
+      data.joueursEquipeExterieurId.map(MatchJoueur.fromMatchJoueurId),
+    );
 
-      final joueursExterieur = <Joueur>[];
-      for (final id in (json['joueursEquipeExterieurId'] as List? ?? [])) {
-        final joueur =
-            await RepositoryProvider.joueurRepository.fetchJoueurById(id);
-        if (joueur != null) joueursExterieur.add(joueur);
-      }
+    final butsDom = await Future.wait(
+      data.butsEquipeDomicileId.map(But.fromButId),
+    );
 
-      final mvpVotesList = json['mvpVotes'] as List<dynamic>? ?? [];
-      final mvpVotes = {
-        for (var doc in mvpVotesList)
-          doc['userId'] as String: doc['joueurId'] as String
-      };
+    final butsExt = await Future.wait(
+      data.butsEquipeExterieurId.map(But.fromButId),
+    );
 
-      final notesList = json['notesDuMatch'] as List<dynamic>? ?? [];
-      final notesDuMatch = {
-        for (var doc in notesList)
-          doc['userId'] as String: (doc['note'] as num).toInt()
-      };
-
-      Future<List<But>> reconstructButs(List<dynamic>? butsList) async {
-        if (butsList == null) return [];
-
-        final buts = <But>[];
-        for (final b in butsList) {
-          final joueurId = b['buteurId'] as String?;
-          Joueur? joueur;
-          if (joueurId != null) {
-            joueur = await RepositoryProvider.joueurRepository
-                .fetchJoueurById(joueurId);
-          }
-          if (joueur != null) {
-            buts.add(But(buteur: joueur, minute: b['minute']));
-          }
-        }
-        return buts;
-      }
-
-      return MatchModel(
-          id: matchId ?? json['id'],
-          status: status,
-          liveMinute: json['liveMinute'] as String?,
-          competition: competition!,
-          date: (json['date'] is Timestamp)
-              ? (json['date'] as Timestamp).toDate()
-              : DateTime.parse(
-                  json['date'] as String? ?? DateTime.now().toIso8601String()),
-          scoreEquipeDomicile:
-              (json['scoreEquipeDomicile'] as num?)?.toInt() ?? 0,
-          scoreEquipeExterieur:
-              (json['scoreEquipeExterieur'] as num?)?.toInt() ?? 0,
-          equipeDomicile: equipeDomicile!,
-          equipeExterieur: equipeExterieur!,
-          joueursEquipeDomicile: joueursDomicile,
-          joueursEquipeExterieur: joueursExterieur,
-          butsEquipeDomicile:
-              await reconstructButs(json['butsEquipeDomicile'] as List?),
-          butsEquipeExterieur:
-              await reconstructButs(json['butsEquipeExterieur'] as List?),
-          mvpVotes: mvpVotes,
-          notesDuMatch: notesDuMatch);
-    } catch (e) {
-      throw Exception('Erreur lors de la conversion du match depuis JSON: $e');
-    }
+    return MatchModel(
+      id: data.id,
+      status: data.status,
+      liveMinute: data.liveMinute,
+      extraTime: data.extraTime,
+      saison: data.saison,
+      competition: competition!,
+      equipeDomicile: equipeDom!,
+      equipeExterieur: equipeExt!,
+      date: data.date,
+      scoreEquipeDomicile: data.scoreEquipeDomicile,
+      scoreEquipeExterieur: data.scoreEquipeExterieur,
+      joueursEquipeDomicile: joueursDom,
+      joueursEquipeExterieur: joueursExt,
+      butsEquipeDomicile: butsDom,
+      butsEquipeExterieur: butsExt,
+      mvpVotes: data.mvpVotes,
+      notesDuMatch: data.notesDuMatch,
+    );
   }
 
   @override
   String toString() =>
       '$competition : ${equipeDomicile.nom} $scoreEquipeDomicile-$scoreEquipeExterieur ${equipeExterieur.nom} [${status.name}]';
+}
+
+class MatchModelId {
+  final String id;
+  final MatchStatus status;
+  final int? liveMinute;
+  final int? extraTime;
+  final int? saison;
+  final String equipeDomicileId;
+  final String equipeExterieurId;
+  final String competitionId;
+  final DateTime date;
+  final int scoreEquipeDomicile;
+  final int scoreEquipeExterieur;
+  final List<ButId> butsEquipeDomicileId;
+  final List<ButId> butsEquipeExterieurId;
+  final List<MatchJoueurId> joueursEquipeDomicileId;
+  final List<MatchJoueurId> joueursEquipeExterieurId;
+  Map<String, String> mvpVotes;
+  Map<String, int> notesDuMatch;
+
+  MatchModelId(
+      {required this.id,
+      required this.status,
+      this.liveMinute,
+      this.extraTime,
+      this.saison,
+      required this.equipeDomicileId,
+      required this.equipeExterieurId,
+      required this.competitionId,
+      required this.date,
+      required this.scoreEquipeDomicile,
+      required this.scoreEquipeExterieur,
+      required this.joueursEquipeDomicileId,
+      required this.joueursEquipeExterieurId,
+      List<ButId>? butsEquipeDomicileId,
+      List<ButId>? butsEquipeExterieurId,
+      Map<String, String>? mvpVotes,
+      Map<String, int>? notesDuMatch})
+      : butsEquipeDomicileId = butsEquipeDomicileId ?? [],
+        butsEquipeExterieurId = butsEquipeExterieurId ?? [],
+        mvpVotes = mvpVotes ?? {},
+        notesDuMatch = notesDuMatch ?? {};
+
+  Map<String, dynamic> toJson() => {
+        'status': status.name,
+        'liveMinute': liveMinute,
+        'extraTime': extraTime,
+        'saison': saison,
+        'competitionId': competitionId,
+        'date': date,
+        'scoreEquipeDomicile': scoreEquipeDomicile,
+        'scoreEquipeExterieur': scoreEquipeExterieur,
+        'equipeDomicileId': equipeDomicileId,
+        'equipeExterieurId': equipeExterieurId,
+        'joueursEquipeDomicile':
+            joueursEquipeDomicileId.map((e) => e.toJson()).toList(),
+        'joueursEquipeExterieur':
+            joueursEquipeExterieurId.map((e) => e.toJson()).toList(),
+        'butsEquipeDomicile':
+            butsEquipeDomicileId.map((e) => e.toJson()).toList(),
+        'butsEquipeExterieur':
+            butsEquipeExterieurId.map((e) => e.toJson()).toList(),
+        if (mvpVotes.isNotEmpty) 'mvpVotes': mvpVotes,
+        if (notesDuMatch.isNotEmpty) 'notesDuMatch': notesDuMatch,
+      };
+
+  factory MatchModelId.fromJson(
+    Map<String, dynamic> json,
+    String id,
+  ) {
+    final status = MatchStatus.values.firstWhere(
+      (e) => e.name == json['status'],
+      orElse: () => MatchStatus.scheduled,
+    );
+    DateTime? date;
+    if (json['date'] is Timestamp) {
+      date = (json['date'] as Timestamp).toDate();
+    } else if (json['date'] is String) {
+      date = DateTime.tryParse(json['date']);
+    } else {
+      date = DateTime.now();
+    }
+
+    return MatchModelId(
+      id: id,
+      status: status,
+      competitionId: json['competitionId'],
+      equipeDomicileId: json['equipeDomicileId'],
+      equipeExterieurId: json['equipeExterieurId'],
+      date: date!,
+      scoreEquipeDomicile: json['scoreEquipeDomicile'] ?? 0,
+      scoreEquipeExterieur: json['scoreEquipeExterieur'] ?? 0,
+      liveMinute: json['liveMinute'] as int?,
+      extraTime: json['extraTime'] as int?,
+      saison: json['saison'] as int?,
+      joueursEquipeDomicileId: (json['joueursEquipeDomicile'] as List? ?? [])
+          .map((e) => MatchJoueurId.fromJson(e))
+          .toList(),
+      joueursEquipeExterieurId: (json['joueursEquipeExterieur'] as List? ?? [])
+          .map((e) => MatchJoueurId.fromJson(e))
+          .toList(),
+      butsEquipeDomicileId: (json['butsEquipeDomicile'] as List? ?? [])
+          .map((e) => ButId.fromJson(e))
+          .toList(),
+      butsEquipeExterieurId: (json['butsEquipeExterieur'] as List? ?? [])
+          .map((e) => ButId.fromJson(e))
+          .toList(),
+      mvpVotes: parseStringMap(json['mvpVotes']),
+      notesDuMatch: parseIntMap(json['notesDuMatch']),
+    );
+  }
 }

@@ -19,18 +19,21 @@ class MockCompetitionRepository implements ICompetitionRepository {
       Competition(
         id: '1',
         nom: 'Ligue 1',
+        country: 'France',
         logoUrl: 'assets/competitions/ligue1.jpg',
         popularite: 40,
       ),
       Competition(
         id: '2',
         nom: 'La Liga',
+        country: 'Spain',
         logoUrl: 'assets/competitions/ligue1.jpg',
         popularite: 50,
       ),
       Competition(
           id: '3',
           nom: 'Ligue des Champions',
+          country: 'World',
           logoUrl: 'assets/competitions/ligue1.jpg',
           popularite: 100)
     ]);
@@ -65,6 +68,21 @@ class MockCompetitionRepository implements ICompetitionRepository {
       user.competitionsPrefereesId
         ..clear()
         ..addAll(competitionIds);
+    }
+  }
+
+  @override
+  Future<void> addCompetition(Competition competition) async {
+    await Future.delayed(Duration(milliseconds: 200));
+    if (_competitions.contains(competition) == false) {
+      _competitions.add(competition);
+    }
+  }
+
+  @override
+  Future<void> addCompetitionList(List<Competition> competitions) async {
+    for (Competition comp in competitions) {
+      await addCompetition(comp);
     }
   }
 }

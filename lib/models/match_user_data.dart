@@ -11,6 +11,7 @@ class MatchUserData {
   final String? mvpVoteId;
   final VisionnageMatch visionnageMatch;
   final bool private;
+  final bool notifications;
   final DateTime? watchedAt;
   final DateTime? matchDate;
   late List<Commentaire> comments;
@@ -23,6 +24,7 @@ class MatchUserData {
     this.mvpVoteId,
     this.visionnageMatch = VisionnageMatch.tele,
     this.private = false,
+    this.notifications = false,
     this.watchedAt,
     this.matchDate,
     this.comments = const [],
@@ -56,6 +58,7 @@ class MatchUserData {
       if (mvpVoteId != null) 'mvpVoteId': mvpVoteId,
       'visionnageMatch': visionnageMatch,
       'private': private,
+      'notifications': notifications,
       if (watchedAt != null) 'watchedAt': watchedAt,
       if (matchDate != null) 'matchDate': matchDate,
       'comments': comments,
@@ -122,6 +125,7 @@ class MatchUserData {
                   .userRepository.currentUser?.options.defaultVisionnageMatch ??
               VisionnageMatch.tele,
       private: json['private'] as bool? ?? false,
+      notifications: json['notifications'] as bool? ?? false,
       watchedAt: json['watchedAt'] is Timestamp
           ? (json['watchedAt'] as Timestamp).toDate()
           : (json['watchedAt'] is DateTime

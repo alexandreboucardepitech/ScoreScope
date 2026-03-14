@@ -224,7 +224,7 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
         ),
         padding: const EdgeInsets.all(6),
         child: team.logoPath != null
-            ? Image.asset(team.logoPath!, fit: BoxFit.contain)
+            ? Image.network(team.logoPath!, fit: BoxFit.contain)
             : Icon(
                 Icons.shield,
                 color: ColorPalette.textSecondary(context),

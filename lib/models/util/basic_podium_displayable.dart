@@ -23,7 +23,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (displayImage != null && isFirst)
-          Image.asset(
+          Image.network(
             displayImage!,
             width: isFirst ? 32 : 24,
             height: isFirst ? 32 : 24,

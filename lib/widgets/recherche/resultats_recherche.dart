@@ -33,7 +33,7 @@ class ResultatsRecherche extends StatelessWidget {
                 ? SizedBox(
                     width: 32,
                     height: 32,
-                    child: Image.asset(match.competition.logoUrl!,
+                    child: Image.network(match.competition.logoUrl!,
                         fit: BoxFit.contain),
                   )
                 : const Icon(Icons.sports_soccer),
@@ -83,8 +83,8 @@ class ResultatsRecherche extends StatelessWidget {
                 ? SizedBox(
                     width: 32,
                     height: 32,
-                    child:
-                        Image.asset(competition.logoUrl!, fit: BoxFit.contain),
+                    child: Image.network(competition.logoUrl!,
+                        fit: BoxFit.contain),
                   )
                 : const Icon(Icons.emoji_events_outlined),
             title: Text(competition.nom),
@@ -109,15 +109,12 @@ class ResultatsRecherche extends StatelessWidget {
             ),
             title: Text(joueur.fullName),
             onTap: () {
-              if (joueur.id != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        PlayerDetailsPage(playerId: joueur.id!),
-                  ),
-                );
-              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PlayerDetailsPage(playerId: joueur.id),
+                ),
+              );
             },
           ),
         ),

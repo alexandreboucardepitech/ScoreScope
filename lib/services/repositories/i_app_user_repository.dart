@@ -109,4 +109,11 @@ abstract class IAppUserRepository {
     required bool onlyPublic,
     String? equipeId,
   });
+
+  Future<void> updateMatchNotifications({
+    required String matchId,
+    required String userId,
+    required DateTime matchDate,
+    required bool activateNotifications,
+  });
 }

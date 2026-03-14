@@ -423,7 +423,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (home.logoPath != null)
-                                    Image.asset(home.logoPath!,
+                                    Image.network(home.logoPath!,
                                         width: 36,
                                         height: 36,
                                         fit: BoxFit.contain),
@@ -473,7 +473,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (away.logoPath != null)
-                                    Image.asset(away.logoPath!,
+                                    Image.network(away.logoPath!,
                                         width: 36,
                                         height: 36,
                                         fit: BoxFit.contain),

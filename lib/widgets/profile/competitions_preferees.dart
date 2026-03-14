@@ -314,7 +314,7 @@ class CompetitionPrefereeTile extends StatelessWidget {
               SizedBox(
                   width: 32,
                   height: 32,
-                  child: Image.asset(competition.logoUrl!, fit: BoxFit.contain))
+                  child: Image.network(competition.logoUrl!, fit: BoxFit.contain))
             else
               CircleAvatar(radius: 14, child: Icon(Icons.shield, size: 16)),
             const SizedBox(width: 12),

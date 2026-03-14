@@ -323,7 +323,7 @@ class EquipePrefereeTile extends StatelessWidget {
               SizedBox(
                 width: 32,
                 height: 32,
-                child: Image.asset(
+                child: Image.network(
                   equipe.logoPath!,
                   fit: BoxFit.contain,
                 ),

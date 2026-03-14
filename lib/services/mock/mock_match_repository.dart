@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/mock/mock_competition_repository.dart';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
@@ -75,8 +76,12 @@ class MockMatchRepository implements IMatchRepository {
             But(buteur: leroux, minute: "63"),
             But(buteur: leroux, minute: "90+1"),
           ],
-          joueursEquipeDomicile: [hakimi],
-          joueursEquipeExterieur: [abline, benhattab, leroux],
+          joueursEquipeDomicile: [MatchJoueur(joueur: hakimi)],
+          joueursEquipeExterieur: [
+            MatchJoueur(joueur: abline),
+            MatchJoueur(joueur: benhattab),
+            MatchJoueur(joueur: leroux),
+          ],
         ),
       );
     }
@@ -92,7 +97,7 @@ class MockMatchRepository implements IMatchRepository {
         MatchModel(
           id: "2",
           status: MatchStatus.live,
-          liveMinute: "72'",
+          liveMinute: 72,
           equipeDomicile: barca,
           equipeExterieur: realmadrid,
           competition: laliga,
@@ -108,8 +113,14 @@ class MockMatchRepository implements IMatchRepository {
             But(buteur: mbappe, minute: "4"),
             But(buteur: mastantuono, minute: "17"),
           ],
-          joueursEquipeDomicile: [yamal, pedri],
-          joueursEquipeExterieur: [mbappe, mastantuono],
+          joueursEquipeDomicile: [
+            MatchJoueur(joueur: yamal),
+            MatchJoueur(joueur: pedri),
+          ],
+          joueursEquipeExterieur: [
+            MatchJoueur(joueur: mbappe),
+            MatchJoueur(joueur: mastantuono),
+          ],
         ),
       );
     }
@@ -124,6 +135,49 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   @override
+  Future<List<MatchModelId>> fetchAllMatchesId(
+      {bool loadVotesAndNotes = true}) async {
+    await _seedingFuture;
+    await Future.delayed(const Duration(milliseconds: 300));
+    return List<MatchModelId>.from(
+      _matches.map(
+        (match) => MatchModelId(
+          id: match.id,
+          status: match.status,
+          equipeDomicileId: match.equipeDomicile.id,
+          equipeExterieurId: match.equipeExterieur.id,
+          competitionId: match.competition.id,
+          date: match.date,
+          scoreEquipeDomicile: match.scoreEquipeDomicile,
+          scoreEquipeExterieur: match.scoreEquipeExterieur,
+          joueursEquipeDomicileId: match.joueursEquipeDomicile
+              .map(
+                (joueur) => MatchJoueurId(
+                    joueurId: joueur.joueur.id,
+                    grid: joueur.grid,
+                    hasPlayed: joueur.hasPlayed,
+                    number: joueur.number,
+                    pos: joueur.pos),
+              )
+              .toList(),
+          joueursEquipeExterieurId: match.joueursEquipeExterieur
+              .map(
+                (joueur) => MatchJoueurId(
+                    joueurId: joueur.joueur.id,
+                    grid: joueur.grid,
+                    hasPlayed: joueur.hasPlayed,
+                    number: joueur.number,
+                    pos: joueur.pos),
+              )
+              .toList(),
+          mvpVotes: loadVotesAndNotes ? match.mvpVotes : {},
+          notesDuMatch: loadVotesAndNotes ? match.notesDuMatch : {},
+        ),
+      ),
+    );
+  }
+
+  @override
   Future<MatchModel?> fetchMatchById(String id) async {
     await _seedingFuture;
     await Future.delayed(Duration(milliseconds: 200));
@@ -131,6 +185,49 @@ class MockMatchRepository implements IMatchRepository {
     try {
       final match = _matches.firstWhere((match) => match.id == id);
       return match;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<MatchModelId?> fetchMatchModelIdById(String id) async {
+    await _seedingFuture;
+    await Future.delayed(Duration(milliseconds: 200));
+
+    try {
+      final match = _matches.firstWhere((match) => match.id == id);
+      final matchModelid = MatchModelId(
+        id: id,
+        status: match.status,
+        equipeDomicileId: match.equipeDomicile.id,
+        equipeExterieurId: match.equipeExterieur.id,
+        competitionId: match.competition.id,
+        date: match.date,
+        scoreEquipeDomicile: match.scoreEquipeDomicile,
+        scoreEquipeExterieur: match.scoreEquipeExterieur,
+        joueursEquipeDomicileId: match.joueursEquipeDomicile
+            .map(
+              (joueur) => MatchJoueurId(
+                  joueurId: joueur.joueur.id,
+                  grid: joueur.grid,
+                  hasPlayed: joueur.hasPlayed,
+                  number: joueur.number,
+                  pos: joueur.pos),
+            )
+            .toList(),
+        joueursEquipeExterieurId: match.joueursEquipeExterieur
+            .map(
+              (joueur) => MatchJoueurId(
+                  joueurId: joueur.joueur.id,
+                  grid: joueur.grid,
+                  hasPlayed: joueur.hasPlayed,
+                  number: joueur.number,
+                  pos: joueur.pos),
+            )
+            .toList(),
+      );
+      return matchModelid;
     } catch (e) {
       return null;
     }
@@ -172,6 +269,72 @@ class MockMatchRepository implements IMatchRepository {
     final idx = _matches.indexWhere((x) => x == match);
     if (idx >= 0) _matches[idx] = match;
     await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> updateMatchModelId(MatchModelId matchId) async {
+    final idx = _matches.indexWhere((x) => x.id == matchId.id);
+    if (idx >= 0) _matches[idx] = await MatchModel.fromMatchId(matchId);
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> updateField({
+    required String matchId,
+    MatchStatus? status,
+    int? liveMinute,
+    int? extraTime,
+    int? saison,
+    String? equipeDomicileId,
+    String? equipeExterieurId,
+    String? competitionId,
+    DateTime? date,
+    int? scoreEquipeDomicile,
+    int? scoreEquipeExterieur,
+    List<ButId>? butsEquipeDomicileId,
+    List<ButId>? butsEquipeExterieurId,
+    List<MatchJoueurId>? joueursEquipeDomicileId,
+    List<MatchJoueurId>? joueursEquipeExterieurId,
+    Map<String, String>? mvpVotes,
+    Map<String, int>? notesDuMatch,
+  }) async {
+    int? index = _matches.indexWhere((x) => x.id == matchId);
+    MatchModel baseMatch = _matches[index];
+
+    MatchModelId newMatch = MatchModelId(
+      id: matchId,
+      status: status ?? baseMatch.status,
+      equipeDomicileId: equipeDomicileId ?? baseMatch.equipeDomicile.id,
+      equipeExterieurId: equipeExterieurId ?? baseMatch.equipeExterieur.id,
+      competitionId: competitionId ?? baseMatch.competition.id,
+      date: date ?? baseMatch.date,
+      scoreEquipeDomicile: scoreEquipeDomicile ?? baseMatch.scoreEquipeDomicile,
+      scoreEquipeExterieur:
+          scoreEquipeExterieur ?? baseMatch.scoreEquipeExterieur,
+      joueursEquipeDomicileId: joueursEquipeDomicileId ??
+          baseMatch.joueursEquipeDomicile
+              .map(
+                (joueur) => MatchJoueurId(
+                    joueurId: joueur.joueur.id,
+                    grid: joueur.grid,
+                    hasPlayed: joueur.hasPlayed,
+                    number: joueur.number,
+                    pos: joueur.pos),
+              )
+              .toList(),
+      joueursEquipeExterieurId: joueursEquipeExterieurId ??
+          baseMatch.joueursEquipeExterieur
+              .map(
+                (joueur) => MatchJoueurId(
+                    joueurId: joueur.joueur.id,
+                    grid: joueur.grid,
+                    hasPlayed: joueur.hasPlayed,
+                    number: joueur.number,
+                    pos: joueur.pos),
+              )
+              .toList(),
+    );
+    _matches[index] = await MatchModel.fromMatchId(newMatch);
   }
 
   @override
@@ -266,5 +429,20 @@ class MockMatchRepository implements IMatchRepository {
           match.equipeExterieur.id == teamId;
     }).toList();
     return teamMatches;
+  }
+
+  @override
+  Future<void> addMatchModelId(MatchModelId matchId) async {
+    await _seedingFuture;
+    await Future.delayed(const Duration(milliseconds: 200));
+    MatchModel match = await MatchModel.fromMatchId(matchId);
+    _matches.add(match);
+  }
+
+  @override
+  Future<void> addMatchModelIdList(List<MatchModelId> matchs) async {
+    for (MatchModelId matchModelId in matchs) {
+      await addMatchModelId(matchModelId);
+    }
   }
 }

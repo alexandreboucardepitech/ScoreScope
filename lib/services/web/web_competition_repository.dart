@@ -70,4 +70,24 @@ class WebCompetitionRepository implements ICompetitionRepository {
       });
     }
   }
+
+  @override
+  Future<void> addCompetition(Competition competition) async {
+    final docRef = _competitionsCollection.doc(competition.id);
+
+    final doc = await docRef.get();
+    if (!doc.exists) {
+      await docRef.set(competition.toJson());
+      print("Compétition ajoutée : ${competition.nom}");
+    } else {
+      print("Compétition déjà existante : ${competition.nom}");
+    }
+  }
+
+  @override
+  Future<void> addCompetitionList(List<Competition> competitions) async {
+    for (Competition comp in competitions) {
+      await addCompetition(comp);
+    }
+  }
 }

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scorescope/models/but.dart';
+import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/repositories/i_match_repository.dart';
 import '../../../models/match.dart';
 
@@ -10,23 +12,69 @@ class WebMatchRepository implements IMatchRepository {
   Future<List<MatchModel>> fetchAllMatches() async {
     final snapshot = await _collection.get();
 
-    final futures = snapshot.docs.map((doc) async {
+    List<MatchModel> matchModels = [];
+
+    for (dynamic doc in snapshot.docs) {
       final data = doc.data();
 
       final mvpVotesSnapshot =
           await _collection.doc(doc.id).collection('mvpVotes').get();
-
       data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
 
       final notesSnapshot =
           await _collection.doc(doc.id).collection('notes').get();
-
       data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
-      return await MatchModel.fromJson(json: data, matchId: doc.id);
-    }).toList();
+      final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
 
-    return await Future.wait(futures);
+      matchModels.add(await MatchModel.fromMatchId(matchModelId));
+    }
+
+    return matchModels;
+  }
+
+  @override
+  Future<List<MatchModelId>> fetchAllMatchesId(
+      {bool loadVotesAndNotes = true}) async {
+    List<MatchModelId> matches = [];
+
+    Query query = _collection.limit(100);
+    DocumentSnapshot? lastDoc;
+
+    while (true) {
+      if (lastDoc != null) {
+        query = _collection.startAfterDocument(lastDoc).limit(100);
+      }
+
+      final snapshot = await query.get();
+
+      if (snapshot.docs.isEmpty) break;
+
+      for (var doc in snapshot.docs) {
+        dynamic data = doc.data();
+        if (data != null) {
+          if (loadVotesAndNotes) {
+            final mvpVotesSnapshot =
+                await _collection.doc(doc.id).collection('mvpVotes').get();
+
+            data['mvpVotes'] =
+                mvpVotesSnapshot.docs.map((d) => d.data()).toList();
+
+            final notesSnapshot =
+                await _collection.doc(doc.id).collection('notes').get();
+
+            data['notesDuMatch'] =
+                notesSnapshot.docs.map((d) => d.data()).toList();
+          }
+
+          matches.add(MatchModelId.fromJson(data, doc.id));
+        }
+      }
+
+      lastDoc = snapshot.docs.last;
+    }
+
+    return matches;
   }
 
   @override
@@ -42,7 +90,25 @@ class WebMatchRepository implements IMatchRepository {
     final notesSnapshot = await _collection.doc(id).collection('notes').get();
     data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
-    return MatchModel.fromJson(json: data, matchId: doc.id);
+    final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
+
+    return await MatchModel.fromMatchId(matchModelId);
+  }
+
+  @override
+  Future<MatchModelId?> fetchMatchModelIdById(String id) async {
+    final doc = await _collection.doc(id).get();
+    if (!doc.exists) return null;
+
+    final data = doc.data()!;
+    final mvpVotesSnapshot =
+        await _collection.doc(id).collection('mvpVotes').get();
+    data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
+
+    final notesSnapshot = await _collection.doc(id).collection('notes').get();
+    data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
+
+    return MatchModelId.fromJson(data, doc.id);
   }
 
   @override
@@ -81,7 +147,9 @@ class WebMatchRepository implements IMatchRepository {
           await _collection.doc(doc.id).collection('notes').get();
       data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
-      return await MatchModel.fromJson(json: data, matchId: doc.id);
+      final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
+
+      return await MatchModel.fromMatchId(matchModelId);
     }).toList();
 
     return await Future.wait(futures);
@@ -95,6 +163,57 @@ class WebMatchRepository implements IMatchRepository {
   @override
   Future<void> updateMatch(MatchModel match) async {
     await _collection.doc(match.id).update(match.toJson());
+  }
+
+  @override
+  Future<void> updateMatchModelId(MatchModelId matchId) async {
+    await _collection.doc(matchId.id).update(matchId.toJson());
+  }
+
+  @override
+  Future<void> updateField({
+    required String matchId,
+    MatchStatus? status,
+    int? liveMinute,
+    int? extraTime,
+    int? saison,
+    String? equipeDomicileId,
+    String? equipeExterieurId,
+    String? competitionId,
+    DateTime? date,
+    int? scoreEquipeDomicile,
+    int? scoreEquipeExterieur,
+    List<ButId>? butsEquipeDomicileId,
+    List<ButId>? butsEquipeExterieurId,
+    List<MatchJoueurId>? joueursEquipeDomicileId,
+    List<MatchJoueurId>? joueursEquipeExterieurId,
+    Map<String, String>? mvpVotes,
+    Map<String, int>? notesDuMatch,
+  }) async {
+    await _collection.doc(matchId).update({
+      if (status != null) 'status': status,
+      if (liveMinute != null) 'liveMinute': liveMinute,
+      if (extraTime != null) 'extraTime': extraTime,
+      if (saison != null) 'saison': saison,
+      if (equipeDomicileId != null) 'equipeDomicileId': equipeDomicileId,
+      if (equipeExterieurId != null) 'equipeExterieurId': equipeExterieurId,
+      if (competitionId != null) 'competitionId': competitionId,
+      if (date != null) 'date': date,
+      if (scoreEquipeDomicile != null)
+        'scoreEquipeDomicile': scoreEquipeDomicile,
+      if (scoreEquipeExterieur != null)
+        'scoreEquipeExterieur': scoreEquipeExterieur,
+      if (butsEquipeDomicileId != null)
+        'butsEquipeDomicileId': butsEquipeDomicileId,
+      if (butsEquipeExterieurId != null)
+        'butsEquipeExterieurId': butsEquipeExterieurId,
+      if (joueursEquipeDomicileId != null)
+        'joueursEquipeDomicileId': joueursEquipeDomicileId,
+      if (joueursEquipeExterieurId != null)
+        'joueursEquipeExterieurId': joueursEquipeExterieurId,
+      if (mvpVotes != null) 'mvpVotes': mvpVotes,
+      if (notesDuMatch != null) 'notesDuMatch': notesDuMatch,
+    });
   }
 
   @override
@@ -216,9 +335,31 @@ class WebMatchRepository implements IMatchRepository {
           await _collection.doc(doc.id).collection('notes').get();
       data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
-      return await MatchModel.fromJson(json: data, matchId: doc.id);
+      final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
+
+      return await MatchModel.fromMatchId(matchModelId);
     }).toList();
 
     return await Future.wait(futures);
+  }
+
+  @override
+  Future<void> addMatchModelId(MatchModelId matchId) async {
+    final docRef = _collection.doc(matchId.id);
+
+    final doc = await docRef.get();
+    if (!doc.exists) {
+      await _collection.doc(matchId.id).set(matchId.toJson());
+      print("Match ajouté : ${matchId.id}");
+    } else {
+      print("Match déja existant : ${matchId.id}");
+    }
+  }
+
+  @override
+  Future<void> addMatchModelIdList(List<MatchModelId> matchs) async {
+    for (MatchModelId match in matchs) {
+      await addMatchModelId(match);
+    }
   }
 }

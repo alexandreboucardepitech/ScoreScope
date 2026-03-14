@@ -8,6 +8,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/match_details_tabs/add_watch_friend_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_details_tabs/match_infos_card.dart';
+import 'package:scorescope/widgets/match_details_tabs/match_not_started.dart';
 import 'package:scorescope/widgets/match_details_tabs/mvp_vote_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_details_tabs/mvp_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/match_rating_card.dart';
@@ -315,60 +316,81 @@ class _InfosTabState extends State<InfosTab> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            MatchRatingCard(
-              noteMoyenne: widget.match.getNoteMoyenne(),
-              userVote: userVoteNoteMatch,
-              onChanged: (nouvelleValeur) {},
-              onConfirm: (valeurConfirmee) async {
-                final uid = FirebaseAuth.instance.currentUser!.uid;
-                widget.match.noterMatch(userId: uid, note: valeurConfirmee);
-                userVoteNoteMatch = valeurConfirmee;
-                await _reloadAll();
-              },
-            ),
-            const SizedBox(height: 12),
-            MvpCard(
-              mvp: currentMvp,
-              userVote: userVoteMVP,
-              onVotePressed: _onPlusPressed,
-            ),
-            const SizedBox(height: 12),
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: widget.match.isScheduled
+          ? Align(
+              alignment: Alignment.topCenter,
+              child: MatchNotStarted(
+                onNotificationsChanged: (value) async {
+                  AppUser? currentUser =
+                      RepositoryProvider.userRepository.currentUser;
+                  if (currentUser != null) {
+                    await RepositoryProvider.userRepository
+                        .updateMatchNotifications(
+                      matchId: widget.match.id,
+                      userId: currentUser.uid,
+                      matchDate: widget.match.date,
+                      activateNotifications: value,
+                    );
+                  }
+                },
+                matchId: widget.match.id,
+              ),
+            )
+          : SingleChildScrollView(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: VisionnageMatchCard(
-                      match: widget.match,
+                  MatchRatingCard(
+                    noteMoyenne: widget.match.getNoteMoyenne(),
+                    userVote: userVoteNoteMatch,
+                    onChanged: (nouvelleValeur) {},
+                    onConfirm: (valeurConfirmee) async {
+                      final uid = FirebaseAuth.instance.currentUser!.uid;
+                      widget.match
+                          .noterMatch(userId: uid, note: valeurConfirmee);
+                      userVoteNoteMatch = valeurConfirmee;
+                      await _reloadAll();
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  MvpCard(
+                    mvp: currentMvp,
+                    userVote: userVoteMVP,
+                    onVotePressed: _onPlusPressed,
+                  ),
+                  const SizedBox(height: 12),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: VisionnageMatchCard(
+                            match: widget.match,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: MatchInfosCard(match: widget.match),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: MatchInfosCard(match: widget.match),
-                  ),
+                  const SizedBox(height: 12),
+                  if (user != null)
+                    WatchWithFriendsCard(
+                      friends: _watchFriends,
+                      onRemoveFriend: _onRemoveFriend,
+                      onAddFriend: () {
+                        _onAddFriend(
+                          context: context,
+                          matchId: widget.match.id,
+                          equipeDomicile: widget.match.equipeDomicile,
+                          equipeExterieur: widget.match.equipeExterieur,
+                        );
+                      },
+                    ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            if (user != null)
-              WatchWithFriendsCard(
-                friends: _watchFriends,
-                onRemoveFriend: _onRemoveFriend,
-                onAddFriend: () {
-                  _onAddFriend(
-                    context: context,
-                    matchId: widget.match.id,
-                    equipeDomicile: widget.match.equipeDomicile,
-                    equipeExterieur: widget.match.equipeExterieur,
-                  );
-                },
-              ),
-          ],
-        ),
-      ),
     );
   }
 }

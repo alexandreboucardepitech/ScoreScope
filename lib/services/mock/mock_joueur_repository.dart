@@ -24,53 +24,77 @@ class MockJoueurRepository implements IJoueurRepository {
 
     _joueurs.addAll([
       Joueur(
-          prenom: "Matthis",
-          nom: "Abline",
-          id: "1",
-          equipeId: "2",
-          picture: "assets/joueurs/abline.png"),
+        prenom: "Matthis",
+        nom: "Abline",
+        id: "1",
+        equipeId: "2",
+        picture: "assets/joueurs/abline.png",
+        nationalite: "France",
+        dateNaissance: DateTime(2000, 01, 01),
+      ),
       Joueur(
-          prenom: "Yassine",
-          nom: "Benhattab",
-          id: "2",
-          equipeId: "2",
-          picture: "assets/joueurs/default.png"),
+        prenom: "Yassine",
+        nom: "Benhattab",
+        id: "2",
+        equipeId: "2",
+        picture: "assets/joueurs/default.png",
+        nationalite: "France",
+        dateNaissance: DateTime(2000, 01, 01),
+      ),
       Joueur(
-          prenom: "Louis",
-          nom: "Leroux",
-          id: "3",
-          equipeId: "2",
-          picture: "assets/joueurs/default.png"),
+        prenom: "Louis",
+        nom: "Leroux",
+        id: "3",
+        equipeId: "2",
+        picture: "assets/joueurs/default.png",
+        nationalite: "France",
+        dateNaissance: DateTime(2000, 01, 01),
+      ),
       Joueur(
-          prenom: "Lamine",
-          nom: "Yamal",
-          id: "4",
-          equipeId: "3",
-          picture: "assets/joueurs/default.png"),
+        prenom: "Lamine",
+        nom: "Yamal",
+        id: "4",
+        equipeId: "3",
+        picture: "assets/joueurs/default.png",
+        nationalite: "Spain",
+        dateNaissance: DateTime(2000, 01, 01),
+      ),
       Joueur(
-          prenom: "",
-          nom: "Pedri",
-          id: "5",
-          equipeId: "3",
-          picture: "assets/joueurs/default.png"),
+        prenom: "",
+        nom: "Pedri",
+        id: "5",
+        equipeId: "3",
+        picture: "assets/joueurs/default.png",
+        nationalite: "Spain",
+        dateNaissance: DateTime(2000, 01, 01),
+      ),
       Joueur(
-          prenom: "Kylian",
-          nom: "Mbappé",
-          id: "6",
-          equipeId: "4",
-          picture: "assets/joueurs/default.png"),
+        prenom: "Kylian",
+        nom: "Mbappé",
+        id: "6",
+        equipeId: "4",
+        picture: "assets/joueurs/default.png",
+        nationalite: "France",
+        dateNaissance: DateTime(2000, 01, 01),
+      ),
       Joueur(
-          prenom: "Franco",
-          nom: "Mastantuono",
-          id: "7",
-          equipeId: "4",
-          picture: "assets/joueurs/default.png"),
+        prenom: "Franco",
+        nom: "Mastantuono",
+        id: "7",
+        equipeId: "4",
+        picture: "assets/joueurs/default.png",
+        nationalite: "Argentina",
+        dateNaissance: DateTime(2000, 01, 01),
+      ),
       Joueur(
-          prenom: "Achraf",
-          nom: "Hakimi",
-          id: "8",
-          equipeId: "1",
-          picture: "assets/joueurs/default.png"),
+        prenom: "Achraf",
+        nom: "Hakimi",
+        id: "8",
+        equipeId: "1",
+        picture: "assets/joueurs/default.png",
+        nationalite: "Morocco",
+        dateNaissance: DateTime(2000, 01, 01),
+      ),
     ]);
   }
 
@@ -96,6 +120,13 @@ class MockJoueurRepository implements IJoueurRepository {
   Future<void> addJoueur(Joueur e) async {
     _joueurs.add(e);
     await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> addJoueursList(List<Joueur> joueurs) async {
+    for (Joueur joueur in joueurs) {
+      await addJoueur(joueur);
+    }
   }
 
   @override

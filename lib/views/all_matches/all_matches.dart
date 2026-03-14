@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
+import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/all_matches/recherche_view.dart';
 import 'package:scorescope/widgets/util/competitions_bottom_sheet.dart';
@@ -209,19 +212,19 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                     );
                   }
 
-                  final followedMatches = allMatches
+                  List<MatchModel> followedMatches = allMatches
                       .where((m) =>
                           favoriteTeamsIds.contains(m.equipeDomicile.id) ||
                           favoriteTeamsIds.contains(m.equipeExterieur.id) ||
                           favoriteCompetitionsIds.contains(m.competition.id))
                       .toList();
 
-                  final otherMatches = allMatches
+                  List<MatchModel> otherMatches = allMatches
                       .where((m) => !followedMatches.contains(m))
                       .toList();
 
-                  followedMatches.sort((a, b) => a.date.compareTo(b.date));
-                  otherMatches.sort((a, b) => a.date.compareTo(b.date));
+                  followedMatches = sortMatchsCompetition(followedMatches);
+                  otherMatches = sortMatchsCompetition(otherMatches);
 
                   return ListView(
                     padding: const EdgeInsets.only(bottom: 80),
@@ -252,6 +255,32 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               },
             ),
           ),
+          if (RepositoryProvider.userRepository.currentUser?.uid ==
+              "jSHnJN1cVWTsDirfm1sEaA358jJ3")
+            ElevatedButton(
+              onPressed: () async {
+                List<MatchModelId> matchsModelsId = await RepositoryProvider
+                    .matchRepository
+                    .fetchAllMatchesId(loadVotesAndNotes: false);
+                matchsModelsId.sort((a, b) => a.date.compareTo(b.date));
+                List<Joueur> joueurs = [];
+                for (MatchModelId matchModelId in matchsModelsId) {
+                  if (matchModelId.date.isAfter(DateTime(2025, 11, 07, 20))) {
+                    print(
+                      "on commence à récupérer ${matchModelId.id} : (${matchModelId.equipeDomicileId} - ${matchModelId.equipeExterieurId}) ${matchModelId.date}",
+                    );
+                    joueurs = await FillDatabase.getJoueursFromMatchModelId(
+                        matchModelId);
+                    print(
+                      "on a fini de récupérer ${matchModelId.id}) / joueurs : $joueurs",
+                    );
+                    await RepositoryProvider.joueurRepository
+                        .addJoueursList(joueurs);
+                  }
+                }
+              },
+              child: Text("test pour développeur"),
+            ),
         ],
       ),
     );

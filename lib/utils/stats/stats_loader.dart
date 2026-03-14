@@ -3,6 +3,7 @@ import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/stats/graph/stat_value.dart';
 import 'package:scorescope/models/stats/graph/time_stat_value.dart';
@@ -36,10 +37,11 @@ class StatsLoader {
       List<MatchModel> matchsVusModels) async {
     Map<Joueur, int> uniqueJoueursId = {};
     for (final match in matchsVusModels) {
-      final List<Joueur> joueursDuMatch =
+      final List<MatchJoueur> joueursDuMatch =
           match.joueursEquipeDomicile + match.joueursEquipeExterieur;
-      for (var joueur in joueursDuMatch) {
-        uniqueJoueursId[joueur] = (uniqueJoueursId[joueur] ?? 0) + 1;
+      for (var joueurMatch in joueursDuMatch) {
+        uniqueJoueursId[joueurMatch.joueur] =
+            (uniqueJoueursId[joueurMatch.joueur] ?? 0) + 1;
       }
     }
     final sortedEntries = uniqueJoueursId.entries.toList()
@@ -846,7 +848,8 @@ class StatsLoader {
                 .map((match) => match.getNoteMoyenne())
                 .fold(0.0, (sum, note) => sum + note) /
             matchsEquipe.length;
-    double noteMoyenneMatchsUser = getMoyenneNotes(matchsVusUser: matchsDataVusUser);
+    double noteMoyenneMatchsUser =
+        getMoyenneNotes(matchsVusUser: matchsDataVusUser);
 
     List<StatValue> ratioVictoiresDefaites =
         getPourcentageVictoireEquipe(matchsEquipe, equipe.id);
@@ -877,8 +880,8 @@ class StatsLoader {
 
     for (final matchData in matchs) {
       final mvp = await matchData.getMvp();
-      if (mvp != null && mvp.id != null) {
-        mvpsCount[mvp.id!] = (mvpsCount[mvp.id!] ?? 0) + 1;
+      if (mvp != null) {
+        mvpsCount[mvp.id] = (mvpsCount[mvp.id] ?? 0) + 1;
       }
     }
 

@@ -139,11 +139,11 @@ class _MvpCardState extends State<MvpCard> {
 
     return InkWell(
       onTap: () {
-        if (mvp != null && mvp.id != null) {
+        if (mvp != null) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PlayerDetailsPage(playerId: mvp.id!),
+              builder: (context) => PlayerDetailsPage(playerId: mvp.id),
             ),
           );
         }

@@ -260,6 +260,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'mvpVoteId': null,
         'favourite': favori,
         'private': false,
+        'notifications': false,
         'watchedAt': DateTime.now().toUtc(),
         'matchDate': matchDate,
       });
@@ -307,6 +308,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'note': null,
         'mvpVoteId': null,
         'favourite': false,
+        'notifications': false,
         'visionnageMatch': visionnageMatch.label,
         'private': false,
         'watchedAt': DateTime.now().toUtc(),
@@ -350,7 +352,11 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<void> setMatchPrivacy(
-      String matchId, String userId, DateTime matchDate, bool privacy) async {
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    bool privacy,
+  ) async {
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -369,6 +375,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'note': null,
         'mvpVoteId': null,
         'favourite': false,
+        'notifications': false,
         'private': privacy,
         'watchedAt': DateTime.now().toUtc(),
         'matchDate': matchDate,
@@ -809,6 +816,38 @@ class WebAppUserRepository implements IAppUserRepository {
           .toList();
     } else {
       return matches.whereType<MatchModel>().toList();
+    }
+  }
+
+  @override
+  Future<void> updateMatchNotifications({
+    required String matchId,
+    required String userId,
+    required DateTime matchDate,
+    required bool activateNotifications,
+  }) async {
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+
+    if (docSnapshot.exists) {
+      await userMatchDocRef.update({
+        'notifications': activateNotifications,
+      });
+    } else {
+      await userMatchDocRef.set({
+        'matchId': matchId,
+        'note': null,
+        'mvpVoteId': null,
+        'favourite': false,
+        'private': false,
+        'notifications': activateNotifications,
+        'matchDate': matchDate,
+      });
     }
   }
 }

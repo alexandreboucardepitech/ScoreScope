@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
+
 import '../../models/equipe.dart';
 import '../repositories/i_equipe_repository.dart';
 import '../../utils/string/string_helper.dart';
@@ -70,8 +72,12 @@ class MockEquipeRepository implements IEquipeRepository {
   }
 
   @override
-  Future<void> addEquipe(Equipe e) async {
-    _equipes.add(e);
+  Future<void> addEquipe(
+    Equipe equipe, {
+    bool popUpNomCourt = false,
+    BuildContext? context,
+  }) async {
+    _equipes.add(equipe);
     await Future.delayed(const Duration(milliseconds: 50));
   }
 
@@ -108,5 +114,16 @@ class MockEquipeRepository implements IEquipeRepository {
     result.addAll(starts);
     result.addAll(contains);
     return result.take(limit).toList();
+  }
+
+  @override
+  Future<void> addEquipesList(
+    List<Equipe> equipes, {
+    bool popUpNomCourt = false,
+    BuildContext? context,
+  }) async {
+    for (Equipe equipe in equipes) {
+      await addEquipe(equipe, popUpNomCourt: popUpNomCourt, context: context);
+    }
   }
 }

@@ -49,6 +49,8 @@ dependencies:
   firebase_storage: ^12.4.10
   image_picker: ^1.0.4
   provider: ^6.0.7
+  http: ^0.13.6
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +79,7 @@ flutter:
     - assets/equipes/
     - assets/joueurs/
     - assets/util/
+    - lib/.env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

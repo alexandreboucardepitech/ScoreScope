@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/string/display_score_or_match_date.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
@@ -394,112 +396,114 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: _isUpdatingFavori
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: ColorPalette.accent(context),
-                    ),
-                  )
-                : Icon(
-                    _isFavori ? Icons.favorite : Icons.favorite_border,
-                    color: ColorPalette.accent(context),
-                  ),
-            onPressed: _toggleFavori,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 4.0),
-            child: _isProcessingPrivacy
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: SizedBox(
-                      width: 28,
-                      height: 28,
+          if (widget.match.isScheduled == false) ...[
+            IconButton(
+              icon: _isUpdatingFavori
+                  ? SizedBox(
+                      width: 24,
+                      height: 24,
                       child: CircularProgressIndicator(
-                        strokeWidth: 2.2,
+                        strokeWidth: 2,
                         color: ColorPalette.accent(context),
                       ),
+                    )
+                  : Icon(
+                      _isFavori ? Icons.favorite : Icons.favorite_border,
+                      color: ColorPalette.accent(context),
                     ),
-                  )
-                : PopupMenuButton<String>(
-                    tooltip: _isPrivate ? 'Match privé' : 'Match public',
-                    icon: Icon(_isPrivate ? Icons.lock : Icons.public,
-                        color: ColorPalette.accent(context)),
-                    onSelected: (value) => _onPrivacyMenuSelected(value),
-                    itemBuilder: (context) {
-                      if (_isPrivate) {
-                        return [
-                          PopupMenuItem(
-                            value: 'publish',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.public, size: 18),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Rendre le match public',
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
+              onPressed: _toggleFavori,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 4.0),
+              child: _isProcessingPrivacy
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          color: ColorPalette.accent(context),
+                        ),
+                      ),
+                    )
+                  : PopupMenuButton<String>(
+                      tooltip: _isPrivate ? 'Match privé' : 'Match public',
+                      icon: Icon(_isPrivate ? Icons.lock : Icons.public,
+                          color: ColorPalette.accent(context)),
+                      onSelected: (value) => _onPrivacyMenuSelected(value),
+                      itemBuilder: (context) {
+                        if (_isPrivate) {
+                          return [
+                            PopupMenuItem(
+                              value: 'publish',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.public, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Rendre le match public',
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete, size: 18),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Supprimer le match',
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.delete, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Supprimer le match',
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ];
-                      } else {
-                        return [
-                          PopupMenuItem(
-                            value: 'makePrivate',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.lock, size: 18),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Rendre le match privé',
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
+                          ];
+                        } else {
+                          return [
+                            PopupMenuItem(
+                              value: 'makePrivate',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.lock, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Rendre le match privé',
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete, size: 18),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Supprimer le match',
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.delete, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Supprimer le match',
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ];
-                      }
-                    },
-                  ),
-          ),
+                          ];
+                        }
+                      },
+                    ),
+            ),
+          ],
           PopupMenuButton<String>(
             icon: Icon(
               Icons.more_vert,
@@ -554,18 +558,22 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                   SizedBox(
                                       width: 48,
                                       height: 48,
-                                      child: Image.asset(
+                                      child: Image.network(
                                           _currentMatch
                                               .equipeDomicile.logoPath!,
                                           fit: BoxFit.contain)),
                                   const SizedBox(height: 6),
-                                  Text(
-                                    _currentMatch.equipeDomicile.nom,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: ColorPalette.textPrimary(context),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      _currentMatch.equipeDomicile.nom,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -573,14 +581,30 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                             ),
                           ),
                           Expanded(
-                            child: Text(
-                              '${_currentMatch.scoreEquipeDomicile} - ${_currentMatch.scoreEquipeExterieur}',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: ColorPalette.textPrimary(context),
-                              ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  displayScoreOrMatchDate(_currentMatch),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
+                                if (_currentMatch.status ==
+                                    MatchStatus.scheduled)
+                                  Text(
+                                    DateFormat('d MMMM', 'fr_FR')
+                                        .format(_currentMatch.date),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                           Expanded(
@@ -601,18 +625,22 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                   SizedBox(
                                       width: 48,
                                       height: 48,
-                                      child: Image.asset(
+                                      child: Image.network(
                                           _currentMatch
                                               .equipeExterieur.logoPath!,
                                           fit: BoxFit.contain)),
                                   const SizedBox(height: 6),
-                                  Text(
-                                    _currentMatch.equipeExterieur.nom,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: ColorPalette.textPrimary(context),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      _currentMatch.equipeExterieur.nom,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -638,17 +666,15 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                   .map(
                                     (line) => InkWell(
                                       onTap: () {
-                                        if (line.joueur.id != null) {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PlayerDetailsPage(
-                                                playerId: line.joueur.id!,
-                                              ),
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                PlayerDetailsPage(
+                                              playerId: line.joueur.id,
                                             ),
-                                          );
-                                        }
+                                          ),
+                                        );
                                       },
                                       child: Text(
                                         line.nomJoueur,
@@ -663,15 +689,17 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                   .toList(),
                             ),
                           ),
-                          SizedBox(
-                            width: 40,
-                            child: Column(
-                              children: const [
-                                Icon(Icons.sports_soccer, size: 14),
-                                SizedBox(height: 4),
-                              ],
+                          if (_currentMatch.scoreEquipeDomicile > 0 ||
+                              _currentMatch.scoreEquipeExterieur > 0)
+                            SizedBox(
+                              width: 40,
+                              child: Column(
+                                children: const [
+                                  Icon(Icons.sports_soccer, size: 14),
+                                  SizedBox(height: 4),
+                                ],
+                              ),
                             ),
-                          ),
                           SizedBox(
                             width: 160,
                             child: Column(
@@ -684,17 +712,15 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                   .map(
                                     (line) => InkWell(
                                       onTap: () {
-                                        if (line.joueur.id != null) {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PlayerDetailsPage(
-                                                playerId: line.joueur.id!,
-                                              ),
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                PlayerDetailsPage(
+                                              playerId: line.joueur.id,
                                             ),
-                                          );
-                                        }
+                                          ),
+                                        );
                                       },
                                       child: Text(
                                         line.nomJoueur,
