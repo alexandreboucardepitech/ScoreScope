@@ -11,6 +11,7 @@ class AddWatchFriendBottomSheet extends StatefulWidget {
   final List<FriendItem> friends;
 
   const AddWatchFriendBottomSheet({
+    super.key,
     required this.matchId,
     required this.ownerId,
     required this.friends,

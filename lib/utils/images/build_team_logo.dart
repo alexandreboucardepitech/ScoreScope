@@ -26,7 +26,14 @@ Widget buildTeamLogo(
     width: size,
     height: size,
     child: path != null
-        ? Image.network(path, fit: BoxFit.contain)
+        ? Image.network(
+            path,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => CircleAvatar(
+              radius: 14,
+              child: Icon(Icons.shield, size: 16),
+            ),
+          )
         : Icon(Icons.shield,
             size: size, color: ColorPalette.textPrimary(context)),
   );

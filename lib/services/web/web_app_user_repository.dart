@@ -71,6 +71,7 @@ class WebAppUserRepository implements IAppUserRepository {
             isLessThanOrEqualTo: Timestamp.fromDate(dateRange.end),
           );
     }
+    query = query.where('watchedAt', isNotEqualTo: null);
     final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
 
     return snapshot.docs.map((doc) => doc.data()['matchId'] as String).toList();

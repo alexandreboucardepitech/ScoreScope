@@ -28,24 +28,25 @@ class MatchInfosCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(
-                Icons.location_pin,
-                size: 20,
-                color: ColorPalette.accent(context),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Nom du stade — à faire',
-                  style: TextStyle(
-                    color: ColorPalette.textPrimary(context),
+          if (match.stadiumName != null)
+            Row(
+              children: [
+                Icon(
+                  Icons.stadium,
+                  size: 20,
+                  color: ColorPalette.accent(context),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    match.stadiumName!,
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(context),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           const SizedBox(height: 6),
           Row(
             children: [
@@ -84,6 +85,26 @@ class MatchInfosCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 6),
+          if (match.refereeName != null)
+            Row(
+              children: [
+                Icon(
+                  Icons.flag,
+                  size: 20,
+                  color: ColorPalette.accent(context),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    match.refereeName!,
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(context),
+                    ),
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );

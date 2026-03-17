@@ -324,7 +324,8 @@ class WebMatchRepository implements IMatchRepository {
 
     final allDocs = [...snapshot.docs, ...snapshot2.docs];
 
-    final futures = allDocs.map((doc) async {
+    List<MatchModel> matchs = [];
+    for (dynamic doc in allDocs) {
       final data = doc.data();
 
       final mvpVotesSnapshot =
@@ -337,10 +338,10 @@ class WebMatchRepository implements IMatchRepository {
 
       final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
 
-      return await MatchModel.fromMatchId(matchModelId);
-    }).toList();
+      matchs.add(await MatchModel.fromMatchId(matchModelId));
+    }
 
-    return await Future.wait(futures);
+    return matchs;
   }
 
   @override

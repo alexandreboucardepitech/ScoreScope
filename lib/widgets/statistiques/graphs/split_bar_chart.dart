@@ -74,7 +74,7 @@ class SplitBarChart extends StatelessWidget {
             runSpacing: 8,
             children: List.generate(values.length, (i) {
               final v = values[i];
-              final percent = (v.value / total * 100).round();
+              final percent = total == 0 ? 0 : (v.value / total * 100).round();
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,

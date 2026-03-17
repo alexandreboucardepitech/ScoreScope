@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
-import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
@@ -259,23 +258,23 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               "jSHnJN1cVWTsDirfm1sEaA358jJ3")
             ElevatedButton(
               onPressed: () async {
-                List<MatchModelId> matchsModelsId = await RepositoryProvider
+                List<MatchModelId> matchs = await RepositoryProvider
                     .matchRepository
                     .fetchAllMatchesId(loadVotesAndNotes: false);
-                matchsModelsId.sort((a, b) => a.date.compareTo(b.date));
-                List<Joueur> joueurs = [];
-                for (MatchModelId matchModelId in matchsModelsId) {
-                  if (matchModelId.date.isAfter(DateTime(2025, 11, 07, 20))) {
+
+                matchs.sort((a, b) => a.date.compareTo(b.date));
+
+                for (MatchModelId match in matchs) {
+                  if (match.date.isAfter(DateTime(2025, 10, 11))) {
                     print(
-                      "on commence à récupérer ${matchModelId.id} : (${matchModelId.equipeDomicileId} - ${matchModelId.equipeExterieurId}) ${matchModelId.date}",
+                      "on commence à récupérer ${match.id} : (${match.equipeDomicileId} - ${match.equipeExterieurId}) ${match.date}",
                     );
-                    joueurs = await FillDatabase.getJoueursFromMatchModelId(
-                        matchModelId);
+                    await FillDatabase.updateMatchOwnGoalPenaltyAndStadiumNames(
+                      match,
+                    );
                     print(
-                      "on a fini de récupérer ${matchModelId.id}) / joueurs : $joueurs",
+                      "on a fini de récupérer ${match.id})",
                     );
-                    await RepositoryProvider.joueurRepository
-                        .addJoueursList(joueurs);
                   }
                 }
               },
@@ -379,7 +378,7 @@ void _showCompetitionsSelector(
   AppUser? currentUser =
       await RepositoryProvider.userRepository.getCurrentUser();
   if (currentUser != null) {
-    await showModalBottomSheet(
+    List<String>? competitionsSelected = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: ColorPalette.surface(context),
@@ -390,6 +389,12 @@ void _showCompetitionsSelector(
         competitionsPreferees: currentUser.competitionsPrefereesId,
       ),
     );
+    if (competitionsSelected != null) {
+      await RepositoryProvider.userRepository.editProfile(
+        userId: currentUser.uid,
+        newCompetitionsPrefereesId: competitionsSelected,
+      );
+    }
 
     onSelected();
   }

@@ -9,6 +9,7 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/construct_player_from_json.dart';
+import 'package:scorescope/utils/string/get_first_and_last_name.dart';
 import 'package:scorescope/utils/string/get_match_status_from_code.dart';
 
 class FillDatabase {
@@ -113,7 +114,7 @@ class FillDatabase {
     return {"principale": principale, "secondaire": secondaire};
   }
 
-  static Map<String, MatchJoueurId> createJoueursFromJson(
+  static Map<String, MatchJoueurId> createMatchJoueursFromJson(
     List<dynamic>? json, {
     bool isFromStartXI = false,
   }) {
@@ -168,19 +169,19 @@ class FillDatabase {
         final List<dynamic>? startXIExterieur = lineup[1]?['startXI'];
         final List<dynamic>? substitutesDomicile = lineup[0]?['substitutes'];
         final List<dynamic>? substitutesExterieur = lineup[1]?['substitutes'];
-        equipeDomicilePlayers.addAll(createJoueursFromJson(
+        equipeDomicilePlayers.addAll(createMatchJoueursFromJson(
           startXIDomicile,
           isFromStartXI: true,
         ));
-        equipeExterieurPlayers.addAll(createJoueursFromJson(
+        equipeExterieurPlayers.addAll(createMatchJoueursFromJson(
           startXIExterieur,
           isFromStartXI: true,
         ));
-        equipeDomicilePlayers.addAll(createJoueursFromJson(
+        equipeDomicilePlayers.addAll(createMatchJoueursFromJson(
           substitutesDomicile,
           isFromStartXI: false,
         ));
-        equipeExterieurPlayers.addAll(createJoueursFromJson(
+        equipeExterieurPlayers.addAll(createMatchJoueursFromJson(
           substitutesExterieur,
           isFromStartXI: false,
         ));
@@ -220,12 +221,24 @@ class FillDatabase {
             final String passeurId = event['assist']['id'].toString();
             final String minute = event['time']['elapsed'].toString();
             final String teamId = event['team']['id'].toString();
+            TypeBut typeBut;
+            switch (event['detail']) {
+              case 'Normal Goal':
+                typeBut = TypeBut.normal;
+              case 'Own Goal':
+                typeBut = TypeBut.owngoal;
+              case 'Penalty':
+                typeBut = TypeBut.penalty;
+              default:
+                typeBut = TypeBut.normal;
+            }
             if (teamId == equipeDomicileId) {
               equipeDomicileButs.add(
                 ButId(
                   buteurId: buteurId,
                   minute: minute,
                   passeurId: passeurId,
+                  typeBut: typeBut,
                 ),
               );
             } else if (teamId == equipeExterieurId) {
@@ -234,6 +247,7 @@ class FillDatabase {
                   buteurId: buteurId,
                   minute: minute,
                   passeurId: passeurId,
+                  typeBut: typeBut,
                 ),
               );
             }
@@ -306,7 +320,18 @@ class FillDatabase {
           final String nom = teamData['team']['name'].toString();
           final String code = teamData['team']['code'].toString();
           final String logoPath = teamData['team']['logo'].toString();
-          Map<String, String?> couleurs = await getTeamColors(id, season);
+          final bool national = teamData['team']['national'] ?? false;
+          int saisonCouleurs = int.parse(season);
+          Map<String, String?> couleurs = {
+            "principale": null,
+            "secondaire": null,
+          };
+          while ((couleurs["principale"] == null &&
+                  couleurs["secondaire"] == null) &&
+              saisonCouleurs >= int.parse(season) - 10) {
+            couleurs = await getTeamColors(id, saisonCouleurs.toString());
+            saisonCouleurs--;
+          }
           Equipe newEquipe = Equipe(
             id: id,
             nom: nom,
@@ -314,6 +339,7 @@ class FillDatabase {
             logoPath: logoPath,
             couleurPrincipale: couleurs["principale"],
             couleurSecondaire: couleurs["secondaire"],
+            national: national,
           );
           equipes.add(newEquipe);
         }
@@ -389,6 +415,43 @@ class FillDatabase {
     return [];
   }
 
+  static Future<Joueur?> createJoueurFromJson(
+      String joueurId, String equipeId) async {
+    if (joueurId == "null") return null;
+    List<dynamic> data = await getDataFromApi(
+      "players/profiles",
+      params: {"player": joueurId},
+    );
+    if (data.isEmpty) return null;
+    Map<String, dynamic>? player = data[0]?['player'];
+    if (player != null) {
+      String? prenom = player['firstname'];
+      String? nom = player['lastname'];
+      String? fullName = player['name'];
+      String? nationalite = player['nationalite'];
+      DateTime? dateNaissance =
+          DateTime.tryParse(player['birth']?['date'] ?? '');
+      String picture = player['photo'];
+      Map<String, String> nomComplet =
+          getFirstAndLastName(prenom, nom, fullName);
+      if (fullName != null) {
+        fullName = fullName.replaceAll('&apos;', "'");
+      }
+      final newJoueur = Joueur(
+        id: joueurId,
+        prenom: nomComplet["prenom"]!,
+        nom: nomComplet["nom"]!,
+        fullName: fullName,
+        equipeId: equipeId,
+        dateNaissance: dateNaissance,
+        nationalite: nationalite,
+        picture: picture,
+      );
+      return newJoueur;
+    }
+    return null;
+  }
+
   static Future<List<Joueur>> getJoueurs(MatchModel match) async {
     Map<String, List<dynamic>> players = await getMatchPlayers(
       match.id,
@@ -404,58 +467,27 @@ class FillDatabase {
         players["equipeExterieurPlayers"] as List<MatchJoueurId>?;
     if (equipeDomicilePlayers != null) {
       for (MatchJoueurId joueur in equipeDomicilePlayers) {
-        List<dynamic> data = await getDataFromApi(
-          "players/profiles",
-          params: {"player": joueur.joueurId},
+        Joueur? newJoueur = await createJoueurFromJson(
+          joueur.joueurId,
+          match.equipeDomicile.id,
         );
-        Map<String, dynamic>? player = data[0]?['player'];
-        if (player != null) {
-          String prenom = player['firstname'];
-          String nom = player['lastname'];
-          String equipeId = match.equipeDomicile.id;
-          String nationalite = player['nationalite'];
-          DateTime dateNaissance = DateTime.parse(player['birth']['date']);
-          String picture = player['photo'];
-          final newJoueur = Joueur(
-            id: joueur.joueurId,
-            prenom: prenom,
-            nom: nom,
-            equipeId: equipeId,
-            dateNaissance: dateNaissance,
-            nationalite: nationalite,
-            picture: picture,
-          );
+        if (newJoueur != null) {
           joueurs.add(newJoueur);
         }
       }
     }
     if (equipeExterieurPlayers != null) {
       for (MatchJoueurId joueur in equipeExterieurPlayers) {
-        List<dynamic> data = await getDataFromApi(
-          "players/profiles",
-          params: {"player": joueur.joueurId},
+        Joueur? newJoueur = await createJoueurFromJson(
+          joueur.joueurId,
+          match.equipeExterieur.id,
         );
-        Map<String, dynamic>? player = data[0]?['player'];
-        if (player != null) {
-          String prenom = player['firstname'];
-          String nom = player['lastname'];
-          String equipeId = match.equipeExterieur.id;
-          String nationalite = player['nationalite'];
-          DateTime dateNaissance = DateTime.parse(player['birth']['date']);
-          String picture = player['photo'];
-          final newJoueur = Joueur(
-            id: joueur.joueurId,
-            prenom: prenom,
-            nom: nom,
-            equipeId: equipeId,
-            dateNaissance: dateNaissance,
-            nationalite: nationalite,
-            picture: picture,
-          );
+        if (newJoueur != null) {
           joueurs.add(newJoueur);
         }
       }
     }
+
     return joueurs;
   }
 
@@ -527,5 +559,96 @@ class FillDatabase {
       );
     }
     return joueurs;
+  }
+
+  static List<ButId> updateButInList(List<ButId> initialList, ButId newBut) {
+    List<ButId> newList = List<ButId>.from(initialList);
+    for (int i = 0; i < initialList.length; i++) {
+      ButId but = initialList[i];
+      if (but.buteurId == newBut.buteurId &&
+          but.minute == newBut.minute &&
+          but.passeurId == newBut.passeurId) {
+        newList[i] = newBut;
+        return newList;
+      }
+    }
+    return newList;
+  }
+
+  static Future<void> updateMatchOwnGoalPenaltyAndStadiumNames(
+      MatchModelId match) async {
+    String? refereeName;
+    String? stadiumName;
+    List<dynamic> data = await getDataFromApi(
+      "fixtures",
+      params: {"id": match.id},
+    );
+    if (data.isNotEmpty) {
+      refereeName = data[0]?['fixture']?['referee'];
+      stadiumName = data[0]?['fixture']?['venue']?['name'];
+    }
+    Map<String, List<dynamic>> matchPlayers = await getMatchPlayers(
+      match.id,
+      equipeDomicileId: match.equipeDomicileId,
+      equipeExterieurId: match.equipeExterieurId,
+    );
+    List<ButId>? butsDomicile =
+        matchPlayers['equipeDomicileButs'] as List<ButId>?;
+    List<ButId>? butsExterieur =
+        matchPlayers['equipeExterieurButs'] as List<ButId>?;
+
+    if (butsDomicile != null) {
+      for (ButId but in butsDomicile) {
+        Joueur? joueurExiste = await RepositoryProvider.joueurRepository
+            .fetchJoueurById(but.buteurId);
+        if (joueurExiste == null) {
+          Joueur? newJoueur = await createJoueurFromJson(
+            but.buteurId,
+            match.equipeDomicileId,
+          );
+          if (newJoueur != null) {
+            await RepositoryProvider.joueurRepository.addJoueur(newJoueur);
+          }
+        }
+      }
+    }
+    if (butsExterieur != null) {
+      for (ButId but in butsExterieur) {
+        Joueur? joueurExiste = await RepositoryProvider.joueurRepository
+            .fetchJoueurById(but.buteurId);
+        if (joueurExiste == null) {
+          Joueur? newJoueur = await createJoueurFromJson(
+            but.buteurId,
+            match.equipeExterieurId,
+          );
+          if (newJoueur != null) {
+            await RepositoryProvider.joueurRepository.addJoueur(newJoueur);
+          }
+        }
+      }
+    }
+    MatchModelId newMatch = MatchModelId(
+      id: match.id,
+      status: match.status,
+      equipeDomicileId: match.equipeDomicileId,
+      equipeExterieurId: match.equipeExterieurId,
+      competitionId: match.competitionId,
+      date: match.date,
+      scoreEquipeDomicile: match.scoreEquipeDomicile,
+      scoreEquipeExterieur: match.scoreEquipeExterieur,
+      joueursEquipeDomicileId: match.joueursEquipeDomicileId,
+      joueursEquipeExterieurId: match.joueursEquipeExterieurId,
+      butsEquipeDomicileId: butsDomicile ?? match.butsEquipeDomicileId,
+      butsEquipeExterieurId: butsExterieur ?? match.butsEquipeExterieurId,
+      extraTime: match.extraTime,
+      liveMinute: match.extraTime,
+      mvpVotes: match.mvpVotes,
+      notesDuMatch: match.notesDuMatch,
+      refereeName: refereeName,
+      stadiumName: stadiumName,
+      saison: match.saison,
+    );
+
+    await RepositoryProvider.matchRepository.updateMatchModelId(newMatch);
   }
 }

@@ -62,6 +62,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
         _isLoadingTeamStats = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoadingTeamStats = false;
       });

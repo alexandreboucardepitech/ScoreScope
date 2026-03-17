@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/stats/player_stats.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/date/calculate_age.dart';
 import 'package:scorescope/utils/stats/stats_loader.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
@@ -23,6 +26,13 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   Joueur? _joueur;
   bool _isLoadingPlayer = true;
 
+  // ✅ NEW
+  Equipe? _equipe;
+  bool _isLoadingEquipe = true;
+
+  Equipe? _country;
+  bool _isLoadingCountry = true;
+
   PlayerStats? _playerStats;
   bool _isLoadingPlayerStats = true;
 
@@ -31,7 +41,11 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _loadPlayer().then((_) => _loadPlayerStats());
+    _loadPlayer().then((_) {
+      _loadEquipe();
+      _loadCountry();
+      _loadPlayerStats();
+    });
   }
 
   Future<void> _loadPlayer() async {
@@ -44,8 +58,58 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
         _isLoadingPlayer = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoadingPlayer = false;
+      });
+    }
+  }
+
+  Future<void> _loadEquipe() async {
+    try {
+      Equipe? equipe = await RepositoryProvider.equipeRepository
+          .fetchEquipeById(_joueur!.equipeId);
+
+      setState(() {
+        _equipe = equipe;
+        _isLoadingEquipe = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingEquipe = false;
+      });
+    }
+  }
+
+  Future<void> _loadCountry() async {
+    try {
+      if (_joueur!.equipeNationaleId != null) {
+        Equipe? country = await RepositoryProvider.equipeRepository
+            .fetchEquipeById(_joueur!.equipeNationaleId!);
+
+        setState(() {
+          _country = country;
+          _isLoadingEquipe = false;
+        });
+        return;
+      } else if (_joueur!.nationalite != null) {
+        List<Equipe> country = await RepositoryProvider.equipeRepository
+            .searchEquipes(_joueur!.nationalite!);
+        if (country.isNotEmpty) {
+          setState(() {
+            _country = country[0];
+            _isLoadingEquipe = false;
+          });
+          return;
+        }
+        setState(() {
+          _country = null;
+          _isLoadingEquipe = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoadingEquipe = false;
       });
     }
   }
@@ -61,6 +125,15 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     } catch (e) {
       setState(() {
         _isLoadingPlayerStats = false;
+        _playerStats = PlayerStats(
+            matchsJoues: 0,
+            butsMarques: 0,
+            eluMvp: 0,
+            votesMvp: 0,
+            userMatchsJoues: 0,
+            userButsMarques: 0,
+            userEluMvp: 0,
+            userVotesMvp: 0);
       });
     }
   }
@@ -217,64 +290,128 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    _joueur!.fullName,
-                    style: TextStyle(
-                      color: ColorPalette.textPrimary(context),
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      "${_joueur!.prenom} ${_joueur!.nom}",
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(context),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  FutureBuilder(
-                    future: RepositoryProvider.equipeRepository
-                        .fetchEquipeById(_joueur!.equipeId),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Text(
-                          "Chargement...",
-                          style: TextStyle(
-                            color: ColorPalette.textSecondary(context),
-                            fontSize: 14,
-                          ),
-                        );
-                      }
-
-                      final equipe = snapshot.data!;
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  TeamDetailsPage(teamId: equipe.id),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            if (equipe.logoPath != null) ...[
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Image.network(
-                                  equipe.logoPath!,
-                                ),
-                              ),
-                              SizedBox(width: 6),
-                            ],
-                            Text(
-                              equipe.nom,
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      _isLoadingEquipe && _isLoadingCountry
+                          ? Text(
+                              "Chargement...",
                               style: TextStyle(
                                 color: ColorPalette.textSecondary(context),
                                 fontSize: 14,
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                            )
+                          : _equipe == null && _country == null
+                              ? const SizedBox.shrink()
+                              : _equipe != null
+                                  ? InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                TeamDetailsPage(
+                                                    teamId: _equipe!.id),
+                                          ),
+                                        );
+                                      },
+                                      child: Row(
+                                        children: [
+                                          if (_equipe!.logoPath != null) ...[
+                                            SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: Image.network(
+                                                _equipe!.logoPath!,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                          ],
+                                          Text(
+                                            _equipe!.nom,
+                                            style: TextStyle(
+                                              color: ColorPalette.textSecondary(
+                                                  context),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                      const SizedBox(width: 6),
+                      _country != null
+                          ? InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        TeamDetailsPage(teamId: _country!.id),
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  if (_country!.logoPath != null) ...[
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: Image.network(
+                                        _country!.logoPath!,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                ],
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ],
                   ),
+                  if (_joueur!.dateNaissance != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          "${calculateAge(_joueur!.dateNaissance!)} ans",
+                          style: TextStyle(
+                            color: ColorPalette.textSecondary(context),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          ' - ',
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          DateFormat('dd MMMM yyyy', 'fr_FR')
+                              .format(_joueur!.dateNaissance!),
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

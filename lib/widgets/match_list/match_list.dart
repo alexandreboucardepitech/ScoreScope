@@ -13,6 +13,7 @@ class MatchList extends StatefulWidget {
   final Widget? header;
   final AppUser? user;
   final bool displayUserData;
+  final bool hidePostponedMatches;
 
   const MatchList({
     super.key,
@@ -21,6 +22,7 @@ class MatchList extends StatefulWidget {
     this.header,
     this.user,
     this.displayUserData = false,
+    this.hidePostponedMatches = true,
   }) : assert(matches != null || ids != null, 'Provide either matches or ids');
 
   @override
@@ -130,7 +132,13 @@ class _MatchListState extends State<MatchList> {
   @override
   Widget build(BuildContext context) {
     final hasHeader = widget.header != null;
-    final List<MatchModel>? items = widget.matches ?? _loaded;
+    List<MatchModel>? items = widget.matches ?? _loaded;
+
+    if (widget.hidePostponedMatches && items != null) {
+      items = items
+          .where((MatchModel match) => match.status != MatchStatus.postponed)
+          .toList();
+    }
 
     Widget content;
 

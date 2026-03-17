@@ -348,6 +348,11 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                 match.competition.logoUrl ??
                                     'https://media.api-sports.io/football/leagues/1.png',
                                 fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    CircleAvatar(
+                                  radius: 14,
+                                  child: Icon(Icons.emoji_events, size: 16),
+                                ),
                               ),
                             ),
                           ),

@@ -687,6 +687,33 @@ class StatsLoader {
     return result;
   }
 
+  static List<MatchModel> getMatchsJoueur(
+    List<MatchModel> matchs,
+    String joueurId,
+  ) {
+    List<MatchModel> matchsJoueur = [];
+    bool matchAjoute = false;
+    for (MatchModel matchModel in matchs) {
+      matchAjoute = false;
+      for (MatchJoueur matchJoueur in matchModel.joueursEquipeDomicile) {
+        if (matchJoueur.joueur.id == joueurId) {
+          matchsJoueur.add(matchModel);
+          matchAjoute = true;
+          break;
+        }
+      }
+      if (matchAjoute == false) {
+        for (MatchJoueur matchJoueur in matchModel.joueursEquipeExterieur) {
+          if (matchJoueur.joueur.id == joueurId) {
+            matchsJoueur.add(matchModel);
+            break;
+          }
+        }
+      }
+    }
+    return matchsJoueur;
+  }
+
   static Future<PlayerStats> getPlayerStats(Joueur joueur) async {
     if (RepositoryProvider.userRepository.currentUser == null) {
       throw Exception("L'utilisateur n'est pas connecté");
@@ -695,20 +722,17 @@ class StatsLoader {
     String equipeId = joueur.equipeId;
     List<MatchModel> matchsEquipe =
         await RepositoryProvider.matchRepository.fetchTeamAllMatches(equipeId);
-    List<MatchModel> matchsJoueur = matchsEquipe.where((match) {
-      return match.joueursEquipeDomicile.contains(joueur) ||
-          match.joueursEquipeExterieur.contains(joueur);
-    }).toList();
+    List<MatchModel> matchsJoueur = getMatchsJoueur(matchsEquipe, joueur.id);
     List<MatchModel> matchsEquipeVusUser =
         await RepositoryProvider.userRepository.fetchUserMatchsRegardes(
       userId: userId,
       onlyPublic: false,
       equipeId: equipeId,
     );
-    List<MatchModel> matchsJoueurVusUser = matchsEquipeVusUser.where((match) {
-      return match.joueursEquipeDomicile.contains(joueur) ||
-          match.joueursEquipeExterieur.contains(joueur);
-    }).toList();
+    List<MatchModel> matchsJoueurVusUser = getMatchsJoueur(
+      matchsEquipeVusUser,
+      joueur.id,
+    );
     final int matchsJoues = matchsJoueur.length;
     final int matchsVus = matchsJoueurVusUser.length;
     final int buts = matchsJoueur

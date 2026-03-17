@@ -32,6 +32,8 @@ class MatchModel implements PodiumDisplayable {
   final Equipe equipeExterieur;
   final Competition competition;
   final DateTime date;
+  String? refereeName;
+  String? stadiumName;
   final int scoreEquipeDomicile;
   final int scoreEquipeExterieur;
   final List<But> butsEquipeDomicile;
@@ -51,6 +53,8 @@ class MatchModel implements PodiumDisplayable {
       required this.equipeExterieur,
       required this.competition,
       required this.date,
+      this.refereeName,
+      this.stadiumName,
       required this.scoreEquipeDomicile,
       required this.scoreEquipeExterieur,
       required this.joueursEquipeDomicile,
@@ -530,6 +534,8 @@ class MatchModel implements PodiumDisplayable {
         'extraTime': extraTime,
         'competitionId': competition.id,
         'date': date.toIso8601String(),
+        'refereeName': refereeName,
+        'stadiumName': stadiumName,
         'scoreEquipeDomicile': scoreEquipeDomicile,
         'scoreEquipeExterieur': scoreEquipeExterieur,
         'equipeDomicileId': equipeDomicile.id,
@@ -583,6 +589,8 @@ class MatchModel implements PodiumDisplayable {
       equipeDomicile: equipeDom!,
       equipeExterieur: equipeExt!,
       date: data.date,
+      refereeName: data.refereeName,
+      stadiumName: data.stadiumName,
       scoreEquipeDomicile: data.scoreEquipeDomicile,
       scoreEquipeExterieur: data.scoreEquipeExterieur,
       joueursEquipeDomicile: joueursDom,
@@ -609,6 +617,8 @@ class MatchModelId {
   final String equipeExterieurId;
   final String competitionId;
   final DateTime date;
+  String? refereeName;
+  String? stadiumName;
   final int scoreEquipeDomicile;
   final int scoreEquipeExterieur;
   final List<ButId> butsEquipeDomicileId;
@@ -628,6 +638,8 @@ class MatchModelId {
       required this.equipeExterieurId,
       required this.competitionId,
       required this.date,
+      this.refereeName,
+      this.stadiumName,
       required this.scoreEquipeDomicile,
       required this.scoreEquipeExterieur,
       required this.joueursEquipeDomicileId,
@@ -648,6 +660,8 @@ class MatchModelId {
         'saison': saison,
         'competitionId': competitionId,
         'date': date,
+        'refereeName': refereeName,
+        'stadiumName': stadiumName,
         'scoreEquipeDomicile': scoreEquipeDomicile,
         'scoreEquipeExterieur': scoreEquipeExterieur,
         'equipeDomicileId': equipeDomicileId,
@@ -688,6 +702,8 @@ class MatchModelId {
       equipeDomicileId: json['equipeDomicileId'],
       equipeExterieurId: json['equipeExterieurId'],
       date: date!,
+      refereeName: json['refereeName'],
+      stadiumName: json['stadiumName'],
       scoreEquipeDomicile: json['scoreEquipeDomicile'] ?? 0,
       scoreEquipeExterieur: json['scoreEquipeExterieur'] ?? 0,
       liveMinute: json['liveMinute'] as int?,

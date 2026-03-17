@@ -10,6 +10,7 @@ class Equipe extends BasicPodiumDisplayable {
   final String? logoPath;
   final String? couleurPrincipale;
   final String? couleurSecondaire;
+  final bool national;
 
   Equipe(
       {required this.id,
@@ -18,7 +19,8 @@ class Equipe extends BasicPodiumDisplayable {
       this.code,
       this.logoPath,
       this.couleurPrincipale,
-      this.couleurSecondaire});
+      this.couleurSecondaire,
+      this.national = false,});
 
   @override
   String get displayLabel => nomCourt ?? nom;
@@ -42,6 +44,7 @@ class Equipe extends BasicPodiumDisplayable {
         if (logoPath != null) 'logoPath': logoPath,
         if (couleurPrincipale != null) 'couleurPrincipale': couleurPrincipale,
         if (couleurSecondaire != null) 'couleurSecondaire': couleurSecondaire,
+        'national': national,
       };
 
   factory Equipe.fromJson(
@@ -54,6 +57,7 @@ class Equipe extends BasicPodiumDisplayable {
         logoPath: json['logoPath'] as String?,
         couleurPrincipale: json['couleurPrincipale'] as String?,
         couleurSecondaire: json['couleurSecondaire'] as String?,
+        national: json['national'] as bool? ?? false,
       );
 
   @override
