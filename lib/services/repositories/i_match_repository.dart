@@ -25,6 +25,8 @@ abstract class IMatchRepository {
     String? equipeExterieurId,
     String? competitionId,
     DateTime? date,
+    String? refereeName,
+    String? stadiumName,
     int? scoreEquipeDomicile,
     int? scoreEquipeExterieur,
     List<ButId>? butsEquipeDomicileId,
@@ -32,7 +34,7 @@ abstract class IMatchRepository {
     List<MatchJoueurId>? joueursEquipeDomicileId,
     List<MatchJoueurId>? joueursEquipeExterieurId,
     Map<String, String>? mvpVotes,
-    Map<String, int>? notesDuMatch,
+    Map<String, int>? notes,
   });
   Future<void> deleteMatch(MatchModel match);
   Future<void> noterMatch(
@@ -41,6 +43,7 @@ abstract class IMatchRepository {
     DateTime matchDate,
     int? note,
   );
+  Future<void> enleverNote(String matchId, String userId);
   Future<void> voterPourMVP(
     String matchId,
     String userId,

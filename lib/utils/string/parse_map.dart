@@ -6,7 +6,11 @@ Map<String, String> parseStringMap(dynamic value) {
   }
 
   if (value is List) {
-    return {}; // cas Firebase qui renvoie []
+    if (value.isEmpty) {
+      return {}; // cas Firebase qui renvoie []
+    } else {
+      return parseStringMap(value[0]);
+    }
   }
 
   throw Exception(
@@ -21,7 +25,11 @@ Map<String, int> parseIntMap(dynamic value) {
   }
 
   if (value is List) {
-    return {};
+    if (value.isEmpty) {
+      return {};
+    } else {
+      return parseIntMap(value[0]);
+    }
   }
 
   throw Exception("Type invalide pour Map<String,int>: ${value.runtimeType}");

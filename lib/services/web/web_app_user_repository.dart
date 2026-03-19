@@ -281,8 +281,9 @@ class WebAppUserRepository implements IAppUserRepository {
           VisionnageMatch.tele;
     }
     final data = doc.data()!;
-    final VisionnageMatch? visionnageValue =
-        VisionnageMatchExt.fromString(data['visionnageMatch']);
+    final VisionnageMatch? visionnageValue = data['visionnageMatch'] != null
+        ? VisionnageMatchExt.fromString(data['visionnageMatch'])
+        : null;
     return visionnageValue ??
         currentUser?.options.defaultVisionnageMatch ??
         VisionnageMatch.tele;

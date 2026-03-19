@@ -26,7 +26,6 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   Joueur? _joueur;
   bool _isLoadingPlayer = true;
 
-  // ✅ NEW
   Equipe? _equipe;
   bool _isLoadingEquipe = true;
 
@@ -89,7 +88,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
 
         setState(() {
           _country = country;
-          _isLoadingEquipe = false;
+          _isLoadingCountry = false;
         });
         return;
       } else if (_joueur!.nationalite != null) {
@@ -98,18 +97,18 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
         if (country.isNotEmpty) {
           setState(() {
             _country = country[0];
-            _isLoadingEquipe = false;
+            _isLoadingCountry = false;
           });
           return;
         }
         setState(() {
           _country = null;
-          _isLoadingEquipe = false;
+          _isLoadingCountry = false;
         });
       }
     } catch (e) {
       setState(() {
-        _isLoadingEquipe = false;
+        _isLoadingCountry = false;
       });
     }
   }
@@ -123,6 +122,13 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
         _isLoadingPlayerStats = false;
       });
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text('Erreur lors de la récupération des stats du joueur : $e'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
       setState(() {
         _isLoadingPlayerStats = false;
         _playerStats = PlayerStats(

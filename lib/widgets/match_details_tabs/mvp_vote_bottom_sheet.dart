@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import '../../models/match.dart';
 import '../../models/joueur.dart';
@@ -53,6 +54,17 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
     if (joueur == initialUserVote) nbVotes--;
     if (joueur == currentUserVote) nbVotes++;
     return nbVotes;
+  }
+
+  List<MatchJoueur> getJoueursTriesParNombreDeVotes(
+      List<MatchJoueur> joueurs, MatchModel match) {
+    List<MatchJoueur> newList = List<MatchJoueur>.from(joueurs);
+    newList.sort((a, b) =>
+        (a.joueur != null ? match.getNbVotesById(a.joueur!.id) : 0) >
+                (b.joueur != null ? match.getNbVotesById(b.joueur!.id) : 0)
+            ? -1
+            : 1);
+    return newList;
   }
 
   Widget playerTile(Joueur joueur, VoidCallback onTap) {
@@ -170,6 +182,19 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.75;
+
+    List<MatchJoueur> joueursDomicileTries = getJoueursTriesParNombreDeVotes(
+        widget.match.joueursEquipeDomicile, widget.match);
+
+    joueursDomicileTries =
+        joueursDomicileTries.where((joueur) => joueur.joueur != null).toList();
+
+    List<MatchJoueur> joueursExterieurTries = getJoueursTriesParNombreDeVotes(
+        widget.match.joueursEquipeExterieur, widget.match);
+
+    joueursExterieurTries =
+        joueursExterieurTries.where((joueur) => joueur.joueur != null).toList();
+
     return SafeArea(
       top: false,
       child: SizedBox(
@@ -227,7 +252,8 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: ColorPalette.textPrimary(context),
+                                        color:
+                                            ColorPalette.textPrimary(context),
                                       ),
                                     ),
                                     const SizedBox(height: 6),
@@ -349,15 +375,16 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                           const Divider(height: 1),
                           Expanded(
                             child: ListView.separated(
-                              itemCount:
-                                  widget.match.joueursEquipeDomicile.length,
+                              itemCount: joueursDomicileTries.length,
                               separatorBuilder: (_, __) =>
                                   const Divider(height: 1),
                               itemBuilder: (context, index) {
-                                final player =
-                                    widget.match.joueursEquipeDomicile[index];
-                                return playerTile(
-                                    player.joueur, () => selectPlayer(player.joueur));
+                                final player = joueursDomicileTries[index];
+                                if (player.joueur != null) {
+                                  return playerTile(player.joueur!,
+                                      () => selectPlayer(player.joueur!));
+                                }
+                                return null;
                               },
                             ),
                           ),
@@ -387,15 +414,16 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                           const Divider(height: 1),
                           Expanded(
                             child: ListView.separated(
-                              itemCount:
-                                  widget.match.joueursEquipeExterieur.length,
+                              itemCount: joueursExterieurTries.length,
                               separatorBuilder: (_, __) =>
                                   const Divider(height: 1),
                               itemBuilder: (context, index) {
-                                final player =
-                                    widget.match.joueursEquipeExterieur[index];
-                                return playerTile(
-                                    player.joueur, () => selectPlayer(player.joueur));
+                                final player = joueursExterieurTries[index];
+                                if (player.joueur != null) {
+                                  return playerTile(player.joueur!,
+                                      () => selectPlayer(player.joueur!));
+                                }
+                                return null;
                               },
                             ),
                           ),

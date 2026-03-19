@@ -14,16 +14,8 @@ class WebMatchRepository implements IMatchRepository {
 
     List<MatchModel> matchModels = [];
 
-    for (dynamic doc in snapshot.docs) {
+    for (var doc in snapshot.docs) {
       final data = doc.data();
-
-      final mvpVotesSnapshot =
-          await _collection.doc(doc.id).collection('mvpVotes').get();
-      data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
-
-      final notesSnapshot =
-          await _collection.doc(doc.id).collection('notes').get();
-      data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
       final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
 
@@ -53,20 +45,6 @@ class WebMatchRepository implements IMatchRepository {
       for (var doc in snapshot.docs) {
         dynamic data = doc.data();
         if (data != null) {
-          if (loadVotesAndNotes) {
-            final mvpVotesSnapshot =
-                await _collection.doc(doc.id).collection('mvpVotes').get();
-
-            data['mvpVotes'] =
-                mvpVotesSnapshot.docs.map((d) => d.data()).toList();
-
-            final notesSnapshot =
-                await _collection.doc(doc.id).collection('notes').get();
-
-            data['notesDuMatch'] =
-                notesSnapshot.docs.map((d) => d.data()).toList();
-          }
-
           matches.add(MatchModelId.fromJson(data, doc.id));
         }
       }
@@ -83,12 +61,6 @@ class WebMatchRepository implements IMatchRepository {
     if (!doc.exists) return null;
 
     final data = doc.data()!;
-    final mvpVotesSnapshot =
-        await _collection.doc(id).collection('mvpVotes').get();
-    data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
-
-    final notesSnapshot = await _collection.doc(id).collection('notes').get();
-    data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
     final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
 
@@ -101,12 +73,6 @@ class WebMatchRepository implements IMatchRepository {
     if (!doc.exists) return null;
 
     final data = doc.data()!;
-    final mvpVotesSnapshot =
-        await _collection.doc(id).collection('mvpVotes').get();
-    data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
-
-    final notesSnapshot = await _collection.doc(id).collection('notes').get();
-    data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
     return MatchModelId.fromJson(data, doc.id);
   }
@@ -138,14 +104,6 @@ class WebMatchRepository implements IMatchRepository {
 
     final futures = snapshot.docs.map((doc) async {
       final data = doc.data();
-
-      final mvpVotesSnapshot =
-          await _collection.doc(doc.id).collection('mvpVotes').get();
-      data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
-
-      final notesSnapshot =
-          await _collection.doc(doc.id).collection('notes').get();
-      data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
       final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
 
@@ -181,6 +139,8 @@ class WebMatchRepository implements IMatchRepository {
     String? equipeExterieurId,
     String? competitionId,
     DateTime? date,
+    String? refereeName,
+    String? stadiumName,
     int? scoreEquipeDomicile,
     int? scoreEquipeExterieur,
     List<ButId>? butsEquipeDomicileId,
@@ -188,7 +148,7 @@ class WebMatchRepository implements IMatchRepository {
     List<MatchJoueurId>? joueursEquipeDomicileId,
     List<MatchJoueurId>? joueursEquipeExterieurId,
     Map<String, String>? mvpVotes,
-    Map<String, int>? notesDuMatch,
+    Map<String, int>? notes,
   }) async {
     await _collection.doc(matchId).update({
       if (status != null) 'status': status,
@@ -199,6 +159,8 @@ class WebMatchRepository implements IMatchRepository {
       if (equipeExterieurId != null) 'equipeExterieurId': equipeExterieurId,
       if (competitionId != null) 'competitionId': competitionId,
       if (date != null) 'date': date,
+      if (refereeName != null) 'refereeName': refereeName,
+      if (stadiumName != null) 'stadiumName': stadiumName,
       if (scoreEquipeDomicile != null)
         'scoreEquipeDomicile': scoreEquipeDomicile,
       if (scoreEquipeExterieur != null)
@@ -212,7 +174,7 @@ class WebMatchRepository implements IMatchRepository {
       if (joueursEquipeExterieurId != null)
         'joueursEquipeExterieurId': joueursEquipeExterieurId,
       if (mvpVotes != null) 'mvpVotes': mvpVotes,
-      if (notesDuMatch != null) 'notesDuMatch': notesDuMatch,
+      if (notes != null) 'notes': notes,
     });
   }
 
@@ -224,10 +186,21 @@ class WebMatchRepository implements IMatchRepository {
   @override
   Future<void> noterMatch(
       String matchId, String userId, DateTime matchDate, int? note) async {
-    await _collection.doc(matchId).collection('notes').doc(userId).set({
-      'userId': userId,
-      'note': note,
-    });
+    final docRef = _collection.doc(matchId);
+    final doc = await docRef.get();
+
+    final data = doc.data() ?? {};
+
+    Map<String, dynamic> notes =
+        Map<String, dynamic>.from(data['notes'] ?? {});
+
+    if (note == null) {
+      notes.remove(userId);
+    } else {
+      notes[userId] = note;
+    }
+
+    await docRef.update({'notes': notes});
 
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
@@ -238,9 +211,7 @@ class WebMatchRepository implements IMatchRepository {
     final docSnapshot = await userMatchDocRef.get();
 
     if (docSnapshot.exists) {
-      await userMatchDocRef.update({
-        'note': note,
-      });
+      await userMatchDocRef.update({'note': note});
     } else {
       await userMatchDocRef.set({
         'matchId': matchId,
@@ -255,12 +226,37 @@ class WebMatchRepository implements IMatchRepository {
   }
 
   @override
+  Future<void> enleverNote(String matchId, String userId) async {
+    final docRef = _collection.doc(matchId);
+    final doc = await docRef.get();
+
+    final data = doc.data() ?? {};
+
+    Map<String, dynamic> notes = Map<String, dynamic>.from(data['notes'] ?? {});
+
+    notes.remove(userId);
+
+    await docRef.update({'notes': notes});
+  }
+
+  @override
   Future<void> voterPourMVP(String matchId, String userId, DateTime matchDate,
       String? joueurId) async {
-    await _collection.doc(matchId).collection('mvpVotes').doc(userId).set({
-      'userId': userId,
-      'joueurId': joueurId,
-    });
+    final docRef = _collection.doc(matchId);
+    final doc = await docRef.get();
+
+    final data = doc.data() ?? {};
+
+    Map<String, dynamic> votes =
+        Map<String, dynamic>.from(data['mvpVotes'] ?? {});
+
+    if (joueurId == null) {
+      votes.remove(userId);
+    } else {
+      votes[userId] = joueurId;
+    }
+
+    await docRef.update({'mvpVotes': votes});
 
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
@@ -271,9 +267,7 @@ class WebMatchRepository implements IMatchRepository {
     final docSnapshot = await userMatchDocRef.get();
 
     if (docSnapshot.exists) {
-      await userMatchDocRef.update({
-        'mvpVoteId': joueurId,
-      });
+      await userMatchDocRef.update({'mvpVoteId': joueurId});
     } else {
       await userMatchDocRef.set({
         'matchId': matchId,
@@ -289,15 +283,17 @@ class WebMatchRepository implements IMatchRepository {
 
   @override
   Future<void> enleverVote(String matchId, String userId) async {
-    final vote = _collection.doc(matchId).collection('mvpVotes').doc(userId);
-    final voteDoc = await vote.get();
-    if (voteDoc.exists) {
-      await _collection
-          .doc(matchId)
-          .collection('mvpVotes')
-          .doc(userId)
-          .delete();
-    }
+    final docRef = _collection.doc(matchId);
+    final doc = await docRef.get();
+
+    final data = doc.data() ?? {};
+
+    Map<String, dynamic> votes =
+        Map<String, dynamic>.from(data['mvpVotes'] ?? {});
+
+    votes.remove(userId);
+
+    await docRef.update({'mvpVotes': votes});
 
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
@@ -325,16 +321,9 @@ class WebMatchRepository implements IMatchRepository {
     final allDocs = [...snapshot.docs, ...snapshot2.docs];
 
     List<MatchModel> matchs = [];
-    for (dynamic doc in allDocs) {
+
+    for (var doc in allDocs) {
       final data = doc.data();
-
-      final mvpVotesSnapshot =
-          await _collection.doc(doc.id).collection('mvpVotes').get();
-      data['mvpVotes'] = mvpVotesSnapshot.docs.map((d) => d.data()).toList();
-
-      final notesSnapshot =
-          await _collection.doc(doc.id).collection('notes').get();
-      data['notesDuMatch'] = notesSnapshot.docs.map((d) => d.data()).toList();
 
       final MatchModelId matchModelId = MatchModelId.fromJson(data, doc.id);
 
@@ -350,10 +339,10 @@ class WebMatchRepository implements IMatchRepository {
 
     final doc = await docRef.get();
     if (!doc.exists) {
-      await _collection.doc(matchId.id).set(matchId.toJson());
+      await docRef.set(matchId.toJson());
       print("Match ajouté : ${matchId.id}");
     } else {
-      print("Match déja existant : ${matchId.id}");
+      print("Match déjà existant : ${matchId.id}");
     }
   }
 

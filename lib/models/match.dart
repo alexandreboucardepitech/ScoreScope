@@ -41,7 +41,7 @@ class MatchModel implements PodiumDisplayable {
   final List<MatchJoueur> joueursEquipeDomicile;
   final List<MatchJoueur> joueursEquipeExterieur;
   Map<String, String> mvpVotes;
-  Map<String, int> notesDuMatch;
+  Map<String, int> notes;
 
   MatchModel(
       {required this.id,
@@ -62,11 +62,11 @@ class MatchModel implements PodiumDisplayable {
       List<But>? butsEquipeDomicile,
       List<But>? butsEquipeExterieur,
       Map<String, String>? mvpVotes,
-      Map<String, int>? notesDuMatch})
+      Map<String, int>? notes})
       : butsEquipeDomicile = butsEquipeDomicile ?? [],
         butsEquipeExterieur = butsEquipeExterieur ?? [],
         mvpVotes = mvpVotes ?? {},
-        notesDuMatch = notesDuMatch ?? {};
+        notes = notes ?? {};
 
   bool get isFinished => status == MatchStatus.finished;
   bool get isLive => status == MatchStatus.live;
@@ -444,19 +444,17 @@ class MatchModel implements PodiumDisplayable {
   }
 
   int getNbViewers() {
-    return mvpVotes.length > notesDuMatch.length
-        ? mvpVotes.length
-        : notesDuMatch.length;
+    return mvpVotes.length > notes.length ? mvpVotes.length : notes.length;
   }
 
   //////////////////// NOTE DU MATCH ////////////////////
 
   double getNoteMoyenne() {
-    if (notesDuMatch.isEmpty) return -1.0;
+    if (notes.isEmpty) return -1.0;
 
-    final notes = notesDuMatch.values;
-    final somme = notes.reduce((a, b) => a + b);
-    final moyenne = somme / notes.length;
+    final allNotes = notes.values;
+    final somme = allNotes.reduce((a, b) => a + b);
+    final moyenne = somme / allNotes.length;
 
     return moyenne;
   }
@@ -466,14 +464,14 @@ class MatchModel implements PodiumDisplayable {
     required int? note,
   }) async {
     if (note != null) {
-      notesDuMatch[userId] = note;
+      notes[userId] = note;
       RepositoryProvider.matchRepository.noterMatch(id, userId, date, note);
     }
   }
 
   Future<void> enleverNote({required String userId}) async {
-    notesDuMatch.remove(userId);
-    RepositoryProvider.matchRepository.noterMatch(id, userId, date, null);
+    notes.remove(userId);
+    RepositoryProvider.matchRepository.enleverNote(id, userId);
   }
 
   ///////////////////////// MVP /////////////////////////
@@ -550,7 +548,7 @@ class MatchModel implements PodiumDisplayable {
         'butsEquipeExterieur':
             butsEquipeExterieur.map((b) => b.toJson()).toList(),
         'mvpVotes': mvpVotes,
-        'notesDuMatch': notesDuMatch,
+        'notes': notes,
       };
 
   static Future<MatchModel> fromMatchId(MatchModelId data) async {
@@ -563,11 +561,11 @@ class MatchModel implements PodiumDisplayable {
     final equipeExt = await RepositoryProvider.equipeRepository
         .fetchEquipeById(data.equipeExterieurId);
 
-    final joueursDom = await Future.wait(
+    List<MatchJoueur> joueursDom = await Future.wait(
       data.joueursEquipeDomicileId.map(MatchJoueur.fromMatchJoueurId),
     );
 
-    final joueursExt = await Future.wait(
+    List<MatchJoueur> joueursExt = await Future.wait(
       data.joueursEquipeExterieurId.map(MatchJoueur.fromMatchJoueurId),
     );
 
@@ -598,7 +596,7 @@ class MatchModel implements PodiumDisplayable {
       butsEquipeDomicile: butsDom,
       butsEquipeExterieur: butsExt,
       mvpVotes: data.mvpVotes,
-      notesDuMatch: data.notesDuMatch,
+      notes: data.notes,
     );
   }
 
@@ -626,7 +624,7 @@ class MatchModelId {
   final List<MatchJoueurId> joueursEquipeDomicileId;
   final List<MatchJoueurId> joueursEquipeExterieurId;
   Map<String, String> mvpVotes;
-  Map<String, int> notesDuMatch;
+  Map<String, int> notes;
 
   MatchModelId(
       {required this.id,
@@ -647,11 +645,11 @@ class MatchModelId {
       List<ButId>? butsEquipeDomicileId,
       List<ButId>? butsEquipeExterieurId,
       Map<String, String>? mvpVotes,
-      Map<String, int>? notesDuMatch})
+      Map<String, int>? notes})
       : butsEquipeDomicileId = butsEquipeDomicileId ?? [],
         butsEquipeExterieurId = butsEquipeExterieurId ?? [],
         mvpVotes = mvpVotes ?? {},
-        notesDuMatch = notesDuMatch ?? {};
+        notes = notes ?? {};
 
   Map<String, dynamic> toJson() => {
         'status': status.name,
@@ -675,7 +673,7 @@ class MatchModelId {
         'butsEquipeExterieur':
             butsEquipeExterieurId.map((e) => e.toJson()).toList(),
         if (mvpVotes.isNotEmpty) 'mvpVotes': mvpVotes,
-        if (notesDuMatch.isNotEmpty) 'notesDuMatch': notesDuMatch,
+        if (notes.isNotEmpty) 'notes': notes,
       };
 
   factory MatchModelId.fromJson(
@@ -722,7 +720,7 @@ class MatchModelId {
           .map((e) => ButId.fromJson(e))
           .toList(),
       mvpVotes: parseStringMap(json['mvpVotes']),
-      notesDuMatch: parseIntMap(json['notesDuMatch']),
+      notes: parseIntMap(json['notes']),
     );
   }
 }

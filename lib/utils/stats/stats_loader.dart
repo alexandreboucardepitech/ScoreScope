@@ -37,11 +37,17 @@ class StatsLoader {
       List<MatchModel> matchsVusModels) async {
     Map<Joueur, int> uniqueJoueursId = {};
     for (final match in matchsVusModels) {
-      final List<MatchJoueur> joueursDuMatch =
+      List<MatchJoueur> joueursDuMatch =
           match.joueursEquipeDomicile + match.joueursEquipeExterieur;
+
+      joueursDuMatch =
+          joueursDuMatch.where((joueur) => joueur.hasPlayed == true).toList();
+
       for (var joueurMatch in joueursDuMatch) {
-        uniqueJoueursId[joueurMatch.joueur] =
-            (uniqueJoueursId[joueurMatch.joueur] ?? 0) + 1;
+        if (joueurMatch.joueur != null) {
+          uniqueJoueursId[joueurMatch.joueur!] =
+              (uniqueJoueursId[joueurMatch.joueur] ?? 0) + 1;
+        }
       }
     }
     final sortedEntries = uniqueJoueursId.entries.toList()
@@ -696,7 +702,7 @@ class StatsLoader {
     for (MatchModel matchModel in matchs) {
       matchAjoute = false;
       for (MatchJoueur matchJoueur in matchModel.joueursEquipeDomicile) {
-        if (matchJoueur.joueur.id == joueurId) {
+        if (matchJoueur.joueur?.id == joueurId) {
           matchsJoueur.add(matchModel);
           matchAjoute = true;
           break;
@@ -704,7 +710,7 @@ class StatsLoader {
       }
       if (matchAjoute == false) {
         for (MatchJoueur matchJoueur in matchModel.joueursEquipeExterieur) {
-          if (matchJoueur.joueur.id == joueurId) {
+          if (matchJoueur.joueur?.id == joueurId) {
             matchsJoueur.add(matchModel);
             break;
           }
@@ -722,6 +728,10 @@ class StatsLoader {
     String equipeId = joueur.equipeId;
     List<MatchModel> matchsEquipe =
         await RepositoryProvider.matchRepository.fetchTeamAllMatches(equipeId);
+    if (joueur.equipeNationaleId != null) {
+      matchsEquipe += await RepositoryProvider.matchRepository
+          .fetchTeamAllMatches(joueur.equipeNationaleId!);
+    }
     List<MatchModel> matchsJoueur = getMatchsJoueur(matchsEquipe, joueur.id);
     List<MatchModel> matchsEquipeVusUser =
         await RepositoryProvider.userRepository.fetchUserMatchsRegardes(
@@ -729,6 +739,14 @@ class StatsLoader {
       onlyPublic: false,
       equipeId: equipeId,
     );
+    if (joueur.equipeNationaleId != null) {
+      matchsEquipeVusUser +=
+          await RepositoryProvider.userRepository.fetchUserMatchsRegardes(
+        userId: userId,
+        onlyPublic: false,
+        equipeId: joueur.equipeNationaleId,
+      );
+    }
     List<MatchModel> matchsJoueurVusUser = getMatchsJoueur(
       matchsEquipeVusUser,
       joueur.id,

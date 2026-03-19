@@ -347,7 +347,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
 
       _currentMatch.mvpVotes
           .removeWhere((userId, voteId) => userId == currentUser.uid);
-      _currentMatch.notesDuMatch
+      _currentMatch.notes
           .removeWhere((userId, note) => userId == currentUser.uid);
 
       // Supprimer côté repo

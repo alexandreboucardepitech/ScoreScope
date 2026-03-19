@@ -265,7 +265,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                 matchs.sort((a, b) => a.date.compareTo(b.date));
 
                 for (MatchModelId match in matchs) {
-                  if (match.date.isAfter(DateTime(2025, 10, 11))) {
+                  if (match.date.isAfter(DateTime(2026, 01, 04))) {
                     print(
                       "on commence à récupérer ${match.id} : (${match.equipeDomicileId} - ${match.equipeExterieurId}) ${match.date}",
                     );

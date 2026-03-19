@@ -2,14 +2,14 @@ import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 
 class MatchJoueur {
-  final Joueur joueur;
+  final Joueur? joueur;
   final int? number;
   final String? pos;
   final String? grid;
   final bool hasPlayed;
 
   MatchJoueur({
-    required this.joueur,
+    this.joueur,
     this.number,
     this.pos,
     this.grid,
@@ -17,7 +17,7 @@ class MatchJoueur {
   });
 
   Map<String, dynamic> toJson() => {
-        'joueur': joueur.toJson(),
+        if (joueur != null) 'joueur': joueur!.toJson(),
         if (number != null) 'number': number,
         if (pos != null) 'pos': pos,
         if (grid != null) 'grid': grid,
@@ -25,12 +25,8 @@ class MatchJoueur {
       };
 
   static Future<MatchJoueur> fromMatchJoueurId(MatchJoueurId data) async {
-    final joueur = await RepositoryProvider.joueurRepository
+    Joueur? joueur = await RepositoryProvider.joueurRepository
         .fetchJoueurById(data.joueurId);
-
-    if (joueur == null) {
-      throw Exception("Le joueur ${data.joueurId} n'existe pas.");
-    }
 
     return MatchJoueur(
       joueur: joueur,

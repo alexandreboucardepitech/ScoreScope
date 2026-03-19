@@ -153,7 +153,7 @@ class MockMatchRepository implements IMatchRepository {
           joueursEquipeDomicileId: match.joueursEquipeDomicile
               .map(
                 (joueur) => MatchJoueurId(
-                    joueurId: joueur.joueur.id,
+                    joueurId: joueur.joueur?.id ?? '',
                     grid: joueur.grid,
                     hasPlayed: joueur.hasPlayed,
                     number: joueur.number,
@@ -163,7 +163,7 @@ class MockMatchRepository implements IMatchRepository {
           joueursEquipeExterieurId: match.joueursEquipeExterieur
               .map(
                 (joueur) => MatchJoueurId(
-                    joueurId: joueur.joueur.id,
+                    joueurId: joueur.joueur?.id ?? '',
                     grid: joueur.grid,
                     hasPlayed: joueur.hasPlayed,
                     number: joueur.number,
@@ -171,7 +171,7 @@ class MockMatchRepository implements IMatchRepository {
               )
               .toList(),
           mvpVotes: loadVotesAndNotes ? match.mvpVotes : {},
-          notesDuMatch: loadVotesAndNotes ? match.notesDuMatch : {},
+          notes: loadVotesAndNotes ? match.notes : {},
         ),
       ),
     );
@@ -209,7 +209,7 @@ class MockMatchRepository implements IMatchRepository {
         joueursEquipeDomicileId: match.joueursEquipeDomicile
             .map(
               (joueur) => MatchJoueurId(
-                  joueurId: joueur.joueur.id,
+                  joueurId: joueur.joueur?.id ?? '',
                   grid: joueur.grid,
                   hasPlayed: joueur.hasPlayed,
                   number: joueur.number,
@@ -219,7 +219,7 @@ class MockMatchRepository implements IMatchRepository {
         joueursEquipeExterieurId: match.joueursEquipeExterieur
             .map(
               (joueur) => MatchJoueurId(
-                  joueurId: joueur.joueur.id,
+                  joueurId: joueur.joueur?.id ?? '',
                   grid: joueur.grid,
                   hasPlayed: joueur.hasPlayed,
                   number: joueur.number,
@@ -289,6 +289,8 @@ class MockMatchRepository implements IMatchRepository {
     String? equipeExterieurId,
     String? competitionId,
     DateTime? date,
+    String? refereeName,
+    String? stadiumName,
     int? scoreEquipeDomicile,
     int? scoreEquipeExterieur,
     List<ButId>? butsEquipeDomicileId,
@@ -296,7 +298,7 @@ class MockMatchRepository implements IMatchRepository {
     List<MatchJoueurId>? joueursEquipeDomicileId,
     List<MatchJoueurId>? joueursEquipeExterieurId,
     Map<String, String>? mvpVotes,
-    Map<String, int>? notesDuMatch,
+    Map<String, int>? notes,
   }) async {
     int? index = _matches.indexWhere((x) => x.id == matchId);
     MatchModel baseMatch = _matches[index];
@@ -315,7 +317,7 @@ class MockMatchRepository implements IMatchRepository {
           baseMatch.joueursEquipeDomicile
               .map(
                 (joueur) => MatchJoueurId(
-                    joueurId: joueur.joueur.id,
+                    joueurId: joueur.joueur?.id ?? '',
                     grid: joueur.grid,
                     hasPlayed: joueur.hasPlayed,
                     number: joueur.number,
@@ -326,13 +328,15 @@ class MockMatchRepository implements IMatchRepository {
           baseMatch.joueursEquipeExterieur
               .map(
                 (joueur) => MatchJoueurId(
-                    joueurId: joueur.joueur.id,
+                    joueurId: joueur.joueur?.id ?? '',
                     grid: joueur.grid,
                     hasPlayed: joueur.hasPlayed,
                     number: joueur.number,
                     pos: joueur.pos),
               )
               .toList(),
+      refereeName: refereeName ?? baseMatch.refereeName,
+      stadiumName: stadiumName ?? baseMatch.stadiumName,
     );
     _matches[index] = await MatchModel.fromMatchId(newMatch);
   }
@@ -357,14 +361,30 @@ class MockMatchRepository implements IMatchRepository {
 
     if (note != null) {
       // ne pas réinitialiser : on écrit directement dans la map existante
-      match.notesDuMatch[userId] = note;
+      match.notes[userId] = note;
     } else {
-      match.notesDuMatch.remove(userId);
+      match.notes.remove(userId);
     }
 
     // mettre à jour le mock AppUser.matchsUserData
     await MockAppUserRepository()
         .setNoteForMatch(userId, matchId, matchDate, note);
+
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> enleverNote(String matchId, String userId) async {
+    final idx = _matches.indexWhere((match) => match.id == matchId);
+    if (idx < 0) return;
+
+    final match = _matches[idx];
+
+    match.notes.remove(userId);
+
+    // supprimer le mvpVoteId dans l'user data (en le mettant à null)
+    await MockAppUserRepository()
+        .setNoteForMatch(userId, matchId, match.date, null);
 
     await Future.delayed(const Duration(milliseconds: 50));
   }
@@ -416,7 +436,7 @@ class MockMatchRepository implements IMatchRepository {
 
     final match = _matches[idx];
 
-    match.notesDuMatch.remove(userId);
+    match.notes.remove(userId);
     match.mvpVotes.remove(userId);
   }
 

@@ -79,7 +79,7 @@ class _InfosTabState extends State<InfosTab> {
             );
           }
 
-          loadedUserNote = match.notesDuMatch[firebaseUser.uid];
+          loadedUserNote = match.notes[firebaseUser.uid];
         }
       }
 
@@ -342,7 +342,13 @@ class _InfosTabState extends State<InfosTab> {
                   MatchRatingCard(
                     noteMoyenne: widget.match.getNoteMoyenne(),
                     userVote: userVoteNoteMatch,
-                    onChanged: (nouvelleValeur) {},
+                    onCancelled: (cancelled) async {
+                      if (!cancelled) return;
+                      final uid = FirebaseAuth.instance.currentUser!.uid;
+                      widget.match.enleverNote(userId: uid);
+                      userVoteNoteMatch = 0;
+                      await _reloadAll();
+                    },
                     onConfirm: (valeurConfirmee) async {
                       final uid = FirebaseAuth.instance.currentUser!.uid;
                       widget.match

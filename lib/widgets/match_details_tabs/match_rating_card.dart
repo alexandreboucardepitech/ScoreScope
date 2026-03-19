@@ -23,14 +23,14 @@ Color getThumbColor(double value) {
 class MatchRatingCard extends StatefulWidget {
   final double noteMoyenne;
   final int? userVote;
-  final ValueChanged<int>? onChanged;
+  final ValueChanged<bool>? onCancelled;
   final ValueChanged<int?>? onConfirm;
 
   const MatchRatingCard({
     super.key,
     required this.noteMoyenne,
     this.userVote,
-    this.onChanged,
+    this.onCancelled,
     this.onConfirm,
   });
 
@@ -51,7 +51,6 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
   void _updateFromDouble(double value) {
     final int intValue = value.round();
     setState(() => _rating = intValue);
-    widget.onChanged?.call(intValue);
   }
 
   @override
@@ -190,12 +189,12 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                 TextButton(
                   onPressed: () {
                     setState(() => _rating = null);
-                    widget.onChanged?.call(0);
+                    widget.onCancelled?.call(true);
                   },
                   child: Text(
                     'Vider',
                     style: TextStyle(
-                      color: ColorPalette.textPrimary(context),
+                      color: ColorPalette.textSecondary(context),
                     ),
                   ),
                 ),

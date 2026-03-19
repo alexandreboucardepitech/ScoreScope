@@ -204,6 +204,9 @@ class FillDatabase {
     } else {
       for (Map<String, dynamic> event in events) {
         final String? eventType = event['type'];
+        if (event['comments'] == "Penalty Shootout") {
+          continue;
+        }
         switch (eventType) {
           case 'subst':
             final String joueurEntrantId = event['assist']['id'].toString();
@@ -221,6 +224,7 @@ class FillDatabase {
             final String passeurId = event['assist']['id'].toString();
             final String minute = event['time']['elapsed'].toString();
             final String teamId = event['team']['id'].toString();
+            bool missed = false;
             TypeBut typeBut;
             switch (event['detail']) {
               case 'Normal Goal':
@@ -229,10 +233,14 @@ class FillDatabase {
                 typeBut = TypeBut.owngoal;
               case 'Penalty':
                 typeBut = TypeBut.penalty;
+              case 'Missed Penalty':
+                typeBut = TypeBut.normal;
+                missed = true;
+                break;
               default:
                 typeBut = TypeBut.normal;
             }
-            if (teamId == equipeDomicileId) {
+            if (teamId == equipeDomicileId && missed == false) {
               equipeDomicileButs.add(
                 ButId(
                   buteurId: buteurId,
@@ -241,7 +249,7 @@ class FillDatabase {
                   typeBut: typeBut,
                 ),
               );
-            } else if (teamId == equipeExterieurId) {
+            } else if (teamId == equipeExterieurId && missed == false) {
               equipeExterieurButs.add(
                 ButId(
                   buteurId: buteurId,
@@ -401,7 +409,7 @@ class FillDatabase {
           liveMinute: liveMinute,
           extraTime: extraTime,
           mvpVotes: {},
-          notesDuMatch: {},
+          notes: {},
           saison: int.parse(season),
         );
         print("add match : $equipeDomicileId vs $equipeExterieurId");
@@ -429,8 +437,9 @@ class FillDatabase {
       String? nom = player['lastname'];
       String? fullName = player['name'];
       String? nationalite = player['nationalite'];
-      DateTime? dateNaissance =
-          DateTime.tryParse(player['birth']?['date'] ?? '');
+      DateTime? dateNaissance = player['birth']?['date'] != null
+          ? DateTime.tryParse(player['birth']['date'])
+          : null;
       String picture = player['photo'];
       Map<String, String> nomComplet =
           getFirstAndLastName(prenom, nom, fullName);
@@ -627,28 +636,13 @@ class FillDatabase {
         }
       }
     }
-    MatchModelId newMatch = MatchModelId(
-      id: match.id,
-      status: match.status,
-      equipeDomicileId: match.equipeDomicileId,
-      equipeExterieurId: match.equipeExterieurId,
-      competitionId: match.competitionId,
-      date: match.date,
-      scoreEquipeDomicile: match.scoreEquipeDomicile,
-      scoreEquipeExterieur: match.scoreEquipeExterieur,
-      joueursEquipeDomicileId: match.joueursEquipeDomicileId,
-      joueursEquipeExterieurId: match.joueursEquipeExterieurId,
-      butsEquipeDomicileId: butsDomicile ?? match.butsEquipeDomicileId,
-      butsEquipeExterieurId: butsExterieur ?? match.butsEquipeExterieurId,
-      extraTime: match.extraTime,
-      liveMinute: match.extraTime,
-      mvpVotes: match.mvpVotes,
-      notesDuMatch: match.notesDuMatch,
+
+    await RepositoryProvider.matchRepository.updateField(
+      matchId: match.id,
       refereeName: refereeName,
       stadiumName: stadiumName,
-      saison: match.saison,
+      butsEquipeDomicileId: butsDomicile,
+      butsEquipeExterieurId: butsExterieur,
     );
-
-    await RepositoryProvider.matchRepository.updateMatchModelId(newMatch);
   }
 }
