@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/match_joueur.dart';
+import 'package:scorescope/utils/string/get_pos_from_string.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import '../../models/match.dart';
 import '../../models/joueur.dart';
@@ -59,11 +60,48 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
   List<MatchJoueur> getJoueursTriesParNombreDeVotes(
       List<MatchJoueur> joueurs, MatchModel match) {
     List<MatchJoueur> newList = List<MatchJoueur>.from(joueurs);
-    newList.sort((a, b) =>
-        (a.joueur != null ? match.getNbVotesById(a.joueur!.id) : 0) >
-                (b.joueur != null ? match.getNbVotesById(b.joueur!.id) : 0)
-            ? -1
-            : 1);
+    newList.sort((a, b) {
+      // tri par nombre de votes
+      if ((a.joueur != null ? match.getNbVotesById(a.joueur!.id) : 0) >
+          (b.joueur != null ? match.getNbVotesById(b.joueur!.id) : 0)) {
+        return -1;
+      }
+      if ((b.joueur != null ? match.getNbVotesById(b.joueur!.id) : 0) >
+          (a.joueur != null ? match.getNbVotesById(a.joueur!.id) : 0)) {
+        return 1;
+      }
+
+      // tri par "hasPlayed" ou pas
+      if (a.hasPlayed && !b.hasPlayed) {
+        return -1;
+      }
+      if (b.hasPlayed && !a.hasPlayed) {
+        return 1;
+      }
+
+      // si pas de pos on return juste 1
+      if (a.pos == null || b.pos == null) {
+        return -1;
+      }
+
+      // tri par pos principale
+      if (getPosFromString(a.pos!, true) > getPosFromString(b.pos!, true)) {
+        return -1;
+      }
+      if (getPosFromString(b.pos!, true) > getPosFromString(a.pos!, true)) {
+        return 1;
+      }
+
+      // tri par pos secondaire
+      if (getPosFromString(a.pos!, false) > getPosFromString(b.pos!, false)) {
+        return -1;
+      }
+      if (getPosFromString(b.pos!, false) > getPosFromString(a.pos!, false)) {
+        return 1;
+      }
+
+      return -1; // par défaut
+    });
     return newList;
   }
 
