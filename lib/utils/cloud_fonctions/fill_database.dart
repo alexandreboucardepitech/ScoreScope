@@ -378,6 +378,8 @@ class FillDatabase {
             matchData['teams']['away']['id'].toString();
         final DateTime date = DateTime.fromMillisecondsSinceEpoch(
             matchData['fixture']['timestamp'] * 1000);
+        final String? refereeName = data[0]?['fixture']?['referee'];
+        final String? stadiumName = data[0]?['fixture']?['venue']?['name'];
         final int scoreEquipeDomicile = matchData['goals']['home'] ?? 0;
         final int scoreEquipeExterieur = matchData['goals']['away'] ?? 0;
         final int? liveMinute = matchData['fixture']['status']['elapsed'];
@@ -394,6 +396,8 @@ class FillDatabase {
           equipeExterieurId: equipeExterieurId,
           competitionId: competitionId,
           date: date,
+          refereeName: refereeName,
+          stadiumName: stadiumName,
           scoreEquipeDomicile: scoreEquipeDomicile,
           scoreEquipeExterieur: scoreEquipeExterieur,
           joueursEquipeDomicileId:
