@@ -172,12 +172,12 @@ exports.fetchLineups = onSchedule(
           const data = doc.data();
 
           const noHomePlayers =
-          !data.joueursEquipeDomicileId ||
-          data.joueursEquipeDomicileId.length === 0;
+          !data.joueursEquipeDomicile ||
+          data.joueursEquipeDomicile.length === 0;
 
           const noAwayPlayers =
-          !data.joueursEquipeExterieurId ||
-          data.joueursEquipeExterieurId.length === 0;
+          !data.joueursEquipeExterieur ||
+          data.joueursEquipeExterieur.length === 0;
 
           return noHomePlayers && noAwayPlayers;
         });
@@ -186,8 +186,7 @@ exports.fetchLineups = onSchedule(
 
         // 🔹 3. Traiter chaque match
         for (const doc of matchs) {
-          const match = doc.data();
-          const matchId = match.id;
+          const matchId = doc.id;
 
           console.log("🔎 Match :", matchId);
 
@@ -205,6 +204,10 @@ exports.fetchLineups = onSchedule(
             const equipeExterieur = lineup[1];
 
             const mapPlayer = (playerObj, isFromStartXI = true) => {
+              if (!playerObj?.player?.id) {
+                return null; // on skip
+              }
+
               return {
                 joueurId: playerObj.player.id.toString(),
                 number: playerObj.player.number || null,
@@ -214,20 +217,19 @@ exports.fetchLineups = onSchedule(
               };
             };
 
-            // Construire les tableaux MatchJoueurId
             const joueursDomicile = [
               ...(equipeDomicile.startXI || []).map((p) => mapPlayer(p, true)),
               ...(equipeDomicile.substitutes || []).map((p) =>
                 mapPlayer(p, false),
               ),
-            ];
+            ].filter(Boolean);
 
             const joueursExterieur = [
               ...(equipeExterieur.startXI || []).map((p) => mapPlayer(p, true)),
               ...(equipeExterieur.substitutes || []).map((p) =>
                 mapPlayer(p, false),
               ),
-            ];
+            ].filter(Boolean);
 
             if (joueursDomicile.length === 0 || joueursExterieur.length === 0) {
               console.log("⚠️ Lineup vide pour", matchId);
