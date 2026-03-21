@@ -260,7 +260,7 @@ exports.fetchLineups = onSchedule(
 
 exports.updateLiveMatches = onSchedule(
     {
-      schedule: "* * * * *",
+      schedule: "*/2 * * * *",
       timeZone: "Europe/Paris",
     },
     async () => {
@@ -273,6 +273,8 @@ exports.updateLiveMatches = onSchedule(
         const liveMatchIds = liveMatches.map((m) => m.fixture.id.toString());
 
         console.log("Matchs live API :", liveMatches.length);
+
+        let nbMatchsUpdated = 0;
 
         for (const matchData of liveMatches) {
           const matchId = matchData.fixture.id.toString();
@@ -299,6 +301,8 @@ exports.updateLiveMatches = onSchedule(
 
             const hasStatusChanged = data.status !== newStatus;
             const hasMinuteChanged = data.liveMinute !== newMinute;
+
+            nbMatchsUpdated++;
 
             if (!hasScoreChanged && !hasStatusChanged && !hasMinuteChanged) {
               continue;
@@ -340,6 +344,46 @@ exports.updateLiveMatches = onSchedule(
                     mapDomicile[joueurEntrantId].hasPlayed = true;
                   } else if (mapExterieur[joueurEntrantId]) {
                     mapExterieur[joueurEntrantId].hasPlayed = true;
+                  }
+                }
+
+                if (eventType === "Var") {
+                  const detail = event.detail || "";
+
+                  if (detail.includes("Goal Disallowed")) {
+                    const playerId = event.player?.id?.toString();
+                    const teamId = event.team?.id?.toString();
+                    const minute = event.time?.elapsed?.toString();
+
+                    if (!playerId || !teamId) continue;
+
+                    console.log("🚫 But annulé (VAR) :", playerId);
+
+                    const removeGoal = (goalsArray) => {
+                      return goalsArray.filter((goal) => {
+                        if (goal.buteurId !== playerId) return true;
+
+                        if (goal.minute === minute) return false;
+
+                        // fallback : minute proche (optionnel)
+                        const goalMin = parseInt(goal.minute);
+                        const eventMin = parseInt(minute);
+
+                        if (!isNaN(goalMin) && !isNaN(eventMin)) {
+                          if (Math.abs(goalMin - eventMin) <= 1) {
+                            return false;
+                          }
+                        }
+
+                        return true;
+                      });
+                    };
+
+                    if (teamId === data.equipeDomicileId) {
+                      butsEquipeDomicile = removeGoal(butsEquipeDomicile);
+                    } else if (teamId === data.equipeExterieurId) {
+                      butsEquipeExterieur = removeGoal(butsEquipeExterieur);
+                    }
                   }
                 }
 
@@ -544,7 +588,10 @@ exports.updateLiveMatches = onSchedule(
           }
         }
 
-        console.log("✅ Mise à jour terminée");
+        console.log(
+            "✅ Mise à jour terminée, matchs analysés : ",
+            nbMatchsUpdated,
+        );
       } catch (error) {
         console.error("🔥 Erreur globale :", error);
       }

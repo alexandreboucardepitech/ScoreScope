@@ -38,10 +38,13 @@ class MatchInfosCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    match.stadiumName!,
-                    style: TextStyle(
-                      color: ColorPalette.textPrimary(context),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      match.stadiumName!,
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(context),
+                      ),
                     ),
                   ),
                 ),
@@ -96,10 +99,13 @@ class MatchInfosCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    match.refereeName!,
-                    style: TextStyle(
-                      color: ColorPalette.textPrimary(context),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      match.refereeName!,
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(context),
+                      ),
                     ),
                   ),
                 ),
