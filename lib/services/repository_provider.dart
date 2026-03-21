@@ -7,6 +7,7 @@ import 'package:scorescope/services/mock/mock_notification_repository.dart';
 import 'package:scorescope/services/mock/mock_post_repository.dart';
 import 'package:scorescope/services/mock/mock_recherche_repository.dart';
 import 'package:scorescope/services/mock/mock_stats_repository.dart';
+import 'package:scorescope/services/mock/mock_utils_repository.dart';
 import 'package:scorescope/services/mock/mock_watch_together_repository.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/services/repositories/i_competition_repository.dart';
@@ -18,6 +19,7 @@ import 'package:scorescope/services/repositories/i_notification_repository.dart'
 import 'package:scorescope/services/repositories/i_post_repository.dart';
 import 'package:scorescope/services/repositories/i_recherche_repository.dart';
 import 'package:scorescope/services/repositories/i_stats_repository.dart';
+import 'package:scorescope/services/repositories/i_utils_repository.dart';
 import 'package:scorescope/services/repositories/i_watch_together_repository.dart';
 import 'package:scorescope/services/web/web_amitie_repository.dart';
 import 'package:scorescope/services/web/web_app_user_repository.dart';
@@ -29,6 +31,7 @@ import 'package:scorescope/services/web/web_notification_repository.dart';
 import 'package:scorescope/services/web/web_post_repository.dart';
 import 'package:scorescope/services/web/web_recherche_repository.dart';
 import 'package:scorescope/services/web/web_stats_repository.dart';
+import 'package:scorescope/services/web/web_utils_repository.dart';
 import 'package:scorescope/services/web/web_watch_together_repository.dart';
 
 import 'mock/mock_equipe_repository.dart';
@@ -118,6 +121,13 @@ class RepositoryProvider {
         : WebWatchTogetherRepository();
   }
 
+  static IUtilsRepository? _utilsRepository;
+  static IUtilsRepository get utilsRepository {
+    return _utilsRepository ??= environment == Environment.mock
+        ? MockUtilsRepository()
+        : WebUtilsRepository();
+  }
+
   static void reset() {
     _equipeRepository = null;
     _matchRepository = null;
@@ -129,5 +139,7 @@ class RepositoryProvider {
     _competitionRepository = null;
     _rechercheRepository = null;
     _statsRepository = null;
+    _watchTogetherRepository = null;
+    _utilsRepository = null;
   }
 }

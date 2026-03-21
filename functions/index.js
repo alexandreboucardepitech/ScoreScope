@@ -46,7 +46,7 @@ async function getDataFromApi(endpoint, params = {}) {
 // Récupérer les matchs des 2 prochaines semainestous les jours à minuit
 exports.fetchNextTwoWeeksMatches = onSchedule(
     {
-      schedule: "46 9 * * *",
+      schedule: "0 0 * * *",
       timeZone: "Europe/Paris",
     },
     async () => {

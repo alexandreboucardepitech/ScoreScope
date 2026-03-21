@@ -9,6 +9,7 @@ import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/app_theme.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/amis/fil_actu_amis.dart';
+import 'package:scorescope/views/feedback/feedbacks_view.dart';
 import 'package:scorescope/views/login/login.dart';
 import 'package:scorescope/views/profile/edit_profile_view.dart';
 import 'package:scorescope/views/profile/profile.dart';
@@ -309,6 +310,7 @@ class _HomePageState extends State<HomePage> {
         user: widget.user,
         onBackPressed: () => setState(() => _currentIndex = 0),
       ),
+      FeedbacksView(),
     ];
 
     return Scaffold(
@@ -336,6 +338,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.feedback),
+            label: 'Retours',
           ),
         ],
       ),
