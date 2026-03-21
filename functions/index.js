@@ -34,9 +34,10 @@ async function getDataFromApi(endpoint, params = {}) {
 
   if (jsonData?.errors && Object.keys(jsonData.errors).length > 0) {
     if (jsonData.errors.rateLimit) {
-      console.log("Rate limit hit, retrying in 1 min");
-      await new Promise((res) => setTimeout(res, 60 * 1000));
-      return getDataFromApi(endpoint, params);
+      // console.log("Rate limit hit, retrying in 1 min");
+      // await new Promise((res) => setTimeout(res, 60 * 1000));
+      // return getDataFromApi(endpoint, params);
+      // on ignore car ça va être relancé dans 1min automatiquement
     }
   }
 
@@ -251,6 +252,299 @@ exports.fetchLineups = onSchedule(
         }
 
         console.log("✅ Vérification terminée");
+      } catch (error) {
+        console.error("🔥 Erreur globale :", error);
+      }
+    },
+);
+
+exports.updateLiveMatches = onSchedule(
+    {
+      schedule: "* * * * *",
+      timeZone: "Europe/Paris",
+    },
+    async () => {
+      console.log("⚡ Mise à jour des matchs en live...");
+
+      try {
+      // 🔹 1. Récupérer les matchs live depuis l'API
+        const liveMatches = await getDataFromApi("fixtures", {live: "all"});
+
+        const liveMatchIds = liveMatches.map((m) => m.fixture.id.toString());
+
+        console.log("Matchs live API :", liveMatches.length);
+
+        for (const matchData of liveMatches) {
+          const matchId = matchData.fixture.id.toString();
+
+          try {
+            const docRef = db.collection("matchs").doc(matchId);
+            const doc = await docRef.get();
+
+            if (!doc.exists) continue;
+
+            const data = doc.data();
+
+            const newScoreHome = matchData.goals.home ?? 0;
+            const newScoreAway = matchData.goals.away ?? 0;
+            const newStatus = getMatchStatusFromCode(
+                matchData.fixture.status.short,
+            );
+            const newMinute = matchData.fixture.status.elapsed ?? null;
+            const newExtra = matchData.fixture.status.extra ?? null;
+
+            const hasScoreChanged =
+            data.scoreEquipeDomicile !== newScoreHome ||
+            data.scoreEquipeExterieur !== newScoreAway;
+
+            const hasStatusChanged = data.status !== newStatus;
+            const hasMinuteChanged = data.liveMinute !== newMinute;
+
+            if (!hasScoreChanged && !hasStatusChanged && !hasMinuteChanged) {
+              continue;
+            }
+
+            console.log("🔄 Update match :", matchId);
+
+            let butsEquipeDomicile = data.butsEquipeDomicile || [];
+            let butsEquipeExterieur = data.butsEquipeExterieur || [];
+            let joueursDomicile = data.joueursEquipeDomicile || [];
+            let joueursExterieur = data.joueursEquipeExterieur || [];
+
+            const events = await getDataFromApi("fixtures/events", {
+              fixture: matchId,
+            });
+
+            if (events && events.length > 0) {
+              butsEquipeDomicile = [];
+              butsEquipeExterieur = [];
+
+              const mapDomicile = Object.fromEntries(
+                  joueursDomicile.map((j) => [j.joueurId, j]),
+              );
+
+              const mapExterieur = Object.fromEntries(
+                  joueursExterieur.map((j) => [j.joueurId, j]),
+              );
+
+              for (const event of events) {
+                if (event.comments === "Penalty Shootout") continue;
+
+                const eventType = event.type;
+
+                if (eventType === "subst") {
+                  const joueurEntrantId = event.assist?.id?.toString();
+                  if (!joueurEntrantId) continue;
+
+                  if (mapDomicile[joueurEntrantId]) {
+                    mapDomicile[joueurEntrantId].hasPlayed = true;
+                  } else if (mapExterieur[joueurEntrantId]) {
+                    mapExterieur[joueurEntrantId].hasPlayed = true;
+                  }
+                }
+
+                if (eventType === "Goal") {
+                  const buteurId = event.player?.id?.toString();
+                  const passeurId = event.assist?.id?.toString() || null;
+                  const minute = event.time?.elapsed?.toString();
+                  const teamId = event.team?.id?.toString();
+
+                  if (!buteurId || !minute || !teamId) continue;
+
+                  let typeBut = "normal";
+                  let missed = false;
+
+                  switch (event.detail) {
+                    case "Normal Goal":
+                      typeBut = "normal";
+                      break;
+                    case "Own Goal":
+                      typeBut = "owngoal";
+                      break;
+                    case "Penalty":
+                      typeBut = "penalty";
+                      break;
+                    case "Missed Penalty":
+                      missed = true;
+                      break;
+                  }
+
+                  if (missed) continue;
+
+                  const but = {
+                    buteurId,
+                    minute,
+                    passeurId,
+                    typeBut,
+                  };
+
+                  if (teamId === data.equipeDomicileId) {
+                    butsEquipeDomicile.push(but);
+                  } else if (teamId === data.equipeExterieurId) {
+                    butsEquipeExterieur.push(but);
+                  }
+                }
+              }
+
+              joueursDomicile = Object.values(mapDomicile);
+              joueursExterieur = Object.values(mapExterieur);
+            }
+
+            await docRef.update({
+              scoreEquipeDomicile: newScoreHome,
+              scoreEquipeExterieur: newScoreAway,
+              status: newStatus,
+              liveMinute: newMinute,
+              extraTime: newExtra,
+              butsEquipeDomicile: butsEquipeDomicile,
+              butsEquipeExterieur: butsEquipeExterieur,
+              joueursEquipeDomicile: joueursDomicile,
+              joueursEquipeExterieur: joueursExterieur,
+            });
+
+            console.log("✅ Match mis à jour :", matchId);
+          } catch (error) {
+            console.error("🔥 Erreur match :", matchId, error);
+          }
+        }
+
+        const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
+
+        const snapshot = await db
+            .collection("matchs")
+            .where("date", ">=", threeHoursAgo)
+            .get();
+
+        for (const doc of snapshot.docs) {
+          const data = doc.data();
+          const matchId = doc.id;
+
+          if (data.status === "finished") continue;
+
+          if (liveMatchIds.includes(matchId)) continue;
+
+          try {
+            const result = await getDataFromApi("fixtures", {
+              id: matchId,
+            });
+
+            if (!result || result.length === 0) continue;
+
+            const matchData = result[0];
+
+            const finalStatus = getMatchStatusFromCode(
+                matchData.fixture.status.short,
+            );
+
+            // si toujours pas fini → skip (sécurité API)
+            if (finalStatus !== "finished") continue;
+
+            console.log("🏁 Match terminé :", matchId);
+
+            // 🔹 Récupérer les events COMPLETS une dernière fois
+            const events = await getDataFromApi("fixtures/events", {
+              fixture: matchId,
+            });
+
+            // 🔹 Repartir des données existantes
+            const butsEquipeDomicile = [];
+            const butsEquipeExterieur = [];
+
+            const joueursDomicile = data.joueursEquipeDomicile || [];
+            const joueursExterieur = data.joueursEquipeExterieur || [];
+
+            // map joueurs pour update hasPlayed
+            const mapDomicile = Object.fromEntries(
+                joueursDomicile.map((j) => [j.joueurId, j]),
+            );
+
+            const mapExterieur = Object.fromEntries(
+                joueursExterieur.map((j) => [j.joueurId, j]),
+            );
+
+            // 🔹 Rebuild complet comme en live
+            for (const event of events) {
+              if (event.comments === "Penalty Shootout") continue;
+
+              const eventType = event.type;
+
+              // SUB
+              if (eventType === "subst") {
+                const joueurEntrantId = event.assist?.id?.toString();
+                if (!joueurEntrantId) continue;
+
+                if (mapDomicile[joueurEntrantId]) {
+                  mapDomicile[joueurEntrantId].hasPlayed = true;
+                } else if (mapExterieur[joueurEntrantId]) {
+                  mapExterieur[joueurEntrantId].hasPlayed = true;
+                }
+              }
+
+              // GOAL
+              if (eventType === "Goal") {
+                const buteurId = event.player?.id?.toString();
+                const passeurId = event.assist?.id?.toString() || null;
+                const minute = event.time?.elapsed?.toString();
+                const teamId = event.team?.id?.toString();
+
+                if (!buteurId || !minute || !teamId) continue;
+
+                let typeBut = "normal";
+                let missed = false;
+
+                switch (event.detail) {
+                  case "Normal Goal":
+                    typeBut = "normal";
+                    break;
+                  case "Own Goal":
+                    typeBut = "owngoal";
+                    break;
+                  case "Penalty":
+                    typeBut = "penalty";
+                    break;
+                  case "Missed Penalty":
+                    missed = true;
+                    break;
+                }
+
+                if (missed) continue;
+
+                const but = {
+                  buteurId,
+                  minute,
+                  passeurId,
+                  typeBut,
+                };
+
+                if (teamId === data.equipeDomicileId) {
+                  butsEquipeDomicile.push(but);
+                } else if (teamId === data.equipeExterieurId) {
+                  butsEquipeExterieur.push(but);
+                }
+              }
+            }
+
+            // 🔹 Update final COMPLET
+            await db
+                .collection("matchs")
+                .doc(matchId)
+                .update({
+                  status: finalStatus,
+                  liveMinute: matchData.fixture.status.elapsed ?? null,
+                  extraTime: matchData.fixture.status.extra ?? null,
+                  scoreEquipeDomicile: matchData.goals.home ?? 0,
+                  scoreEquipeExterieur: matchData.goals.away ?? 0,
+                  butsEquipeDomicile,
+                  butsEquipeExterieur,
+                  joueursEquipeDomicile: Object.values(mapDomicile),
+                  joueursEquipeExterieur: Object.values(mapExterieur),
+                });
+          } catch (error) {
+            console.error("🔥 Erreur finalisation :", matchId, error);
+          }
+        }
+
+        console.log("✅ Mise à jour terminée");
       } catch (error) {
         console.error("🔥 Erreur globale :", error);
       }
