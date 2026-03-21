@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/views/all_matches/recherche_view.dart';
@@ -254,32 +253,32 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               },
             ),
           ),
-          if (RepositoryProvider.userRepository.currentUser?.uid ==
-              "jSHnJN1cVWTsDirfm1sEaA358jJ3")
-            ElevatedButton(
-              onPressed: () async {
-                List<MatchModelId> matchs = await RepositoryProvider
-                    .matchRepository
-                    .fetchAllMatchesId(loadVotesAndNotes: false);
+          // if (RepositoryProvider.userRepository.currentUser?.uid ==
+          //     "jSHnJN1cVWTsDirfm1sEaA358jJ3")
+          //   ElevatedButton(
+          //     onPressed: () async {
+          //       List<MatchModelId> matchs = await RepositoryProvider
+          //           .matchRepository
+          //           .fetchAllMatchesId(loadVotesAndNotes: false);
 
-                matchs.sort((a, b) => a.date.compareTo(b.date));
+          //       matchs.sort((a, b) => a.date.compareTo(b.date));
 
-                for (MatchModelId match in matchs) {
-                  if (match.date.isAfter(DateTime(2026, 01, 04))) {
-                    print(
-                      "on commence à récupérer ${match.id} : (${match.equipeDomicileId} - ${match.equipeExterieurId}) ${match.date}",
-                    );
-                    await FillDatabase.updateMatchOwnGoalPenaltyAndStadiumNames(
-                      match,
-                    );
-                    print(
-                      "on a fini de récupérer ${match.id})",
-                    );
-                  }
-                }
-              },
-              child: Text("test pour développeur"),
-            ),
+          //       for (MatchModelId match in matchs) {
+          //         if (match.date.isAfter(DateTime(2026, 01, 04))) {
+          //           print(
+          //             "on commence à récupérer ${match.id} : (${match.equipeDomicileId} - ${match.equipeExterieurId}) ${match.date}",
+          //           );
+          //           await FillDatabase.updateMatchOwnGoalPenaltyAndStadiumNames(
+          //             match,
+          //           );
+          //           print(
+          //             "on a fini de récupérer ${match.id})",
+          //           );
+          //         }
+          //       }
+          //     },
+          //     child: Text("test pour développeur"),
+          //   ),
         ],
       ),
     );

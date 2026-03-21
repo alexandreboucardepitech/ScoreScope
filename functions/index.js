@@ -43,6 +43,31 @@ async function getDataFromApi(endpoint, params = {}) {
   return jsonData.response || [];
 }
 
+function getMatchStatusFromCode(code) {
+  switch (code) {
+    case "FT":
+    case "AET":
+    case "PEN":
+      return "finished"; // MatchStatus.finished
+    case "1H":
+    case "HT":
+    case "2H":
+    case "ET":
+    case "BT":
+    case "P":
+    case "SUSP":
+    case "INT":
+    case "LIVE":
+      return "live"; // MatchStatus.live
+    case "PST":
+      return "postponed"; // MatchStatus.postponed
+    case "NS":
+    case "TBD":
+    default:
+      return "scheduled"; // MatchStatus.scheduled
+  }
+}
+
 // Récupérer les matchs des 2 prochaines semainestous les jours à minuit
 exports.fetchNextTwoWeeksMatches = onSchedule(
     {
@@ -84,7 +109,7 @@ exports.fetchNextTwoWeeksMatches = onSchedule(
             // On récupère toutes les infos disponibles
               const matchObj = {
                 id,
-                status: matchData.fixture.status.short,
+                status: getMatchStatusFromCode(matchData.fixture.status.short),
                 liveMinute: matchData.fixture.status.elapsed || null,
                 extraTime: matchData.fixture.status.extra || null,
                 saison: matchData.league?.season || null,
@@ -97,10 +122,10 @@ exports.fetchNextTwoWeeksMatches = onSchedule(
                 stadiumName: matchData.fixture.venue?.name || null,
                 scoreEquipeDomicile: matchData.goals.home ?? 0,
                 scoreEquipeExterieur: matchData.goals.away ?? 0,
-                butsEquipeDomicileId: [],
-                butsEquipeExterieurId: [],
-                joueursEquipeDomicileId: [],
-                joueursEquipeExterieurId: [],
+                butsEquipeDomicile: [],
+                butsEquipeExterieur: [],
+                joueursEquipeDomicile: [],
+                joueursEquipeExterieur: [],
                 mvpVotes: {},
                 notes: {},
               };
@@ -114,6 +139,118 @@ exports.fetchNextTwoWeeksMatches = onSchedule(
         console.log("Récupération terminée ✅");
       } catch (err) {
         console.error("Erreur fetchNextTwoWeeksMatches :", err);
+      }
+    },
+);
+
+exports.fetchLineups = onSchedule(
+    {
+      schedule: "*/5 * * * *",
+      timeZone: "Europe/Paris",
+    },
+    async () => {
+      console.log("⏳ Vérification des lineups...");
+
+      const now = new Date();
+      const minTime = new Date(now.getTime() + 5 * 60 * 1000);
+      const maxTime = new Date(now.getTime() + 45 * 60 * 1000);
+
+      console.log("Fenêtre :", minTime, "→", maxTime);
+
+      try {
+      // 🔹 1. Récupérer les matchs dans la fenêtre
+        const snapshot = await db
+            .collection("matchs")
+            .where("date", ">=", minTime)
+            .where("date", "<=", maxTime)
+            .get();
+
+        console.log("Matchs trouvés :", snapshot.size);
+
+        // 🔹 2. Filtrer côté JS (null OU tableau vide)
+        const matchs = snapshot.docs.filter((doc) => {
+          const data = doc.data();
+
+          const noHomePlayers =
+          !data.joueursEquipeDomicileId ||
+          data.joueursEquipeDomicileId.length === 0;
+
+          const noAwayPlayers =
+          !data.joueursEquipeExterieurId ||
+          data.joueursEquipeExterieurId.length === 0;
+
+          return noHomePlayers && noAwayPlayers;
+        });
+
+        console.log("Matchs à traiter :", matchs.length);
+
+        // 🔹 3. Traiter chaque match
+        for (const doc of matchs) {
+          const match = doc.data();
+          const matchId = match.id;
+
+          console.log("🔎 Match :", matchId);
+
+          try {
+            const lineup = await getDataFromApi("fixtures/lineups", {
+              fixture: matchId,
+            });
+
+            if (!lineup || lineup.length < 2) {
+              console.log("❌ Pas encore de lineup pour", matchId);
+              continue;
+            }
+
+            const equipeDomicile = lineup[0];
+            const equipeExterieur = lineup[1];
+
+            const mapPlayer = (playerObj, isFromStartXI = true) => {
+              return {
+                joueurId: playerObj.player.id.toString(),
+                number: playerObj.player.number || null,
+                pos: playerObj.player.pos || null,
+                grid: playerObj.player.grid || null,
+                hasPlayed: isFromStartXI,
+              };
+            };
+
+            // Construire les tableaux MatchJoueurId
+            const joueursDomicile = [
+              ...(equipeDomicile.startXI || []).map((p) => mapPlayer(p, true)),
+              ...(equipeDomicile.substitutes || []).map((p) =>
+                mapPlayer(p, false),
+              ),
+            ];
+
+            const joueursExterieur = [
+              ...(equipeExterieur.startXI || []).map((p) => mapPlayer(p, true)),
+              ...(equipeExterieur.substitutes || []).map((p) =>
+                mapPlayer(p, false),
+              ),
+            ];
+
+            if (joueursDomicile.length === 0 || joueursExterieur.length === 0) {
+              console.log("⚠️ Lineup vide pour", matchId);
+              continue;
+            }
+
+            console.log("✅ Lineup trouvé pour", matchId);
+
+            // 🔹 4. Mise à jour Firestore
+            await db.collection("matchs").doc(doc.id).update({
+              joueursEquipeDomicile: joueursDomicile,
+              joueursEquipeExterieur: joueursExterieur,
+            });
+
+            console.log("💾 Match mis à jour :", matchId);
+          } catch (error) {
+            console.error("🔥 Erreur pour match", matchId, error);
+          }
+        }
+
+        console.log("✅ Vérification terminée");
+      } catch (error) {
+        console.error("🔥 Erreur globale :", error);
       }
     },
 );
