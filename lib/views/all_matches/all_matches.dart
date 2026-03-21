@@ -221,8 +221,14 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                       .where((m) => !followedMatches.contains(m))
                       .toList();
 
-                  followedMatches = sortMatchsCompetition(followedMatches);
-                  otherMatches = sortMatchsCompetition(otherMatches);
+                  followedMatches = sortMatchsCompetition(
+                    matchs: followedMatches,
+                    triDate: true,
+                  );
+                  otherMatches = sortMatchsCompetition(
+                    matchs: otherMatches,
+                    triDate: false,
+                  );
 
                   return ListView(
                     padding: const EdgeInsets.only(bottom: 80),

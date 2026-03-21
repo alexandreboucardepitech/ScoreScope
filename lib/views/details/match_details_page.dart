@@ -592,8 +592,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                     color: ColorPalette.textPrimary(context),
                                   ),
                                 ),
-                                if (_currentMatch.status ==
-                                    MatchStatus.scheduled)
+                                if (_currentMatch.isScheduled)
                                   Text(
                                     DateFormat('d MMMM', 'fr_FR')
                                         .format(_currentMatch.date),
@@ -602,6 +601,17 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                if (_currentMatch.isLive &&
+                                    _currentMatch.liveMinute != null)
+                                  Text(
+                                    "${_currentMatch.liveMinute!}'",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: ColorPalette.textAccent(context),
                                     ),
                                   ),
                               ],

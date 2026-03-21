@@ -90,19 +90,23 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
       }
 
       // tri par grid principale
-      if (getPosFromString(a.grid!, true) > getPosFromString(b.grid!, true)) {
-        return 1;
-      }
-      if (getPosFromString(b.grid!, true) > getPosFromString(a.grid!, true)) {
-        return -1;
-      }
+      if (a.grid != null && b.grid != null) {
+        if (getPosFromString(a.grid!, true) > getPosFromString(b.grid!, true)) {
+          return 1;
+        }
+        if (getPosFromString(b.grid!, true) > getPosFromString(a.grid!, true)) {
+          return -1;
+        }
 
-      // tri par grid secondaire
-      if (getPosFromString(a.grid!, false) > getPosFromString(b.grid!, false)) {
-        return 1;
-      }
-      if (getPosFromString(b.grid!, false) > getPosFromString(a.grid!, false)) {
-        return -1;
+        // tri par grid secondaire
+        if (getPosFromString(a.grid!, false) >
+            getPosFromString(b.grid!, false)) {
+          return 1;
+        }
+        if (getPosFromString(b.grid!, false) >
+            getPosFromString(a.grid!, false)) {
+          return -1;
+        }
       }
 
       return -1; // par défaut

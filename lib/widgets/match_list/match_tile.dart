@@ -242,9 +242,10 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     required String nomComplet,
     required String? nomCourt,
     required bool isWinner,
+    required bool isLive,
     required TextAlign align,
   }) {
-    final textColor = isWinner
+    final textColor = isWinner && !isLive
         ? ColorPalette.textAccent(context)
         : ColorPalette.textPrimary(context);
 
@@ -311,6 +312,59 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildTrailing(BuildContext context) {
+    final match = widget.match;
+
+    Widget content;
+
+    if (match.isScheduled) {
+      content = InkWell(
+        onTap: () => _toggleNotifications(
+          !(userData?.notifications ?? false),
+        ),
+        child: Icon(
+          userData?.notifications ?? false
+              ? Icons.notifications_active
+              : Icons.notifications_outlined,
+          color: ColorPalette.accent(context),
+          size: 20,
+        ),
+      );
+    } else if (match.isLive && match.liveMinute != null) {
+      content = InkWell(
+        splashColor: Colors.transparent,
+        onTap: _navigateToDetails,
+        child: Text(
+          "${match.liveMinute!}'",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: ColorPalette.accent(context),
+            fontSize: 13,
+          ),
+        ),
+      );
+    } else {
+      content = RotationTransition(
+        turns: _arrowAnim,
+        child: InkWell(
+          splashColor: Colors.transparent,
+          onTap: _toggleExpanded,
+          child: Icon(
+            Icons.expand_more,
+            color: ColorPalette.accent(context),
+            size: 22,
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: Center(child: content),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final match = widget.match;
@@ -367,6 +421,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                     nomCourt: match.equipeDomicile.nomCourt,
                                     isWinner: match.scoreEquipeDomicile >
                                         match.scoreEquipeExterieur,
+                                    isLive: match.isLive,
                                     align: TextAlign.end,
                                   ),
                                 ),
@@ -417,6 +472,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                     nomCourt: match.equipeExterieur.nomCourt,
                                     isWinner: match.scoreEquipeExterieur >
                                         match.scoreEquipeDomicile,
+                                    isLive: match.isLive,
                                     align: TextAlign.start,
                                   ),
                                 ),
@@ -428,31 +484,10 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                if (match.isScheduled)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      splashColor: Colors.transparent,
-                      onTap: () => _toggleNotifications(
-                        !(userData?.notifications ?? false),
-                      ),
-                      child: Icon(
-                        userData?.notifications ?? false
-                            ? Icons.notifications_active
-                            : Icons.notifications_outlined,
-                        color: ColorPalette.accent(context),
-                      ),
-                    ),
-                  )
-                else
-                  IconButton(
-                    splashRadius: 20,
-                    icon: RotationTransition(
-                      turns: _arrowAnim,
-                      child: const Icon(Icons.expand_more),
-                    ),
-                    onPressed: _toggleExpanded,
-                  ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: _buildTrailing(context),
+                ),
               ],
             ),
           ),
