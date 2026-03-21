@@ -60,6 +60,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
   List<MatchJoueur> getJoueursTriesParNombreDeVotes(
       List<MatchJoueur> joueurs, MatchModel match) {
     List<MatchJoueur> newList = List<MatchJoueur>.from(joueurs);
+    newList.removeWhere((player) => player.hasPlayed == false);
     newList.sort((a, b) {
       // tri par nombre de votes
       if ((a.joueur != null ? match.getNbVotesById(a.joueur!.id) : 0) >
@@ -71,33 +72,37 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
         return 1;
       }
 
-      // tri par "hasPlayed" ou pas
-      if (a.hasPlayed && !b.hasPlayed) {
-        return -1;
-      }
-      if (b.hasPlayed && !a.hasPlayed) {
-        return 1;
-      }
-
-      // si pas de pos on return juste 1
-      if (a.pos == null || b.pos == null) {
-        return -1;
-      }
-
-      // tri par pos principale
-      if (getPosFromString(a.pos!, true) > getPosFromString(b.pos!, true)) {
-        return -1;
-      }
-      if (getPosFromString(b.pos!, true) > getPosFromString(a.pos!, true)) {
-        return 1;
+      // si pas de grid on fait avec la pos
+      if (a.grid == null || b.grid == null) {
+        if (b.pos == null) {
+          return -1;
+        }
+        if (a.pos == null) {
+          return 1;
+        }
+        final positions = ["G", "D", "M", "A"];
+        if (positions.indexOf(a.pos!) < positions.indexOf(b.pos!)) {
+          return -1;
+        }
+        if (positions.indexOf(b.pos!) < positions.indexOf(a.pos!)) {
+          return 1;
+        }
       }
 
-      // tri par pos secondaire
-      if (getPosFromString(a.pos!, false) > getPosFromString(b.pos!, false)) {
+      // tri par grid principale
+      if (getPosFromString(a.grid!, true) > getPosFromString(b.grid!, true)) {
+        return 1;
+      }
+      if (getPosFromString(b.grid!, true) > getPosFromString(a.grid!, true)) {
         return -1;
       }
-      if (getPosFromString(b.pos!, false) > getPosFromString(a.pos!, false)) {
+
+      // tri par grid secondaire
+      if (getPosFromString(a.grid!, false) > getPosFromString(b.grid!, false)) {
         return 1;
+      }
+      if (getPosFromString(b.grid!, false) > getPosFromString(a.grid!, false)) {
+        return -1;
       }
 
       return -1; // par défaut

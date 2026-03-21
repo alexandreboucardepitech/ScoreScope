@@ -1,5 +1,5 @@
 int getPosFromString(String posString, bool getMainPos) {
-  List<String> split = posString.split('|');
+  List<String> split = posString.split(':');
   if (split.length != 2) {
     return -1;
   }
