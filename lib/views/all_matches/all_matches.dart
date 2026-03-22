@@ -103,6 +103,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     setState(() {
       _selectedDate = date;
       _loadData();
+      _availableDates = _generateDatesAround(_selectedDate);
       _scrollToCenter(animated: true);
     });
   }
@@ -423,6 +424,7 @@ Future<DateTime?> _openDatePicker(
   DateTime selectedDate,
 ) async {
   final pickedDate = await showDatePicker(
+    locale: const Locale('en', 'GB'),
     context: context,
     initialDate: selectedDate,
     firstDate: DateTime(2000),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
+import 'package:scorescope/utils/string/round_smart.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
 
@@ -51,7 +52,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
                     const SizedBox(height: 6),
                     buildValueChip(
                       context,
-                      podium.value,
+                      num.parse(roundSmart(podium.value.toDouble())),
                       color,
                       large: isFirst,
                     ),
@@ -78,7 +79,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
                       ),
                     ),
                     Text(
-                      podium.value.toString(),
+                      roundSmart(podium.value.toDouble()),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: ColorPalette.textPrimary(context),
@@ -111,7 +112,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
         if (isFirst && displayImage != null)
           CircleAvatar(
             radius: 18,
-            backgroundImage: AssetImage(displayImage!),
+            backgroundImage: NetworkImage(displayImage!),
           ),
         if (isFirst) const SizedBox(width: 8),
         Expanded(
@@ -134,7 +135,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              podium.value.toString(),
+              roundSmart(podium.value.toDouble()),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: textColor,
@@ -143,7 +144,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
           )
         else
           Text(
-            podium.value.toString(),
+            roundSmart(podium.value.toDouble()),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

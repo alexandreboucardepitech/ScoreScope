@@ -71,10 +71,19 @@ class WebAppUserRepository implements IAppUserRepository {
             isLessThanOrEqualTo: Timestamp.fromDate(dateRange.end),
           );
     }
-    query = query.where('watchedAt', isNotEqualTo: null);
     final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
 
-    return snapshot.docs.map((doc) => doc.data()['matchId'] as String).toList();
+    List<MatchUserData> matchs = [];
+
+    for (dynamic doc in snapshot.docs) {
+      dynamic data = doc.data();
+      if (data.containsKey('watchedAt') && data['watchedAt'] != null) {
+        matchs.add(MatchUserData.fromJson(data));
+      }
+    }
+
+    matchs.sort((a, b) => b.watchedAt!.compareTo(a.watchedAt!));
+    return matchs.map((match) => match.matchId).toList();
   }
 
   @override

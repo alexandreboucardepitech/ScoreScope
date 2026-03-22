@@ -20,22 +20,34 @@ class StatsLoader {
 
   static Future<Map<Joueur, int>> getMeilleursButeurs(
       List<MatchModel> matchsVusModels) async {
-    Map<Joueur, int> uniqueButeursId = {};
+    final Map<String, int> countById = {};
+    final Map<String, Joueur> joueurById = {};
+
     for (final match in matchsVusModels) {
       final List<But> butsDuMatch =
           match.butsEquipeDomicile + match.butsEquipeExterieur;
       for (var but in butsDuMatch) {
-        uniqueButeursId[but.buteur] = (uniqueButeursId[but.buteur] ?? 0) + 1;
+        final id = but.buteur.id;
+        countById[id] = (countById[id] ?? 0) + 1;
+        joueurById[id] = but.buteur;
       }
     }
-    final sortedEntries = uniqueButeursId.entries.toList()
+
+    final sortedEntries = countById.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    return Map.fromEntries(sortedEntries);
+
+    return Map.fromEntries(
+      sortedEntries.map(
+        (e) => MapEntry(joueurById[e.key]!, e.value),
+      ),
+    );
   }
 
   static Future<Map<Joueur, int>> getTitularisations(
       List<MatchModel> matchsVusModels) async {
-    Map<Joueur, int> uniqueJoueursId = {};
+    final Map<String, int> countById = {};
+    final Map<String, Joueur> joueurById = {};
+
     for (final match in matchsVusModels) {
       List<MatchJoueur> joueursDuMatch =
           match.joueursEquipeDomicile + match.joueursEquipeExterieur;
@@ -45,40 +57,66 @@ class StatsLoader {
 
       for (var joueurMatch in joueursDuMatch) {
         if (joueurMatch.joueur != null) {
-          uniqueJoueursId[joueurMatch.joueur!] =
-              (uniqueJoueursId[joueurMatch.joueur] ?? 0) + 1;
+          final id = joueurMatch.joueur!.id;
+          countById[id] = (countById[id] ?? 0) + 1;
+          joueurById[id] = joueurMatch.joueur!;
         }
       }
     }
-    final sortedEntries = uniqueJoueursId.entries.toList()
+
+    final sortedEntries = countById.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    return Map.fromEntries(sortedEntries);
+
+    return Map.fromEntries(
+      sortedEntries.map(
+        (e) => MapEntry(joueurById[e.key]!, e.value),
+      ),
+    );
   }
 
   static Future<Map<Equipe, int>> getEquipesLesPlusVues(
       List<MatchModel> matchsVusModels) async {
-    Map<Equipe, int> uniqueEquipesId = {};
+    final Map<String, int> countById = {};
+    final Map<String, Equipe> equipeById = {};
+
     for (final match in matchsVusModels) {
-      uniqueEquipesId[match.equipeDomicile] =
-          (uniqueEquipesId[match.equipeDomicile] ?? 0) + 1;
-      uniqueEquipesId[match.equipeExterieur] =
-          (uniqueEquipesId[match.equipeExterieur] ?? 0) + 1;
+      countById[match.equipeDomicile.id] =
+          (countById[match.equipeDomicile.id] ?? 0) + 1;
+      countById[match.equipeExterieur.id] =
+          (countById[match.equipeExterieur.id] ?? 0) + 1;
+      equipeById[match.equipeDomicile.id] = match.equipeDomicile;
+      equipeById[match.equipeExterieur.id] = match.equipeExterieur;
     }
-    final sortedEntries = uniqueEquipesId.entries.toList()
+
+    final sortedEntries = countById.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    return Map.fromEntries(sortedEntries);
+
+    return Map.fromEntries(
+      sortedEntries.map(
+        (e) => MapEntry(equipeById[e.key]!, e.value),
+      ),
+    );
   }
 
   static Future<Map<Competition, int>> getCompetitionsLesPlusVues(
       List<MatchModel> matchsVusModels) async {
-    Map<Competition, int> uniqueCompetitionsId = {};
+    final Map<String, int> countById = {};
+    final Map<String, Competition> competitionById = {};
+
     for (final match in matchsVusModels) {
-      uniqueCompetitionsId[match.competition] =
-          (uniqueCompetitionsId[match.competition] ?? 0) + 1;
+      final id = match.competition.id;
+      countById[id] = (countById[id] ?? 0) + 1;
+      competitionById[id] = match.competition;
     }
-    final sortedEntries = uniqueCompetitionsId.entries.toList()
+
+    final sortedEntries = countById.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    return Map.fromEntries(sortedEntries);
+
+    return Map.fromEntries(
+      sortedEntries.map(
+        (e) => MapEntry(competitionById[e.key]!, e.value),
+      ),
+    );
   }
 
   static int getNbButsVus({required List<MatchModel> matchsVusModels}) {
@@ -263,7 +301,9 @@ class StatsLoader {
 
   static Future<List<PodiumEntry<Equipe>>> getEquipesLesPlusVuesGagner(
       List<MatchModel> matchsVusModels) async {
-    Map<Equipe, int> equipesVictoiresCount = {};
+    final Map<String, int> countById = {};
+    final Map<String, Equipe> equipeById = {};
+
     for (final match in matchsVusModels) {
       Equipe? gagnant;
       if (match.scoreEquipeDomicile > match.scoreEquipeExterieur) {
@@ -271,30 +311,36 @@ class StatsLoader {
       } else if (match.scoreEquipeDomicile < match.scoreEquipeExterieur) {
         gagnant = match.equipeExterieur;
       }
+
       if (gagnant != null) {
-        equipesVictoiresCount[gagnant] =
-            (equipesVictoiresCount[gagnant] ?? 0) + 1;
+        countById[gagnant.id] = (countById[gagnant.id] ?? 0) + 1;
+        equipeById[gagnant.id] = gagnant;
       }
     }
 
+    final sortedEntries = countById.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     final podiumEntries = await Future.wait(
-      equipesVictoiresCount.entries.map((entry) async {
-        final color = await entry.key.getColor();
+      sortedEntries.map((e) async {
+        final equipe = equipeById[e.key]!;
+        final color = await equipe.getColor();
         return PodiumEntry<Equipe>(
-          item: entry.key,
-          value: entry.value,
+          item: equipe,
+          value: e.value,
           color: color,
         );
       }),
     );
 
-    podiumEntries.sort((a, b) => b.value.compareTo(a.value));
     return podiumEntries;
   }
 
   static Future<List<PodiumEntry<Equipe>>> getEquipesLesPlusVuesPerdre(
       List<MatchModel> matchsVusModels) async {
-    Map<Equipe, int> equipesDefaitesCount = {};
+    final Map<String, int> countById = {};
+    final Map<String, Equipe> equipeById = {};
+
     for (final match in matchsVusModels) {
       Equipe? perdant;
       if (match.scoreEquipeDomicile < match.scoreEquipeExterieur) {
@@ -302,135 +348,168 @@ class StatsLoader {
       } else if (match.scoreEquipeDomicile > match.scoreEquipeExterieur) {
         perdant = match.equipeExterieur;
       }
+
       if (perdant != null) {
-        equipesDefaitesCount[perdant] =
-            (equipesDefaitesCount[perdant] ?? 0) + 1;
+        countById[perdant.id] = (countById[perdant.id] ?? 0) + 1;
+        equipeById[perdant.id] = perdant;
       }
     }
 
+    final sortedEntries = countById.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     final podiumEntries = await Future.wait(
-      equipesDefaitesCount.entries.map((entry) async {
-        final color = await entry.key.getColor();
+      sortedEntries.map((e) async {
+        final equipe = equipeById[e.key]!;
+        final color = await equipe.getColor();
         return PodiumEntry<Equipe>(
-          item: entry.key,
-          value: entry.value,
+          item: equipe,
+          value: e.value,
           color: color,
         );
       }),
     );
 
-    podiumEntries.sort((a, b) => b.value.compareTo(a.value));
     return podiumEntries;
   }
 
   static Future<List<PodiumEntry<Equipe>>> getEquipesLesPlusVuesMarquer(
       List<MatchModel> matchsVusModels) async {
-    Map<Equipe, int> equipesButsCount = {};
+    final Map<String, int> countById = {};
+    final Map<String, Equipe> equipeById = {};
+
     for (final match in matchsVusModels) {
-      equipesButsCount[match.equipeDomicile] =
-          (equipesButsCount[match.equipeDomicile] ?? 0) +
+      countById[match.equipeDomicile.id] =
+          (countById[match.equipeDomicile.id] ?? 0) +
               match.butsEquipeDomicile.length;
-      equipesButsCount[match.equipeExterieur] =
-          (equipesButsCount[match.equipeExterieur] ?? 0) +
+      equipeById[match.equipeDomicile.id] = match.equipeDomicile;
+
+      countById[match.equipeExterieur.id] =
+          (countById[match.equipeExterieur.id] ?? 0) +
               match.butsEquipeExterieur.length;
+      equipeById[match.equipeExterieur.id] = match.equipeExterieur;
     }
 
+    final sortedEntries = countById.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     final podiumEntries = await Future.wait(
-      equipesButsCount.entries.map((entry) async {
-        final color = await entry.key.getColor();
+      sortedEntries.map((e) async {
+        final equipe = equipeById[e.key]!;
+        final color = await equipe.getColor();
         return PodiumEntry<Equipe>(
-          item: entry.key,
-          value: entry.value,
+          item: equipe,
+          value: e.value,
           color: color,
         );
       }),
     );
 
-    podiumEntries.sort((a, b) => b.value.compareTo(a.value));
     return podiumEntries;
   }
 
   static Future<List<PodiumEntry<Equipe>>> getEquipesLesPlusVuesEncaisser(
       List<MatchModel> matchsVusModels) async {
-    Map<Equipe, int> equipesButsCount = {};
+    final Map<String, int> countById = {};
+    final Map<String, Equipe> equipeById = {};
+
     for (final match in matchsVusModels) {
-      equipesButsCount[match.equipeExterieur] =
-          (equipesButsCount[match.equipeExterieur] ?? 0) +
+      countById[match.equipeExterieur.id] =
+          (countById[match.equipeExterieur.id] ?? 0) +
               match.butsEquipeDomicile.length;
-      equipesButsCount[match.equipeDomicile] =
-          (equipesButsCount[match.equipeDomicile] ?? 0) +
+      equipeById[match.equipeExterieur.id] = match.equipeExterieur;
+
+      countById[match.equipeDomicile.id] =
+          (countById[match.equipeDomicile.id] ?? 0) +
               match.butsEquipeExterieur.length;
+      equipeById[match.equipeDomicile.id] = match.equipeDomicile;
     }
 
+    final sortedEntries = countById.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     final podiumEntries = await Future.wait(
-      equipesButsCount.entries.map((entry) async {
-        final color = await entry.key.getColor();
+      sortedEntries.map((e) async {
+        final equipe = equipeById[e.key]!;
+        final color = await equipe.getColor();
         return PodiumEntry<Equipe>(
-          item: entry.key,
-          value: entry.value,
+          item: equipe,
+          value: e.value,
           color: color,
         );
       }),
     );
 
-    podiumEntries.sort((a, b) => b.value.compareTo(a.value));
     return podiumEntries;
   }
 
   static Future<Map<Joueur, int>> getMeilleursButeursUnMatch(
     List<MatchModel> matchsVus,
   ) async {
-    final Map<Joueur, int> bestGoalsPerMatchByPlayer = {};
+    final Map<String, int> bestGoalsPerMatchByPlayerId = {};
+    final Map<String, Joueur> joueurById = {};
 
     for (final match in matchsVus) {
       final List<But> butsDuMatch =
           match.butsEquipeDomicile + match.butsEquipeExterieur;
 
-      final Map<Joueur, int> goalsThisMatch = {};
+      final Map<String, int> goalsThisMatch = {};
 
       for (final but in butsDuMatch) {
-        goalsThisMatch[but.buteur] = (goalsThisMatch[but.buteur] ?? 0) + 1;
+        goalsThisMatch[but.buteur.id] =
+            (goalsThisMatch[but.buteur.id] ?? 0) + 1;
+        joueurById[but.buteur.id] = but.buteur;
       }
 
       for (final entry in goalsThisMatch.entries) {
-        final joueur = entry.key;
+        final joueurId = entry.key;
         final goalsInThisMatch = entry.value;
 
-        final currentBest = bestGoalsPerMatchByPlayer[joueur] ?? 0;
+        final currentBest = bestGoalsPerMatchByPlayerId[joueurId] ?? 0;
         if (goalsInThisMatch > currentBest) {
-          bestGoalsPerMatchByPlayer[joueur] = goalsInThisMatch;
+          bestGoalsPerMatchByPlayerId[joueurId] = goalsInThisMatch;
         }
       }
     }
 
-    final sortedEntries = bestGoalsPerMatchByPlayer.entries.toList()
+    final sortedEntries = bestGoalsPerMatchByPlayerId.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return Map.fromEntries(sortedEntries);
+    return Map.fromEntries(
+      sortedEntries.map(
+        (e) => MapEntry(joueurById[e.key]!, e.value),
+      ),
+    );
   }
 
   static Future<List<PodiumEntry<Competition>>> getButsParCompetition(
       List<MatchModel> matchsVusModels) async {
-    Map<Competition, int> competitionsButsCount = {};
+    final Map<String, int> countById = {};
+    final Map<String, Competition> competitionById = {};
+
     for (final match in matchsVusModels) {
-      competitionsButsCount[match.competition] =
-          (competitionsButsCount[match.competition] ?? 0) +
-              match.butsEquipeDomicile.length +
-              match.butsEquipeExterieur.length;
+      final id = match.competition.id;
+      final butsDuMatch =
+          match.butsEquipeDomicile.length + match.butsEquipeExterieur.length;
+      countById[id] = (countById[id] ?? 0) + butsDuMatch;
+      competitionById[id] = match.competition;
     }
 
+    final sortedEntries = countById.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     final podiumEntries = await Future.wait(
-      competitionsButsCount.entries.map((entry) async {
-        final color = await entry.key.getColor();
+      sortedEntries.map((e) async {
+        final competition = competitionById[e.key]!;
+        final color = await competition.getColor();
         return PodiumEntry<Competition>(
-          item: entry.key,
-          value: entry.value,
+          item: competition,
+          value: e.value,
           color: color,
         );
       }),
     );
 
-    podiumEntries.sort((a, b) => b.value.compareTo(a.value));
     return podiumEntries;
   }
 
@@ -438,22 +517,27 @@ class StatsLoader {
       getMoyenneButsParMatchParCompetition(
     List<MatchModel> matchsVusModels,
   ) async {
-    final Map<Competition, int> totalButs = {};
-    final Map<Competition, int> totalMatchs = {};
+    final Map<String, int> totalButs = {};
+    final Map<String, int> totalMatchs = {};
+    final Map<String, Competition> competitionById = {};
 
     for (final match in matchsVusModels) {
-      final competition = match.competition;
+      final id = match.competition.id;
       final butsDuMatch =
           match.butsEquipeDomicile.length + match.butsEquipeExterieur.length;
 
-      totalButs[competition] = (totalButs[competition] ?? 0) + butsDuMatch;
-      totalMatchs[competition] = (totalMatchs[competition] ?? 0) + 1;
+      totalButs[id] = (totalButs[id] ?? 0) + butsDuMatch;
+      totalMatchs[id] = (totalMatchs[id] ?? 0) + 1;
+      competitionById[id] = match.competition;
     }
 
+    final sortedEntries = totalButs.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     final podiumEntries = await Future.wait(
-      totalButs.entries.map((entry) async {
-        final competition = entry.key;
-        final moyenne = entry.value / totalMatchs[competition]!;
+      sortedEntries.map((e) async {
+        final competition = competitionById[e.key]!;
+        final moyenne = e.value / totalMatchs[e.key]!;
         final color = await competition.getColor();
 
         return PodiumEntry<Competition>(
@@ -464,7 +548,6 @@ class StatsLoader {
       }),
     );
 
-    podiumEntries.sort((a, b) => b.value.compareTo(a.value));
     return podiumEntries;
   }
 
@@ -569,30 +652,32 @@ class StatsLoader {
 
   static List<StatValue> getPourcentageMatchsCompetitions(
       List<MatchModel> matchsVusModels) {
-    Map<Competition, int> competitionsCount = {};
+    final Map<String, int> countById = {};
+    final Map<String, Competition> competitionById = {};
+
     for (final match in matchsVusModels) {
-      competitionsCount[match.competition] =
-          (competitionsCount[match.competition] ?? 0) + 1;
+      final id = match.competition.id;
+      countById[id] = (countById[id] ?? 0) + 1;
+      competitionById[id] = match.competition;
     }
+
+    final sortedEntries = countById.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
 
     final totalMatchs = matchsVusModels.length;
     if (totalMatchs == 0) {
       return [];
     }
 
-    final statValues = competitionsCount.entries.map((entry) {
-      final competition = entry.key;
-      final count = entry.value;
-      final percentage = (count / totalMatchs) * 100;
+    return sortedEntries.map((e) {
+      final competition = competitionById[e.key]!;
+      final percentage = (e.value / totalMatchs) * 100;
 
       return StatValue(
         label: competition.nom,
         value: percentage,
       );
     }).toList();
-
-    statValues.sort((a, b) => b.value.compareTo(a.value));
-    return statValues;
   }
 
   static Future<List<StatValue>> getTypeVisionnage({
@@ -884,12 +969,14 @@ class StatsLoader {
     List<PodiumEntry<Joueur>> eluMvpMatchsVusUser =
         await getMvpsLesPlusVotesListeMatchs(matchs: matchsEquipeVusUser);
 
-    double noteMoyenne = matchsEquipe.isEmpty
+    List<MatchModel> matchsAvecUneNote = matchsEquipe.where((match) => match.getNoteMoyenne() != -1).toList();
+
+    double noteMoyenne = matchsAvecUneNote.isEmpty
         ? 0
-        : matchsEquipe
+        : matchsAvecUneNote
                 .map((match) => match.getNoteMoyenne())
                 .fold(0.0, (sum, note) => sum + note) /
-            matchsEquipe.length;
+            matchsAvecUneNote.length;
     double noteMoyenneMatchsUser =
         getMoyenneNotes(matchsVusUser: matchsDataVusUser);
 

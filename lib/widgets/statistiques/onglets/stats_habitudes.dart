@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/onglets/stats_habitudes_data.dart';
+import 'package:scorescope/utils/string/round_smart.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
@@ -30,7 +31,7 @@ class StatsHabitudesOnglet extends StatelessWidget {
       buildSimpleStatCardOrListTile(
           showCards: showCards,
           title: 'Moy. des notes données',
-          value: data.moyenneNotes.toStringAsFixed(1),
+          value: roundSmart(data.moyenneNotes),
           icon: Icons.star),
       buildPodiumCardOrListTile(
         showCards: showCards,
@@ -42,14 +43,18 @@ class StatsHabitudesOnglet extends StatelessWidget {
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Matchs les + commentés',
-        items: data.matchsPlusCommentes,
+        items: data.matchsPlusCommentes[0].value != 0
+            ? data.matchsPlusCommentes
+            : [],
         emptyStateText: 'Aucun match',
         user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Matchs les + réactions',
-        items: data.matchsPlusReactions,
+        items: data.matchsPlusReactions[0].value != 0
+            ? data.matchsPlusReactions
+            : [],
         emptyStateText: 'Aucun match',
         user: user,
       ),

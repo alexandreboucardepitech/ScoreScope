@@ -32,7 +32,7 @@ class Joueur extends BasicPodiumDisplayable {
       prenom.isEmpty ? nom : '${prenom[0]}. ${nom.split(' ').first}';
 
   @override
-  String get displayLabel => shortName;
+  String get displayLabel => fullName;
 
   @override
   String? get displayImage => picture;

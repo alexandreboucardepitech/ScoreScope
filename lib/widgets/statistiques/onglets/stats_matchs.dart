@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/onglets/stats_matchs_data.dart';
+import 'package:scorescope/utils/string/round_smart.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
@@ -29,7 +30,7 @@ class StatsMatchsOnglet extends StatelessWidget {
       buildSimpleStatCardOrListTile(
         showCards: showCards,
         title: 'Moy. buts / match',
-        value: data.moyenneButsParMatch.toStringAsFixed(1),
+        value: roundSmart(data.moyenneButsParMatch),
         icon: Icons.show_chart,
       ),
       buildPodiumCardOrListTile(
@@ -49,7 +50,7 @@ class StatsMatchsOnglet extends StatelessWidget {
       buildSimpleStatCardOrListTile(
         showCards: showCards,
         title: 'Moyenne différence buts / match',
-        value: data.moyenneDiffButsParMatch.toStringAsFixed(1),
+        value: roundSmart(data.moyenneDiffButsParMatch),
         icon: Icons.balance,
       ),
     ];

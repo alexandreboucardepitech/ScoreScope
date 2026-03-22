@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/stats/onglets/stats_generales_data.dart';
+import 'package:scorescope/utils/string/round_smart.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 
 class StatsGeneralesOnglet extends StatelessWidget {
@@ -72,13 +73,13 @@ class StatsGeneralesOnglet extends StatelessWidget {
       buildSimpleStatCardOrListTile(
         showCards: showCards,
         title: 'Moy. buts / match',
-        value: data.moyenneButsParMatch.toStringAsFixed(1),
+        value: roundSmart(data.moyenneButsParMatch),
         icon: Icons.show_chart,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
         title: 'Moy. des notes données',
-        value: data.moyenneNotes.toStringAsFixed(1),
+        value: roundSmart(data.moyenneNotes),
         icon: Icons.star,
       ),
       buildPodiumCardOrListTile(

@@ -5,6 +5,7 @@ import 'package:scorescope/models/stats/team_stats.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/stats/stats_loader.dart';
+import 'package:scorescope/utils/string/round_smart.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 import 'package:scorescope/widgets/statistiques/cards/podium_card.dart';
@@ -195,8 +196,8 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                             ? "Ma note moyenne des matchs"
                             : "Note moyenne des matchs",
                         value: _isPersonalMode
-                            ? _teamStats!.userNoteMoyenneMatchs.toString()
-                            : _teamStats!.noteMoyenneMatchs.toString(),
+                            ? roundSmart(_teamStats!.userNoteMoyenneMatchs)
+                            : roundSmart(_teamStats!.noteMoyenneMatchs),
                         icon: Icons.star,
                       ),
                       if (RepositoryProvider.userRepository.currentUser != null)

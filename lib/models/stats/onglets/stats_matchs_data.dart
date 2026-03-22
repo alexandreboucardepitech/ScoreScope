@@ -8,7 +8,7 @@ class StatsMatchsData {
 
   final List<PodiumEntry<MatchModel>> biggestScores;
   final List<PodiumEntry<MatchModel>> biggestScoresDifference;
-  final num moyenneDiffButsParMatch;
+  final double moyenneDiffButsParMatch;
 
   final List<StatValue> pourcentageVictoireDomExt;
   final List<StatValue> pourcentageClubsInternationaux;
