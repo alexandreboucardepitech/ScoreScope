@@ -14,7 +14,7 @@ class RechercheView extends StatefulWidget {
 
 class _RechercheViewState extends State<RechercheView> {
   String _query = '';
-  String _filter = 'Tous';
+  String _filter = 'Équipes';
 
   final TextEditingController _searchController = TextEditingController();
 

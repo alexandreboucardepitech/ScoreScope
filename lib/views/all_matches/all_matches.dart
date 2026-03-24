@@ -264,23 +264,29 @@ class _AllMatchesViewState extends State<AllMatchesView> {
           //     "jSHnJN1cVWTsDirfm1sEaA358jJ3")
           //   ElevatedButton(
           //     onPressed: () async {
-          //       List<MatchModelId> matchs = await RepositoryProvider
-          //           .matchRepository
-          //           .fetchAllMatchesId(loadVotesAndNotes: false);
+          //       List<Competition> competitions = await RepositoryProvider
+          //           .competitionRepository
+          //           .fetchAllCompetitions();
 
-          //       matchs.sort((a, b) => a.date.compareTo(b.date));
-
-          //       for (MatchModelId match in matchs) {
-          //         if (match.date.isAfter(DateTime(2026, 01, 04))) {
+          //       for (Competition comp in competitions) {
+          //         print(
+          //           "on commence à récupérer ${comp.id} : ${comp.nom}",
+          //         );
+          //         List<MatchModelId> matchs = await FillDatabase.getMatchs(
+          //           comp.id,
+          //           "2025",
+          //           DateTime(2026, 03, 07),
+          //           DateTime(2026, 03, 23),
+          //         );
+          //         print(
+          //           "on a fini de récupérer ${comp.id} : ${comp.nom}",
+          //         );
+          //         for (MatchModelId match in matchs) {
           //           print(
-          //             "on commence à récupérer ${match.id} : (${match.equipeDomicileId} - ${match.equipeExterieurId}) ${match.date}",
+          //             "mise à jour de ${match.id} : ${match.equipeDomicileId} - ${match.equipeExterieurId}",
           //           );
-          //           await FillDatabase.updateMatchOwnGoalPenaltyAndStadiumNames(
-          //             match,
-          //           );
-          //           print(
-          //             "on a fini de récupérer ${match.id})",
-          //           );
+          //           RepositoryProvider.matchRepository
+          //               .updateMatchModelId(match);
           //         }
           //       }
           //     },

@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/equipe.dart';
@@ -357,12 +358,26 @@ class FillDatabase {
   }
 
   static Future<List<MatchModelId>> getMatchs(
-      String competitionId, String season) async {
+    String competitionId,
+    String season,
+    DateTime? from,
+    DateTime? to,
+  ) async {
     List<MatchModelId> matchs = [];
+
+    dynamic params = {"league": competitionId, "season": season};
+
+    if (from != null) {
+      params["from"] = DateFormat('yyyy-MM-dd').format(from);
+    }
+
+    if (to != null) {
+      params["to"] = DateFormat('yyyy-MM-dd').format(to);
+    }
 
     List<dynamic> data = await getDataFromApi(
       "fixtures",
-      params: {"league": competitionId, "season": season},
+      params: params,
     );
     if (data.isEmpty) {
       print("ERREUR DATA EMPTY: pour $competitionId, $season");
@@ -389,6 +404,37 @@ class FillDatabase {
             equipeDomicileId: equipeDomicileId,
             equipeExterieurId: equipeExterieurId);
 
+        List<MatchJoueurId> equipeDomicilePlayers =
+            matchPlayers['equipeDomicilePlayers'] as List<MatchJoueurId>? ?? [];
+
+        List<MatchJoueurId> equipeExterieurPlayers =
+            matchPlayers['equipeExterieurPlayers'] as List<MatchJoueurId>? ??
+                [];
+
+        for (MatchJoueurId joueur in equipeDomicilePlayers) {
+          Joueur? joueurExiste = await RepositoryProvider.joueurRepository
+              .fetchJoueurById(joueur.joueurId);
+          if (joueurExiste == null) {
+            Joueur? joueurCree =
+                await createJoueurFromJson(joueur.joueurId, equipeDomicileId);
+            if (joueurCree != null) {
+              await RepositoryProvider.joueurRepository.addJoueur(joueurCree);
+            }
+          }
+        }
+
+        for (MatchJoueurId joueur in equipeExterieurPlayers) {
+          Joueur? joueurExiste = await RepositoryProvider.joueurRepository
+              .fetchJoueurById(joueur.joueurId);
+          if (joueurExiste == null) {
+            Joueur? joueurCree =
+                await createJoueurFromJson(joueur.joueurId, equipeExterieurId);
+            if (joueurCree != null) {
+              await RepositoryProvider.joueurRepository.addJoueur(joueurCree);
+            }
+          }
+        }
+
         MatchModelId newMatch = MatchModelId(
           id: id,
           status: status,
@@ -400,12 +446,8 @@ class FillDatabase {
           stadiumName: stadiumName,
           scoreEquipeDomicile: scoreEquipeDomicile,
           scoreEquipeExterieur: scoreEquipeExterieur,
-          joueursEquipeDomicileId:
-              matchPlayers['equipeDomicilePlayers'] as List<MatchJoueurId>? ??
-                  [],
-          joueursEquipeExterieurId:
-              matchPlayers['equipeExterieurPlayers'] as List<MatchJoueurId>? ??
-                  [],
+          joueursEquipeDomicileId: equipeDomicilePlayers,
+          joueursEquipeExterieurId: equipeExterieurPlayers,
           butsEquipeDomicileId:
               matchPlayers['equipeDomicileButs'] as List<ButId>? ?? [],
           butsEquipeExterieurId:

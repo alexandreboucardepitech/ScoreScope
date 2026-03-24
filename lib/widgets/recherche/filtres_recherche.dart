@@ -13,7 +13,7 @@ class FiltresRecherche extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filters = ["Tous", "Matchs", "Équipes", "Compétitions", "Joueurs"];
+    final filters = ["Équipes", "Compétitions", "Joueurs"];
 
     return SizedBox(
       height: 36,

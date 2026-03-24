@@ -100,7 +100,9 @@ class WebAppUserRepository implements IAppUserRepository {
 
     for (var doc in matchUserDataSnapshot.docs) {
       final data = doc.data();
-      if (!onlyPublic || (data['private'] == false)) {
+      if ((!onlyPublic || (data['private'] == false)) &&
+          data.containsKey('watchedAt') &&
+          data['watchedAt'] != null) {
         count++;
       }
     }
@@ -159,8 +161,10 @@ class WebAppUserRepository implements IAppUserRepository {
       if (!doc.exists) continue;
 
       final data = doc.data();
-      if (data == null) continue;
-
+      if (data == null ||
+          (data.containsKey('watchedAt') && data['watchedAt'] != null)) {
+        continue;
+      }
       final String equipeDomicileId = data['equipeDomicileId'] as String;
       final String equipeExterieurId = data['equipeExterieurId'] as String;
 
@@ -188,8 +192,10 @@ class WebAppUserRepository implements IAppUserRepository {
       if (!doc.exists) continue;
 
       final data = doc.data();
-      if (data == null) continue;
-
+      if (data == null ||
+          (data.containsKey('watchedAt') && data['watchedAt'] != null)) {
+        continue;
+      }
       if (data['competitionId'] == compId) {
         nbMatchsRegardes++;
       }
@@ -435,9 +441,17 @@ class WebAppUserRepository implements IAppUserRepository {
     }
     final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
 
-    return snapshot.docs
-        .map((doc) => MatchUserData.fromJson(doc.data()))
-        .toList();
+    List<MatchUserData> matchs = [];
+
+    for (dynamic doc in snapshot.docs) {
+      dynamic data = doc.data();
+      if (data.containsKey('watchedAt') && data['watchedAt'] != null) {
+        matchs.add(MatchUserData.fromJson(data));
+      }
+    }
+
+    matchs.sort((a, b) => b.watchedAt!.compareTo(a.watchedAt!));
+    return matchs;
   }
 
   @override
