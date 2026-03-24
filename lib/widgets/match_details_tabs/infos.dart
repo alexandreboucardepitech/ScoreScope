@@ -5,11 +5,11 @@ import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/watch_together/friend_item.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/handle_data/open_bottom_sheet_and_vote_mvp.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/match_details_tabs/add_watch_friend_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_details_tabs/match_infos_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/match_not_started.dart';
-import 'package:scorescope/widgets/match_details_tabs/mvp_vote_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_details_tabs/mvp_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/match_rating_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/visionnage_match_card.dart';
@@ -143,27 +143,6 @@ class _InfosTabState extends State<InfosTab> {
       _loadMvpEtNote(),
       _loadWatchFriends(),
     ]);
-  }
-
-  Future<void> _onPlusPressed() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    final Joueur? newJoueurSelected = await showVoteBottomSheet(
-      context: context,
-      match: widget.match,
-      initialUserVote: userVoteMVP,
-    );
-
-    if (newJoueurSelected != null) {
-      widget.match
-          .voterPourMVP(userId: user.uid, joueurId: newJoueurSelected.id);
-      userVoteMVP = newJoueurSelected;
-    } else {
-      widget.match.enleverVote(userId: user.uid);
-    }
-
-    await _reloadAll();
   }
 
   Future<void> _onAddFriend({
@@ -312,6 +291,16 @@ class _InfosTabState extends State<InfosTab> {
     await _reloadAll();
   }
 
+  void voteMVP() async {
+    Joueur? joueurVote = await openBottomSheetAndVoteMVP(
+      context: context,
+      match: widget.match,
+      initialUserVote: userVoteMVP,
+    );
+    userVoteMVP = joueurVote;
+    await _reloadAll();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -361,7 +350,7 @@ class _InfosTabState extends State<InfosTab> {
                   MvpCard(
                     mvp: currentMvp,
                     userVote: userVoteMVP,
-                    onVotePressed: _onPlusPressed,
+                    onVotePressed: voteMVP,
                   ),
                   const SizedBox(height: 12),
                   IntrinsicHeight(

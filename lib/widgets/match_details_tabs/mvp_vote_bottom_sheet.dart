@@ -9,6 +9,7 @@ Future<Joueur?> showVoteBottomSheet({
   required BuildContext context,
   required MatchModel match,
   Joueur? initialUserVote,
+  Joueur? preselectedPlayer,
 }) {
   return showModalBottomSheet<Joueur?>(
     context: context,
@@ -20,6 +21,7 @@ Future<Joueur?> showVoteBottomSheet({
     builder: (_) => VoteBottomSheetContent(
       match: match,
       initialUserVote: initialUserVote,
+      preselectedPlayer: preselectedPlayer,
     ),
   );
 }
@@ -27,10 +29,13 @@ Future<Joueur?> showVoteBottomSheet({
 class VoteBottomSheetContent extends StatefulWidget {
   final MatchModel match;
   final Joueur? initialUserVote;
+  final Joueur? preselectedPlayer;
+
   const VoteBottomSheetContent({
     super.key,
     required this.match,
     this.initialUserVote,
+    this.preselectedPlayer,
   });
 
   @override
@@ -43,7 +48,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
   @override
   void initState() {
     super.initState();
-    currentUserVote = widget.initialUserVote;
+    currentUserVote = widget.preselectedPlayer ?? widget.initialUserVote;
   }
 
   int getNbVotesWithUserVote(
@@ -488,7 +493,8 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(null),
+                      onPressed: () =>
+                          Navigator.of(context).pop(widget.initialUserVote),
                       child: Text(
                         'Annuler',
                         style: TextStyle(

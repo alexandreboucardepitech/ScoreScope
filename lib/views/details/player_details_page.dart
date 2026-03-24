@@ -86,6 +86,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
         Equipe? country = await RepositoryProvider.equipeRepository
             .fetchEquipeById(_joueur!.equipeNationaleId!);
 
+        if (!mounted) return;
         setState(() {
           _country = country;
           _isLoadingCountry = false;
@@ -94,6 +95,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
       } else if (_joueur!.nationalite != null) {
         List<Equipe> country = await RepositoryProvider.equipeRepository
             .searchEquipes(_joueur!.nationalite!);
+        if (!mounted) return;
         if (country.isNotEmpty) {
           setState(() {
             _country = country[0];
@@ -107,6 +109,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoadingCountry = false;
       });

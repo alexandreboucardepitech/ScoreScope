@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/build_avatar.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
 import '../../models/joueur.dart';
 
@@ -80,57 +81,6 @@ class _MvpCardState extends State<MvpCard> {
     }
   }
 
-  String _initiales(Joueur j) {
-    final p = j.prenom.trim();
-    final n = j.nom.trim();
-    final ip = p.isNotEmpty ? p[0].toUpperCase() : '';
-    final iname = n.isNotEmpty ? n[0].toUpperCase() : '';
-    final res = (ip + iname);
-    return res.isEmpty ? '?' : res;
-  }
-
-  Widget _buildAvatar({Joueur? player, double radius = 28}) {
-    final picture = player?.picture;
-    if (picture != null && picture.isNotEmpty) {
-      final provider = picture.startsWith('http')
-          ? NetworkImage(picture)
-          : AssetImage(picture) as ImageProvider;
-      return CircleAvatar(
-        radius: radius,
-        backgroundColor: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.all(2),
-          child: ClipOval(
-            child: Image(
-              image: provider,
-              fit: BoxFit.cover,
-              width: radius * 2,
-              height: radius * 2,
-            ),
-          ),
-        ),
-      );
-    } else if (player != null) {
-      return CircleAvatar(
-        radius: radius,
-        backgroundColor: ColorPalette.pictureBackground(context),
-        child: Text(
-          _initiales(player),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: ColorPalette.textPrimary(context),
-          ),
-        ),
-      );
-    } else {
-      return CircleAvatar(
-        radius: radius,
-        backgroundColor: ColorPalette.pictureBackground(context),
-        child: Icon(Icons.person, color: ColorPalette.accent(context)),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final mvp = widget.mvp;
@@ -172,7 +122,7 @@ class _MvpCardState extends State<MvpCard> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Avatar du MVP (ou placeholder)
-                  _buildAvatar(player: mvp, radius: 28),
+                  buildAvatar(player: mvp, context: context),
 
                   const SizedBox(width: 12),
 
