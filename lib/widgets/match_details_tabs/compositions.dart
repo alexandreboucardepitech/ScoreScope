@@ -4,10 +4,12 @@ import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/handle_data/get_joueurs_tries_par_nombre_de_votes.dart';
 import 'package:scorescope/utils/handle_data/open_bottom_sheet_and_vote_mvp.dart';
 import 'package:scorescope/utils/ui/build_avatar.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
+import 'package:scorescope/widgets/match_details_tabs/player_tile.dart';
 
 class CompositionsTab extends StatefulWidget {
   final MatchModel match;
@@ -77,12 +79,92 @@ class _CompositionsTabState extends State<CompositionsTab> {
                   votesCount: votesCount,
                   isReversed: true,
                 ),
-                const SizedBox(height: 24),
+                // Container(
+                //   height: 1,
+                //   color: ColorPalette.divider(context),
+                // ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Center(
+                    child: Text(
+                      "Remplaçants",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: ColorPalette.textPrimary(context),
+                      ),
+                    ),
+                  ),
+                ),
+                _buildTeamsLists(),
+                const SizedBox(height: 26),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTeamsLists() {
+    List<MatchJoueur> joueursDomicileTries = getJoueursTriesParNombreDeVotes(
+            widget.match.joueursEquipeDomicile, widget.match)
+        .where((j) => j.joueur != null && j.grid == null)
+        .toList();
+
+    List<MatchJoueur> joueursExterieurTries = getJoueursTriesParNombreDeVotes(
+            widget.match.joueursEquipeExterieur, widget.match)
+        .where((j) => j.joueur != null && j.grid == null)
+        .toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              children: [
+                _buildTeamHeader(
+                  context,
+                  widget.match.equipeDomicile.nomCourt ??
+                      widget.match.equipeDomicile.nom,
+                  widget.match.equipeDomicile.logoPath,
+                  true,
+                ),
+                ...joueursDomicileTries.map((player) => playerTile(
+                      joueur: player.joueur!,
+                      onTap: () {},
+                      context: context,
+                      match: widget.match,
+                      isUserVote: false,
+                    )),
+              ],
+            ),
+          ),
+          Container(width: 1, color: ColorPalette.surface(context)),
+          Expanded(
+            child: Column(
+              children: [
+                _buildTeamHeader(
+                  context,
+                  widget.match.equipeExterieur.nomCourt ??
+                      widget.match.equipeExterieur.nom,
+                  widget.match.equipeExterieur.logoPath,
+                  true,
+                ),
+                ...joueursExterieurTries.map((player) => playerTile(
+                      joueur: player.joueur!,
+                      onTap: () {},
+                      context: context,
+                      match: widget.match,
+                      isUserVote: false,
+                    )),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -140,7 +222,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: ColorPalette.textPrimary(context),
+                  color: ColorPalette.textAccent(context),
                 ),
               ),
             ],
@@ -262,6 +344,42 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     }
   }
 
+  Widget _buildStatBadge(
+    BuildContext context, {
+    required IconData icon,
+    required int value,
+    bool isHighlighted = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: isHighlighted
+            ? ColorPalette.accent(context)
+            : ColorPalette.surface(context),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 10,
+            color: ColorPalette.textPrimary(context),
+          ),
+          const SizedBox(width: 2),
+          Text(
+            value.toString(),
+            style: TextStyle(
+              color: ColorPalette.textPrimary(context),
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppUser? user = RepositoryProvider.userRepository.currentUser;
@@ -303,32 +421,45 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             }
           },
           child: Stack(
-            alignment: Alignment.center,
+            clipBehavior: Clip.none,
             children: [
               SizedBox(
                 width: 50,
                 height: 50,
                 child: buildAvatar(player: joueur, context: context),
               ),
+              if (joueur != null &&
+                  widget.match.getPlayerNbButs(joueur!.id) > 0)
+                Positioned(
+                  bottom: 0,
+                  right: -10,
+                  child: _buildStatBadge(
+                    context,
+                    icon: Icons.sports_soccer,
+                    value: widget.match.getPlayerNbButs(joueur!.id),
+                    isHighlighted: true,
+                  ),
+                ),
+              if (joueur != null &&
+                  widget.match.getPlayerNbPassesDe(joueur!.id) > 0)
+                Positioned(
+                  bottom: 0,
+                  left: -10,
+                  child: _buildStatBadge(
+                    context,
+                    icon: Icons.adjust,
+                    value: widget.match.getPlayerNbPassesDe(joueur!.id),
+                    isHighlighted: true,
+                  ),
+                ),
               Positioned(
-                bottom: 2,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: widget.match.mvpVotes[user?.uid] == joueur?.id
-                        ? ColorPalette.accent(context)
-                        : ColorPalette.surface(context),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    widget.nbVotes.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                top: -3,
+                right: -10,
+                child: _buildStatBadge(
+                  context,
+                  icon: Icons.star,
+                  value: widget.nbVotes,
+                  isHighlighted: widget.match.mvpVotes[user?.uid] == joueur?.id,
                 ),
               ),
             ],

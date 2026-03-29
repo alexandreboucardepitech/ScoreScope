@@ -524,7 +524,26 @@ class MatchModel implements PodiumDisplayable {
     return voteCounts[id] ?? 0;
   }
 
-  // --- MODIFICATION ICI ---
+  int getPlayerNbButs(String playerId) {
+    int count = 0;
+    for (But but in [...butsEquipeDomicile, ...butsEquipeExterieur]) {
+      if (but.buteur.id == playerId) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  int getPlayerNbPassesDe(String playerId) {
+    int count = 0;
+    for (But but in [...butsEquipeDomicile, ...butsEquipeExterieur]) {
+      if (but.passeur?.id == playerId) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'status': status.name,
