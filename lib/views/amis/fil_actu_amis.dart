@@ -4,6 +4,7 @@ import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/post/match_regarde_ami.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/ui/slow_scroll_physics.dart';
 import 'package:scorescope/views/amis/ajout_amis.dart';
@@ -347,11 +348,18 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
         elevation: 0,
         scrolledUnderElevation: 0,
         toolbarOpacity: 1.0,
-        title: Text(
-          "Fil d'actu des amis",
-          style: TextStyle(
-            color: ColorPalette.textPrimary(context),
-          ),
+        title: Row(
+          children: [
+            AppLogos.logoTransparent(context, size: 32),
+            const SizedBox(width: 8),
+            Text(
+              "Fil d'actu des amis",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         centerTitle: false,
         iconTheme: IconThemeData(

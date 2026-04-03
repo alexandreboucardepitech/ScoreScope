@@ -38,7 +38,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
       setState(() {
         localMatch!.voterPourMVP(userId: userId, joueurId: playerSelectedId);
       });
-    } else {
+    } else if (localMatch!.mvpVotes.containsKey(userId)) {
       setState(() {
         localMatch!.enleverVote(userId: userId);
       });
@@ -49,6 +49,20 @@ class _CompositionsTabState extends State<CompositionsTab> {
   Widget build(BuildContext context) {
     final Map<String, int> votesCount =
         localMatch?.getAllVoteCounts() ?? widget.match.getAllVoteCounts();
+
+    if (localMatch == null ||
+        localMatch!.joueursEquipeDomicile.isEmpty ||
+        localMatch!.joueursEquipeExterieur.isEmpty) {
+      return Center(
+        child: Text(
+          "La composition n'est pas encore disponible",
+          style: TextStyle(
+            fontSize: 16,
+            color: ColorPalette.textAccent(context),
+          ),
+        ),
+      );
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -83,20 +97,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
                 //   height: 1,
                 //   color: ColorPalette.divider(context),
                 // ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Center(
-                    child: Text(
-                      "Remplaçants",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: ColorPalette.textPrimary(context),
-                      ),
-                    ),
-                  ),
-                ),
-                _buildTeamsLists(),
+                ..._buildTeamsLists(),
                 const SizedBox(height: 26),
               ],
             ),
@@ -106,7 +107,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
     );
   }
 
-  Widget _buildTeamsLists() {
+  List<Widget> _buildTeamsLists() {
     List<MatchJoueur> joueursDomicileTries = getJoueursTriesParNombreDeVotes(
             widget.match.joueursEquipeDomicile, widget.match)
         .where((j) => j.joueur != null && j.grid == null)
@@ -117,55 +118,74 @@ class _CompositionsTabState extends State<CompositionsTab> {
         .where((j) => j.joueur != null && j.grid == null)
         .toList();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                _buildTeamHeader(
-                  context,
-                  widget.match.equipeDomicile.nomCourt ??
-                      widget.match.equipeDomicile.nom,
-                  widget.match.equipeDomicile.logoPath,
-                  true,
-                ),
-                ...joueursDomicileTries.map((player) => playerTile(
-                      joueur: player.joueur!,
-                      onTap: () {},
-                      context: context,
-                      match: widget.match,
-                      isUserVote: false,
-                    )),
-              ],
+    if (joueursDomicileTries.isEmpty && joueursExterieurTries.isEmpty) {
+      return [SizedBox.shrink()];
+    }
+
+    return [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Center(
+          child: Text(
+            "Remplaçants",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: ColorPalette.textPrimary(context),
             ),
           ),
-          Container(width: 1, color: ColorPalette.surface(context)),
-          Expanded(
-            child: Column(
-              children: [
-                _buildTeamHeader(
-                  context,
-                  widget.match.equipeExterieur.nomCourt ??
-                      widget.match.equipeExterieur.nom,
-                  widget.match.equipeExterieur.logoPath,
-                  true,
-                ),
-                ...joueursExterieurTries.map((player) => playerTile(
-                      joueur: player.joueur!,
-                      onTap: () {},
-                      context: context,
-                      match: widget.match,
-                      isUserVote: false,
-                    )),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-    );
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTeamHeader(
+                    context,
+                    widget.match.equipeDomicile.nomCourt ??
+                        widget.match.equipeDomicile.nom,
+                    widget.match.equipeDomicile.logoPath,
+                    true,
+                  ),
+                  ...joueursDomicileTries.map((player) => playerTile(
+                        joueur: player.joueur!,
+                        onTap: () {},
+                        context: context,
+                        match: widget.match,
+                        isUserVote: false,
+                      )),
+                ],
+              ),
+            ),
+            Container(width: 1, color: ColorPalette.surface(context)),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTeamHeader(
+                    context,
+                    widget.match.equipeExterieur.nomCourt ??
+                        widget.match.equipeExterieur.nom,
+                    widget.match.equipeExterieur.logoPath,
+                    true,
+                  ),
+                  ...joueursExterieurTries.map((player) => playerTile(
+                        joueur: player.joueur!,
+                        onTap: () {},
+                        context: context,
+                        match: widget.match,
+                        isUserVote: false,
+                      )),
+                ],
+              ),
+            ),
+          ],
+        ),
+      )
+    ];
   }
 
   Widget _buildTeamSection(
@@ -400,7 +420,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         InkWell(
           splashColor: Colors.transparent,
           onTap: () async {
-            if (user != null) {
+            if (user != null && widget.match.isScheduled == false) {
               final selectedPlayer = await openBottomSheetAndVoteMVP(
                 context: context,
                 match: widget.match,

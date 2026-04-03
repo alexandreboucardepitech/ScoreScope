@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 
 class FeedbacksView extends StatefulWidget {
   const FeedbacksView({super.key});
@@ -47,12 +48,18 @@ class _FeedbacksViewState extends State<FeedbacksView> {
       appBar: AppBar(
         backgroundColor: ColorPalette.background(context),
         elevation: 0,
-        title: Text(
-          "ScoreScope", //TODO le logo
-          style: TextStyle(
-            color: ColorPalette.textPrimary(context),
-            fontWeight: FontWeight.w600,
-          ),
+        title: Row(
+          children: [
+            AppLogos.logoTransparent(context, size: 32),
+            const SizedBox(width: 8),
+            Text(
+              "ScoreScope",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
         iconTheme: IconThemeData(color: ColorPalette.textPrimary(context)),
       ),

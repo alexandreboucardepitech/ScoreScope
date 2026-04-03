@@ -4,6 +4,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/views/all_matches/recherche_view.dart';
 import 'package:scorescope/widgets/util/competitions_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
@@ -141,12 +142,18 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: ColorPalette.background(context),
-        title: Text(
-          "ScoreScope",
-          style: TextStyle(
-            color: ColorPalette.textPrimary(context),
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          children: [
+            AppLogos.logoAccent(context, size: 32),
+            const SizedBox(width: 8),
+            Text(
+              "ScoreScope",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(

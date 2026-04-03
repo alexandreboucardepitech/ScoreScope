@@ -672,7 +672,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                               children: getLignesButeurs(
                                 buts: _currentMatch.butsEquipeDomicile,
                                 domicile: true,
-                                fullName: false,
+                                fullName: true,
                               )
                                   .map(
                                     (line) => InkWell(
@@ -718,7 +718,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                               children: getLignesButeurs(
                                 buts: _currentMatch.butsEquipeExterieur,
                                 domicile: false,
-                                fullName: false,
+                                fullName: true,
                               )
                                   .map(
                                     (line) => InkWell(

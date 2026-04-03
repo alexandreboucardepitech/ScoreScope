@@ -482,14 +482,14 @@ class MatchModel implements PodiumDisplayable {
   }) async {
     if (joueurId != null) {
       mvpVotes[userId] = joueurId;
-      RepositoryProvider.matchRepository
+      await RepositoryProvider.matchRepository
           .voterPourMVP(id, userId, date, joueurId);
     }
   }
 
   Future<void> enleverVote({required String userId}) async {
     mvpVotes.remove(userId);
-    RepositoryProvider.matchRepository.enleverVote(id, userId);
+    await RepositoryProvider.matchRepository.enleverVote(id, userId);
   }
 
   Map<String, int> getAllVoteCounts() {

@@ -142,8 +142,16 @@ class AuthService {
       }
 
       return userCredential.user;
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        // 👈 silence total → UX normale
+        return null;
+      }
+
+      print("Google Sign-In error: $e");
+      return null;
     } catch (e, st) {
-      print('signInWithGoogle error: $e\n$st');
+      print("Unexpected error: $e\n$st");
       return null;
     }
   }

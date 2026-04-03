@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 import 'dart:ui';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
@@ -11,12 +12,9 @@ class WelcomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(
-          Icons.sports_soccer,
-          size: 72,
-          color: ColorPalette.accent(context),
-        ),
-        const SizedBox(height: 52),
+        const SizedBox(height: 36),
+        AppLogos.logoAccent(context, size: 100),
+        const SizedBox(height: 36),
         Text(
           "Bienvenue sur ScoreScope !",
           textAlign: TextAlign.center,

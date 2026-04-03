@@ -21,10 +21,10 @@ Future<Joueur?> openBottomSheetAndVoteMVP({
   );
 
   if (newJoueurSelected != null) {
-    match.voterPourMVP(userId: user.uid, joueurId: newJoueurSelected.id);
+    await match.voterPourMVP(userId: user.uid, joueurId: newJoueurSelected.id);
     return newJoueurSelected;
-  } else {
-    match.enleverVote(userId: user.uid);
+  } else if (initialUserVote != null) {
+    await match.enleverVote(userId: user.uid);
   }
 
   return null;

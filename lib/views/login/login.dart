@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/main.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/views/login/sign_up.dart';
 
 class LoginView extends StatefulWidget {
@@ -173,7 +174,8 @@ class _LoginViewState extends State<LoginView> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /// ---- TITLE ----
+                    AppLogos.logoAccent(context, size: 72),
+                    const SizedBox(width: 16),
                     Text(
                       "Connexion",
                       textAlign: TextAlign.center,

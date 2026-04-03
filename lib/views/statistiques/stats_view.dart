@@ -3,6 +3,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/widgets/statistiques/loader/stats_loader_widget.dart';
 
 class StatsView extends StatefulWidget {
@@ -287,17 +288,23 @@ class _StatsViewState extends State<StatsView> {
           backgroundColor: ColorPalette.tileBackground(context),
           elevation: 0,
           surfaceTintColor: Colors.transparent,
-          title: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              isCurrentUser()
-                  ? 'Mes statistiques'
-                  : 'Statistiques de ${widget.user.displayName}',
-              style: TextStyle(
-                color: ColorPalette.textPrimary(context),
-                fontWeight: FontWeight.bold,
+          title: Row(
+            children: [
+              AppLogos.logoTransparent(context, size: 32),
+              const SizedBox(width: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  isCurrentUser()
+                      ? 'Mes statistiques'
+                      : 'Statistiques de ${widget.user.displayName}',
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(context),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
           iconTheme: IconThemeData(color: ColorPalette.textPrimary(context)),
           actions: [

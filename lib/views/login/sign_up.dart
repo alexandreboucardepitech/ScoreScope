@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 
 class SignUpView extends StatefulWidget {
   final String? prefilledEmail; // <-- nouvel argument
@@ -209,7 +210,8 @@ class _SignUpViewState extends State<SignUpView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    /// ---- TITLE ----
+                    AppLogos.logoAccent(context, size: 72),
+                    const SizedBox(width: 16),
                     Text(
                       "Créer un compte",
                       textAlign: TextAlign.center,
