@@ -153,7 +153,21 @@ class _CompositionsTabState extends State<CompositionsTab> {
                   ),
                   ...joueursDomicileTries.map((player) => playerTile(
                         joueur: player.joueur!,
-                        onTap: () {},
+                        onTap: () async {
+                          final AppUser? user =
+                              RepositoryProvider.userRepository.currentUser;
+                          if (user != null &&
+                              widget.match.isScheduled == false) {
+                            final selectedPlayer =
+                                await openBottomSheetAndVoteMVP(
+                              context: context,
+                              match: widget.match,
+                              preselectedPlayer: player.joueur,
+                              initialUserVote: null,
+                            );
+                            _updateVotes(user.uid, selectedPlayer?.id);
+                          }
+                        },
                         context: context,
                         match: widget.match,
                         isUserVote: false,
@@ -174,7 +188,21 @@ class _CompositionsTabState extends State<CompositionsTab> {
                   ),
                   ...joueursExterieurTries.map((player) => playerTile(
                         joueur: player.joueur!,
-                        onTap: () {},
+                        onTap: () async {
+                          final AppUser? user =
+                              RepositoryProvider.userRepository.currentUser;
+                          if (user != null &&
+                              widget.match.isScheduled == false) {
+                            final selectedPlayer =
+                                await openBottomSheetAndVoteMVP(
+                              context: context,
+                              match: widget.match,
+                              preselectedPlayer: player.joueur,
+                              initialUserVote: null,
+                            );
+                            _updateVotes(user.uid, selectedPlayer?.id);
+                          }
+                        },
                         context: context,
                         match: widget.match,
                         isUserVote: false,
