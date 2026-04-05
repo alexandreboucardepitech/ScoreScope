@@ -30,6 +30,9 @@ class WebAppUserRepository implements IAppUserRepository {
   Future<List<AppUser>> fetchAllUsers() async {
     final snapshot = await _usersCollection.get();
     return snapshot.docs
+        .where((doc) =>
+            (doc.data()['deleted'] == null || doc.data()['deleted'] == true) &&
+            doc.data()['displayName'] != null)
         .map((doc) => AppUser.fromJson(json: doc.data(), userId: doc.id))
         .toList();
   }
@@ -476,20 +479,20 @@ class WebAppUserRepository implements IAppUserRepository {
     final firestore = FirebaseFirestore.instance;
 
     try {
-      final notesRef =
-          _matchsCollection.doc(matchId).collection('notes').doc(userId);
+      final matchDocRef = _matchsCollection.doc(matchId);
+      final matchDocSnapshot = await matchDocRef.get();
+      if (matchDocSnapshot.exists) {
+        final matchData = matchDocSnapshot.data()!;
+        final Map<String, dynamic> notes = matchData['notes'] ?? [];
+        final Map<String, dynamic> mvpVotes = matchData['mvpVotes'] ?? [];
 
-      final mvpVotesRef =
-          _matchsCollection.doc(matchId).collection('mvpVotes').doc(userId);
+        notes.removeWhere((key, value) => key == userId);
+        mvpVotes.removeWhere((key, value) => key == userId);
 
-      final notesSnap = await notesRef.get();
-      if (notesSnap.exists) {
-        await notesRef.delete();
-      }
-
-      final mvpSnap = await mvpVotesRef.get();
-      if (mvpSnap.exists) {
-        await mvpVotesRef.delete();
+        await matchDocRef.update({
+          'notes': notes,
+          'mvpVotes': mvpVotes,
+        });
       }
 
       final userMatchDocRef = firestore

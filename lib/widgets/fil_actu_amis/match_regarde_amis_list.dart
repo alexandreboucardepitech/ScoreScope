@@ -43,7 +43,9 @@ class MatchRegardeAmiListView extends StatelessWidget {
     }
 
     final list = ListView.separated(
-      physics: const NeverScrollableScrollPhysics(),
+      physics: matchDetails == true
+          ? NeverScrollableScrollPhysics()
+          : AlwaysScrollableScrollPhysics(),
       shrinkWrap: shrinkWrap,
       padding: padding ?? EdgeInsets.zero,
       itemCount: entries.length,

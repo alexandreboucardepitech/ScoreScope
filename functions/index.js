@@ -529,8 +529,12 @@ exports.updateLiveMatches = onSchedule(
                   joueursExterieur = Object.values(mapExterieur);
                 }
 
+                const newDate = matchData.fixture?.timestamp ?
+                  new Date(matchData.fixture.timestamp * 1000) :
+                  data.date;
+
                 await docRef.update({
-                  date: new Date(data.fixture.timestamp * 1000),
+                  date: newDate,
                   scoreEquipeDomicile: newScoreHome,
                   scoreEquipeExterieur: newScoreAway,
                   status: newStatus,
@@ -556,10 +560,12 @@ exports.updateLiveMatches = onSchedule(
 
           const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
 
+          const now = new Date();
+
           const snapshot = await db
               .collection("matchs")
               .where("date", ">=", threeHoursAgo)
-              .where("date", "<=", Date.now())
+              .where("date", "<=", now)
               .get();
 
           for (const doc of snapshot.docs) {

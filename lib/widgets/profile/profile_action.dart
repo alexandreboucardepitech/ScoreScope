@@ -138,7 +138,7 @@ class ProfileAction extends StatelessWidget {
           child: Text(
             "Envoyer",
             style: TextStyle(
-              color: ColorPalette.textPrimary(context),
+              color: ColorPalette.textAccent(context),
             ),
           ),
         ),

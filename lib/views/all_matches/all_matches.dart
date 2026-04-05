@@ -268,7 +268,9 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             ),
           ),
           // if (RepositoryProvider.userRepository.currentUser?.uid ==
-          //     "jSHnJN1cVWTsDirfm1sEaA358jJ3")
+          //         "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+          //     RepositoryProvider.userRepository.currentUser?.uid ==
+          //         "UwigeExwFMfDrCk4x8AbODha3il1")
           //   ElevatedButton(
           //     onPressed: () async {
           //       List<Competition> competitions = await RepositoryProvider
@@ -296,9 +298,9 @@ class _AllMatchesViewState extends State<AllMatchesView> {
           //               .updateMatchModelId(match);
           //         }
           //       }
-          //     },
-          //     child: Text("test pour développeur"),
-          //   ),
+          //           },
+          //           child: Text("test pour développeur"),
+          //         ),
         ],
       ),
     );

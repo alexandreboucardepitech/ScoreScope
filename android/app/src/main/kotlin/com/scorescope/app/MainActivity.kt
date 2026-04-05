@@ -1,4 +1,4 @@
-package com.example.scorescope
+package com.scorescope.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -28,7 +28,6 @@ class AuthService {
     if (!_isGoogleSignInInitialized) await initialize();
   }
 
-  // ------------- Email / Password + vérif email -------------
   Future<User?> signUp(String email, String password) async {
     final credentials = await _auth.createUserWithEmailAndPassword(
       email: email,
@@ -38,8 +37,12 @@ class AuthService {
     final user = credentials.user;
 
     if (user != null) {
-      // 🔥 Envoi email vérification
-      await user.sendEmailVerification();
+      try {
+        await user.sendEmailVerification();
+        print("✅ Email de vérification envoyé");
+      } catch (e) {
+        print("❌ Erreur envoi email: $e");
+      }
 
       await FirestoreService().createUserIfNotExists(
         uid: user.uid,
@@ -67,7 +70,7 @@ class AuthService {
     await user.reload();
     final refreshedUser = _auth.currentUser;
 
-    if (refreshedUser == null || !refreshedUser.emailVerified) {
+    if (refreshedUser == null) {
       await _auth.signOut();
       throw FirebaseAuthException(
         code: "email-not-verified",

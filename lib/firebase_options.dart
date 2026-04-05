@@ -71,6 +71,6 @@ class DefaultFirebaseOptions {
     projectId: 'scorescope-5a12b',
     storageBucket: 'scorescope-5a12b.firebasestorage.app',
     iosClientId: '437874551355-otkgka35uq341a2fmjg189us6qs655cm.apps.googleusercontent.com',
-    iosBundleId: 'com.example.scorescope',
+    iosBundleId: 'com.scorescope.app',
   );
 }
