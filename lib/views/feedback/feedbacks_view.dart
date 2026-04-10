@@ -98,7 +98,7 @@ class _FeedbacksViewState extends State<FeedbacksView> {
             const SizedBox(height: 6),
             TextField(
               controller: _titleController,
-              maxLength: 20,
+              maxLength: 80,
               style: TextStyle(color: ColorPalette.textPrimary(context)),
               decoration: InputDecoration(
                 hintText: "Ex : Bug lors du vote pour le MVP",
@@ -140,7 +140,7 @@ class _FeedbacksViewState extends State<FeedbacksView> {
             TextField(
               controller: _detailController,
               maxLines: 4,
-              maxLength: 80,
+              maxLength: 500,
               style: TextStyle(color: ColorPalette.textPrimary(context)),
               decoration: InputDecoration(
                 hintText:
