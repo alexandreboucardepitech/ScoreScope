@@ -60,7 +60,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/social/App_Icon_Standard.png"
+  image_path: "assets/social/App_Icon_Light.png"
   remove_alpha_ios: true
 
   # The "flutter_lints" package below contains a set of recommended lints to
