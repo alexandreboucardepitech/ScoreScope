@@ -2,11 +2,20 @@ const {setGlobalOptions} = require("firebase-functions/v2");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const admin = require("firebase-admin");
 const fetch = require("node-fetch");
+const {onRequest} = require("firebase-functions/v2/https");
 
 admin.initializeApp();
 setGlobalOptions({maxInstances: 10});
 const db = admin.firestore();
 const API_FOOTBALL_TOKEN = process.env.API_FOOTBALL_TOKEN;
+
+exports.getFootballData = onRequest(async (req, res) => {
+  const {endpoint, params} = req.body;
+
+  const data = await getDataFromApi(endpoint, params);
+
+  res.json({response: data});
+});
 
 // Fonction pour appeler l'API football
 async function getDataFromApi(endpoint, params = {}) {

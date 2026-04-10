@@ -17,7 +17,6 @@ import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'firebase_options.dart';
 import 'views/all_matches/all_matches.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
@@ -105,8 +104,6 @@ class _InitialAppState extends State<InitialApp> {
   }
 
   Future<void> _initializeApp() async {
-    await dotenv.load(fileName: "lib/.env");
-
     final firebaseUser = FirebaseAuth.instance.currentUser;
 
     if (firebaseUser == null) {

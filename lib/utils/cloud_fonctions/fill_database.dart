@@ -5,7 +5,6 @@ import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
@@ -20,40 +19,24 @@ class FillDatabase {
     String endpoint, {
     Map<String, String>? params,
   }) async {
-    final token = dotenv.env['API_FOOTBALL_TOKEN'];
-    final stringParams = params != null
-        ? "?${params.entries.map((e) => "${e.key}=${e.value}").join("&")}"
-        : "";
-    final url =
-        Uri.parse("https://v3.football.api-sports.io/$endpoint$stringParams");
+    final url = Uri.parse(
+      "https://YOUR_CLOUD_FUNCTION_URL/getFootballData",
+    );
 
-    final response = await http.get(
+    final response = await http.post(
       url,
-      headers: {
-        "X-RapidAPI-Key": token ?? "",
-        "X-RapidAPI-Host": "v3.football.api-sports.io",
-      },
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "endpoint": endpoint,
+        "params": params ?? {},
+      }),
     );
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-      if (jsonData?["errors"] is List &&
-          (jsonData?["errors"] as List).isEmpty) {
-        return jsonData['response'] ?? [];
-      }
-      Map<String, dynamic>? errors = jsonData?["errors"];
-      if (errors != null && errors.isNotEmpty) {
-        if (errors["rateLimit"] != null) {
-          print("ERREUR STOP : ${errors["rateLimit"]}");
-          await Future.delayed(const Duration(minutes: 1));
-          return await getDataFromApi(endpoint, params: params);
-        }
-      }
-      return jsonData['response'] ?? [];
+      return jsonData["response"] ?? [];
     } else {
-      throw Exception(
-        "Erreur API : ${response.statusCode} ${response.reasonPhrase}",
-      );
+      throw Exception("Erreur Cloud Function");
     }
   }
 

@@ -50,7 +50,6 @@ dependencies:
   image_picker: ^1.0.4
   provider: ^6.0.7
   http: ^0.13.6
-  flutter_dotenv: ^5.0.2
   age_calculator: ^1.0.0
 
 dev_dependencies:
