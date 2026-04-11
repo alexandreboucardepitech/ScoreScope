@@ -10,8 +10,9 @@ import 'package:scorescope/widgets/fil_actu_amis/match_regarde_amis_list.dart';
 /// puis affiche MatchRegardeAmiListView(entries: ...).
 class MesAmisTab extends StatefulWidget {
   final String matchId;
+  final Future<void> Function()? onRefresh;
 
-  const MesAmisTab({super.key, required this.matchId});
+  const MesAmisTab({super.key, required this.matchId, this.onRefresh});
 
   @override
   State<MesAmisTab> createState() => _MesAmisTabState();
@@ -98,6 +99,7 @@ class _MesAmisTabState extends State<MesAmisTab> {
   }
 
   Future<void> _onRefresh() async {
+    widget.onRefresh != null ? await widget.onRefresh!() : null;
     await _load();
   }
 

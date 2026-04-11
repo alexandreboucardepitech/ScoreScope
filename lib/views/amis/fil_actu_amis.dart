@@ -371,27 +371,32 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
               child: _notificationsIcon(context)),
         ],
       ),
-      body: SingleChildScrollView(
-        physics: const SlowScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              color: ColorPalette.tileBackground(context),
-              child: _buildAddFriendButton(context),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: ColorPalette.border(context).withValues(alpha: 0.06),
-                ),
+      body: RefreshIndicator(
+        color: ColorPalette.accent(context),
+        backgroundColor: ColorPalette.background(context),
+        onRefresh: _refreshFeed,
+        child: SingleChildScrollView(
+          physics: const SlowScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                color: ColorPalette.tileBackground(context),
+                child: _buildAddFriendButton(context),
               ),
-              child: _buildFeedContent(context),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: ColorPalette.border(context).withValues(alpha: 0.06),
+                  ),
+                ),
+                child: _buildFeedContent(context),
+              ),
+            ],
+          ),
         ),
       ),
     );

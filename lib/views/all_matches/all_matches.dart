@@ -40,6 +40,11 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     _loadData();
   }
 
+  Future<void> _refresh() async {
+    _loadData();
+    setState(() {});
+  }
+
   void _scrollToCenter({bool animated = false}) {
     if (!_dateScrollController.hasClients) return;
 
@@ -238,30 +243,36 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                     triDate: false,
                   );
 
-                  return ListView(
-                    padding: const EdgeInsets.only(bottom: 80),
-                    children: [
-                      if (followedMatches.isNotEmpty)
-                        MatchList(
-                          matches: followedMatches,
-                          header: _buildSectionHeader(
-                              "Favoris", Icons.star_rounded),
-                          user: currentUser,
-                          displayUserData: false,
-                        ),
-                      if (otherMatches.isNotEmpty)
-                        MatchList(
-                          matches: otherMatches,
-                          header: _buildSectionHeader(
-                            followedMatches.isEmpty
-                                ? "Matchs du jour"
-                                : "Autres matchs",
-                            Icons.sports_soccer,
+                  return RefreshIndicator(
+                    color: ColorPalette.accent(context),
+                    backgroundColor: ColorPalette.background(context),
+                    onRefresh: _refresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 80),
+                      children: [
+                        if (followedMatches.isNotEmpty)
+                          MatchList(
+                            matches: followedMatches,
+                            header: _buildSectionHeader(
+                                "Favoris", Icons.star_rounded),
+                            user: currentUser,
+                            displayUserData: false,
                           ),
-                          user: currentUser,
-                          displayUserData: false,
-                        ),
-                    ],
+                        if (otherMatches.isNotEmpty)
+                          MatchList(
+                            matches: otherMatches,
+                            header: _buildSectionHeader(
+                              followedMatches.isEmpty
+                                  ? "Matchs du jour"
+                                  : "Autres matchs",
+                              Icons.sports_soccer,
+                            ),
+                            user: currentUser,
+                            displayUserData: false,
+                          ),
+                      ],
+                    ),
                   );
                 }
               },

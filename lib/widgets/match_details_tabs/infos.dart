@@ -19,8 +19,13 @@ import '../../../models/match.dart';
 class InfosTab extends StatefulWidget {
   final MatchModel match;
   final int userDataVersion;
+  final Future<void> Function()? onRefresh;
 
-  const InfosTab({super.key, required this.match, this.userDataVersion = 0});
+  const InfosTab(
+      {super.key,
+      required this.match,
+      this.userDataVersion = 0,
+      this.onRefresh});
 
   @override
   State<InfosTab> createState() => _InfosTabState();
@@ -305,87 +310,98 @@ class _InfosTabState extends State<InfosTab> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: widget.match.isScheduled
-          ? Align(
-              alignment: Alignment.topCenter,
-              child: MatchNotStarted(
-                onNotificationsChanged: (value) async {
-                  AppUser? currentUser =
-                      RepositoryProvider.userRepository.currentUser;
-                  if (currentUser != null) {
-                    await RepositoryProvider.userRepository
-                        .updateMatchNotifications(
-                      matchId: widget.match.id,
-                      userId: currentUser.uid,
-                      matchDate: widget.match.date,
-                      activateNotifications: value,
-                    );
-                  }
-                },
-                matchId: widget.match.id,
-              ),
-            )
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  MatchRatingCard(
-                    noteMoyenne: widget.match.getNoteMoyenne(),
-                    userVote: userVoteNoteMatch,
-                    onCancelled: (cancelled) async {
-                      if (!cancelled) return;
-                      final uid = FirebaseAuth.instance.currentUser!.uid;
-                      widget.match.enleverNote(userId: uid);
-                      userVoteNoteMatch = 0;
-                      await _reloadAll();
-                    },
-                    onConfirm: (valeurConfirmee) async {
-                      final uid = FirebaseAuth.instance.currentUser!.uid;
-                      widget.match
-                          .noterMatch(userId: uid, note: valeurConfirmee);
-                      userVoteNoteMatch = valeurConfirmee;
-                      await _reloadAll();
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  MvpCard(
-                    mvp: currentMvp,
-                    userVote: userVoteMVP,
-                    onVotePressed: voteMVP,
-                  ),
-                  const SizedBox(height: 12),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: VisionnageMatchCard(
-                            match: widget.match,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: MatchInfosCard(match: widget.match),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (user != null)
-                    WatchWithFriendsCard(
-                      friends: _watchFriends,
-                      onRemoveFriend: _onRemoveFriend,
-                      onAddFriend: () {
-                        _onAddFriend(
-                          context: context,
-                          matchId: widget.match.id,
-                          equipeDomicile: widget.match.equipeDomicile,
-                          equipeExterieur: widget.match.equipeExterieur,
-                        );
+      child: RefreshIndicator(
+        color: ColorPalette.accent(context),
+        backgroundColor: ColorPalette.background(context),
+        onRefresh: widget.onRefresh ?? () async {},
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: widget.match.isScheduled
+                ? BoxConstraints(minHeight: MediaQuery.of(context).size.height)
+                : BoxConstraints(minHeight: 0),
+            child: widget.match.isScheduled
+                ? Align(
+                    alignment: Alignment.topCenter,
+                    child: MatchNotStarted(
+                      onNotificationsChanged: (value) async {
+                        AppUser? currentUser =
+                            RepositoryProvider.userRepository.currentUser;
+                        if (currentUser != null) {
+                          await RepositoryProvider.userRepository
+                              .updateMatchNotifications(
+                            matchId: widget.match.id,
+                            userId: currentUser.uid,
+                            matchDate: widget.match.date,
+                            activateNotifications: value,
+                          );
+                        }
                       },
+                      matchId: widget.match.id,
                     ),
-                ],
-              ),
-            ),
+                  )
+                : Column(
+                    children: [
+                      MatchRatingCard(
+                        noteMoyenne: widget.match.getNoteMoyenne(),
+                        userVote: userVoteNoteMatch,
+                        onCancelled: (cancelled) async {
+                          if (!cancelled) return;
+                          final uid = FirebaseAuth.instance.currentUser!.uid;
+                          widget.match.enleverNote(userId: uid);
+                          userVoteNoteMatch = 0;
+                          await _reloadAll();
+                        },
+                        onConfirm: (valeurConfirmee) async {
+                          final uid = FirebaseAuth.instance.currentUser!.uid;
+                          widget.match
+                              .noterMatch(userId: uid, note: valeurConfirmee);
+                          userVoteNoteMatch = valeurConfirmee;
+                          await _reloadAll();
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      MvpCard(
+                        mvp: currentMvp,
+                        userVote: userVoteMVP,
+                        onVotePressed: voteMVP,
+                      ),
+                      const SizedBox(height: 12),
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: VisionnageMatchCard(
+                                match: widget.match,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: MatchInfosCard(match: widget.match),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (user != null)
+                        WatchWithFriendsCard(
+                          friends: _watchFriends,
+                          onRemoveFriend: _onRemoveFriend,
+                          onAddFriend: () {
+                            _onAddFriend(
+                              context: context,
+                              matchId: widget.match.id,
+                              equipeDomicile: widget.match.equipeDomicile,
+                              equipeExterieur: widget.match.equipeExterieur,
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -186,6 +186,8 @@ class _NotificationsViewState extends State<NotificationsView> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
+          color: ColorPalette.accent(context),
+          backgroundColor: ColorPalette.background(context),
           onRefresh: _fetchAll,
           child: _loading
               ? const Center(child: CircularProgressIndicator())

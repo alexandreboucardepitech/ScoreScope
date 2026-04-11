@@ -45,6 +45,25 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     _loadPrivateStatus();
   }
 
+  Future<void> _reloadMatch() async {
+    try {
+      final freshMatch = await RepositoryProvider.matchRepository
+          .fetchMatchById(_currentMatch.id);
+      if (freshMatch != null) {
+        setState(() => _currentMatch = freshMatch);
+      }
+    } catch (e) {
+      debugPrint('Erreur lors du rechargement du match: $e');
+    }
+  }
+
+  Future<void> _refresh() async {
+    _reloadMatch();
+    _loadFavoriStatus();
+    _loadPrivateStatus();
+    setState(() {});
+  }
+
   Future<void> _fetchMatch() async {
     if (_isFetchingMatch) return;
 
@@ -774,11 +793,16 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                   key: ValueKey('${_currentMatch.id}_$_userDataVersion'),
                   match: _currentMatch,
                   userDataVersion: _userDataVersion,
+                  onRefresh: _refresh,
                 ),
                 CompositionsTab(
                   match: _currentMatch,
+                  onRefresh: _refresh,
                 ),
-                MesAmisTab(matchId: _currentMatch.id),
+                MesAmisTab(
+                  matchId: _currentMatch.id,
+                  onRefresh: _refresh,
+                ),
               ],
             ),
           ),

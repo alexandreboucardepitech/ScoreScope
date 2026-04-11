@@ -23,21 +23,27 @@ class MatchRegardeAmiListView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (entries.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.group_outlined,
-                size: 64, color: ColorPalette.pictureBackground(context)),
-            const SizedBox(height: 12),
-            Text(
-              "Aucun ami n'a vu ce match.",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: ColorPalette.textSecondary(context),
-              ),
+        child: RefreshIndicator(
+          onRefresh: onRefresh ?? () async {},
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.group_outlined,
+                    size: 64, color: ColorPalette.pictureBackground(context)),
+                const SizedBox(height: 12),
+                Text(
+                  "Aucun ami n'a vu ce match.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: ColorPalette.textSecondary(context),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       );
     }

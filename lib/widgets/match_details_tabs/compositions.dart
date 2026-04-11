@@ -13,10 +13,12 @@ import 'package:scorescope/widgets/match_details_tabs/player_tile.dart';
 
 class CompositionsTab extends StatefulWidget {
   final MatchModel match;
+  final Future<void> Function()? onRefresh;
 
   const CompositionsTab({
     super.key,
     required this.match,
+    this.onRefresh,
   });
 
   @override
@@ -66,40 +68,46 @@ class _CompositionsTabState extends State<CompositionsTab> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Column(
-              children: [
-                _buildTeamSection(
-                  context,
-                  teamName: widget.match.equipeDomicile.nom,
-                  logoUrl: widget.match.equipeDomicile.logoPath,
-                  joueurs: widget.match.joueursEquipeDomicile,
-                  votesCount: votesCount,
-                  isReversed: false,
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  height: 1,
-                  color: ColorPalette.divider(context),
-                ),
-                const SizedBox(height: 4),
-                _buildTeamSection(
-                  context,
-                  teamName: widget.match.equipeExterieur.nom,
-                  logoUrl: widget.match.equipeExterieur.logoPath,
-                  joueurs: widget.match.joueursEquipeExterieur,
-                  votesCount: votesCount,
-                  isReversed: true,
-                ),
-                // Container(
-                //   height: 1,
-                //   color: ColorPalette.divider(context),
-                // ),
-                ..._buildTeamsLists(),
-                const SizedBox(height: 26),
-              ],
+        return RefreshIndicator(
+          onRefresh: widget.onRefresh ?? () async {},
+          color: ColorPalette.accent(context),
+          backgroundColor: ColorPalette.background(context),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                children: [
+                  _buildTeamSection(
+                    context,
+                    teamName: widget.match.equipeDomicile.nom,
+                    logoUrl: widget.match.equipeDomicile.logoPath,
+                    joueurs: widget.match.joueursEquipeDomicile,
+                    votesCount: votesCount,
+                    isReversed: false,
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    height: 1,
+                    color: ColorPalette.divider(context),
+                  ),
+                  const SizedBox(height: 4),
+                  _buildTeamSection(
+                    context,
+                    teamName: widget.match.equipeExterieur.nom,
+                    logoUrl: widget.match.equipeExterieur.logoPath,
+                    joueurs: widget.match.joueursEquipeExterieur,
+                    votesCount: votesCount,
+                    isReversed: true,
+                  ),
+                  // Container(
+                  //   height: 1,
+                  //   color: ColorPalette.divider(context),
+                  // ),
+                  ..._buildTeamsLists(),
+                  const SizedBox(height: 26),
+                ],
+              ),
             ),
           ),
         );

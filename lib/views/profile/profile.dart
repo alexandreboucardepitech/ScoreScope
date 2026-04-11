@@ -576,6 +576,8 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ),
               ),
+              centerTitle: true,
+              backgroundColor: ColorPalette.background(context),
               title: _isScrolled
                   ? ProfileScrolledTitle(
                       username: userToUse.displayName,
@@ -724,13 +726,17 @@ class _ProfileViewState extends State<ProfileView> {
                       isMe: isMe,
                     ) ||
                     _isLoadingFriendship)
-                ? SingleChildScrollView(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ? RefreshIndicator(
+                    color: ColorPalette.accent(context),
+                    backgroundColor: ColorPalette.background(context),
+                    onRefresh: _init,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 8),
                       children: [
                         EquipesPreferees(
+                          key: _equipesKey,
                           teamsId: userEquipesPrefereesId,
                           user: userToUse,
                           isMe: isMe,
@@ -739,60 +745,65 @@ class _ProfileViewState extends State<ProfileView> {
                         ),
                         const Divider(height: 32),
                         MatchsRegardes(
+                          key: _matchsRegardesKey,
                           matchesId: userMatchsRegardesId,
                           isLoading: matchsRegardesLoading,
                           user: userToUse,
                         ),
                         const Divider(height: 32),
                         MatchsFavoris(
+                          key: _matchsFavorisKey,
                           matchsFavorisId: userMatchsFavorisId,
                           isLoading: matchsFavorisLoading,
                         ),
                       ],
                     ),
                   )
-                : Align(
-                    alignment: Alignment.topCenter,
-                    child: Padding(
-                        padding: const EdgeInsets.only(top: 60), // ajuste ici
-                        child: Container(
-                          width: 300,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: ColorPalette.border(context),
-                              width: 5,
+                : ListView(
+                    children: [
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 60),
+                          child: Container(
+                            width: 300,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: ColorPalette.border(context),
+                                width: 5,
+                              ),
+                              borderRadius: BorderRadius.circular(50),
                             ),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.lock,
-                                color: ColorPalette.accent(context),
-                                size: 50,
-                              ),
-                              SizedBox(
-                                height: 12,
-                              ),
-                              Text(
-                                "Ce compte est privé.",
-                                style: TextStyle(
-                                  color: ColorPalette.textPrimary(context),
-                                  fontSize: 24,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.lock,
+                                  color: ColorPalette.accent(context),
+                                  size: 50,
                                 ),
-                              ),
-                              Text(
-                                "Ajoutez cet ami pour suivre son actualité !",
-                                style: TextStyle(
-                                  color: ColorPalette.textSecondary(context),
-                                  fontSize: 12,
+                                const SizedBox(height: 12),
+                                Text(
+                                  "Ce compte est privé.",
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                    fontSize: 24,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  "Ajoutez cet ami pour suivre son actualité !",
+                                  style: TextStyle(
+                                    color: ColorPalette.textSecondary(context),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        )),
+                        ),
+                      ),
+                    ],
                   ),
           ),
         ),
