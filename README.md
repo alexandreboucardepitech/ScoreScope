@@ -1,16 +1,12 @@
-# scorescope
+# ScoreScope
 
-A new Flutter project.
+ScoreScope - Chaque match raconte une histoire.
 
-## Getting Started
+Répertoriez les matchs que vous avez regardé, donnez leur une note, et votez pour le meilleur joueur.
 
-This project is a starting point for a Flutter application.
+Ajoutez des amis et partagez les matchs que vous avez regardé.
 
-A few resources to get you started if this is your first Flutter project:
+Découvrez des dizaines de statistiques sur vos habitudes de visionnage.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Avec ScoreScope, gardez un souvenir de chaque match, tel qu'il a été vécu.
