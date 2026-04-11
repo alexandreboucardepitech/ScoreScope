@@ -90,12 +90,33 @@ Nous faisons de notre mieux pour protéger vos données.
             showDialog(
               context: context,
               builder: (_) => AlertDialog(
-                title: Text("Version"),
-                content: Text("ScoreScope v1.0.0"),
+                title: Text(
+                  "Version",
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(
+                      context,
+                    ),
+                  ),
+                ),
+                content: Text(
+                  "ScoreScope v1.0.0",
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(
+                      context,
+                    ),
+                  ),
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text("OK"),
+                    child: Text(
+                      "OK",
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(
+                          context,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -157,7 +178,14 @@ Nous faisons de notre mieux pour protéger vos données.
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text("Fermer"),
+                child: Text(
+                  "Fermer",
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(
+                      context,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

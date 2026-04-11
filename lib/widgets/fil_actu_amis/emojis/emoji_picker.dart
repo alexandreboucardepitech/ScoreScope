@@ -89,7 +89,6 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
     widget.onPick(e.emoji);
   }
 
-
   void _removeVariantsOverlay() {
     if (_variantsOverlay != null) {
       _variantsOverlay!.remove();
@@ -151,11 +150,11 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      for (final v in e.variantEmojis) ...[
+                      for (final variant in e.variantEmojis) ...[
                         GestureDetector(
                           onTap: () {
                             _removeVariantsOverlay();
-                            widget.onPick(v);
+                            widget.onPick(variant);
                           },
                           child: Container(
                             width: variantTileSize,
@@ -168,8 +167,15 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                               border: Border.all(
                                   color: ColorPalette.border(context)),
                             ),
-                            child:
-                                Text(v, style: const TextStyle(fontSize: 22)),
+                            child: Text(
+                              variant,
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: ColorPalette.textPrimary(
+                                  context,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ]
@@ -277,7 +283,6 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                   ),
                 ),
               ),
-
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -378,7 +383,6 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 TextField(
                   decoration: InputDecoration(
                     hintText: 'Rechercher un emoji par nom ou catégorie…',
@@ -391,12 +395,11 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                         borderRadius: BorderRadius.circular(12)),
                   ),
                   style: TextStyle(color: ColorPalette.textPrimary(context)),
-                  onChanged: (v) {
-                    onSearchChanged(v);
+                  onChanged: (variant) {
+                    onSearchChanged(variant);
                   },
                 ),
                 const SizedBox(height: 8),
-
                 Expanded(child: bodyContent),
               ],
             ),

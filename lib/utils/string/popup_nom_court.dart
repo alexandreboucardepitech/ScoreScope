@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/ui/color_palette.dart';
 
 Future<String?> popupNomCourt(BuildContext context, String teamName) async {
   final controller = TextEditingController(text: teamName.split(' ')[0]);
@@ -8,7 +9,12 @@ Future<String?> popupNomCourt(BuildContext context, String teamName) async {
     barrierDismissible: false,
     builder: (context) {
       return AlertDialog(
-        title: Text(teamName),
+        title: Text(
+          teamName,
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -20,7 +26,12 @@ Future<String?> popupNomCourt(BuildContext context, String teamName) async {
             onPressed: () {
               Navigator.pop(context, null);
             },
-            child: const Text("Annuler"),
+            child: Text(
+              "Annuler",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -29,7 +40,12 @@ Future<String?> popupNomCourt(BuildContext context, String teamName) async {
                 controller.text.isEmpty ? null : controller.text,
               );
             },
-            child: const Text("Valider"),
+            child: Text(
+              "Valider",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
         ],
       );

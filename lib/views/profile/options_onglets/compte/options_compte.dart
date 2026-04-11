@@ -273,8 +273,15 @@ class OptionsCompteView extends StatelessWidget {
                 if (!context.mounted) return;
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Compte supprimé avec succès."),
+                  SnackBar(
+                    content: Text(
+                      "Compte supprimé avec succès.",
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(
+                          context,
+                        ),
+                      ),
+                    ),
                   ),
                 );
                 await RepositoryProvider.userRepository.signOut();
@@ -289,7 +296,14 @@ class OptionsCompteView extends StatelessWidget {
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text("Erreur : ${e.toString()}"),
+                    content: Text(
+                      "Erreur : ${e.toString()}",
+                      style: TextStyle(
+                        color: ColorPalette.textPrimary(
+                          context,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               }

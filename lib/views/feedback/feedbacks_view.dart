@@ -139,7 +139,6 @@ class _FeedbacksViewState extends State<FeedbacksView> {
             const SizedBox(height: 6),
             TextField(
               controller: _detailController,
-              maxLines: 4,
               maxLength: 500,
               style: TextStyle(color: ColorPalette.textPrimary(context)),
               decoration: InputDecoration(

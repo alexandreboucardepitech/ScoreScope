@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/widgets/notifications/friends_requests_section.dart';
 import 'package:scorescope/widgets/notifications/post_notifications_section.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -181,7 +182,20 @@ class _NotificationsViewState extends State<NotificationsView> {
     return Scaffold(
       backgroundColor: ColorPalette.background(context),
       appBar: AppBar(
-        title: const Text('Notifications'),
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            AppLogos.logoTransparent(context, size: 32),
+            const SizedBox(width: 8),
+            Text(
+              "Notifications",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
         backgroundColor: ColorPalette.surface(context),
       ),
       body: SafeArea(
@@ -192,7 +206,16 @@ class _NotificationsViewState extends State<NotificationsView> {
           child: _loading
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? Center(child: Text(_error!))
+                  ? Center(
+                      child: Text(
+                        _error!,
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(
+                            context,
+                          ),
+                        ),
+                      ),
+                    )
                   : ListView(
                       padding: const EdgeInsets.only(bottom: 12),
                       children: [

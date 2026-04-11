@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/resultats_recherche_model.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/recherche/barre_recherche.dart';
 import 'package:scorescope/widgets/recherche/filtres_recherche.dart';
 import 'package:scorescope/widgets/recherche/resultats_recherche.dart';
@@ -83,8 +84,15 @@ class _RechercheViewState extends State<RechercheView> {
 
   Widget _buildResults() {
     if (_searchFuture == null) {
-      return const Center(
-        child: Text('Commence à taper pour rechercher'),
+      return Center(
+        child: Text(
+          'Commence à taper pour rechercher',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(
+              context,
+            ),
+          ),
+        ),
       );
     }
 
@@ -96,7 +104,15 @@ class _RechercheViewState extends State<RechercheView> {
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('Aucun résultat'));
+          return Center(
+              child: Text(
+            'Aucun résultat',
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ));
         }
 
         return ResultatsRecherche(

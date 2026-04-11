@@ -114,8 +114,16 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
           _isSaving = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Impossible de récupérer l'utilisateur.")),
+          SnackBar(
+            content: Text(
+              "Impossible de récupérer l'utilisateur.",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(
+                  context,
+                ),
+              ),
+            ),
+          ),
         );
         return;
       }
@@ -141,8 +149,16 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
         _isSaving = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Échec de la sauvegarde — réessaye plus tard.")),
+        SnackBar(
+          content: Text(
+            "Échec de la sauvegarde — réessaye plus tard.",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
+        ),
       );
     }
   }

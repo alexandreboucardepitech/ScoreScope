@@ -386,13 +386,30 @@ class _ProfileViewState extends State<ProfileView> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(getFriendshipActionSnackbarMessage(action))),
+        SnackBar(
+          content: Text(
+            getFriendshipActionSnackbarMessage(action),
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Erreur lors de l'action sur l'utilisateur.")),
+        SnackBar(
+          content: Text(
+            "Erreur lors de l'action sur l'utilisateur.",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
+        ),
       );
     } finally {
       if (mounted) {

@@ -58,20 +58,43 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Mot de passe mis à jour avec succès."),
+        SnackBar(
+          content: Text(
+            "Mot de passe mis à jour avec succès.",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
         ),
       );
 
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? "Erreur inconnue")),
+        SnackBar(
+          content: Text(
+            e.message ?? "Erreur inconnue",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Mot de passe actuel incorrect."),
+        SnackBar(
+          content: Text(
+            "Mot de passe actuel incorrect.",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
         ),
       );
     }

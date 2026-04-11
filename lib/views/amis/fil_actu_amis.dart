@@ -144,8 +144,12 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
           height: 44,
           child: ElevatedButton.icon(
             icon: Icon(Icons.person_add, color: ColorPalette.accent(context)),
-            label: Text('Ajouter des amis',
-                style: TextStyle(color: ColorPalette.accent(context))),
+            label: Text(
+              'Ajouter des amis',
+              style: TextStyle(
+                color: ColorPalette.accent(context),
+              ),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorPalette.buttonSecondary(context),
               foregroundColor: ColorPalette.accent(context),
@@ -293,7 +297,14 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: _loadFeed,
-              child: const Text("Réessayer"),
+              child: Text(
+                "Réessayer",
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             )
           ],
         ),

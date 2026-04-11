@@ -319,7 +319,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: ColorPalette.accentVariant(context),
+                                color: ColorPalette.logoBackground(context),
                                 shape: BoxShape.circle,
                               ),
                               padding: const EdgeInsets.all(6),

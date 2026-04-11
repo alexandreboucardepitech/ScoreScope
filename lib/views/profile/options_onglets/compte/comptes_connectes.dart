@@ -168,7 +168,14 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Créer un mot de passe"),
+          title: Text(
+            "Créer un mot de passe",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
           content: TextField(
             controller: controller,
             obscureText: true,
@@ -179,11 +186,25 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Annuler"),
+              child: Text(
+                "Annuler",
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text("Valider"),
+              child: Text(
+                "Valider",
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -193,7 +214,16 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: ColorPalette.textPrimary(
+              context,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -257,8 +287,17 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
   @override
   Widget build(BuildContext context) {
     if (_user == null) {
-      return const Scaffold(
-        body: Center(child: Text("Utilisateur non connecté")),
+      return Scaffold(
+        body: Center(
+          child: Text(
+            "Utilisateur non connecté",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
+        ),
       );
     }
 

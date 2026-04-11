@@ -41,8 +41,20 @@ class ResultatsRecherche extends StatelessWidget {
               '${match.equipeDomicile.nomCourt ?? match.equipeDomicile.nom}'
               ' ${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur} '
               '${match.equipeExterieur.nomCourt ?? match.equipeExterieur.nom}',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(
+                  context,
+                ),
+              ),
             ),
-            subtitle: Text(match.competition.nom),
+            subtitle: Text(
+              match.competition.nom,
+              style: TextStyle(
+                color: ColorPalette.textSecondary(
+                  context,
+                ),
+              ),
+            ),
             onTap: () {
               Navigator.push(
                 context,
@@ -63,7 +75,14 @@ class ResultatsRecherche extends StatelessWidget {
               equipe.logoPath,
               equipeId: equipe.id,
             ),
-            title: Text(equipe.nom),
+            title: Text(
+              equipe.nom,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(
+                  context,
+                ),
+              ),
+            ),
             onTap: () {
               Navigator.push(
                 context,
@@ -87,7 +106,14 @@ class ResultatsRecherche extends StatelessWidget {
                         fit: BoxFit.contain),
                   )
                 : const Icon(Icons.emoji_events_outlined),
-            title: Text(competition.nom),
+            title: Text(
+              competition.nom,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(
+                  context,
+                ),
+              ),
+            ),
             onTap: () {},
           ),
         ),
@@ -107,7 +133,14 @@ class ResultatsRecherche extends StatelessWidget {
                     : AssetImage(joueur.picture),
               ),
             ),
-            title: Text(joueur.fullName),
+            title: Text(
+              joueur.fullName,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(
+                  context,
+                ),
+              ),
+            ),
             onTap: () {
               Navigator.push(
                 context,

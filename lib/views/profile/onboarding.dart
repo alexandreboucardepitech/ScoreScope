@@ -26,10 +26,17 @@ class WelcomeCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          "Partage ton expérience football avec tes amis.",
+          """1: Répertorie les matchs que tu as regardé, donne leur une note, et vote pour le meilleur joueur.
+
+2: Ajoute des amis et partage les matchs que tu as regardé.
+
+3: Découvrez des dizaines de statistiques sur tes habitudes de visionnage.
+
+
+Avec ScoreScope, garde un souvenir de chaque match, tel qu'il a été vécu !""",
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             color: ColorPalette.textPrimary(context),
           ),
         ),
@@ -44,7 +51,12 @@ class WelcomeCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text("Continuer"),
+            child: Text(
+              "Continuer",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
         ),
       ],
@@ -103,7 +115,12 @@ class TeamsCard extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorPalette.accent(context),
             ),
-            child: const Text("Continuer"),
+            child: Text(
+              "Continuer",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
         ),
       ],
@@ -162,7 +179,12 @@ class CompetitionsCard extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorPalette.accent(context),
             ),
-            child: const Text("Continuer"),
+            child: Text(
+              "Continuer",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
         ),
       ],
@@ -211,7 +233,14 @@ class StartCard extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorPalette.accent(context),
             ),
-            child: const Text("Terminer"),
+            child: Text(
+              "Terminer",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(
+                  context,
+                ),
+              ),
+            ),
           ),
         ),
       ],
@@ -236,11 +265,13 @@ class OnboardingOverlay extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
             child: Container(
               color: Colors.black.withOpacity(0.3),
+              width: double.infinity,
+              height: double.infinity,
             ),
           ),
           Center(
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.5,
+              height: MediaQuery.of(context).size.height * 0.6,
               width: MediaQuery.of(context).size.width * 0.95,
               margin: const EdgeInsets.symmetric(horizontal: 24),
               decoration: BoxDecoration(

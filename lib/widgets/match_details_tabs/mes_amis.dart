@@ -122,7 +122,16 @@ class _MesAmisTabState extends State<MesAmisTab> {
               style: TextStyle(color: ColorPalette.textSecondary(context)),
             ),
             const SizedBox(height: 8),
-            ElevatedButton(onPressed: _load, child: const Text('Réessayer')),
+            ElevatedButton(
+                onPressed: _load,
+                child: Text(
+                  'Réessayer',
+                  style: TextStyle(
+                    color: ColorPalette.textPrimary(
+                      context,
+                    ),
+                  ),
+                )),
           ],
         ),
       );

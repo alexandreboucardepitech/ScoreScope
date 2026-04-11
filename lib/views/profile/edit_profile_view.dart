@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 import 'onboarding.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:scorescope/main.dart';
@@ -128,7 +129,16 @@ class _EditProfileViewState extends State<EditProfileView> {
 
     if (widget.isOnboarding && _displayNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Le nom d'utilisateur est obligatoire")),
+        SnackBar(
+          content: Text(
+            "Le nom d'utilisateur est obligatoire",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
+        ),
       );
       return;
     }
@@ -285,7 +295,6 @@ class _EditProfileViewState extends State<EditProfileView> {
       ),
     );
   }
-
 
   // Onboarding card builder using new widgets
   Widget _buildOnboardingCard() {
@@ -610,11 +619,19 @@ class _EditProfileViewState extends State<EditProfileView> {
       appBar: AppBar(
         automaticallyImplyLeading: !widget.isOnboarding,
         backgroundColor: ColorPalette.background(context),
-        title: Text(
-          widget.isOnboarding ? 'Créer votre profil' : 'Modifier le profil',
-          style: TextStyle(
-            color: ColorPalette.textPrimary(context),
-          ),
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            AppLogos.logoTransparent(context, size: 32),
+            const SizedBox(width: 8),
+            Text(
+              widget.isOnboarding ? 'Créez votre profil' : 'Modifier le profil',
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         iconTheme: IconThemeData(color: ColorPalette.textPrimary(context)),
         actions: widget.isOnboarding
@@ -645,11 +662,13 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
               ],
       ),
-      body: Stack(
-        children: [
-          _buildMainContent(),
-          if (_showOnboardingCards) _buildOnboardingOverlay(),
-        ],
+      body: SizedBox.expand(
+        child: Stack(
+          children: [
+            _buildMainContent(),
+            if (_showOnboardingCards) _buildOnboardingOverlay(),
+          ],
+        ),
       ),
     );
   }

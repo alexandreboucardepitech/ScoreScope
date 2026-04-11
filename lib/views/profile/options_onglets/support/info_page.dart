@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
 class InfoPage extends StatelessWidget {
@@ -16,7 +17,19 @@ class InfoPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: ColorPalette.background(context),
       appBar: AppBar(
-        title: Text(title),
+        title: Row(
+          children: [
+            AppLogos.logoTransparent(context, size: 32),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
         backgroundColor: ColorPalette.surface(context),
       ),
       body: Padding(

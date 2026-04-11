@@ -148,7 +148,14 @@ class WatchWithFriendsCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: onAddFriend,
                   icon: const Icon(Icons.person_add, size: 18),
-                  label: const Text("Ajouter un ami"),
+                  label: Text(
+                    "Ajouter un ami",
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(
+                        context,
+                      ),
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ColorPalette.buttonSecondary(context),
                   ),

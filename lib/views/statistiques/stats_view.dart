@@ -60,15 +60,36 @@ class _StatsViewState extends State<StatsView> {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          title: const Text('Filtrer par période'),
+          title: Text(
+            'Filtrer par période',
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
           children: [
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, 'range'),
-              child: const Text('Période personnalisée'),
+              child: Text(
+                'Période personnalisée',
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             ),
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, 'season'),
-              child: const Text('Saison'),
+              child: Text(
+                'Saison',
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -195,7 +216,14 @@ class _StatsViewState extends State<StatsView> {
                                   value: saison,
                                   groupValue: selectedYear,
                                   activeColor: ColorPalette.accent(context),
-                                  title: Text("Saison $saison/${saison + 1}"),
+                                  title: Text(
+                                    "Saison $saison/${saison + 1}",
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(
+                                        context,
+                                      ),
+                                    ),
+                                  ),
                                   onChanged: (value) {
                                     setDialogState(() {
                                       selectedYear = value;
@@ -213,7 +241,14 @@ class _StatsViewState extends State<StatsView> {
                                 value: saison,
                                 groupValue: selectedYear,
                                 activeColor: ColorPalette.accent(context),
-                                title: Text("Saison $saison/${saison + 1}"),
+                                title: Text(
+                                  "Saison $saison/${saison + 1}",
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(
+                                      context,
+                                    ),
+                                  ),
+                                ),
                                 onChanged: (value) {
                                   setDialogState(() {
                                     selectedYear = value;

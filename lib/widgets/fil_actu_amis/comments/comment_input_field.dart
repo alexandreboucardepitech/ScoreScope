@@ -57,7 +57,9 @@ class _CommentInputFieldState extends State<CommentInputField> {
           FocusScope.of(context).unfocus();
         }
       },
-      child: (_isWriting || widget.defaultIsWriting) ? _buildWritingField(context) : _buildPlaceholder(),
+      child: (_isWriting || widget.defaultIsWriting)
+          ? _buildWritingField(context)
+          : _buildPlaceholder(),
     );
   }
 
@@ -152,7 +154,15 @@ class _CommentInputFieldState extends State<CommentInputField> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur envoi commentaire: $e')),
+          SnackBar(
+              content: Text(
+            'Erreur envoi commentaire: $e',
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          )),
         );
       }
     } finally {

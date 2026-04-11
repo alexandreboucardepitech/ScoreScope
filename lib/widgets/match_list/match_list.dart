@@ -145,7 +145,15 @@ class _MatchListState extends State<MatchList> {
     if (_loading) {
       content = const Center(child: CircularProgressIndicator());
     } else if (_error != null) {
-      content = Center(child: Text('Erreur: $_error'));
+      content = Center(
+          child: Text(
+        'Erreur: $_error',
+        style: TextStyle(
+          color: ColorPalette.textPrimary(
+            context,
+          ),
+        ),
+      ),);
     } else if (items == null || items.isEmpty) {
       content = Center(
         child: Text(

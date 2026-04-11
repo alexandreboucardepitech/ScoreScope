@@ -127,8 +127,14 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Erreur lors de la récupération des stats du joueur : $e'),
+          content: Text(
+            'Erreur lors de la récupération des stats du joueur : $e',
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
           duration: const Duration(seconds: 1),
         ),
       );

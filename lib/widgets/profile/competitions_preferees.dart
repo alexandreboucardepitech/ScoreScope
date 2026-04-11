@@ -87,6 +87,10 @@ class _CompetitionsPrefereesState extends State<CompetitionsPreferees> {
     try {
       final competition = await competitionsRepo.fetchCompetitionById(id);
       if (!mounted) return;
+      if (competition == null) {
+        _loadedCompetition.remove(id);
+        return;
+      }
       setState(() {
         _loadedCompetition[id] = competition;
       });
@@ -250,7 +254,7 @@ class _CompetitionCellShimmer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: ColorPalette.surface(context),
+        color: ColorPalette.accent(context),
       ),
       child: Row(
         children: [
@@ -259,14 +263,14 @@ class _CompetitionCellShimmer extends StatelessWidget {
             height: 24,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: ColorPalette.pictureBackground(context),
+              color: ColorPalette.logoBackground(context),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Container(
               height: 12,
-              color: ColorPalette.pictureBackground(context),
+              color: ColorPalette.logoBackground(context),
             ),
           ),
         ],
@@ -303,9 +307,8 @@ class CompetitionPrefereeTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: ColorPalette.tileSelected(context),
-          border:
-              Border.all(color: ColorPalette.accentVariant(context), width: 3),
+          color: ColorPalette.logoBackground(context),
+          border: Border.all(color: ColorPalette.accent(context), width: 3),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -314,7 +317,8 @@ class CompetitionPrefereeTile extends StatelessWidget {
               SizedBox(
                   width: 32,
                   height: 32,
-                  child: Image.network(competition.logoUrl!, fit: BoxFit.contain))
+                  child:
+                      Image.network(competition.logoUrl!, fit: BoxFit.contain))
             else
               CircleAvatar(radius: 14, child: Icon(Icons.shield, size: 16)),
             const SizedBox(width: 12),
@@ -331,7 +335,7 @@ class CompetitionPrefereeTile extends StatelessWidget {
                       competition.nom,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: ColorPalette.textPrimary(context),
+                        color: ColorPalette.textAccent(context),
                         fontWeight: FontWeight.w600,
                       ),
                     ),

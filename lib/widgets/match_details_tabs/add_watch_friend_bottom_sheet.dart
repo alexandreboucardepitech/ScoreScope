@@ -89,8 +89,15 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
 
               Expanded(
                 child: filtered.isEmpty
-                    ? const Center(
-                        child: Text("Aucun ami trouvé"),
+                    ? Center(
+                        child: Text(
+                          "Aucun ami trouvé",
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(
+                              context,
+                            ),
+                          ),
+                        ),
                       )
                     : ListView.builder(
                         itemCount: filtered.length,
@@ -105,9 +112,17 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
                                   : null,
                               child: (item.user.photoUrl == null ||
                                       item.user.photoUrl!.isEmpty)
-                                  ? Text((item.user.displayName.isNotEmpty)
-                                      ? item.user.displayName[0].toUpperCase()
-                                      : '?')
+                                  ? Text(
+                                      (item.user.displayName.isNotEmpty)
+                                          ? item.user.displayName[0]
+                                              .toUpperCase()
+                                          : '?',
+                                      style: TextStyle(
+                                        color: ColorPalette.textPrimary(
+                                          context,
+                                        ),
+                                      ),
+                                    )
                                   : null,
                             ),
                             title: Row(

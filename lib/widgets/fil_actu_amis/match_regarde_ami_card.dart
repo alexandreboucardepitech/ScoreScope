@@ -183,7 +183,15 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur réaction : ${e.toString()}')),
+          SnackBar(
+              content: Text(
+            'Erreur réaction : ${e.toString()}',
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          )),
         );
       }
     } finally {

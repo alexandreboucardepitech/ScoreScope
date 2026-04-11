@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/profile.dart';
 
 /// Vue "Ajouter des amis" :
@@ -115,7 +116,14 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajouter des amis'),
+        title: Text(
+          'Ajouter des amis',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(
+              context,
+            ),
+          ),
+        ),
       ),
       body: SafeArea(
         child: Column(
@@ -171,8 +179,15 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
 
   Widget _buildResultsArea() {
     if (_query.isEmpty || _query.length < _minCharsToSearch) {
-      return const Center(
-        child: Text('Entrez une recherche pour trouver des utilisateurs.'),
+      return Center(
+        child: Text(
+          'Entrez une recherche pour trouver des utilisateurs.',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(
+              context,
+            ),
+          ),
+        ),
       );
     }
 
@@ -189,7 +204,14 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
         }
         if (snapshot.hasError) {
           return Center(
-              child: Text('Erreur lors de la recherche : ${snapshot.error}'));
+              child: Text(
+            'Erreur lors de la recherche : ${snapshot.error}',
+            style: TextStyle(
+              color: ColorPalette.error(
+                context,
+              ),
+            ),
+          ));
         }
 
         final rawUsers = snapshot.data ?? <AppUser>[];
@@ -197,7 +219,15 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
             _excludeCurrentUser(rawUsers: rawUsers, excludeBlocked: true);
 
         if (users.isEmpty) {
-          return const Center(child: Text('Aucun utilisateur trouvé.'));
+          return Center(
+              child: Text(
+            'Aucun utilisateur trouvé.',
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ));
         }
 
         return ListView.separated(
@@ -212,12 +242,26 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
                         ? NetworkImage(user.photoUrl!)
                         : null,
                 child: (user.photoUrl == null || user.photoUrl!.isEmpty)
-                    ? Text((user.displayName.isNotEmpty)
-                        ? user.displayName[0].toUpperCase()
-                        : '?')
+                    ? Text(
+                        (user.displayName.isNotEmpty)
+                            ? user.displayName[0].toUpperCase()
+                            : '?',
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(
+                            context,
+                          ),
+                        ),
+                      )
                     : null,
               ),
-              title: Text(user.displayName),
+              title: Text(
+                user.displayName,
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
               onTap: () {
                 Navigator.push(
                   context,

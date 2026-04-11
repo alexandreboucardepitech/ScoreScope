@@ -85,14 +85,30 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
           Navigator.pop(context);
         } catch (reauthError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Mot de passe incorrect."),
+            SnackBar(
+              content: Text(
+                "Mot de passe incorrect.",
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             ),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? "Erreur inconnue")),
+          SnackBar(
+            content: Text(
+              e.message ?? "Erreur inconnue",
+              style: TextStyle(
+                color: ColorPalette.textPrimary(
+                  context,
+                ),
+              ),
+            ),
+          ),
         );
       }
     }
@@ -105,7 +121,14 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Confirmez votre identité"),
+          title: Text(
+            "Confirmez votre identité",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
           content: TextField(
             controller: passwordController,
             obscureText: true,
@@ -116,11 +139,25 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Annuler"),
+              child: Text(
+                "Annuler",
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, passwordController.text),
-              child: const Text("Confirmer"),
+              child: Text(
+                "Confirmer",
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             ),
           ],
         );

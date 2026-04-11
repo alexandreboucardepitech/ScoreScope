@@ -316,8 +316,16 @@ class _CommentsPageState extends State<CommentsPage> {
     }
 
     if (_hasError || _entry == null || _matchData == null) {
-      return const Scaffold(
-        body: Center(child: Text("Erreur de chargement")),
+      return Scaffold(
+        body: Center(
+            child: Text(
+          "Erreur de chargement",
+          style: TextStyle(
+            color: ColorPalette.error(
+              context,
+            ),
+          ),
+        )),
       );
     }
 
@@ -333,7 +341,14 @@ class _CommentsPageState extends State<CommentsPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Détails"),
+          title: Text(
+            "Détails",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).pop(true),

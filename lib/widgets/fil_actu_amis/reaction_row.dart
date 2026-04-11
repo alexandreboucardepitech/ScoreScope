@@ -97,7 +97,14 @@ class _ReactionRowState extends State<ReactionRow> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Vous avez ajouté la réaction $selected'),
+          content: Text(
+            'Vous avez ajouté la réaction $selected',
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -416,7 +423,14 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
     if (mounted) setState(() {});
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Vous avez ajouté la réaction ${widget.emoji}'),
+        content: Text(
+          'Vous avez ajouté la réaction ${widget.emoji}',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(
+              context,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -585,7 +599,14 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
           if (mounted) setState(() {});
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Vous avez supprimé la réaction ${widget.emoji}'),
+              content: Text(
+                'Vous avez supprimé la réaction ${widget.emoji}',
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(
+                    context,
+                  ),
+                ),
+              ),
             ),
           );
           return;

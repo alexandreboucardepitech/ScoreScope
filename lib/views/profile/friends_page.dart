@@ -309,13 +309,30 @@ class _FriendsPageState extends State<FriendsPage>
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(getFriendshipActionSnackbarMessage(action))),
+        SnackBar(
+          content: Text(
+            getFriendshipActionSnackbarMessage(action),
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Erreur lors de l'action sur l'utilisateur.")),
+        SnackBar(
+          content: Text(
+            "Erreur lors de l'action sur l'utilisateur.",
+            style: TextStyle(
+              color: ColorPalette.textPrimary(
+                context,
+              ),
+            ),
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -330,7 +347,16 @@ class _FriendsPageState extends State<FriendsPage>
     final filtered = _filter(list);
 
     if (filtered.isEmpty) {
-      return Center(child: Text(emptyText));
+      return Center(
+        child: Text(
+          emptyText,
+          style: TextStyle(
+            color: ColorPalette.textPrimary(
+              context,
+            ),
+          ),
+        ),
+      );
     }
 
     return ListView.builder(

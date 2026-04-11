@@ -143,9 +143,15 @@ class _HeaderState extends State<Header> {
               : null,
           child: widget.user.photoUrl == null &&
                   (widget.user.displayName.isNotEmpty)
-              ? Text(widget.user.displayName.substring(0, 1).toUpperCase(),
+              ? Text(
+                  widget.user.displayName.substring(0, 1).toUpperCase(),
                   style: TextStyle(
-                      fontSize: 36, color: ColorPalette.textAccent(context)))
+                    fontSize: 36,
+                    color: ColorPalette.textAccent(
+                      context,
+                    ),
+                  ),
+                )
               : null,
         ),
         const SizedBox(height: 12),
@@ -229,10 +235,13 @@ class _HeaderState extends State<Header> {
                     labelHeight: statsLabelHeight,
                     valueWidget: widget.isLoadingNbAmis
                         ? const _ShimmerBox(width: 24, height: 12)
-                        : Text(widget.userNbAmis?.toString() ?? '0',
+                        : Text(
+                            widget.userNbAmis?.toString() ?? '0',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: ColorPalette.textPrimary(context))),
+                              fontWeight: FontWeight.bold,
+                              color: ColorPalette.textPrimary(context),
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -242,10 +251,13 @@ class _HeaderState extends State<Header> {
               labelHeight: statsLabelHeight,
               valueWidget: widget.isLoadingNbMatchsRegardes
                   ? const _ShimmerBox(width: 24, height: 12)
-                  : Text(widget.userNbMatchsRegardes?.toString() ?? '0',
+                  : Text(
+                      widget.userNbMatchsRegardes?.toString() ?? '0',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: ColorPalette.textPrimary(context))),
+                        fontWeight: FontWeight.bold,
+                        color: ColorPalette.textPrimary(context),
+                      ),
+                    ),
             ),
             Expanded(
               child: Align(
@@ -255,10 +267,13 @@ class _HeaderState extends State<Header> {
                   labelHeight: statsLabelHeight,
                   valueWidget: widget.isLoadingNbButs
                       ? const _ShimmerBox(width: 24, height: 12)
-                      : Text(widget.userNbButs?.toString() ?? '0',
+                      : Text(
+                          widget.userNbButs?.toString() ?? '0',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: ColorPalette.textPrimary(context))),
+                            fontWeight: FontWeight.bold,
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        ),
                 ),
               ),
             ),
