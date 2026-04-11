@@ -11,6 +11,7 @@ class PodiumCard<T> extends StatelessWidget {
   final List<PodiumEntry> items;
   final AppUser user;
   final String emptyStateText;
+  final bool logoBackground;
 
   const PodiumCard({
     super.key,
@@ -18,6 +19,7 @@ class PodiumCard<T> extends StatelessWidget {
     required this.items,
     required this.user,
     this.emptyStateText = 'Aucune donnée disponible',
+    this.logoBackground = true,
   });
 
   @override
@@ -73,14 +75,14 @@ class PodiumCard<T> extends StatelessWidget {
     }
 
     if (items.length == 1) {
-      return _buildSingle(context, items.first, true);
+      return _buildSingle(context, items.first, true, logoBackground);
     }
 
     if (items.length == 2) {
-      return _buildDuo(context, items.take(2).toList());
+      return _buildDuo(context, items.take(2).toList(), logoBackground);
     }
 
-    return _buildPodium(context, items.take(3).toList());
+    return _buildPodium(context, items.take(3).toList(), logoBackground);
   }
 
   Widget _buildEmptyState(BuildContext context) {
@@ -113,6 +115,7 @@ class PodiumCard<T> extends StatelessWidget {
     BuildContext context,
     PodiumEntry podiumEntry,
     bool large,
+    bool logoBackground,
   ) {
     final content = InkWell(
       child: podiumEntry.item.buildPodiumCard(
@@ -122,6 +125,7 @@ class PodiumCard<T> extends StatelessWidget {
           value: podiumEntry.value,
           color: podiumEntry.color,
         ),
+        logoBackground: logoBackground,
       ),
     );
 
@@ -137,6 +141,7 @@ class PodiumCard<T> extends StatelessWidget {
   Widget _buildDuo(
     BuildContext context,
     List<PodiumEntry> duo,
+    bool logoBackground,
   ) {
     return Column(
       children: [
@@ -148,6 +153,7 @@ class PodiumCard<T> extends StatelessWidget {
                   value: duo[0].value,
                   color: duo[0].color,
                 ),
+                logoBackground: logoBackground,
               ),
         ),
         Divider(color: ColorPalette.border(context)),
@@ -159,6 +165,7 @@ class PodiumCard<T> extends StatelessWidget {
                   value: duo[1].value,
                   color: duo[1].color,
                 ),
+                logoBackground: logoBackground,
               ),
         ),
       ],
@@ -168,6 +175,7 @@ class PodiumCard<T> extends StatelessWidget {
   Widget _buildPodium(
     BuildContext context,
     List<PodiumEntry> podium,
+    bool logoBackground,
   ) {
     return Column(
       children: [
@@ -179,6 +187,7 @@ class PodiumCard<T> extends StatelessWidget {
                   value: podium[0].value,
                   color: podium[0].color,
                 ),
+                logoBackground: logoBackground,
               ),
         ),
         Divider(
@@ -193,6 +202,7 @@ class PodiumCard<T> extends StatelessWidget {
                   value: podium[1].value,
                   color: podium[1].color,
                 ),
+                logoBackground: logoBackground,
               ),
         ),
         if (podium.length > 2)
@@ -204,6 +214,7 @@ class PodiumCard<T> extends StatelessWidget {
                     value: podium[2].value,
                     color: podium[2].color,
                   ),
+                  logoBackground: logoBackground,
                 ),
           ),
       ],

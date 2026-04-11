@@ -191,8 +191,7 @@ class WebMatchRepository implements IMatchRepository {
 
     final data = doc.data() ?? {};
 
-    Map<String, dynamic> notes =
-        Map<String, dynamic>.from(data['notes'] ?? {});
+    Map<String, dynamic> notes = Map<String, dynamic>.from(data['notes'] ?? {});
 
     if (note == null) {
       notes.remove(userId);
@@ -211,7 +210,16 @@ class WebMatchRepository implements IMatchRepository {
     final docSnapshot = await userMatchDocRef.get();
 
     if (docSnapshot.exists) {
-      await userMatchDocRef.update({'note': note});
+      // if watchedAt is null or does not exist, set it to now
+      final userMatchData = docSnapshot.data()!;
+      if (userMatchData['watchedAt'] == null) {
+        await userMatchDocRef.update({
+          'note': note,
+          'watchedAt': DateTime.now().toUtc(),
+        });
+      } else {
+        await userMatchDocRef.update({'note': note});
+      }
     } else {
       await userMatchDocRef.set({
         'matchId': matchId,
@@ -267,7 +275,16 @@ class WebMatchRepository implements IMatchRepository {
     final docSnapshot = await userMatchDocRef.get();
 
     if (docSnapshot.exists) {
-      await userMatchDocRef.update({'mvpVoteId': joueurId});
+      // if watchedAt is null or does not exist, set it to now
+      final userMatchData = docSnapshot.data()!;
+      if (userMatchData['watchedAt'] == null) {
+        await userMatchDocRef.update({
+          'mvpVoteId': joueurId,
+          'watchedAt': DateTime.now().toUtc(),
+        });
+      } else {
+        await userMatchDocRef.update({'mvpVoteId': joueurId});
+      }
     } else {
       await userMatchDocRef.set({
         'matchId': matchId,

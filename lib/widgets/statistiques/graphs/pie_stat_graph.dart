@@ -39,6 +39,8 @@ class _PieStatGraphState extends State<PieStatGraph> {
   Widget build(BuildContext context) {
     final values = aggregateSmallValues(widget.values);
 
+    double countSmallValues = getCountSmallValues(widget.values, values);
+
     final legendItems = values.take(3).toList();
 
     return SizedBox(
@@ -64,12 +66,16 @@ class _PieStatGraphState extends State<PieStatGraph> {
                     ),
                     sections: List.generate(values.length, (i) {
                       final v = values[i];
-                      final percent = v.value / total * 100;
+                      final percent = v.label == 'Autres'
+                          ? countSmallValues / total * 100
+                          : v.value / total * 100;
                       final isTouched = i == touchedIndex;
                       final color = _getColor(i, v);
 
                       return PieChartSectionData(
-                        value: v.value.toDouble(),
+                        value: v.label == 'Autres'
+                            ? countSmallValues
+                            : v.value.toDouble(),
                         color: color,
                         radius: isTouched ? 56 : 48,
                         title: percent >= 10 ? '${percent.round()}%' : '',

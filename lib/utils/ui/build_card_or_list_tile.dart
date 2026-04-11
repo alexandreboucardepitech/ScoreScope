@@ -34,6 +34,7 @@ Widget buildPodiumCardOrListTile<T>({
   String Function(T)? imageExtractor,
   required String emptyStateText,
   required AppUser user,
+  bool logoBackground = true,
 }) {
   if (showCards) {
     return PodiumCard<T>(
@@ -41,6 +42,7 @@ Widget buildPodiumCardOrListTile<T>({
       items: items,
       emptyStateText: emptyStateText,
       user: user,
+      logoBackground: logoBackground,
     );
   } else {
     return PodiumListItem<T>(
@@ -48,6 +50,7 @@ Widget buildPodiumCardOrListTile<T>({
       items: items,
       emptyStateText: emptyStateText,
       user: user,
+      logoBackground: logoBackground,
     );
   }
 }

@@ -37,6 +37,7 @@ class StatsGeneralesOnglet extends StatelessWidget {
         items: data.equipesLesPlusVues,
         emptyStateText: 'Aucune équipe',
         user: user,
+        logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
@@ -51,6 +52,7 @@ class StatsGeneralesOnglet extends StatelessWidget {
         items: data.meilleursButeurs,
         emptyStateText: 'Aucun buteur',
         user: user,
+        logoBackground: false,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
@@ -88,6 +90,7 @@ class StatsGeneralesOnglet extends StatelessWidget {
         items: data.mvpsLesPlusVotes,
         emptyStateText: 'Aucun MVP',
         user: user,
+        logoBackground: false,
       ),
     ];
 

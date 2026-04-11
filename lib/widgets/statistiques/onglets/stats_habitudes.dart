@@ -27,12 +27,14 @@ class StatsHabitudesOnglet extends StatelessWidget {
         items: data.mvpsLesPlusVotes,
         emptyStateText: 'Aucun MVP',
         user: user,
+        logoBackground: false,
       ),
       buildSimpleStatCardOrListTile(
-          showCards: showCards,
-          title: 'Moy. des notes données',
-          value: roundSmart(data.moyenneNotes),
-          icon: Icons.star),
+        showCards: showCards,
+        title: 'Moy. des notes données',
+        value: roundSmart(data.moyenneNotes),
+        icon: Icons.star,
+      ),
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Matchs les mieux notés',

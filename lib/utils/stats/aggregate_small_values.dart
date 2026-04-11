@@ -28,3 +28,25 @@ List<StatValue> aggregateSmallValues(List<StatValue> values) {
     return sortedValues;
   }
 }
+
+double getCountSmallValues(
+  List<StatValue> allValues,
+  List<StatValue> aggregaredValues,
+) {
+  num? minValue;
+  double countMinValue = 0;
+  for (StatValue value in aggregaredValues) {
+    if (value.label == 'Autres') {
+      minValue = value.value;
+    }
+  }
+  if (minValue == null) {
+    return 0;
+  }
+  for (StatValue value2 in allValues) {
+    if (value2.value == minValue) {
+      countMinValue++;
+    }
+  }
+  return countMinValue;
+}

@@ -17,7 +17,7 @@ class StatsView extends StatefulWidget {
 
 class _StatsViewState extends State<StatsView> {
   bool _showCards = true;
-  bool _onlyPublicMatches = false;
+  bool _onlyPublicMatches = true;
   DateTimeRange? _dateRange;
   int? _saison; // exemple : 2025 pour la saison 2025/2026
   AppUser? _currentUser;
@@ -31,7 +31,11 @@ class _StatsViewState extends State<StatsView> {
   Future<void> _loadCurrentUser() async {
     try {
       final user = await RepositoryProvider.userRepository.getCurrentUser();
-      if (mounted) setState(() => _currentUser = user);
+      if (mounted)
+        setState(() {
+          _currentUser = user;
+          _onlyPublicMatches = isCurrentUser();
+        });
     } catch (e) {
       // Si échec, laisse _currentUser null — on n'interrompt pas l'UI.
       if (mounted) setState(() => _currentUser = null);
@@ -320,22 +324,29 @@ class _StatsViewState extends State<StatsView> {
       child: Scaffold(
         backgroundColor: ColorPalette.background(context),
         appBar: AppBar(
+          titleSpacing: 0,
           backgroundColor: ColorPalette.tileBackground(context),
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           title: Row(
             children: [
+              const SizedBox(width: 8),
               AppLogos.logoTransparent(context, size: 32),
               const SizedBox(width: 8),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  isCurrentUser()
-                      ? 'Mes statistiques'
-                      : 'Statistiques de ${widget.user.displayName}',
-                  style: TextStyle(
-                    color: ColorPalette.textPrimary(context),
-                    fontWeight: FontWeight.bold,
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    isCurrentUser()
+                        ? 'Mes statistiques'
+                        : 'Statistiques de ${widget.user.displayName}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(context),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

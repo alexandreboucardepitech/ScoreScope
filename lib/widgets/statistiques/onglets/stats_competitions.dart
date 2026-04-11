@@ -22,7 +22,7 @@ class StatsCompetitionsOnglet extends StatelessWidget {
     final statsWidgets = <Widget>[
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Compétitions les plus vues',
+        title: 'Compétitions les plus suivies',
         items: data.competitionsLesPlusSuivies,
         emptyStateText: 'Aucune compétition',
         user: user,
@@ -54,11 +54,11 @@ class StatsCompetitionsOnglet extends StatelessWidget {
         values: data.pourcentageMatchsCompetitions,
         pourcentage: true,
       ),
-      GraphCard(
-        title: 'Types de compétitions',
-        type: GraphType.splitBar,
-        values: data.typesCompetitions,
-      ),
+      // GraphCard(
+      //   title: 'Types de compétitions',
+      //   type: GraphType.splitBar,
+      //   values: data.typesCompetitions,
+      // ),
     ];
 
     return buildGridOrList(

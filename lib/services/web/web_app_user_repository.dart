@@ -269,9 +269,16 @@ class WebAppUserRepository implements IAppUserRepository {
     final docSnapshot = await userMatchDocRef.get();
 
     if (docSnapshot.exists) {
-      await userMatchDocRef.update({
-        'favourite': favori,
-      });
+      // if watchedAt is null or does not exist, set it to now
+      final userMatchData = docSnapshot.data()!;
+      if (userMatchData['watchedAt'] == null) {
+        await userMatchDocRef.update({
+          'favourite': favori,
+          'watchedAt': DateTime.now().toUtc(),
+        });
+      } else {
+        await userMatchDocRef.update({'favourite': favori});
+      }
     } else {
       await userMatchDocRef.set({
         'matchId': matchId,
@@ -319,9 +326,17 @@ class WebAppUserRepository implements IAppUserRepository {
     final docSnapshot = await userMatchDocRef.get();
 
     if (docSnapshot.exists) {
-      await userMatchDocRef.update({
-        'visionnageMatch': visionnageMatch.label,
-      });
+      // if watchedAt is null or does not exist, set it to now
+      final userMatchData = docSnapshot.data()!;
+      if (userMatchData['watchedAt'] == null) {
+        await userMatchDocRef.update({
+          'visionnageMatch': visionnageMatch.label,
+          'watchedAt': DateTime.now().toUtc(),
+        });
+      } else {
+        await userMatchDocRef
+            .update({'visionnageMatch': visionnageMatch.label});
+      }
     } else {
       await userMatchDocRef.set({
         'matchId': matchId,
@@ -386,9 +401,16 @@ class WebAppUserRepository implements IAppUserRepository {
     final docSnapshot = await userMatchDocRef.get();
 
     if (docSnapshot.exists) {
-      await userMatchDocRef.update({
-        'private': privacy,
-      });
+      // if watchedAt is null or does not exist, set it to now
+      final userMatchData = docSnapshot.data()!;
+      if (userMatchData['watchedAt'] == null) {
+        await userMatchDocRef.update({
+          'private': privacy,
+          'watchedAt': DateTime.now().toUtc(),
+        });
+      } else {
+        await userMatchDocRef.update({'private': privacy});
+      }
     } else {
       await userMatchDocRef.set({
         'matchId': matchId,

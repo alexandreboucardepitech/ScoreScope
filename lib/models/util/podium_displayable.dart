@@ -5,11 +5,13 @@ abstract class PodiumDisplayable {
   Widget buildPodiumRow({
     required BuildContext context,
     required PodiumContext podium,
+    bool logoBackground = true,
   });
 
   Widget buildPodiumCard({
     required BuildContext context,
     required PodiumContext podium,
+    bool logoBackground = true,
   });
 
   Widget buildDetailsLine({

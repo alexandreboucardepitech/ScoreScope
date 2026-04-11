@@ -27,6 +27,7 @@ class StatsJoueursOnglet extends StatelessWidget {
         items: data.meilleursButeurs,
         emptyStateText: 'Aucun joueur',
         user: user,
+        logoBackground: false,
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
@@ -34,6 +35,7 @@ class StatsJoueursOnglet extends StatelessWidget {
         items: data.titularisations,
         emptyStateText: 'Aucun joueur',
         user: user,
+        logoBackground: false,
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
@@ -41,6 +43,7 @@ class StatsJoueursOnglet extends StatelessWidget {
         items: data.mvpsLesPlusVotes,
         emptyStateText: 'Aucun MVP',
         user: user,
+        logoBackground: false,
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
@@ -48,6 +51,7 @@ class StatsJoueursOnglet extends StatelessWidget {
         items: data.meilleursButeursUnMatch,
         emptyStateText: 'Aucun record',
         user: user,
+        logoBackground: false,
       ),
     ];
 

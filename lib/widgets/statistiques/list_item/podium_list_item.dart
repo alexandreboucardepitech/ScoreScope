@@ -13,6 +13,8 @@ class PodiumListItem<T> extends StatelessWidget {
   final Color? accentColor;
   final String emptyStateText;
 
+  final bool logoBackground;
+
   const PodiumListItem({
     super.key,
     required this.title,
@@ -20,6 +22,7 @@ class PodiumListItem<T> extends StatelessWidget {
     required this.user,
     this.accentColor,
     this.emptyStateText = 'Aucune donnée disponible',
+    this.logoBackground = true,
   });
 
   @override
@@ -108,6 +111,7 @@ class PodiumListItem<T> extends StatelessWidget {
           value: podiumEntry.value,
           color: podiumEntry.color,
         ),
+        logoBackground: logoBackground,
       ),
     );
   }
@@ -133,6 +137,7 @@ class PodiumListItem<T> extends StatelessWidget {
                 value: first.value,
                 color: first.color,
               ),
+              logoBackground: logoBackground,
             ),
           ),
         ),
@@ -151,6 +156,7 @@ class PodiumListItem<T> extends StatelessWidget {
                         value: second.value,
                         color: second.color,
                       ),
+                      logoBackground: logoBackground,
                     ),
                   ),
                 ),
@@ -166,6 +172,7 @@ class PodiumListItem<T> extends StatelessWidget {
                         value: third.value,
                         color: third.color,
                       ),
+                      logoBackground: logoBackground,
                     ),
                   ),
                 ),

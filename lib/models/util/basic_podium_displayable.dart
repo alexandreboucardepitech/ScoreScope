@@ -9,11 +9,13 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
   String get displayLabel;
   String? get longDisplayLabel;
   String? get displayImage;
+  bool get circleImage => false;
 
   @override
   Widget buildPodiumCard({
     required BuildContext context,
     required PodiumContext podium,
+    bool logoBackground = true,
   }) {
     final isFirst = podium.isFirst;
     Color color = podium.color != null
@@ -24,11 +26,31 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (displayImage != null && isFirst)
-          Image.network(
-            displayImage!,
-            width: isFirst ? 32 : 24,
-            height: isFirst ? 32 : 24,
-            fit: BoxFit.contain,
+          Container(
+            width: 40,
+            height: 40,
+            padding: EdgeInsets.all(logoBackground ? 6 : 0),
+            decoration: BoxDecoration(
+              color: logoBackground
+                  ? ColorPalette.logoBackground(context)
+                  : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: circleImage
+                ? ClipOval(
+                    child: Image.network(
+                      displayImage!,
+                      width: 32,
+                      height: 32,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Image.network(
+                    displayImage!,
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.contain,
+                  ),
           ),
         if (displayImage != null && isFirst) const SizedBox(width: 12),
         Expanded(
@@ -97,6 +119,7 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
   Widget buildPodiumRow({
     required BuildContext context,
     required PodiumContext podium,
+    bool logoBackground = true,
   }) {
     final isFirst = podium.isFirst;
     Color color = podium.color != null
@@ -109,10 +132,32 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
 
     return Row(
       children: [
-        if (isFirst && displayImage != null)
-          CircleAvatar(
-            radius: 18,
-            backgroundImage: NetworkImage(displayImage!),
+        if (displayImage != null && isFirst)
+          Container(
+            width: 40,
+            height: 40,
+            padding: EdgeInsets.all(logoBackground ? 6 : 0),
+            decoration: BoxDecoration(
+              color: logoBackground
+                  ? ColorPalette.logoBackground(context)
+                  : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: circleImage
+                ? ClipOval(
+                    child: Image.network(
+                      displayImage!,
+                      width: 32,
+                      height: 32,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Image.network(
+                    displayImage!,
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.contain,
+                  ),
           ),
         if (isFirst) const SizedBox(width: 8),
         Expanded(

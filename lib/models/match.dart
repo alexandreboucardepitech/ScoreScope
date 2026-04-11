@@ -160,6 +160,7 @@ class MatchModel implements PodiumDisplayable {
   Widget buildPodiumCard({
     required BuildContext context,
     required PodiumContext podium,
+    bool logoBackground = true,
   }) {
     final isFirst = podium.isFirst;
 
@@ -297,6 +298,7 @@ class MatchModel implements PodiumDisplayable {
   Widget buildPodiumRow({
     required BuildContext context,
     required PodiumContext podium,
+    bool logoBackground = true,
   }) {
     final isFirst = podium.rank == 1;
     final logoSize = isFirst ? 32.0 : 20.0;

@@ -32,6 +32,7 @@ class StatsEquipesOnglet extends StatelessWidget {
         items: data.equipesLesPlusVues,
         emptyStateText: 'Aucune équipe',
         user: user,
+        logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
@@ -39,6 +40,7 @@ class StatsEquipesOnglet extends StatelessWidget {
         items: data.equipesLesPlusVuesGagner,
         emptyStateText: 'Aucune donnée',
         user: user,
+        logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
@@ -46,6 +48,7 @@ class StatsEquipesOnglet extends StatelessWidget {
         items: data.equipesLesPlusVuesPerdre,
         emptyStateText: 'Aucune donnée',
         user: user,
+        logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
@@ -53,6 +56,7 @@ class StatsEquipesOnglet extends StatelessWidget {
         items: data.equipesPlusDeButsMarques,
         emptyStateText: 'Aucune donnée',
         user: user,
+        logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
@@ -60,6 +64,7 @@ class StatsEquipesOnglet extends StatelessWidget {
         items: data.equipesPlusDeButsEncaisses,
         emptyStateText: 'Aucune donnée',
         user: user,
+        logoBackground: false,
       ),
     ];
 
