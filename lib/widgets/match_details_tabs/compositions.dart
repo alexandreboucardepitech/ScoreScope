@@ -166,14 +166,14 @@ class _CompositionsTabState extends State<CompositionsTab> {
                               RepositoryProvider.userRepository.currentUser;
                           if (user != null &&
                               widget.match.isScheduled == false) {
-                            final selectedPlayer =
+                            Map<String, dynamic> result =
                                 await openBottomSheetAndVoteMVP(
                               context: context,
                               match: widget.match,
                               preselectedPlayer: player.joueur,
                               initialUserVote: null,
                             );
-                            _updateVotes(user.uid, selectedPlayer?.id);
+                            _updateVotes(user.uid, result["joueur"].id);
                           }
                         },
                         context: context,
@@ -201,14 +201,22 @@ class _CompositionsTabState extends State<CompositionsTab> {
                               RepositoryProvider.userRepository.currentUser;
                           if (user != null &&
                               widget.match.isScheduled == false) {
-                            final selectedPlayer =
+                            Map<String, dynamic> result =
                                 await openBottomSheetAndVoteMVP(
                               context: context,
                               match: widget.match,
                               preselectedPlayer: player.joueur,
                               initialUserVote: null,
                             );
-                            _updateVotes(user.uid, selectedPlayer?.id);
+                            _updateVotes(user.uid, result["joueur"].id);
+                          } else if (user != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PlayerDetailsPage(
+                                    playerId: player.joueur!.id),
+                              ),
+                            );
                           }
                         },
                         context: context,
@@ -457,13 +465,20 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           splashColor: Colors.transparent,
           onTap: () async {
             if (user != null && widget.match.isScheduled == false) {
-              final selectedPlayer = await openBottomSheetAndVoteMVP(
+              Map<String, dynamic> result = await openBottomSheetAndVoteMVP(
                 context: context,
                 match: widget.match,
                 preselectedPlayer: joueur,
                 initialUserVote: null,
               );
-              widget.onLocalUpdate(user.uid, selectedPlayer?.id);
+              widget.onLocalUpdate(user.uid, result["joueur"].id);
+            } else if (user != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PlayerDetailsPage(playerId: joueur!.id),
+                ),
+              );
             }
           },
           onLongPress: () {

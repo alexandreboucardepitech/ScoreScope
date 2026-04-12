@@ -106,9 +106,9 @@ class WebStatsRepository implements IStatsRepository {
     final matchsVusParEquipe =
         await StatsLoader.getStatValueListFromMap<Equipe>(
       dataMap: equipesDifferentes,
-      getLabel: (Equipe e) => e.nom,
-      getColor: (Equipe e) async {
-        return e.couleurPrincipale;
+      getLabel: (Equipe equipe) => equipe.nom,
+      getColor: (Equipe equipe) async {
+        return equipe.couleurPrincipale;
       },
     );
 
@@ -153,10 +153,10 @@ class WebStatsRepository implements IStatsRepository {
 
     final butsParJoueur = await StatsLoader.getStatValueListFromMap<Joueur>(
       dataMap: buteursDifferents,
-      getLabel: (Joueur e) => e.shortName,
-      getColor: (Joueur e) async {
+      getLabel: (Joueur joueur) => joueur.fullName,
+      getColor: (Joueur joueur) async {
         final equipe = await RepositoryProvider.equipeRepository
-            .fetchEquipeById(e.equipeId);
+            .fetchEquipeById(joueur.equipeId);
         return equipe?.couleurPrincipale;
       },
     );

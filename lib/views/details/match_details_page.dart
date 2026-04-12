@@ -411,6 +411,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: ColorPalette.accent(context),
           content: Text(
             'Match supprimé',
             style: TextStyle(

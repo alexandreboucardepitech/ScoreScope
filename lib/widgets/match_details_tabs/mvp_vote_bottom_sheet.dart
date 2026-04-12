@@ -6,13 +6,13 @@ import 'package:scorescope/widgets/match_details_tabs/player_tile.dart';
 import '../../models/match.dart';
 import '../../models/joueur.dart';
 
-Future<Joueur?> showVoteBottomSheet({
+Future<Map<String, dynamic>?> showVoteBottomSheet({
   required BuildContext context,
   required MatchModel match,
   Joueur? initialUserVote,
   Joueur? preselectedPlayer,
 }) {
-  return showModalBottomSheet<Joueur?>(
+  return showModalBottomSheet<Map<String, dynamic>?>(
     context: context,
     isScrollControlled: true,
     backgroundColor: ColorPalette.tileBackground(context),
@@ -53,6 +53,8 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
   }
 
   void selectPlayer(Joueur p) => setState(() => currentUserVote = p);
+
+  void _viderVote() => setState(() => currentUserVote = null);
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +164,10 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                 ),
                               ),
                               OutlinedButton.icon(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(currentUserVote),
+                                onPressed: () => Navigator.of(context).pop({
+                                  "joueur": currentUserVote,
+                                  "enleverVote": false,
+                                }),
                                 icon: Icon(
                                   Icons.how_to_vote,
                                   color: ColorPalette.textSecondary(context),
@@ -179,10 +183,9 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                     color: ColorPalette.border(context),
                                   ),
                                   overlayColor: ColorPalette.highlight(context),
-                                  // backgroundColor:
-                                  //     ColorPalette.buttonPrimary(context),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                               ),
                             ],
@@ -201,6 +204,31 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                   'Aucun joueur sélectionné',
                                   style: TextStyle(
                                     color: ColorPalette.textSecondary(context),
+                                  ),
+                                ),
+                              ),
+                              OutlinedButton.icon(
+                                onPressed: () => Navigator.of(context).pop({
+                                  "joueur": currentUserVote,
+                                  "enleverVote": true,
+                                }),
+                                icon: Icon(
+                                  Icons.how_to_vote,
+                                  color: ColorPalette.textSecondary(context),
+                                ),
+                                label: Text(
+                                  'Valider',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: ColorPalette.border(context),
+                                  ),
+                                  overlayColor: ColorPalette.highlight(context),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
                               ),
@@ -330,8 +358,10 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () =>
-                          Navigator.of(context).pop(widget.initialUserVote),
+                      onPressed: () => Navigator.of(context).pop(({
+                        "joueur": widget.initialUserVote,
+                        "enleverVote": false,
+                      })),
                       child: Text(
                         'Annuler',
                         style: TextStyle(
@@ -342,7 +372,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                   ),
                   const SizedBox(width: 12),
                   TextButton(
-                    onPressed: () => setState(() => currentUserVote = null),
+                    onPressed: _viderVote,
                     child: Text(
                       'Vider',
                       style: TextStyle(

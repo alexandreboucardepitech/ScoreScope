@@ -38,6 +38,8 @@ class _InfosTabState extends State<InfosTab> {
   final user = RepositoryProvider.userRepository.currentUser;
   List<WatchFriend> _watchFriends = [];
 
+  bool loadingNote = false;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +64,12 @@ class _InfosTabState extends State<InfosTab> {
   Future<void> _loadMvpEtNote() async {
     if (!mounted) return;
 
+    if (userVoteNoteMatch == null) {
+      setState(() {
+        loadingNote = true;
+      });
+    }
+
     Joueur? loadedCurrentMvp;
     Joueur? loadedUserVoteMVP;
     int? loadedUserNote;
@@ -85,6 +93,7 @@ class _InfosTabState extends State<InfosTab> {
           }
 
           loadedUserNote = match.notes[firebaseUser.uid];
+          loadedCurrentMvp = await match.getMvp();
         }
       }
 
@@ -94,6 +103,7 @@ class _InfosTabState extends State<InfosTab> {
         currentMvp = loadedCurrentMvp;
         userVoteMVP = loadedUserVoteMVP;
         userVoteNoteMatch = loadedUserNote;
+        loadingNote = false;
       });
     } catch (e) {
       debugPrint('Erreur lors du chargement du MVP ou du vote utilisateur: $e');
@@ -104,6 +114,7 @@ class _InfosTabState extends State<InfosTab> {
         currentMvp = loadedCurrentMvp;
         userVoteMVP = null;
         userVoteNoteMatch = null;
+        loadingNote = false;
       });
     }
   }
@@ -297,12 +308,13 @@ class _InfosTabState extends State<InfosTab> {
   }
 
   void voteMVP() async {
-    Joueur? joueurVote = await openBottomSheetAndVoteMVP(
+    Map<String, dynamic> result = await openBottomSheetAndVoteMVP(
       context: context,
       match: widget.match,
       initialUserVote: userVoteMVP,
     );
-    userVoteMVP = joueurVote;
+    userVoteMVP = result["joueur"];
+
     await _reloadAll();
   }
 
@@ -342,24 +354,28 @@ class _InfosTabState extends State<InfosTab> {
                   )
                 : Column(
                     children: [
-                      MatchRatingCard(
-                        noteMoyenne: widget.match.getNoteMoyenne(),
-                        userVote: userVoteNoteMatch,
-                        onCancelled: (cancelled) async {
-                          if (!cancelled) return;
-                          final uid = FirebaseAuth.instance.currentUser!.uid;
-                          widget.match.enleverNote(userId: uid);
-                          userVoteNoteMatch = 0;
-                          await _reloadAll();
-                        },
-                        onConfirm: (valeurConfirmee) async {
-                          final uid = FirebaseAuth.instance.currentUser!.uid;
-                          widget.match
-                              .noterMatch(userId: uid, note: valeurConfirmee);
-                          userVoteNoteMatch = valeurConfirmee;
-                          await _reloadAll();
-                        },
-                      ),
+                      loadingNote
+                          ? MatchRatingCardShimmer()
+                          : MatchRatingCard(
+                              noteMoyenne: widget.match.getNoteMoyenne(),
+                              userVote: userVoteNoteMatch,
+                              onCancelled: (cancelled) async {
+                                if (!cancelled) return;
+                                final uid =
+                                    FirebaseAuth.instance.currentUser!.uid;
+                                widget.match.enleverNote(userId: uid);
+                                userVoteNoteMatch = 0;
+                                await _reloadAll();
+                              },
+                              onConfirm: (valeurConfirmee) async {
+                                final uid =
+                                    FirebaseAuth.instance.currentUser!.uid;
+                                widget.match.noterMatch(
+                                    userId: uid, note: valeurConfirmee);
+                                userVoteNoteMatch = valeurConfirmee;
+                                await _reloadAll();
+                              },
+                            ),
                       const SizedBox(height: 12),
                       MvpCard(
                         mvp: currentMvp,
