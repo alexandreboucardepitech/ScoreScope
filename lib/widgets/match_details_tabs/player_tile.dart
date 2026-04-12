@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
@@ -50,15 +51,11 @@ Widget playerTile({
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Hero(
-                tag: 'avatar-${joueur.id}',
-                child: CircleAvatar(
-                  radius: 20,
-                  backgroundColor: ColorPalette.pictureBackground(context),
-                  backgroundImage: joueur.picture.startsWith('http')
-                      ? NetworkImage(joueur.picture) as ImageProvider
-                      : AssetImage(joueur.picture),
-                ),
+              CachedNetworkImage(
+                imageUrl: joueur.picture,
+                width: 20,
+                height: 20,
+                fit: BoxFit.cover,
               ),
               const SizedBox(height: 6),
               if (isUserVote)

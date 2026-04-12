@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
@@ -237,12 +238,12 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
             final user = users[index];
             return ListTile(
               leading: CircleAvatar(
-                backgroundImage:
-                    (user.photoUrl != null && user.photoUrl!.isNotEmpty)
-                        ? NetworkImage(user.photoUrl!)
-                        : null,
-                child: (user.photoUrl == null || user.photoUrl!.isEmpty)
-                    ? Text(
+                child: (user.photoUrl != null && user.photoUrl!.isNotEmpty)
+                    ? CachedNetworkImage(
+                        imageUrl: user.photoUrl!,
+                        fit: BoxFit.cover,
+                      )
+                    : Text(
                         (user.displayName.isNotEmpty)
                             ? user.displayName[0].toUpperCase()
                             : '?',
@@ -251,8 +252,7 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
                             context,
                           ),
                         ),
-                      )
-                    : null,
+                      ),
               ),
               title: Text(
                 user.displayName,

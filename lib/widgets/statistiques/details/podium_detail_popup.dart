@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
@@ -327,33 +328,24 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
         ),
         child: Row(
           children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: ColorPalette.border(context),
-                  width: 2,
-                ),
-                shape: BoxShape.circle,
-                color: ColorPalette.border(context),
-                image: widget.user.photoUrl != null
-                    ? DecorationImage(
-                        image: NetworkImage(widget.user.photoUrl!),
+            CircleAvatar(
+              radius: 12,
+              backgroundColor: ColorPalette.border(context),
+              child: widget.user.photoUrl != null
+                  ? ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: widget.user.photoUrl!,
                         fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              alignment: Alignment.center,
-              child: widget.user.photoUrl == null
-                  ? Text(
+                      ),
+                    )
+                  : Text(
                       widget.user.displayName.characters.first.toUpperCase(),
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontWeight: FontWeight.bold,
+                        fontSize: 10,
                       ),
-                    )
-                  : null,
+                    ),
             ),
             SizedBox(width: 4),
             Expanded(
@@ -377,34 +369,25 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
               color: ColorPalette.divider(context),
             ),
             SizedBox(width: 8),
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: ColorPalette.border(context),
-                  width: 2,
-                ),
-                shape: BoxShape.circle,
-                color: ColorPalette.border(context),
-                image: _comparisonUser!.photoUrl != null
-                    ? DecorationImage(
-                        image: NetworkImage(_comparisonUser!.photoUrl!),
+            CircleAvatar(
+              radius: 12,
+              backgroundColor: ColorPalette.border(context),
+              child: _comparisonUser!.photoUrl != null
+                  ? ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: _comparisonUser!.photoUrl!,
                         fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              alignment: Alignment.center,
-              child: _comparisonUser!.photoUrl == null
-                  ? Text(
+                      ),
+                    )
+                  : Text(
                       _comparisonUser!.displayName.characters.first
                           .toUpperCase(),
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontWeight: FontWeight.bold,
+                        fontSize: 10,
                       ),
-                    )
-                  : null,
+                    ),
             ),
             SizedBox(width: 4),
             Expanded(

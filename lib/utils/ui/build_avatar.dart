@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
@@ -18,21 +19,25 @@ Widget buildAvatar({
 }) {
   final picture = player?.picture;
   if (picture != null && picture.isNotEmpty) {
-    final provider = picture.startsWith('http')
-        ? NetworkImage(picture)
-        : AssetImage(picture) as ImageProvider;
     return CircleAvatar(
       radius: radius,
       backgroundColor: ColorPalette.pictureBackground(context),
       child: Padding(
         padding: const EdgeInsets.all(2),
         child: ClipOval(
-          child: Image(
-            image: provider,
-            fit: BoxFit.cover,
-            width: radius * 2,
-            height: radius * 2,
-          ),
+          child: picture.startsWith('http')
+              ? CachedNetworkImage(
+                  imageUrl: picture,
+                  fit: BoxFit.cover,
+                  width: radius * 2,
+                  height: radius * 2,
+                )
+              : Image.asset(
+                  picture,
+                  fit: BoxFit.cover,
+                  width: radius * 2,
+                  height: radius * 2,
+                ),
         ),
       ),
     );

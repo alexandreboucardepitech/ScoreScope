@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/competition.dart';
@@ -102,10 +103,14 @@ class MatchModel implements PodiumDisplayable {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   equipeDomicile.logoPath != null
-                      ? Image.network(
-                          equipeDomicile.logoPath!,
+                      ? CachedNetworkImage(
+                          imageUrl: equipeDomicile.logoPath!,
                           width: logoSize,
                           height: logoSize,
+                          errorWidget: (context, error, stackTrace) => Icon(
+                            Icons.shield,
+                            color: ColorPalette.textPrimary(context),
+                          ),
                           fit: BoxFit.contain,
                         )
                       : Flexible(
@@ -119,11 +124,15 @@ class MatchModel implements PodiumDisplayable {
                         ),
                   const SizedBox(width: 4),
                   equipeExterieur.logoPath != null
-                      ? Image.network(
-                          equipeExterieur.logoPath!,
+                      ? CachedNetworkImage(
+                          imageUrl: equipeExterieur.logoPath!,
                           width: logoSize,
                           height: logoSize,
                           fit: BoxFit.contain,
+                          errorWidget: (context, error, stackTrace) => Icon(
+                            Icons.shield,
+                            color: ColorPalette.textPrimary(context),
+                          ),
                         )
                       : Flexible(
                           child: Text(
@@ -179,8 +188,15 @@ class MatchModel implements PodiumDisplayable {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.network(equipeDomicile.logoPath!,
-                        width: logoSize, height: logoSize),
+                    CachedNetworkImage(
+                      imageUrl: equipeDomicile.logoPath!,
+                      width: logoSize,
+                      height: logoSize,
+                      errorWidget: (context, error, stackTrace) => Icon(
+                        Icons.shield,
+                        color: ColorPalette.textPrimary(context),
+                      ),
+                    ),
                     if (equipeDomicile.code != null)
                       Text(
                         equipeDomicile.code!,
@@ -205,8 +221,15 @@ class MatchModel implements PodiumDisplayable {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.network(equipeExterieur.logoPath!,
-                        width: logoSize, height: logoSize),
+                    CachedNetworkImage(
+                      imageUrl: equipeExterieur.logoPath!,
+                      width: logoSize,
+                      height: logoSize,
+                      errorWidget: (context, error, stackTrace) => Icon(
+                        Icons.shield,
+                        color: ColorPalette.textPrimary(context),
+                      ),
+                    ),
                     if (equipeExterieur.code != null)
                       Text(
                         equipeExterieur.code!,
@@ -254,8 +277,15 @@ class MatchModel implements PodiumDisplayable {
               child: Row(
                 children: [
                   equipeDomicile.logoPath != null
-                      ? Image.network(equipeDomicile.logoPath!,
-                          width: 24, height: 24)
+                      ? CachedNetworkImage(
+                          imageUrl: equipeDomicile.logoPath!,
+                          width: 24,
+                          height: 24,
+                          errorWidget: (context, error, stackTrace) => Icon(
+                            Icons.shield,
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        )
                       : Text(
                           equipeDomicile.code ??
                               equipeDomicile.nomCourt ??
@@ -268,8 +298,15 @@ class MatchModel implements PodiumDisplayable {
                   Text('$scoreEquipeDomicile - $scoreEquipeExterieur'),
                   const SizedBox(width: 4),
                   equipeExterieur.logoPath != null
-                      ? Image.network(equipeExterieur.logoPath!,
-                          width: 24, height: 24)
+                      ? CachedNetworkImage(
+                          imageUrl: equipeExterieur.logoPath!,
+                          width: 24,
+                          height: 24,
+                          errorWidget: (context, error, stackTrace) => Icon(
+                            Icons.shield,
+                            color: ColorPalette.textPrimary(context),
+                          ),
+                        )
                       : Text(
                           equipeExterieur.code ??
                               equipeExterieur.nomCourt ??
@@ -313,11 +350,15 @@ class MatchModel implements PodiumDisplayable {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           equipeDomicile.logoPath != null
-              ? Image.network(
-                  equipeDomicile.logoPath!,
+              ? CachedNetworkImage(
+                  imageUrl: equipeDomicile.logoPath!,
                   width: logoSize,
                   height: logoSize,
                   fit: BoxFit.contain,
+                  errorWidget: (context, error, stackTrace) => Icon(
+                    Icons.shield,
+                    color: ColorPalette.textPrimary(context),
+                  ),
                 )
               : Flexible(
                   child: Text(
@@ -335,11 +376,15 @@ class MatchModel implements PodiumDisplayable {
           ),
           const SizedBox(width: 6),
           equipeExterieur.logoPath != null
-              ? Image.network(
-                  equipeExterieur.logoPath!,
+              ? CachedNetworkImage(
+                  imageUrl: equipeExterieur.logoPath!,
                   width: logoSize,
                   height: logoSize,
                   fit: BoxFit.contain,
+                  errorWidget: (context, error, stackTrace) => Icon(
+                    Icons.shield,
+                    color: ColorPalette.textPrimary(context),
+                  ),
                 )
               : Flexible(
                   child: Text(

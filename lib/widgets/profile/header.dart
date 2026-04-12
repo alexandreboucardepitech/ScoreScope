@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -52,84 +53,40 @@ class Header extends StatefulWidget {
 
 class _HeaderState extends State<Header> {
   bool _hasNotifiedContentReady = false;
-  ImageStreamListener? _imageListener;
 
   @override
   void initState() {
     super.initState();
-    // si une image réseau est présente, on attache un listener pour notifier
-    _maybeListenImage();
+    // Notify that content is ready after the first frame
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _notifyContentReadyOnce());
   }
 
   @override
   void didUpdateWidget(covariant Header oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.user.photoUrl != widget.user.photoUrl) {
-      _removeImageListener();
-      _maybeListenImage();
-    }
-    // on remet _hasNotifiedContentReady à false si le contenu change
+    // Reset notification flag if user changes
     if (oldWidget.user != widget.user) {
       _hasNotifiedContentReady = false;
-    }
-  }
-
-  void _maybeListenImage() {
-    final url = widget.user.photoUrl;
-    if (url == null) {
-      // pas d'image réseau -> notifier après premier frame
       WidgetsBinding.instance
           .addPostFrameCallback((_) => _notifyContentReadyOnce());
-      return;
     }
-
-    final provider = NetworkImage(url);
-    final stream = provider.resolve(const ImageConfiguration());
-    _imageListener = ImageStreamListener((imageInfo, synchronousCall) {
-      // image chargée -> notifier (une seule fois)
-      _notifyContentReadyOnce();
-    }, onError: (error, stackTrace) {
-      // erreur de chargement -> notifier quand même pour permettre la mesure
-      _notifyContentReadyOnce();
-    });
-
-    stream.addListener(_imageListener!);
-  }
-
-  void _removeImageListener() {
-    if (_imageListener == null) return;
-    final url = widget.user.photoUrl;
-    if (url == null) return;
-    final provider = NetworkImage(url);
-    final stream = provider.resolve(const ImageConfiguration());
-    try {
-      stream.removeListener(_imageListener!);
-    } catch (_) {}
-    _imageListener = null;
   }
 
   void _notifyContentReadyOnce() {
     if (_hasNotifiedContentReady) return;
     _hasNotifiedContentReady = true;
-    // notifier après le prochain frame pour s'assurer que le layout est final
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onContentReady?.call();
-    });
+    widget.onContentReady?.call();
   }
 
   @override
   void dispose() {
-    _removeImageListener();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     const double statsLabelHeight = 20;
-
-    // On s'assure de notifier aussi si build est appelé et qu'on n'a pas encore notifié
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _notifyContentReadyOnce());
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -138,20 +95,20 @@ class _HeaderState extends State<Header> {
       children: [
         CircleAvatar(
           radius: 60,
+          backgroundColor: Colors.transparent,
           backgroundImage: widget.user.photoUrl != null
-              ? NetworkImage(widget.user.photoUrl!)
+              ? CachedNetworkImageProvider(widget.user.photoUrl!)
               : null,
-          child: widget.user.photoUrl == null &&
-                  (widget.user.displayName.isNotEmpty)
-              ? Text(
-                  widget.user.displayName.substring(0, 1).toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 36,
-                    color: ColorPalette.textAccent(
-                      context,
-                    ),
-                  ),
-                )
+          child: widget.user.photoUrl == null
+              ? widget.user.displayName.isNotEmpty
+                  ? Text(
+                      widget.user.displayName.substring(0, 1).toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 36,
+                        color: ColorPalette.textAccent(context),
+                      ),
+                    )
+                  : null
               : null,
         ),
         const SizedBox(height: 12),

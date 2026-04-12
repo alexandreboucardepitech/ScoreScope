@@ -3,6 +3,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 Widget buildTeamLogo(
   BuildContext context,
@@ -26,16 +27,20 @@ Widget buildTeamLogo(
     width: size,
     height: size,
     child: path != null
-        ? Image.network(
-            path,
+        ? CachedNetworkImage(
+            imageUrl: path,
             fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => CircleAvatar(
-              radius: 14,
-              child: Icon(Icons.shield, size: 16),
+            errorWidget: (context, error, stackTrace) => Icon(
+              Icons.shield,
+              size: size,
+              color: ColorPalette.textPrimary(context),
             ),
           )
-        : Icon(Icons.shield,
-            size: size, color: ColorPalette.textPrimary(context)),
+        : Icon(
+            Icons.shield,
+            size: size,
+            color: ColorPalette.textPrimary(context),
+          ),
   );
 
   final clickableLogoWidget = InkWell(

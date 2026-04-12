@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/equipe.dart';
@@ -323,9 +324,13 @@ class EquipePrefereeTile extends StatelessWidget {
               SizedBox(
                 width: 32,
                 height: 32,
-                child: Image.network(
-                  equipe.logoPath!,
+                child: CachedNetworkImage(
+                  imageUrl: equipe.logoPath!,
                   fit: BoxFit.contain,
+                  errorWidget: (context, error, stackTrace) => CircleAvatar(
+                    radius: 14,
+                    child: Icon(Icons.shield, size: 16),
+                  ),
                 ),
               )
             else

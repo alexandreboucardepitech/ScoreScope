@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/joueur.dart';
@@ -275,10 +276,10 @@ class _CompositionsTabState extends State<CompositionsTab> {
           child: Row(
             children: [
               if (logoUrl != null)
-                CircleAvatar(
-                  radius: 14,
-                  backgroundImage: NetworkImage(logoUrl),
-                  backgroundColor: Colors.transparent,
+                CachedNetworkImage(
+                  imageUrl: logoUrl,
+                  width: 32,
+                  height: 32,
                 ),
               const SizedBox(width: 10),
               Text(

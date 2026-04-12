@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -413,8 +414,6 @@ class FriendListItem extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: CircleAvatar(
         backgroundColor: ColorPalette.pictureBackground(context),
-        backgroundImage:
-            user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
         child: user.photoUrl == null
             ? Text(
                 user.displayName[0].toUpperCase(),
@@ -423,7 +422,9 @@ class FriendListItem extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               )
-            : null,
+            : CachedNetworkImage(
+                imageUrl: user.photoUrl!,
+              ),
       ),
       title: Text(
         user.displayName,

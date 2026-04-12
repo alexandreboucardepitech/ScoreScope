@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'onboarding.dart';
@@ -364,14 +365,6 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Widget _buildMainContent() {
-    ImageProvider? imageProvider;
-
-    if (_profilePicture != null && _photoRemoved == false) {
-      imageProvider = FileImage(_profilePicture!);
-    } else if (widget.user.photoUrl != null && _photoRemoved == false) {
-      imageProvider = NetworkImage(widget.user.photoUrl!);
-    }
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -385,17 +378,28 @@ class _EditProfileViewState extends State<EditProfileView> {
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: ColorPalette.pictureBackground(context),
-                    backgroundImage: imageProvider,
-                    child: imageProvider == null
-                        ? Text(
-                            '+',
-                            style: TextStyle(
-                              color: ColorPalette.textSecondary(context),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 32,
+                    child: _profilePicture != null && _photoRemoved == false
+                        ? ClipOval(
+                            child: Image.file(
+                              _profilePicture!,
+                              fit: BoxFit.cover,
                             ),
                           )
-                        : null,
+                        : widget.user.photoUrl != null && _photoRemoved == false
+                            ? ClipOval(
+                                child: CachedNetworkImage(
+                                  imageUrl: widget.user.photoUrl!,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Text(
+                                '+',
+                                style: TextStyle(
+                                  color: ColorPalette.textSecondary(context),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 32,
+                                ),
+                              ),
                   ),
                 ),
 
@@ -423,7 +427,6 @@ class _EditProfileViewState extends State<EditProfileView> {
                     ),
                   ),
 
-                // bouton delete
                 if ((_profilePicture != null || widget.user.photoUrl != null) &&
                     _photoRemoved == false)
                   Positioned(

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
@@ -120,26 +121,17 @@ class _FriendsComparisonBottomSheetState
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Row(
                             children: [
-                              // Avatar
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: ColorPalette.border(context),
-                                      width: 2),
-                                  shape: BoxShape.circle,
-                                  color: ColorPalette.border(context),
-                                  image: user.photoUrl != null
-                                      ? DecorationImage(
-                                          image: NetworkImage(user.photoUrl!),
+                              CircleAvatar(
+                                radius: 18,
+                                backgroundColor: ColorPalette.border(context),
+                                child: user.photoUrl != null
+                                    ? ClipOval(
+                                        child: CachedNetworkImage(
+                                          imageUrl: user.photoUrl!,
                                           fit: BoxFit.cover,
-                                        )
-                                      : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: user.photoUrl == null
-                                    ? Text(
+                                        ),
+                                      )
+                                    : Text(
                                         user.displayName.characters.first
                                             .toUpperCase(),
                                         style: TextStyle(
@@ -147,8 +139,7 @@ class _FriendsComparisonBottomSheetState
                                               ColorPalette.textPrimary(context),
                                           fontWeight: FontWeight.bold,
                                         ),
-                                      )
-                                    : null,
+                                      ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(

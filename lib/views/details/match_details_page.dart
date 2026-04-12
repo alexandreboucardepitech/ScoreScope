@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -619,12 +620,20 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                      width: 48,
-                                      height: 48,
-                                      child: Image.network(
-                                          _currentMatch
-                                              .equipeDomicile.logoPath!,
-                                          fit: BoxFit.contain)),
+                                    width: 48,
+                                    height: 48,
+                                    child: CachedNetworkImage(
+                                      imageUrl: _currentMatch
+                                          .equipeDomicile.logoPath!,
+                                      fit: BoxFit.contain,
+                                      errorWidget:
+                                          (context, error, stackTrace) => Icon(
+                                        Icons.shield,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
+                                    ),
+                                  ),
                                   const SizedBox(height: 6),
                                   FittedBox(
                                     fit: BoxFit.scaleDown,
@@ -696,12 +705,20 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                      width: 48,
-                                      height: 48,
-                                      child: Image.network(
-                                          _currentMatch
-                                              .equipeExterieur.logoPath!,
-                                          fit: BoxFit.contain)),
+                                    width: 48,
+                                    height: 48,
+                                    child: CachedNetworkImage(
+                                      imageUrl: _currentMatch
+                                          .equipeExterieur.logoPath!,
+                                      fit: BoxFit.contain,
+                                      errorWidget:
+                                          (context, error, stackTrace) => Icon(
+                                        Icons.shield,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
+                                    ),
+                                  ),
                                   const SizedBox(height: 6),
                                   FittedBox(
                                     fit: BoxFit.scaleDown,

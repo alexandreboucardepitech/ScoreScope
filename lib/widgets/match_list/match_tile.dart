@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
@@ -323,11 +324,11 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                 shape: BoxShape.circle,
                               ),
                               padding: const EdgeInsets.all(6),
-                              child: Image.network(
-                                match.competition.logoUrl ??
+                              child: CachedNetworkImage(
+                                imageUrl: match.competition.logoUrl ??
                                     'https://media.api-sports.io/football/leagues/1.png',
                                 fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) =>
+                                errorWidget: (context, error, stackTrace) =>
                                     CircleAvatar(
                                   radius: 14,
                                   child: Icon(Icons.emoji_events, size: 16),

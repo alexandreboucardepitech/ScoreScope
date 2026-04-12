@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/competition.dart';
@@ -315,10 +316,18 @@ class CompetitionPrefereeTile extends StatelessWidget {
           children: [
             if (competition.logoUrl != null)
               SizedBox(
-                  width: 32,
-                  height: 32,
-                  child:
-                      Image.network(competition.logoUrl!, fit: BoxFit.contain))
+                width: 32,
+                height: 32,
+                child: CachedNetworkImage(
+                  imageUrl: competition.logoUrl!,
+                  fit: BoxFit.contain,
+                  errorWidget: (context, error, stackTrace) => const SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: Icon(Icons.shield, size: 16),
+                  ),
+                ),
+              )
             else
               CircleAvatar(radius: 14, child: Icon(Icons.shield, size: 16)),
             const SizedBox(width: 12),

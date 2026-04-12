@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/post/commentaire.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -84,22 +85,17 @@ class CommentsPreview extends StatelessWidget {
                             await onProfileUpdated();
                           }
                         },
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: ColorPalette.border(context),
-                            image: userCache[c.authorId]?.photoUrl != null
-                                ? DecorationImage(
-                                    image: NetworkImage(
-                                        userCache[c.authorId]!.photoUrl!),
-                                    fit: BoxFit.cover)
-                                : null,
-                          ),
-                          alignment: Alignment.center,
-                          child: userCache[c.authorId]?.photoUrl == null
-                              ? Text(
+                        child: CircleAvatar(
+                          radius: 14,
+                          backgroundColor: ColorPalette.border(context),
+                          child: userCache[c.authorId]?.photoUrl != null
+                              ? ClipOval(
+                                  child: CachedNetworkImage(
+                                    imageUrl: userCache[c.authorId]!.photoUrl!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Text(
                                   (userCache[c.authorId]
                                               ?.displayName
                                               .isNotEmpty ==
@@ -111,10 +107,10 @@ class CommentsPreview extends StatelessWidget {
                                           ? c.authorId[0].toUpperCase()
                                           : '?'),
                                   style: TextStyle(
-                                      color: ColorPalette.textPrimary(context),
-                                      fontWeight: FontWeight.bold),
-                                )
-                              : null,
+                                    color: ColorPalette.textPrimary(context),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(width: 8),

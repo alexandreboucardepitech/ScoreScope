@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -649,36 +650,27 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
   }
 
   Widget _avatarCircle(AppUser? user, {double size = _avatarSize}) {
-    if (user != null && user.photoUrl != null && user.photoUrl!.isNotEmpty) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          image: DecorationImage(
-              image: NetworkImage(user.photoUrl!), fit: BoxFit.cover),
-          border: Border.all(color: ColorPalette.border(context), width: 1),
-        ),
-      );
-    }
     final initial = (user?.displayName.isNotEmpty == true)
         ? user!.displayName[0].toUpperCase()
         : '?';
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: ColorPalette.border(context),
-        border: Border.all(color: ColorPalette.border(context), width: 1),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        initial,
-        style: TextStyle(
-            color: ColorPalette.textPrimary(context),
-            fontWeight: FontWeight.bold),
-      ),
+
+    return CircleAvatar(
+      radius: size / 2,
+      backgroundColor: ColorPalette.border(context),
+      child: user != null && user.photoUrl != null && user.photoUrl!.isNotEmpty
+          ? ClipOval(
+              child: CachedNetworkImage(
+                imageUrl: user.photoUrl!,
+                fit: BoxFit.cover,
+              ),
+            )
+          : Text(
+              initial,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
     );
   }
 }

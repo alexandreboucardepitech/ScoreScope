@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/equipe.dart';
@@ -33,8 +34,10 @@ class ResultatsRecherche extends StatelessWidget {
                 ? SizedBox(
                     width: 32,
                     height: 32,
-                    child: Image.network(match.competition.logoUrl!,
-                        fit: BoxFit.contain),
+                    child: CachedNetworkImage(
+                      imageUrl: match.competition.logoUrl!,
+                      fit: BoxFit.contain,
+                    ),
                   )
                 : const Icon(Icons.sports_soccer),
             title: Text(
@@ -102,8 +105,10 @@ class ResultatsRecherche extends StatelessWidget {
                 ? SizedBox(
                     width: 32,
                     height: 32,
-                    child: Image.network(competition.logoUrl!,
-                        fit: BoxFit.contain),
+                    child: CachedNetworkImage(
+                      imageUrl: competition.logoUrl!,
+                      fit: BoxFit.contain,
+                    ),
                   )
                 : const Icon(Icons.emoji_events_outlined),
             title: Text(
@@ -125,12 +130,9 @@ class ResultatsRecherche extends StatelessWidget {
             leading: SizedBox(
               width: 32,
               height: 32,
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: ColorPalette.pictureBackground(context),
-                backgroundImage: joueur.picture.startsWith('http')
-                    ? NetworkImage(joueur.picture) as ImageProvider
-                    : AssetImage(joueur.picture),
+              child: CachedNetworkImage(
+                imageUrl: joueur.picture,
+                fit: BoxFit.cover,
               ),
             ),
             title: Text(

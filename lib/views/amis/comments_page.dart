@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match_user_data.dart';
@@ -239,29 +240,23 @@ class _CommentsPageState extends State<CommentsPage> {
                 await _refreshCommentsAndReactions();
               }
             },
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: ColorPalette.border(context),
-                image: user?.photoUrl != null
-                    ? DecorationImage(
-                        image: NetworkImage(user!.photoUrl!),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: ColorPalette.border(context),
+              child: user?.photoUrl != null
+                  ? ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: user!.photoUrl!,
                         fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              alignment: Alignment.center,
-              child: user?.photoUrl == null
-                  ? Text(
+                      ),
+                    )
+                  : Text(
                       user?.displayName.characters.first.toUpperCase() ?? '?',
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontWeight: FontWeight.bold,
                       ),
-                    )
-                  : null,
+                    ),
             ),
           ),
           const SizedBox(width: 8),

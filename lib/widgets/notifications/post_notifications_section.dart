@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -468,8 +469,6 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
         child: CircleAvatar(
           radius: radius,
           backgroundColor: ColorPalette.pictureBackground(context),
-          backgroundImage:
-              user?.photoUrl != null ? NetworkImage(user!.photoUrl!) : null,
           child: user?.photoUrl == null
               ? Text(
                   user?.displayName.characters.first.toUpperCase() ?? '?',
@@ -477,7 +476,10 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
                     color: ColorPalette.textPrimary(context),
                   ),
                 )
-              : null,
+              : CachedNetworkImage(
+                  imageUrl: user!.photoUrl!,
+                  fit: BoxFit.cover,
+                ),
         ),
       ),
     );
@@ -591,11 +593,16 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
       return const SizedBox(width: 24, height: 24);
     }
 
-    return Image.network(
-      url,
+    return CachedNetworkImage(
+      imageUrl: url,
       width: 24,
       height: 24,
       fit: BoxFit.contain,
+      errorWidget: (context, error, stackTrace) => const SizedBox(
+        width: 24,
+        height: 24,
+        child: Icon(Icons.shield, size: 16),
+      ),
     );
   }
 }

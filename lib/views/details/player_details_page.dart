@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/equipe.dart';
@@ -294,8 +295,8 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                 shape: BoxShape.circle,
               ),
               child: ClipOval(
-                child: Image.network(
-                  _joueur!.picture,
+                child: CachedNetworkImage(
+                  imageUrl: _joueur!.picture,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -347,8 +348,18 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                                             SizedBox(
                                               width: 20,
                                               height: 20,
-                                              child: Image.network(
-                                                _equipe!.logoPath!,
+                                              child: CachedNetworkImage(
+                                                imageUrl: _equipe!.logoPath!,
+                                                fit: BoxFit.contain,
+                                                errorWidget: (context, error,
+                                                        stackTrace) =>
+                                                    Icon(
+                                                  Icons.shield,
+                                                  size: 20,
+                                                  color:
+                                                      ColorPalette.textPrimary(
+                                                          context),
+                                                ),
                                               ),
                                             ),
                                             const SizedBox(width: 4),
@@ -384,8 +395,17 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                                     SizedBox(
                                       width: 20,
                                       height: 20,
-                                      child: Image.network(
-                                        _country!.logoPath!,
+                                      child: CachedNetworkImage(
+                                        imageUrl: _country!.logoPath!,
+                                        fit: BoxFit.contain,
+                                        errorWidget:
+                                            (context, error, stackTrace) =>
+                                                Icon(
+                                          Icons.shield,
+                                          size: 20,
+                                          color:
+                                              ColorPalette.textPrimary(context),
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 6),

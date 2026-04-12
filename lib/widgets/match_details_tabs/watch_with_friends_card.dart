@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
@@ -36,12 +37,12 @@ class WatchWithFriendsCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(2),
           child: ClipOval(
-            child: Image.network(
-              photo,
+            child: CachedNetworkImage(
+              imageUrl: photo,
               fit: BoxFit.cover,
               width: 36,
               height: 36,
-              errorBuilder: (_, __, ___) => _fallbackAvatar(context, user),
+              errorWidget: (_, __, ___) => _fallbackAvatar(context, user),
             ),
           ),
         ),

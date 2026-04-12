@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repository_provider.dart';
@@ -224,7 +225,14 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
         ),
         padding: const EdgeInsets.all(6),
         child: team.logoPath != null
-            ? Image.network(team.logoPath!, fit: BoxFit.contain)
+            ? CachedNetworkImage(
+                imageUrl: team.logoPath!,
+                fit: BoxFit.contain,
+                errorWidget: (context, error, stackTrace) => Icon(
+                  Icons.shield,
+                  color: ColorPalette.textSecondary(context),
+                ),
+              )
             : Icon(
                 Icons.shield,
                 color: ColorPalette.textSecondary(context),

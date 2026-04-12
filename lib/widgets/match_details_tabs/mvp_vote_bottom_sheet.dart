@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/utils/handle_data/get_joueurs_tries_par_nombre_de_votes.dart';
@@ -112,11 +113,18 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                   radius: 28,
                                   backgroundColor:
                                       ColorPalette.pictureBackground(context),
-                                  backgroundImage: currentUserVote!.picture
-                                          .startsWith('http')
-                                      ? NetworkImage(currentUserVote!.picture)
-                                          as ImageProvider
-                                      : AssetImage(currentUserVote!.picture),
+                                  child: ClipOval(
+                                    child: currentUserVote!.picture
+                                            .startsWith('http')
+                                        ? CachedNetworkImage(
+                                            imageUrl: currentUserVote!.picture,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.asset(
+                                            currentUserVote!.picture,
+                                            fit: BoxFit.cover,
+                                          ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 12),

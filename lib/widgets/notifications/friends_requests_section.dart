@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
@@ -156,8 +157,6 @@ class FriendRequestsSection extends StatelessWidget {
       child: CircleAvatar(
         radius: 18,
         backgroundColor: ColorPalette.pictureBackground(context),
-        backgroundImage:
-            user?.photoUrl != null ? NetworkImage(user!.photoUrl!) : null,
         child: user?.photoUrl == null
             ? Text(
                 user?.displayName.characters.first.toUpperCase() ?? '?',
@@ -165,7 +164,10 @@ class FriendRequestsSection extends StatelessWidget {
                   color: ColorPalette.textPrimary(context),
                 ),
               )
-            : null,
+            : CachedNetworkImage(
+                imageUrl: user!.photoUrl!,
+                fit: BoxFit.cover,
+              ),
       ),
     );
   }

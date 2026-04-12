@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/watch_together/friend_item.dart';
@@ -106,10 +107,6 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
 
                           return ListTile(
                             leading: CircleAvatar(
-                              backgroundImage: (item.user.photoUrl != null &&
-                                      item.user.photoUrl!.isNotEmpty)
-                                  ? NetworkImage(item.user.photoUrl!)
-                                  : null,
                               child: (item.user.photoUrl == null ||
                                       item.user.photoUrl!.isEmpty)
                                   ? Text(
@@ -123,7 +120,10 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
                                         ),
                                       ),
                                     )
-                                  : null,
+                                  : CachedNetworkImage(
+                                      imageUrl: item.user.photoUrl!,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                             title: Row(
                               children: [

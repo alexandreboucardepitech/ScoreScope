@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
@@ -223,9 +224,21 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
       ),
       child: ClipOval(
         child: user.photoUrl != null
-            ? Image.network(
-                user.photoUrl!,
+            ? CachedNetworkImage(
+                imageUrl: user.photoUrl!,
                 fit: BoxFit.cover,
+                errorWidget: (context, error, stackTrace) => Center(
+                  child: Text(
+                    user.displayName.isNotEmpty
+                        ? user.displayName[0].toUpperCase()
+                        : '?',
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(context),
+                      fontWeight: FontWeight.w800,
+                      fontSize: size * 0.45,
+                    ),
+                  ),
+                ),
               )
             : Center(
                 child: Text(
@@ -431,10 +444,19 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (home.logoPath != null)
-                                    Image.network(home.logoPath!,
-                                        width: 36,
-                                        height: 36,
-                                        fit: BoxFit.contain),
+                                    CachedNetworkImage(
+                                      imageUrl: home.logoPath!,
+                                      width: 36,
+                                      height: 36,
+                                      fit: BoxFit.contain,
+                                      errorWidget:
+                                          (context, error, stackTrace) => Icon(
+                                        Icons.shield,
+                                        size: 20,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
+                                    ),
                                   const SizedBox(height: 4),
                                   FittedBox(
                                     fit: BoxFit.scaleDown,
@@ -481,10 +503,19 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (away.logoPath != null)
-                                    Image.network(away.logoPath!,
-                                        width: 36,
-                                        height: 36,
-                                        fit: BoxFit.contain),
+                                    CachedNetworkImage(
+                                      imageUrl: away.logoPath!,
+                                      errorWidget:
+                                          (context, error, stackTrace) => Icon(
+                                        Icons.shield,
+                                        size: 20,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
+                                      width: 36,
+                                      height: 36,
+                                      fit: BoxFit.contain,
+                                    ),
                                   const SizedBox(height: 4),
                                   FittedBox(
                                     fit: BoxFit.scaleDown,

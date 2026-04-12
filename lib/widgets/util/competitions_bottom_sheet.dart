@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/services/repository_provider.dart';
@@ -166,7 +167,10 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
         ),
         padding: const EdgeInsets.all(6),
         child: comp.logoUrl != null
-            ? Image.network(comp.logoUrl!, fit: BoxFit.contain)
+            ? CachedNetworkImage(
+                imageUrl: comp.logoUrl!,
+                fit: BoxFit.contain,
+              )
             : Icon(
                 Icons.emoji_events,
                 color: ColorPalette.textSecondary(context),

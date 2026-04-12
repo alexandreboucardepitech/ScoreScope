@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scorescope/models/but.dart';
@@ -343,8 +344,14 @@ class _AddMatchViewState extends State<AddMatchView> {
                 SizedBox(
                   width: 32,
                   height: 32,
-                  child:
-                      Image.network(suggestion.logoPath!, fit: BoxFit.contain),
+                  child: CachedNetworkImage(
+                    imageUrl: suggestion.logoPath!,
+                    fit: BoxFit.contain,
+                    errorWidget: (context, error, stackTrace) => Icon(
+                      Icons.shield,
+                      color: ColorPalette.textPrimary(context),
+                    ),
+                  ),
                 ),
             ],
           ),

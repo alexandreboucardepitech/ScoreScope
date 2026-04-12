@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
@@ -38,15 +39,15 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
             ),
             child: circleImage
                 ? ClipOval(
-                    child: Image.network(
-                      displayImage!,
+                    child: CachedNetworkImage(
+                      imageUrl: displayImage!,
                       width: 32,
                       height: 32,
                       fit: BoxFit.cover,
                     ),
                   )
-                : Image.network(
-                    displayImage!,
+                : CachedNetworkImage(
+                    imageUrl: displayImage!,
                     width: 32,
                     height: 32,
                     fit: BoxFit.contain,
@@ -145,15 +146,15 @@ abstract class BasicPodiumDisplayable implements PodiumDisplayable {
             ),
             child: circleImage
                 ? ClipOval(
-                    child: Image.network(
-                      displayImage!,
+                    child: CachedNetworkImage(
+                      imageUrl: displayImage!,
                       width: 32,
                       height: 32,
                       fit: BoxFit.cover,
                     ),
                   )
-                : Image.network(
-                    displayImage!,
+                : CachedNetworkImage(
+                    imageUrl: displayImage!,
                     width: 32,
                     height: 32,
                     fit: BoxFit.contain,
