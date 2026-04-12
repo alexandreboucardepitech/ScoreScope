@@ -51,11 +51,12 @@ Widget playerTile({
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CachedNetworkImage(
-                imageUrl: joueur.picture,
-                width: 20,
-                height: 20,
-                fit: BoxFit.cover,
+              ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: joueur.picture,
+                  width: 42,
+                  height: 42,
+                ),
               ),
               const SizedBox(height: 6),
               if (isUserVote)

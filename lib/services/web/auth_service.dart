@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorescope/services/web/firestore_service.dart';
 
@@ -112,15 +113,23 @@ class AuthService {
             'GoogleSignIn.authenticate() is not supported on this platform');
       }
 
-      final GoogleSignInAccount googleUser = await _googleSignIn
-          .authenticate(scopeHint: ['email', 'openid', 'profile']);
+      GoogleSignInAccount? googleUser;
+      try {
+        googleUser = await _googleSignIn.authenticate(
+          scopeHint: ['email', 'openid', 'profile'],
+        );
+      } on GoogleSignInException catch (_) {
+        return null;
+      } catch (e) {
+        return null;
+      }
 
       final authClient = _googleSignIn.authorizationClient;
       final authorization = await authClient
           .authorizationForScopes(['email', 'openid', 'profile']);
 
       final String? accessToken = authorization?.accessToken;
-      final googleAuth = googleUser.authentication;
+      final googleAuth = await googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       if (accessToken == null && idToken == null) {
@@ -147,11 +156,15 @@ class AuthService {
       return userCredential.user;
     } on GoogleSignInException catch (e) {
       if (e.code == GoogleSignInExceptionCode.canceled) {
-        // 👈 silence total → UX normale
         return null;
       }
-
       print("Google Sign-In error: $e");
+      return null;
+    } on PlatformException catch (e) {
+      if (e.code == 'canceled' || e.code == 'sign_in_canceled') {
+        return null;
+      }
+      print("PlatformException during Google Sign-In: $e");
       return null;
     } catch (e, st) {
       print("Unexpected error: $e\n$st");

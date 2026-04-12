@@ -61,7 +61,7 @@ class _SignUpViewState extends State<SignUpView> {
           ),
         ),
         content: Text(
-          "Un email de confirmation a été envoyé.\n\nClique sur le lien avant de te connecter.",
+          "Un email de confirmation a été envoyé.\nClique sur le lien avant de te connecter.\n\nAttention, pense à vérifier tes spams !",
           style: TextStyle(
             color: ColorPalette.textSecondary(context),
           ),
