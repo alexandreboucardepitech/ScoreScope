@@ -258,13 +258,12 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Text(
                               widget.match.equipeDomicile.nom,
@@ -275,42 +274,14 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                               ),
                             ),
                           ),
-                          const Divider(height: 1),
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: joueursDomicileTries.length,
-                              separatorBuilder: (_, __) =>
-                                  const Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                final player = joueursDomicileTries[index];
-                                if (player.joueur != null) {
-                                  return playerTile(
-                                    joueur: player.joueur!,
-                                    onTap: () => selectPlayer(player.joueur!),
-                                    isUserVote: false,
-                                    context: context,
-                                    match: widget.match,
-                                    initialUserVote: widget.initialUserVote,
-                                    currentUserVote: currentUserVote,
-                                  );
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 1,
-                      height: double.infinity,
-                      color: ColorPalette.surface(context),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
+                        ),
+                        Container(
+                          width: 1,
+                          height: 30,
+                          color: ColorPalette.surface(context),
+                        ),
+                        Expanded(
+                          child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Text(
                               widget.match.equipeExterieur.nom,
@@ -321,30 +292,63 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                               ),
                             ),
                           ),
-                          const Divider(height: 1),
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: joueursExterieurTries.length,
-                              separatorBuilder: (_, __) =>
-                                  const Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                final player = joueursExterieurTries[index];
-                                if (player.joueur != null) {
-                                  return playerTile(
-                                    joueur: player.joueur!,
-                                    onTap: () => selectPlayer(player.joueur!),
-                                    isUserVote: false,
-                                    context: context,
-                                    match: widget.match,
-                                    initialUserVote: widget.initialUserVote,
-                                    currentUserVote: currentUserVote,
-                                  );
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 1),
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: [
+                          joueursDomicileTries.length,
+                          joueursExterieurTries.length,
+                        ].reduce((a, b) => a > b ? a : b),
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final playerHome = index < joueursDomicileTries.length
+                              ? joueursDomicileTries[index].joueur
+                              : null;
+
+                          final playerAway =
+                              index < joueursExterieurTries.length
+                                  ? joueursExterieurTries[index].joueur
+                                  : null;
+
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: playerHome != null
+                                    ? playerTile(
+                                        joueur: playerHome,
+                                        onTap: () => selectPlayer(playerHome),
+                                        isUserVote: false,
+                                        context: context,
+                                        match: widget.match,
+                                        initialUserVote: widget.initialUserVote,
+                                        currentUserVote: currentUserVote,
+                                      )
+                                    : const SizedBox(),
+                              ),
+                              Container(
+                                width: 1,
+                                height: 60,
+                                color: ColorPalette.border(context),
+                              ),
+                              Expanded(
+                                child: playerAway != null
+                                    ? playerTile(
+                                        joueur: playerAway,
+                                        onTap: () => selectPlayer(playerAway),
+                                        isUserVote: false,
+                                        context: context,
+                                        match: widget.match,
+                                        initialUserVote: widget.initialUserVote,
+                                        currentUserVote: currentUserVote,
+                                      )
+                                    : const SizedBox(),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],

@@ -128,7 +128,9 @@ class WebAppUserRepository implements IAppUserRepository {
     final matchsCollection = FirebaseFirestore.instance.collection('matchs');
 
     for (var doc in matchUserDataSnapshot.docs) {
-      if (onlyPublic && (doc.data()['private'] == true)) {
+      if ((onlyPublic && (doc.data()['private'] == true)) ||
+          !doc.data().containsKey('watchedAt') ||
+          doc.data()['watchedAt'] == null) {
         continue;
       }
       final matchId = doc.data()['matchId'] as String?;
