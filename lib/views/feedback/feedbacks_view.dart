@@ -18,17 +18,6 @@ class _FeedbacksViewState extends State<FeedbacksView> {
   bool _isSending = false;
 
   @override
-  void initState() {
-    super.initState();
-    _titleController.addListener(_onTextChanged);
-    _detailController.addListener(_onTextChanged);
-  }
-
-  void _onTextChanged() {
-    setState(() {});
-  }
-
-  @override
   void dispose() {
     _titleController.dispose();
     _detailController.dispose();
@@ -39,6 +28,35 @@ class _FeedbacksViewState extends State<FeedbacksView> {
     return _titleController.text.trim().isNotEmpty &&
         _detailController.text.trim().isNotEmpty &&
         !_isSending;
+  }
+
+  Future<void> _send() async {
+    setState(() => _isSending = true);
+
+    final AppUser? user =
+        await RepositoryProvider.userRepository.getCurrentUser();
+
+    await RepositoryProvider.utilsRepository.addFeedback(
+      title: _titleController.text.trim(),
+      detail: _detailController.text.trim(),
+      userId: user?.uid,
+    );
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    _titleController.clear();
+    _detailController.clear();
+
+    if (!mounted) return;
+
+    setState(() => _isSending = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Feedback envoyé ! Merci pour ton retour !'),
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 
   @override
@@ -64,6 +82,7 @@ class _FeedbacksViewState extends State<FeedbacksView> {
         iconTheme: IconThemeData(color: ColorPalette.textPrimary(context)),
       ),
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,14 +104,11 @@ class _FeedbacksViewState extends State<FeedbacksView> {
               ),
             ),
             const SizedBox(height: 24),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Titre',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: ColorPalette.textSecondary(context),
-                ),
+            Text(
+              'Titre',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: ColorPalette.textSecondary(context),
               ),
             ),
             const SizedBox(height: 6),
@@ -126,19 +142,18 @@ class _FeedbacksViewState extends State<FeedbacksView> {
               ),
             ),
             const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Détail',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: ColorPalette.textSecondary(context),
-                ),
+            Text(
+              'Détail',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: ColorPalette.textSecondary(context),
               ),
             ),
             const SizedBox(height: 6),
             TextField(
               controller: _detailController,
+              minLines: 6,
+              maxLines: 10,
               maxLength: 500,
               style: TextStyle(color: ColorPalette.textPrimary(context)),
               decoration: InputDecoration(
@@ -168,64 +183,47 @@ class _FeedbacksViewState extends State<FeedbacksView> {
               ),
             ),
             const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _canSend
-                    ? () async {
-                        setState(() => _isSending = true);
+            ValueListenableBuilder(
+              valueListenable: _titleController,
+              builder: (context, _, __) {
+                return ValueListenableBuilder(
+                  valueListenable: _detailController,
+                  builder: (context, _, __) {
+                    final canSend = _canSend;
 
-                        final AppUser? user = await RepositoryProvider
-                            .userRepository
-                            .getCurrentUser();
-
-                        await RepositoryProvider.utilsRepository.addFeedback(
-                          title: _titleController.text.trim(),
-                          detail: _detailController.text.trim(),
-                          userId: user?.uid,
-                        );
-
-                        // Petit délai pour UX smooth
-                        await Future.delayed(const Duration(milliseconds: 300));
-
-                        // Clear inputs
-                        _titleController.clear();
-                        _detailController.clear();
-
-                        setState(() => _isSending = false);
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Feedback envoyé ! Merci pour ton retour !',
-                            ),
-                            duration: const Duration(seconds: 1),
+                    return SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: canSend ? _send : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorPalette.accent(context),
+                          disabledBackgroundColor:
+                              ColorPalette.buttonDisabled(context),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        );
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorPalette.accent(context),
-                  disabledBackgroundColor: ColorPalette.buttonDisabled(context),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: _isSending
-                    ? SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: ColorPalette.textPrimary(context),
                         ),
-                      )
-                    : const Text(
-                        "Envoyer",
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        child: _isSending
+                            ? SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: ColorPalette.textPrimary(context),
+                                ),
+                              )
+                            : const Text(
+                                "Envoyer",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
-              ),
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
