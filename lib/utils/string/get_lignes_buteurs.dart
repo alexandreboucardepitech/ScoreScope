@@ -26,7 +26,15 @@ List<ButeurLine> getLignesButeurs({
     }
 
     if (minute != "-1") {
-      butsMap[but.buteur]!.add(minute);
+      String suffix = "";
+
+      if (but.typeBut == TypeBut.owngoal) {
+        suffix = " (CSC)";
+      } else if (but.typeBut == TypeBut.penalty) {
+        suffix = " (Pen)";
+      }
+
+      butsMap[but.buteur]!.add("$minute'$suffix");
     }
   }
 
@@ -39,10 +47,10 @@ List<ButeurLine> getLignesButeurs({
     if (minutesList.isEmpty) {
       display = fullName ? joueur.fullName : joueur.shortName;
     } else {
-      final minutes = minutesList.map((m) => "$m'").join(", ");
-      display = domicile
-          ? "${fullName ? joueur.fullName : joueur.shortName} $minutes"
-          : "$minutes ${fullName ? joueur.fullName : joueur.shortName}";
+      final minutes = minutesList.join(", ");
+      final name = fullName ? joueur.fullName : joueur.shortName;
+
+      display = domicile ? "$name $minutes" : "$minutes $name";
     }
 
     return ButeurLine(

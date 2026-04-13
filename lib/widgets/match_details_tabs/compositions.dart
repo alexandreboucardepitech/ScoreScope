@@ -7,6 +7,7 @@ import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/handle_data/get_joueurs_tries_par_nombre_de_votes.dart';
 import 'package:scorescope/utils/handle_data/open_bottom_sheet_and_vote_mvp.dart';
+import 'package:scorescope/utils/images/getButIcon.dart';
 import 'package:scorescope/utils/ui/build_avatar.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
@@ -411,7 +412,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Widget _buildStatBadge(
     BuildContext context, {
-    required IconData icon,
+    required Icon icon,
     required int value,
     bool isHighlighted = false,
   }) {
@@ -426,11 +427,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 10,
-            color: ColorPalette.textPrimary(context),
-          ),
+          icon,
           const SizedBox(width: 2),
           Text(
             value.toString(),
@@ -507,7 +504,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   right: -10,
                   child: _buildStatBadge(
                     context,
-                    icon: Icons.sports_soccer,
+                    icon: getButIcon(joueur!.id, widget.match, context),
                     value: widget.match.getPlayerNbButs(joueur!.id),
                     isHighlighted: true,
                   ),
@@ -519,7 +516,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   left: -10,
                   child: _buildStatBadge(
                     context,
-                    icon: Icons.adjust,
+                    icon: Icon(
+                      Icons.adjust,
+                      size: 10,
+                      color: ColorPalette.textPrimary(context),
+                    ),
                     value: widget.match.getPlayerNbPassesDe(joueur!.id),
                     isHighlighted: true,
                   ),
@@ -529,7 +530,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                 right: -10,
                 child: _buildStatBadge(
                   context,
-                  icon: Icons.star,
+                  icon: Icon(
+                    Icons.star,
+                    size: 10,
+                    color: ColorPalette.textPrimary(context),
+                  ),
                   value: widget.nbVotes,
                   isHighlighted: widget.match.mvpVotes[user?.uid] == joueur?.id,
                 ),

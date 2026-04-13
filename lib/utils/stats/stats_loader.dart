@@ -27,6 +27,7 @@ class StatsLoader {
       final List<But> butsDuMatch =
           match.butsEquipeDomicile + match.butsEquipeExterieur;
       for (var but in butsDuMatch) {
+        if (but.typeBut == TypeBut.owngoal) continue;
         final id = but.buteur.id;
         countById[id] = (countById[id] ?? 0) + 1;
         joueurById[id] = but.buteur;
