@@ -341,7 +341,6 @@ exports.fetchLineups = onSchedule(
                   dateNaissance: player.birth?.date || null,
                   nationalite: player.nationality || null,
                   picture: player.photo || null,
-                  createdAt: new Date(),
                 };
 
                 await db.collection("joueurs").doc(joueurId).set(joueurObj);
@@ -419,7 +418,9 @@ exports.updateLiveMatches = onSchedule(
 
               nbMatchsUpdated++;
 
-              if (hasScoreChanged || hasStatusChanged) {
+              if (hasScoreChanged || hasStatusChanged ||
+                data.butsEquipeDomicile.length != data.scoreEquipeDomicile ||
+                data.butsEquipeExterieur.length != data.scoreEquipeExterieur) {
                 console.log("🔄 Update match :", matchId);
 
                 let butsEquipeDomicile = data.butsEquipeDomicile || [];
