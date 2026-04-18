@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
@@ -278,40 +279,24 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               },
             ),
           ),
-          // if (RepositoryProvider.userRepository.currentUser?.uid ==
-          //         "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
-          //     RepositoryProvider.userRepository.currentUser?.uid ==
-          //         "UwigeExwFMfDrCk4x8AbODha3il1")
-          //   ElevatedButton(
-          //     onPressed: () async {
-          //       List<Competition> competitions = await RepositoryProvider
-          //           .competitionRepository
-          //           .fetchAllCompetitions();
-
-          //       for (Competition comp in competitions) {
-          //         print(
-          //           "on commence à récupérer ${comp.id} : ${comp.nom}",
-          //         );
-          //         List<MatchModelId> matchs = await FillDatabase.getMatchs(
-          //           comp.id,
-          //           "2025",
-          //           DateTime(2026, 03, 07),
-          //           DateTime(2026, 03, 23),
-          //         );
-          //         print(
-          //           "on a fini de récupérer ${comp.id} : ${comp.nom}",
-          //         );
-          //         for (MatchModelId match in matchs) {
-          //           print(
-          //             "mise à jour de ${match.id} : ${match.equipeDomicileId} - ${match.equipeExterieurId}",
-          //           );
-          //           RepositoryProvider.matchRepository
-          //               .updateMatchModelId(match);
-          //         }
-          //       }
-          //           },
-          //           child: Text("test pour développeur"),
-          //         ),
+          if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+              RepositoryProvider.userRepository.currentUser?.uid ==
+                  "UwigeExwFMfDrCk4x8AbODha3il1" ||
+              RepositoryProvider.userRepository.currentUser?.uid ==
+                  "Elv7ujUkfRYKfrIJsDySorXRYuh1")
+            ElevatedButton(
+              onPressed: () async {
+                await FillDatabase.enleverToutesLesDonneesDeUser(
+                  userId: "jSHnJN1cVWTsDirfm1sEaA358jJ3",
+                  enleverFriendships: true,
+                  enleverNotifications: true,
+                  enleverMatchs: true,
+                  enleverPreferences: true,
+                  enleverWatchTogether: true,
+                );
+              },
+              child: Text("test pour développeur"),
+            ),
         ],
       ),
     );

@@ -276,8 +276,10 @@ class MockNotificationRepository implements INotificationRepository {
   }
 
   @override
-  Future<void> deleteOldNotifications(
-      {required String userId, int daysLimit = 14}) async {
+  Future<void> deleteOldNotifications({
+    required String userId,
+    int daysLimit = 14,
+  }) async {
     await ready;
 
     final cutoff = DateTime.now().toUtc().subtract(Duration(days: daysLimit));
@@ -286,6 +288,14 @@ class MockNotificationRepository implements INotificationRepository {
       (_, notif) =>
           notif.ownerUserId == userId &&
           notif.lastPostActivity.isBefore(cutoff),
+    );
+  }
+
+  @override
+  Future<void> deleteAllNotifications({required String userId}) async {
+    await ready;
+    _notifications.removeWhere(
+      (_, notif) => notif.ownerUserId == userId,
     );
   }
 

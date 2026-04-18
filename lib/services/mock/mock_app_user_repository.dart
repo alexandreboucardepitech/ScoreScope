@@ -158,10 +158,12 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
-  Future<List<String>> getUserMatchsRegardesId(
-      {required String userId,
-      bool onlyPublic = false,
-      DateTimeRange? dateRange}) async {
+  Future<List<String>> getUserMatchsRegardesId({
+    required String userId,
+    bool onlyPublic = false,
+    DateTimeRange? dateRange,
+    bool matchsPasRegardes = false,
+  }) async {
     await _seedingFuture;
     final user = _users.firstWhere(
       (u) => u.uid == userId,
@@ -176,10 +178,10 @@ class MockAppUserRepository implements IAppUserRepository {
         ? user.matchsUserData
             .where((m) => m.private == false)
             .where((m) => dateRange != null
-                ? m.watchedAt != null &&
-                    m.watchedAt!.isAfter(
+                ? m.matchDate != null &&
+                    m.matchDate!.isAfter(
                         dateRange.start.subtract(const Duration(days: 1))) &&
-                    m.watchedAt!
+                    m.matchDate!
                         .isBefore(dateRange.end.add(const Duration(days: 1)))
                 : true)
             .map((m) => m.matchId)

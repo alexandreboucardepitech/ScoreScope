@@ -43,6 +43,8 @@ abstract class INotificationRepository {
     int daysLimit = 14,
   });
 
+  Future<void> deleteAllNotifications({required String userId});
+
   Future<void> notifyNewWatchTogetherInvitation({
     required String ownerUserId,
     required String matchId,

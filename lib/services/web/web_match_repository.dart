@@ -185,7 +185,11 @@ class WebMatchRepository implements IMatchRepository {
 
   @override
   Future<void> noterMatch(
-      String matchId, String userId, DateTime matchDate, int? note) async {
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    int? note,
+  ) async {
     final docRef = _collection.doc(matchId);
     final doc = await docRef.get();
 

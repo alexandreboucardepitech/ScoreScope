@@ -1,12 +1,16 @@
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/competition.dart';
+import 'package:scorescope/models/enum/language_options.dart';
+import 'package:scorescope/models/enum/theme_options.dart';
+import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_joueur.dart';
+import 'package:scorescope/models/watch_together.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/construct_player_from_json.dart';
 import 'package:scorescope/utils/string/get_first_and_last_name.dart';
@@ -673,5 +677,94 @@ class FillDatabase {
       butsEquipeDomicileId: butsDomicile,
       butsEquipeExterieurId: butsExterieur,
     );
+  }
+
+  static Future<void> enleverToutesLesDonneesDeUser({
+    required String userId,
+    required bool enleverMatchs,
+    required bool enleverFriendships,
+    required bool enleverWatchTogether,
+    required bool enleverPreferences,
+    required bool enleverNotifications,
+  }) async {
+    if (enleverMatchs) {
+      List<String> matchsRegardes =
+          await RepositoryProvider.userRepository.getUserMatchsRegardesId(
+        userId: userId,
+        matchsPasRegardes: true,
+      );
+      print("nombre de matchs regardés : ${matchsRegardes.length}");
+      for (String matchId in matchsRegardes) {
+        MatchModel? match =
+            await RepositoryProvider.matchRepository.fetchMatchById(matchId);
+        if (match == null) {
+          print("match $matchId non trouvé dans la base de données");
+          continue;
+        }
+        await match.enleverNote(userId: userId);
+        print(
+            "note enlevée : ${match.equipeDomicile.nom} vs ${match.equipeExterieur.nom}");
+        await match.enleverVote(userId: userId);
+        print(
+            "vote enlevé : ${match.equipeDomicile.nom} vs ${match.equipeExterieur.nom}");
+
+        if (enleverWatchTogether) {
+          List<WatchTogether> friendsWatchedWith = await RepositoryProvider
+              .watchTogetherRepository
+              .getFriendsWatchedWith(userId, matchId);
+          for (WatchTogether watchTogether in friendsWatchedWith) {
+            await RepositoryProvider.watchTogetherRepository
+                .removeWatchTogether(
+              ownerId: watchTogether.ownerId,
+              friendId: watchTogether.friendId,
+              matchId: matchId,
+            );
+            print(
+                "watch together enlevé : ${match.equipeDomicile.nom} vs ${match.equipeExterieur.nom}");
+          }
+        }
+        await RepositoryProvider.userRepository
+            .removeMatchUserData(userId, matchId);
+        print(
+            "match user data enlevé : ${match.equipeDomicile.nom} vs ${match.equipeExterieur.nom}");
+      }
+    }
+
+    if (enleverFriendships) {
+      await RepositoryProvider.amitieRepository
+          .removeAllFriendshipsForUser(userId);
+      print("toutes les friendships enlevées");
+    }
+
+    if (enleverPreferences) {
+      await RepositoryProvider.userRepository.updateOptions(
+        userId: userId,
+        allNotifications: true,
+        newFollowers: true,
+        likes: true,
+        comments: true,
+        replies: true,
+        favoriteTeamMatch: true,
+        results: true,
+        emailNotifications: true,
+        language: LanguageOptions.french,
+        theme: ThemeOptions.system,
+        defaultVisionnageMatch: VisionnageMatch.tele,
+      );
+      print("toutes les préférences enlevées");
+
+      await RepositoryProvider.userRepository.editProfile(
+        userId: userId,
+        newEquipesPrefereesId: [],
+        newCompetitionsPrefereesId: [],
+      );
+      print("équipes et compétitions préférées enlevées");
+    }
+
+    if (enleverNotifications) {
+      await RepositoryProvider.notificationRepository
+          .deleteAllNotifications(userId: userId);
+      print("notifications enlevées");
+    }
   }
 }

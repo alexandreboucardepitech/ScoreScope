@@ -19,6 +19,7 @@ abstract class IAppUserRepository {
     required String userId,
     bool onlyPublic = false,
     DateTimeRange? dateRange,
+    bool matchsPasRegardes = false,
   });
   Future<int> getUserNbMatchsRegardes(String userId, bool onlyPublic);
   Future<int> getUserNbButs(String userId, bool onlyPublic);

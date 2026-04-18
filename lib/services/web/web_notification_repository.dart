@@ -206,6 +206,19 @@ class WebNotificationRepository implements INotificationRepository {
   }
 
   @override
+  Future<void> deleteAllNotifications({required String userId}) async {
+    final snap = await _notificationsCol(userId).get();
+
+    if (snap.docs.isEmpty) return;
+
+    final batch = FirebaseFirestore.instance.batch();
+    for (final doc in snap.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
+  }
+
+  @override
   Future<void> notifyNewWatchTogetherInvitation({
     required String ownerUserId,
     required String matchId,

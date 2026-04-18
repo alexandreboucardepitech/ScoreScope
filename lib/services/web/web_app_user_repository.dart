@@ -56,6 +56,7 @@ class WebAppUserRepository implements IAppUserRepository {
     required String userId,
     bool onlyPublic = false,
     DateTimeRange? dateRange,
+    bool matchsPasRegardes = false,
   }) async {
     Query<Map<String, dynamic>> query =
         _usersCollection.doc(userId).collection('matchUserData');
@@ -80,12 +81,17 @@ class WebAppUserRepository implements IAppUserRepository {
 
     for (dynamic doc in snapshot.docs) {
       dynamic data = doc.data();
-      if (data.containsKey('watchedAt') && data['watchedAt'] != null) {
+      if ((data.containsKey('watchedAt') && data['watchedAt'] != null) ||
+          matchsPasRegardes == true) {
         matchs.add(MatchUserData.fromJson(data));
       }
     }
 
-    matchs.sort((a, b) => b.watchedAt!.compareTo(a.watchedAt!));
+    matchs.sort((a, b) => (b.watchedAt != null && a.watchedAt != null)
+        ? b.watchedAt!.compareTo(a.watchedAt!)
+        : (b.matchDate != null && a.matchDate != null)
+            ? b.matchDate!.compareTo(a.matchDate!)
+            : 0);
     return matchs.map((match) => match.matchId).toList();
   }
 
@@ -261,7 +267,11 @@ class WebAppUserRepository implements IAppUserRepository {
 
   @override
   Future<void> matchFavori(
-      String matchId, String userId, DateTime matchDate, bool favori) async {
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    bool favori,
+  ) async {
     final userMatchDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
