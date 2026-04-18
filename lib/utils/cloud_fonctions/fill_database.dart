@@ -766,5 +766,11 @@ class FillDatabase {
           .deleteAllNotifications(userId: userId);
       print("notifications enlevées");
     }
+
+    if (enleverWatchTogether) {
+      await RepositoryProvider.watchTogetherRepository
+          .removeAllWatchTogetherForUser(userId: userId);
+      print("watch together enlevés");
+    }
   }
 }

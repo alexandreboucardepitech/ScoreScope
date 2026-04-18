@@ -30,10 +30,11 @@ Future<Map<String, dynamic>> openBottomSheetAndVoteMVP({
 
   if (result["joueur"] != null) {
     await match.voterPourMVP(userId: user.uid, joueurId: result["joueur"].id);
+    joueurSelectionne = result["joueur"];
   }
   if (result["enleverVote"] == true) {
     await match.enleverVote(userId: user.uid);
   }
 
-  return {"joueur": joueurSelectionne, "enleverVote": enleverVote};
+  return {"joueur": joueurSelectionne, "enleverVote": result["enleverVote"] ?? false};
 }

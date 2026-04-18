@@ -105,4 +105,28 @@ class WebWatchTogetherRepository implements IWatchTogetherRepository {
       throw Exception('Error creating watchTogether document: $e');
     }
   }
+
+  @override
+  Future<void> removeAllWatchTogetherForUser({required String userId}) async {
+    try {
+      //ownerId OR friendId
+
+      final querySnapshot = await _watchTogetherCollection
+          .where('ownerId', isEqualTo: userId)
+          .get();
+
+      for (final doc in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
+      final querySnapshotFriend = await _watchTogetherCollection
+          .where('friendId', isEqualTo: userId)
+          .get();
+
+      for (final doc in querySnapshotFriend.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e) {
+      throw Exception('Error removing watchTogether documents for user: $e');
+    }
+  }
 }

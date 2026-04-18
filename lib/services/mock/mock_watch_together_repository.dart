@@ -98,4 +98,12 @@ class MockWatchTogetherRepository implements IWatchTogetherRepository {
       throw Exception('WatchTogether not found for acceptance');
     }
   }
+
+  @override
+  Future<void> removeAllWatchTogetherForUser({required String userId}) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    _watchTogether
+        .removeWhere((wt) => wt.ownerId == userId || wt.friendId == userId);
+  }
 }

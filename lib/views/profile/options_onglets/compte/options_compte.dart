@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/main.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/change_email.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/change_password.dart';
@@ -90,6 +91,16 @@ class OptionsCompteView extends StatelessWidget {
             icon: Icons.logout_outlined,
             onTap: () {
               _showDisconnectDialog(context);
+            },
+          ),
+
+          _buildOptionTile(
+            context,
+            title: "Supprimer les données",
+            icon: Icons.delete_outline,
+            isDestructive: true,
+            onTap: () {
+              _showEmptyDataDialog(context);
             },
           ),
 
@@ -219,6 +230,230 @@ class OptionsCompteView extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showEmptyDataDialog(BuildContext context) {
+    bool enleverFriendships = false;
+    bool enleverNotifications = false;
+    bool enleverMatchs = false;
+    bool enleverPreferences = false;
+    bool enleverWatchTogether = false;
+
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(
+            "Vider les données",
+            style: TextStyle(color: Colors.red),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => setState(() => enleverMatchs = !enleverMatchs),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Supprimer les matchs regardés",
+                            style: TextStyle(
+                              color: ColorPalette.textPrimary(context),
+                            ),
+                          ),
+                        ),
+                        Checkbox(
+                          value: enleverMatchs,
+                          onChanged: (value) => setState(
+                            () => enleverMatchs = value ?? false,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () =>
+                      setState(() => enleverFriendships = !enleverFriendships),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Supprimer les amis",
+                            style: TextStyle(
+                              color: ColorPalette.textPrimary(context),
+                            ),
+                          ),
+                        ),
+                        Checkbox(
+                          value: enleverFriendships,
+                          onChanged: (value) => setState(
+                            () => enleverFriendships = value ?? false,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => setState(
+                      () => enleverNotifications = !enleverNotifications),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Supprimer les notifications",
+                            style: TextStyle(
+                              color: ColorPalette.textPrimary(context),
+                            ),
+                          ),
+                        ),
+                        Checkbox(
+                          value: enleverNotifications,
+                          onChanged: (value) => setState(
+                            () => enleverNotifications = value ?? false,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () =>
+                      setState(() => enleverPreferences = !enleverPreferences),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Réinitialiser les préférences",
+                            style: TextStyle(
+                              color: ColorPalette.textPrimary(context),
+                            ),
+                          ),
+                        ),
+                        Checkbox(
+                          value: enleverPreferences,
+                          onChanged: (value) => setState(
+                            () => enleverPreferences = value ?? false,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => setState(
+                      () => enleverWatchTogether = !enleverWatchTogether),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              "Supprimer les matchs regardés ensemble",
+                              style: TextStyle(
+                                color: ColorPalette.textPrimary(context),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Checkbox(
+                          value: enleverWatchTogether,
+                          onChanged: (value) => setState(
+                            () => enleverWatchTogether = value ?? false,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Annuler",
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(context),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              onPressed: () async {
+                Navigator.pop(context);
+
+                final user = FirebaseAuth.instance.currentUser;
+                if (user == null) return;
+
+                try {
+                  await FillDatabase.enleverToutesLesDonneesDeUser(
+                    userId: user.uid,
+                    enleverMatchs: enleverMatchs,
+                    enleverFriendships: enleverFriendships,
+                    enleverWatchTogether: enleverWatchTogether,
+                    enleverPreferences: enleverPreferences,
+                    enleverNotifications: enleverNotifications,
+                  );
+
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(backgroundColor: ColorPalette.accent(context),
+                      content: Text(
+                        "Données supprimées avec succès.",
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                        ),
+                      ),
+                    ),
+                  );
+                } catch (e) {
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Erreur : ${e.toString()}",
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                "Valider",
+                style: TextStyle(
+                  color: ColorPalette.textPrimary(context),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

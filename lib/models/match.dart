@@ -547,6 +547,23 @@ class MatchModel implements PodiumDisplayable {
     return voteCounts;
   }
 
+  String? getMvpId() {
+    if (mvpVotes.isEmpty) return null;
+
+    Map<String, int> voteCounts = getAllVoteCounts();
+
+    String? mvpId;
+    int maxVotes = -1;
+    voteCounts.forEach((playerId, voteCount) {
+      if (voteCount > maxVotes) {
+        maxVotes = voteCount;
+        mvpId = playerId;
+      }
+    });
+
+    return mvpId;
+  }
+
   Future<Joueur?> getMvp() async {
     if (mvpVotes.isEmpty) return null;
 

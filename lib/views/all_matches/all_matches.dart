@@ -279,24 +279,24 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               },
             ),
           ),
-          if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
-              RepositoryProvider.userRepository.currentUser?.uid ==
-                  "UwigeExwFMfDrCk4x8AbODha3il1" ||
-              RepositoryProvider.userRepository.currentUser?.uid ==
-                  "Elv7ujUkfRYKfrIJsDySorXRYuh1")
-            ElevatedButton(
-              onPressed: () async {
-                await FillDatabase.enleverToutesLesDonneesDeUser(
-                  userId: "jSHnJN1cVWTsDirfm1sEaA358jJ3",
-                  enleverFriendships: true,
-                  enleverNotifications: true,
-                  enleverMatchs: true,
-                  enleverPreferences: true,
-                  enleverWatchTogether: true,
-                );
-              },
-              child: Text("test pour développeur"),
-            ),
+          // if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+          //     RepositoryProvider.userRepository.currentUser?.uid ==
+          //         "UwigeExwFMfDrCk4x8AbODha3il1" ||
+          //     RepositoryProvider.userRepository.currentUser?.uid ==
+          //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
+          //   ElevatedButton(
+          //     onPressed: () async {
+          //       await FillDatabase.enleverToutesLesDonneesDeUser(
+          //         userId: "jSHnJN1cVWTsDirfm1sEaA358jJ3",
+          //         enleverFriendships: true,
+          //         enleverNotifications: true,
+          //         enleverMatchs: true,
+          //         enleverPreferences: true,
+          //         enleverWatchTogether: true,
+          //       );
+          //     },
+          //     child: Text("test pour développeur"),
+          //   ),
         ],
       ),
     );

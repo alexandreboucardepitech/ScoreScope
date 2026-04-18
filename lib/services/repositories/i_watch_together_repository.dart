@@ -23,4 +23,8 @@ abstract class IWatchTogetherRepository {
     required String ownerId,
     required String friendId,
   });
+
+  Future<void> removeAllWatchTogetherForUser({
+    required String userId,
+  });
 }

@@ -36,13 +36,13 @@ class _CompositionsTabState extends State<CompositionsTab> {
     localMatch = widget.match;
   }
 
-  void _updateVotes(String userId, String? playerSelectedId) {
+  void _updateVotes(String userId, Map<String, dynamic> result) {
     if (localMatch == null) return;
-    if (playerSelectedId != null) {
+    if (result["joueur"] != null) {
       setState(() {
-        localMatch!.voterPourMVP(userId: userId, joueurId: playerSelectedId);
+        localMatch!.voterPourMVP(userId: userId, joueurId: result["joueur"].id);
       });
-    } else if (localMatch!.mvpVotes.containsKey(userId)) {
+    } else if (result["enleverVote"] == true) {
       setState(() {
         localMatch!.enleverVote(userId: userId);
       });
@@ -175,7 +175,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
                               preselectedPlayer: player.joueur,
                               initialUserVote: null,
                             );
-                            _updateVotes(user.uid, result["joueur"].id);
+                            _updateVotes(user.uid, result);
                           }
                         },
                         context: context,
@@ -210,7 +210,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
                               preselectedPlayer: player.joueur,
                               initialUserVote: null,
                             );
-                            _updateVotes(user.uid, result["joueur"].id);
+                            _updateVotes(user.uid, result);
                           } else if (user != null) {
                             Navigator.push(
                               context,
@@ -309,7 +309,7 @@ class FormationView extends StatelessWidget {
   final bool isReversed;
   final Map<String, int> votesCount;
   final MatchModel match;
-  final Function(String userId, String? playerId) onLocalUpdate;
+  final Function(String userId, Map<String, dynamic> result) onLocalUpdate;
 
   const FormationView({
     super.key,
@@ -372,7 +372,7 @@ class PlayerWidget extends StatefulWidget {
   final MatchJoueur matchJoueur;
   final int nbVotes;
   final MatchModel match;
-  final Function(String userId, String? playerId) onLocalUpdate;
+  final Function(String userId, Map<String, dynamic> result) onLocalUpdate;
 
   const PlayerWidget({
     super.key,
@@ -415,13 +415,16 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     required Icon icon,
     required int value,
     bool isHighlighted = false,
+    bool isGold = false,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
-        color: isHighlighted
-            ? ColorPalette.accent(context)
-            : ColorPalette.surface(context),
+        color: isGold
+            ? ColorPalette.warning(context)
+            : isHighlighted
+                ? ColorPalette.accent(context)
+                : ColorPalette.surface(context),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -432,7 +435,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           Text(
             value.toString(),
             style: TextStyle(
-              color: ColorPalette.textPrimary(context),
+              color: isGold ? Colors.black : ColorPalette.textPrimary(context),
               fontSize: 9,
               fontWeight: FontWeight.bold,
             ),
@@ -469,7 +472,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                 preselectedPlayer: joueur,
                 initialUserVote: null,
               );
-              widget.onLocalUpdate(user.uid, result["joueur"].id);
+              widget.onLocalUpdate(user.uid, result);
             } else if (user != null) {
               Navigator.push(
                 context,
@@ -533,10 +536,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   icon: Icon(
                     Icons.star,
                     size: 10,
-                    color: ColorPalette.textPrimary(context),
+                    color: (widget.match.getMvpId() == joueur?.id)
+                        ? Colors.black
+                        : ColorPalette.textPrimary(context),
                   ),
                   value: widget.nbVotes,
                   isHighlighted: widget.match.mvpVotes[user?.uid] == joueur?.id,
+                  isGold: widget.match.getMvpId() == joueur?.id,
                 ),
               ),
             ],
