@@ -24,7 +24,7 @@ class FillDatabase {
     Map<String, String>? params,
   }) async {
     final url = Uri.parse(
-      "https://YOUR_CLOUD_FUNCTION_URL/getFootballData",
+      "https://us-central1-scorescope-5a12b.cloudfunctions.net/getFootballData",
     );
 
     final response = await http.post(
@@ -344,6 +344,86 @@ class FillDatabase {
     return equipes;
   }
 
+  static Future<MatchModelId> getMatchFromData(
+      Map<String, dynamic> matchData) async {
+    final String id = matchData['fixture']['id'].toString();
+    final MatchStatus status = getMatchStatusFromCode(
+        matchData['fixture']['status']['short'].toString());
+    final String equipeDomicileId = matchData['teams']['home']['id'].toString();
+    final String equipeExterieurId =
+        matchData['teams']['away']['id'].toString();
+    final DateTime date = DateTime.fromMillisecondsSinceEpoch(
+        matchData['fixture']['timestamp'] * 1000);
+    final String? refereeName = matchData['fixture']?['referee'];
+    final String? stadiumName = matchData['fixture']?['venue']?['name'];
+    final int scoreEquipeDomicile = matchData['goals']['home'] ?? 0;
+    final int scoreEquipeExterieur = matchData['goals']['away'] ?? 0;
+    final int? liveMinute = matchData['fixture']['status']['elapsed'];
+    final int? extraTime = matchData['fixture']['status']['extra'];
+    final int leagueId = matchData['league']['id'];
+    final int season = matchData['league']['season'];
+
+    Map<String, List<dynamic>> matchPlayers = await getMatchPlayers(id,
+        equipeDomicileId: equipeDomicileId,
+        equipeExterieurId: equipeExterieurId);
+
+    List<MatchJoueurId> equipeDomicilePlayers =
+        matchPlayers['equipeDomicilePlayers'] as List<MatchJoueurId>? ?? [];
+
+    List<MatchJoueurId> equipeExterieurPlayers =
+        matchPlayers['equipeExterieurPlayers'] as List<MatchJoueurId>? ?? [];
+
+    for (MatchJoueurId joueur in equipeDomicilePlayers) {
+      Joueur? joueurExiste = await RepositoryProvider.joueurRepository
+          .fetchJoueurById(joueur.joueurId);
+      if (joueurExiste == null) {
+        Joueur? joueurCree =
+            await createJoueurFromJson(joueur.joueurId, equipeDomicileId);
+        if (joueurCree != null) {
+          await RepositoryProvider.joueurRepository.addJoueur(joueurCree);
+        }
+      }
+    }
+
+    for (MatchJoueurId joueur in equipeExterieurPlayers) {
+      Joueur? joueurExiste = await RepositoryProvider.joueurRepository
+          .fetchJoueurById(joueur.joueurId);
+      if (joueurExiste == null) {
+        Joueur? joueurCree =
+            await createJoueurFromJson(joueur.joueurId, equipeExterieurId);
+        if (joueurCree != null) {
+          await RepositoryProvider.joueurRepository.addJoueur(joueurCree);
+        }
+      }
+    }
+
+    MatchModelId newMatch = MatchModelId(
+      id: id,
+      status: status,
+      equipeDomicileId: equipeDomicileId,
+      equipeExterieurId: equipeExterieurId,
+      competitionId: leagueId.toString(),
+      date: date,
+      refereeName: refereeName,
+      stadiumName: stadiumName,
+      scoreEquipeDomicile: scoreEquipeDomicile,
+      scoreEquipeExterieur: scoreEquipeExterieur,
+      joueursEquipeDomicileId: equipeDomicilePlayers,
+      joueursEquipeExterieurId: equipeExterieurPlayers,
+      butsEquipeDomicileId:
+          matchPlayers['equipeDomicileButs'] as List<ButId>? ?? [],
+      butsEquipeExterieurId:
+          matchPlayers['equipeExterieurButs'] as List<ButId>? ?? [],
+      liveMinute: liveMinute,
+      extraTime: extraTime,
+      mvpVotes: {},
+      notes: {},
+      saison: season,
+    );
+    print("add match : $equipeDomicileId vs $equipeExterieurId");
+    return newMatch;
+  }
+
   static Future<List<MatchModelId>> getMatchs(
     String competitionId,
     String season,
@@ -371,81 +451,7 @@ class FillDatabase {
     } else {
       print("data bien récupérée pour $competitionId, $season : $data");
       for (Map<String, dynamic> matchData in data) {
-        final String id = matchData['fixture']['id'].toString();
-        final MatchStatus status = getMatchStatusFromCode(
-            matchData['fixture']['status']['short'].toString());
-        final String equipeDomicileId =
-            matchData['teams']['home']['id'].toString();
-        final String equipeExterieurId =
-            matchData['teams']['away']['id'].toString();
-        final DateTime date = DateTime.fromMillisecondsSinceEpoch(
-            matchData['fixture']['timestamp'] * 1000);
-        final String? refereeName = data[0]?['fixture']?['referee'];
-        final String? stadiumName = data[0]?['fixture']?['venue']?['name'];
-        final int scoreEquipeDomicile = matchData['goals']['home'] ?? 0;
-        final int scoreEquipeExterieur = matchData['goals']['away'] ?? 0;
-        final int? liveMinute = matchData['fixture']['status']['elapsed'];
-        final int? extraTime = matchData['fixture']['status']['extra'];
-
-        Map<String, List<dynamic>> matchPlayers = await getMatchPlayers(id,
-            equipeDomicileId: equipeDomicileId,
-            equipeExterieurId: equipeExterieurId);
-
-        List<MatchJoueurId> equipeDomicilePlayers =
-            matchPlayers['equipeDomicilePlayers'] as List<MatchJoueurId>? ?? [];
-
-        List<MatchJoueurId> equipeExterieurPlayers =
-            matchPlayers['equipeExterieurPlayers'] as List<MatchJoueurId>? ??
-                [];
-
-        for (MatchJoueurId joueur in equipeDomicilePlayers) {
-          Joueur? joueurExiste = await RepositoryProvider.joueurRepository
-              .fetchJoueurById(joueur.joueurId);
-          if (joueurExiste == null) {
-            Joueur? joueurCree =
-                await createJoueurFromJson(joueur.joueurId, equipeDomicileId);
-            if (joueurCree != null) {
-              await RepositoryProvider.joueurRepository.addJoueur(joueurCree);
-            }
-          }
-        }
-
-        for (MatchJoueurId joueur in equipeExterieurPlayers) {
-          Joueur? joueurExiste = await RepositoryProvider.joueurRepository
-              .fetchJoueurById(joueur.joueurId);
-          if (joueurExiste == null) {
-            Joueur? joueurCree =
-                await createJoueurFromJson(joueur.joueurId, equipeExterieurId);
-            if (joueurCree != null) {
-              await RepositoryProvider.joueurRepository.addJoueur(joueurCree);
-            }
-          }
-        }
-
-        MatchModelId newMatch = MatchModelId(
-          id: id,
-          status: status,
-          equipeDomicileId: equipeDomicileId,
-          equipeExterieurId: equipeExterieurId,
-          competitionId: competitionId,
-          date: date,
-          refereeName: refereeName,
-          stadiumName: stadiumName,
-          scoreEquipeDomicile: scoreEquipeDomicile,
-          scoreEquipeExterieur: scoreEquipeExterieur,
-          joueursEquipeDomicileId: equipeDomicilePlayers,
-          joueursEquipeExterieurId: equipeExterieurPlayers,
-          butsEquipeDomicileId:
-              matchPlayers['equipeDomicileButs'] as List<ButId>? ?? [],
-          butsEquipeExterieurId:
-              matchPlayers['equipeExterieurButs'] as List<ButId>? ?? [],
-          liveMinute: liveMinute,
-          extraTime: extraTime,
-          mvpVotes: {},
-          notes: {},
-          saison: int.parse(season),
-        );
-        print("add match : $equipeDomicileId vs $equipeExterieurId");
+        MatchModelId newMatch = await FillDatabase.getMatchFromData(matchData);
         matchs.add(newMatch);
       }
     }

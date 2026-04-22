@@ -32,5 +32,14 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:437874551355:ios:662e2d0983f2e155c80a1e</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+			<string>com.googleusercontent.apps.437874551355-v2hc5nv2kvfskgfajdsfebr8jjqru038</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

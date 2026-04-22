@@ -210,7 +210,7 @@ exports.fetchLineups = onSchedule(
       console.log("⏳ Vérification des lineups...");
 
       const now = new Date();
-      const minTime = new Date(now.getTime() + 5 * 60 * 1000);
+      const minTime = new Date(now.getTime() - 2 * 3600 * 1000);
       const maxTime = new Date(now.getTime() + 45 * 60 * 1000);
 
       try {
@@ -255,8 +255,10 @@ exports.fetchLineups = onSchedule(
             const equipeDom = lineup[0];
             const equipeExt = lineup[1];
 
-            const teamIdDom = doc.equipeDomicileId;
-            const teamIdExt = doc.equipeExterieurId;
+            const data = doc.data();
+
+            const teamIdDom = data.equipeDomicileId;
+            const teamIdExt = data.equipeExterieurId;
 
             const mapPlayer = (playerObj, isFromStartXI = true) => {
               if (!playerObj?.player?.id) return null;
@@ -371,7 +373,7 @@ exports.fetchLineups = onSchedule(
 
 exports.updateLiveMatches = onSchedule(
     {
-      schedule: "*/2 * * * *",
+      schedule: "* * * * *",
       timeZone: "Europe/Paris",
     },
     async () => {

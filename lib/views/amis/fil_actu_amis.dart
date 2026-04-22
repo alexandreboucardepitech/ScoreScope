@@ -90,8 +90,11 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Icon(Icons.notifications,
-                      size: 26, color: ColorPalette.textPrimary(context)),
+                  Icon(
+                    Icons.notifications,
+                    size: 26,
+                    color: ColorPalette.textPrimary(context),
+                  ),
                   if (has)
                     Positioned(
                       right: -6,

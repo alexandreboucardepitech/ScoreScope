@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
