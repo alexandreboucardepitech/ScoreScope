@@ -13,7 +13,13 @@ import 'package:scorescope/widgets/fil_actu_amis/match_regarde_amis_list.dart';
 
 class FilActuAmisView extends StatefulWidget {
   final VoidCallback? onBackPressed;
-  const FilActuAmisView({super.key, this.onBackPressed});
+  final VoidCallback? onNotificationsSeen;
+
+  const FilActuAmisView({
+    super.key,
+    this.onBackPressed,
+    this.onNotificationsSeen,
+  });
 
   @override
   State<FilActuAmisView> createState() => _FilActuAmisViewState();
@@ -84,6 +90,9 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
                 ),
               );
               _loadPendingRequests();
+              if (widget.onNotificationsSeen != null) {
+                widget.onNotificationsSeen!();
+              }
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),

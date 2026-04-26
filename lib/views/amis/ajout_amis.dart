@@ -236,23 +236,24 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
           separatorBuilder: (_, __) => const Divider(height: 1),
           itemBuilder: (context, index) {
             final user = users[index];
+
             return ListTile(
               leading: CircleAvatar(
-                child: (user.photoUrl != null && user.photoUrl!.isNotEmpty)
-                    ? CachedNetworkImage(
-                        imageUrl: user.photoUrl!,
-                        fit: BoxFit.cover,
-                      )
-                    : Text(
+                backgroundColor: ColorPalette.pictureBackground(context),
+                backgroundImage:
+                    (user.photoUrl != null && user.photoUrl!.isNotEmpty)
+                        ? CachedNetworkImageProvider(user.photoUrl!)
+                        : null,
+                child: (user.photoUrl == null || user.photoUrl!.isEmpty)
+                    ? Text(
                         (user.displayName.isNotEmpty)
                             ? user.displayName[0].toUpperCase()
                             : '?',
                         style: TextStyle(
-                          color: ColorPalette.textPrimary(
-                            context,
-                          ),
+                          color: ColorPalette.textPrimary(context),
                         ),
-                      ),
+                      )
+                    : null,
               ),
               title: Text(
                 user.displayName,

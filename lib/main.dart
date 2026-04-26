@@ -301,6 +301,7 @@ class _HomePageState extends State<HomePage> {
       AllMatchesView(),
       FilActuAmisView(
         onBackPressed: () => setState(() => _currentIndex = 0),
+        onNotificationsSeen: _loadPendingRequests,
       ),
       StatsView(user: widget.user),
       ProfileView(

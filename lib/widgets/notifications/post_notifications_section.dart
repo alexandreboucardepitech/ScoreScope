@@ -461,7 +461,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(1.5), // épaisseur de la bordure
+        padding: const EdgeInsets.all(1.5),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: ColorPalette.border(context),
@@ -469,6 +469,8 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
         child: CircleAvatar(
           radius: radius,
           backgroundColor: ColorPalette.pictureBackground(context),
+          backgroundImage:
+              user?.photoUrl != null ? NetworkImage(user!.photoUrl!) : null,
           child: user?.photoUrl == null
               ? Text(
                   user?.displayName.characters.first.toUpperCase() ?? '?',
@@ -476,10 +478,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
                     color: ColorPalette.textPrimary(context),
                   ),
                 )
-              : CachedNetworkImage(
-                  imageUrl: user!.photoUrl!,
-                  fit: BoxFit.cover,
-                ),
+              : null,
         ),
       ),
     );
