@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/main.dart';
@@ -72,6 +74,28 @@ class _LoginViewState extends State<LoginView> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       _showError(e.message ?? 'Erreur Google');
+    } catch (e) {
+      if (!mounted) return;
+      _showError('Erreur inconnue');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    if (mounted) setState(() => _loading = true);
+    try {
+      final user = await _authService.signInWithApple();
+      if (mounted) {
+        if (user != null) {
+          InitialApp.of(context)?.restartApp();
+        } else {
+          _showError('Connexion Apple annulée.');
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      _showError(e.message ?? 'Erreur Apple');
     } catch (e) {
       if (!mounted) return;
       _showError('Erreur inconnue');
@@ -251,31 +275,59 @@ class _LoginViewState extends State<LoginView> {
 
                     const SizedBox(height: 16),
 
-                    /// ---- GOOGLE BUTTON ----
-                    OutlinedButton.icon(
-                      onPressed: _loading ? null : _handleGoogleSignIn,
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: ColorPalette.buttonSecondary(context),
-                        side: BorderSide(
-                          color: ColorPalette.border(context),
+                    if (Platform.isIOS) ...[
+                      OutlinedButton.icon(
+                        onPressed: _loading ? null : _handleAppleSignIn,
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor:
+                              ColorPalette.buttonSecondary(context),
+                          side: BorderSide(
+                            color: ColorPalette.border(context),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      icon: Icon(
-                        Icons.login,
-                        color: ColorPalette.textPrimary(context),
-                      ),
-                      label: Text(
-                        "Continuer avec Google",
-                        style: TextStyle(
+                        icon: Icon(
+                          Icons.login,
                           color: ColorPalette.textPrimary(context),
-                          fontWeight: FontWeight.w500,
+                        ),
+                        label: Text(
+                          "Continuer avec Apple",
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                    ),
+                    ] else ...[
+                      OutlinedButton.icon(
+                        onPressed: _loading ? null : _handleGoogleSignIn,
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor:
+                              ColorPalette.buttonSecondary(context),
+                          side: BorderSide(
+                            color: ColorPalette.border(context),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.login,
+                          color: ColorPalette.textPrimary(context),
+                        ),
+                        label: Text(
+                          "Continuer avec Google",
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
 
                     const SizedBox(height: 20),
 

@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorescope/services/web/firestore_service.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -224,6 +227,54 @@ class AuthService {
     );
 
     await user.reauthenticateWithCredential(credential);
+  }
+
+  Future<User?> signInWithApple() async {
+    try {
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+
+        // 👇 OBLIGATOIRE sur Android
+        webAuthenticationOptions: Platform.isAndroid
+            ? WebAuthenticationOptions(
+                clientId: 'com.scorescope.app.login',
+                redirectUri: Uri.parse(
+                  'https://scorescope-5a12b.firebaseapp.com/__/auth/handler',
+                ),
+              )
+            : null,
+      );
+
+      final oauthCredential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      final userCredential = await _auth.signInWithCredential(oauthCredential);
+
+      final user = userCredential.user;
+
+      if (user != null) {
+        final String? displayName = user.displayName ??
+            "${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}"
+                .trim();
+
+        await FirestoreService().createUserIfNotExists(
+          uid: user.uid,
+          email: user.email,
+          displayName: displayName?.isEmpty ?? true ? null : displayName,
+          photoUrl: user.photoURL,
+        );
+      }
+
+      return user;
+    } catch (e, st) {
+      print("Unexpected Apple Sign-In error: $e\n$st");
+      return null;
+    }
   }
 
   Stream<User?> get userChanges => _auth.userChanges();
