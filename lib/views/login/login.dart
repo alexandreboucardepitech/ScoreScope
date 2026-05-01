@@ -85,12 +85,10 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _handleAppleSignIn() async {
     if (mounted) setState(() => _loading = true);
     try {
-      final user = await _authService.signInWithApple();
+      final user = await _authService.signInWithApple(context);
       if (mounted) {
         if (user != null) {
           InitialApp.of(context)?.restartApp();
-        } else {
-          _showError('Connexion Apple annulée.');
         }
       }
     } on FirebaseAuthException catch (e) {

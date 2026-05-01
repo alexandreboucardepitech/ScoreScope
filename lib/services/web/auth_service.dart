@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorescope/services/web/firestore_service.dart';
+import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthService {
@@ -229,7 +231,7 @@ class AuthService {
     await user.reauthenticateWithCredential(credential);
   }
 
-  Future<User?> signInWithApple() async {
+  Future<User?> signInWithApple(BuildContext context) async {
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -273,6 +275,17 @@ class AuthService {
       return user;
     } catch (e, st) {
       print("Unexpected Apple Sign-In error: $e\n$st");
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: ColorPalette.surface(context),
+        content: Text(
+          "Erreur Apple : $e\n$st",
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
+      ),
+    );
       return null;
     }
   }
