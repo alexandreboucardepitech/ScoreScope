@@ -54,7 +54,7 @@ class But {
     }
 
     return But(
-      buteur: buteur!,
+      buteur: buteur ?? Joueur.unknown(id: butId.buteurId),
       minute: butId.minute,
       passeur: passeur,
       typeBut: butId.typeBut,

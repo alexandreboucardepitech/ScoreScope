@@ -14,6 +14,7 @@ class WebUtilsRepository implements IUtilsRepository {
       'title': title,
       'detail': detail,
       'userId': userId,
+      'traite': "non",
       'createdAt': FieldValue.serverTimestamp(),
     };
 

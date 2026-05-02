@@ -173,9 +173,9 @@ class MatchModel implements PodiumDisplayable {
   }) {
     final isFirst = podium.isFirst;
 
-    final logoSize = isFirst ? 32.0 : 28.0;
+    final logoSize = isFirst ? 28.0 : 24.0;
     final scoreStyle = TextStyle(
-      fontSize: isFirst ? 18 : 16,
+      fontSize: isFirst ? 16 : 14,
       fontWeight: FontWeight.bold,
     );
 

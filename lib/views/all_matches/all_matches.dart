@@ -84,7 +84,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
 
   List<DateTime> _generateDatesAround(DateTime pivot, {int range = 7}) {
     final List<DateTime> newDates = [];
-    final cleanPivot = DateTime(pivot.year, pivot.month, pivot.day);
+    final cleanPivot = DateTime(pivot.year, pivot.month, pivot.day, 5); //5h du matin pour éviter les bugs au changement d'heure
     for (int i = -range; i <= range; i++) {
       newDates.add(cleanPivot.add(Duration(days: i)));
     }

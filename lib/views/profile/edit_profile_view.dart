@@ -126,11 +126,10 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   void _saveChanges() async {
-    if (_hasChanges == false || _isSaving) return;
-
     if (widget.isOnboarding && _displayNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: ColorPalette.buttonPrimary(context),
           content: Text(
             "Le nom d'utilisateur est obligatoire",
             style: TextStyle(
@@ -143,6 +142,8 @@ class _EditProfileViewState extends State<EditProfileView> {
       );
       return;
     }
+
+    if (_hasChanges == false || _isSaving) return;
 
     setState(() => _isSaving = true);
 
@@ -402,7 +403,6 @@ class _EditProfileViewState extends State<EditProfileView> {
                               ),
                   ),
                 ),
-
                 if ((_profilePicture != null || widget.user.photoUrl != null) &&
                     _photoRemoved == false)
                   Positioned.fill(
@@ -426,7 +426,6 @@ class _EditProfileViewState extends State<EditProfileView> {
                       ),
                     ),
                   ),
-
                 if ((_profilePicture != null || widget.user.photoUrl != null) &&
                     _photoRemoved == false)
                   Positioned(
@@ -625,7 +624,8 @@ class _EditProfileViewState extends State<EditProfileView> {
         titleSpacing: 0,
         title: Row(
           children: [
-            AppLogos.logoTransparent(context, size: 32),
+            const SizedBox(width: 8),
+            widget.isOnboarding ? AppLogos.logoPrimary(context, size: 32) : AppLogos.logoTransparent(context, size: 32),
             const SizedBox(width: 8),
             Text(
               widget.isOnboarding ? 'Créez votre profil' : 'Modifier le profil',

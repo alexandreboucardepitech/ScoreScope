@@ -14,6 +14,7 @@ import 'package:scorescope/models/util/day_podium_displayable.dart';
 import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/utils/string/round_smart.dart';
 
 class StatsLoader {
   const StatsLoader._(); // empêche l'instanciation
@@ -531,25 +532,25 @@ class StatsLoader {
       totalMatchs[id] = (totalMatchs[id] ?? 0) + 1;
       competitionById[id] = match.competition;
     }
-
-    final sortedEntries = totalButs.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
     final podiumEntries = await Future.wait(
-      sortedEntries.map((e) async {
+      totalButs.entries.map((e) async {
         final competition = competitionById[e.key]!;
-        final moyenne = e.value / totalMatchs[e.key]!;
+        final moyenne = roundSmart(e.value / totalMatchs[e.key]!);
         final color = await competition.getColor();
+        num value = num.parse(moyenne);
 
         return PodiumEntry<Competition>(
           item: competition,
-          value: moyenne,
+          value: value,
           color: color,
         );
       }),
     );
 
-    return podiumEntries;
+    final sortedEntries = podiumEntries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return sortedEntries;
   }
 
   static Future<List<PodiumEntry<MatchModel>>> getMatchsMieuxNotes({

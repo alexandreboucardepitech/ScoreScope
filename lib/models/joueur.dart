@@ -66,6 +66,16 @@ class Joueur extends BasicPodiumDisplayable {
     };
   }
 
+  Joueur.unknown({required this.id})
+      : prenom = 'Inconnu',
+        nom = '',
+        fullName = 'Inconnu',
+        equipeId = '',
+        equipeNationaleId = null,
+        dateNaissance = null,
+        nationalite = null,
+        picture = 'assets/joueurs/default.png';
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'prenom': prenom,
