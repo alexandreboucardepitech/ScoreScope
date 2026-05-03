@@ -42,9 +42,10 @@ class But {
         'typeBut': typeBut.name,
       };
 
-  static Future<But> fromButId(ButId butId) async {
-    final buteur = await RepositoryProvider.joueurRepository
-        .fetchJoueurById(butId.buteurId);
+  static Future<But> fromButId(ButId butId, {Joueur? buteurDejaCharge}) async {
+    final buteur = buteurDejaCharge ??
+        await RepositoryProvider.joueurRepository
+            .fetchJoueurById(butId.buteurId);
 
     Joueur? passeur;
 

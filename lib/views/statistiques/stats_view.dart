@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/stats/stats_data_loader.dart';
+import 'package:scorescope/utils/stats/stats_loading_state.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/widgets/statistiques/loader/stats_loader_widget.dart';
@@ -22,6 +24,10 @@ class _StatsViewState extends State<StatsView> {
   int? _saison; // exemple : 2025 pour la saison 2025/2026
   AppUser? _currentUser;
 
+  StatsLoadingState? _statsState;
+
+  int _loadingGeneration = 0;
+
   @override
   void initState() {
     super.initState();
@@ -31,15 +37,45 @@ class _StatsViewState extends State<StatsView> {
   Future<void> _loadCurrentUser() async {
     try {
       final user = await RepositoryProvider.userRepository.getCurrentUser();
-      if (mounted)
+      if (mounted) {
         setState(() {
           _currentUser = user;
           _onlyPublicMatches = isCurrentUser();
         });
+        _startLoading();
+      }
     } catch (e) {
-      // Si échec, laisse _currentUser null — on n'interrompt pas l'UI.
-      if (mounted) setState(() => _currentUser = null);
+      if (mounted) {
+        setState(() => _currentUser = null);
+        _startLoading();
+      }
     }
+  }
+
+  void _startLoading() {
+    final generation = ++_loadingGeneration;
+    final onlyPublic = isCurrentUser() ? _onlyPublicMatches : true;
+
+    setState(() {
+      _statsState = StatsLoadingState.initial(
+        userId: widget.user.uid,
+        onlyPublic: onlyPublic,
+        dateRange: _dateRange,
+      );
+    });
+
+    final loader = StatsDataLoader(
+      userId: widget.user.uid,
+      onlyPublic: onlyPublic,
+      dateRange: _dateRange,
+      onStateChanged: (state) {
+        if (mounted && generation == _loadingGeneration) {
+          setState(() => _statsState = state);
+        }
+      },
+    );
+
+    loader.load();
   }
 
   void _toggleView() {
@@ -66,33 +102,21 @@ class _StatsViewState extends State<StatsView> {
         return SimpleDialog(
           title: Text(
             'Filtrer par période',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
+            style: TextStyle(color: ColorPalette.textPrimary(context)),
           ),
           children: [
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, 'range'),
               child: Text(
                 'Période personnalisée',
-                style: TextStyle(
-                  color: ColorPalette.textPrimary(
-                    context,
-                  ),
-                ),
+                style: TextStyle(color: ColorPalette.textPrimary(context)),
               ),
             ),
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, 'season'),
               child: Text(
                 'Saison',
-                style: TextStyle(
-                  color: ColorPalette.textPrimary(
-                    context,
-                  ),
-                ),
+                style: TextStyle(color: ColorPalette.textPrimary(context)),
               ),
             ),
           ],
@@ -147,9 +171,7 @@ class _StatsViewState extends State<StatsView> {
                 fillColor: ColorPalette.tileBackground(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: ColorPalette.border(context),
-                  ),
+                  borderSide: BorderSide(color: ColorPalette.border(context)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -171,6 +193,7 @@ class _StatsViewState extends State<StatsView> {
           _dateRange = pickedDateRange;
           _saison = null;
         });
+        _startLoading();
       }
     }
 
@@ -187,16 +210,14 @@ class _StatsViewState extends State<StatsView> {
         if (matchDate != null) {
           final saison =
               matchDate.month >= 8 ? matchDate.year : matchDate.year - 1;
-          if (!saisons.contains(saison)) {
-            saisons.add(saison);
-          }
+          if (!saisons.contains(saison)) saisons.add(saison);
         }
       }
+
       final pickedYear = await showDialog<int>(
         context: context,
         builder: (context) {
           int? selectedYear;
-
           return StatefulBuilder(
             builder: (context, setDialogState) {
               return AlertDialog(
@@ -204,9 +225,7 @@ class _StatsViewState extends State<StatsView> {
                 alignment: Alignment.center,
                 title: Text(
                   'Sélectionner la saison',
-                  style: TextStyle(
-                    color: ColorPalette.textPrimary(context),
-                  ),
+                  style: TextStyle(color: ColorPalette.textPrimary(context)),
                 ),
                 content: SizedBox(
                   height: saisons.length > 4 ? 300 : null,
@@ -223,16 +242,11 @@ class _StatsViewState extends State<StatsView> {
                                   title: Text(
                                     "Saison $saison/${saison + 1}",
                                     style: TextStyle(
-                                      color: ColorPalette.textPrimary(
-                                        context,
-                                      ),
-                                    ),
+                                        color:
+                                            ColorPalette.textPrimary(context)),
                                   ),
-                                  onChanged: (value) {
-                                    setDialogState(() {
-                                      selectedYear = value;
-                                    });
-                                  },
+                                  onChanged: (value) => setDialogState(
+                                      () => selectedYear = value),
                                 ),
                             ],
                           ),
@@ -248,16 +262,10 @@ class _StatsViewState extends State<StatsView> {
                                 title: Text(
                                   "Saison $saison/${saison + 1}",
                                   style: TextStyle(
-                                    color: ColorPalette.textPrimary(
-                                      context,
-                                    ),
-                                  ),
+                                      color: ColorPalette.textPrimary(context)),
                                 ),
-                                onChanged: (value) {
-                                  setDialogState(() {
-                                    selectedYear = value;
-                                  });
-                                },
+                                onChanged: (value) =>
+                                    setDialogState(() => selectedYear = value),
                               ),
                           ],
                         ),
@@ -267,28 +275,17 @@ class _StatsViewState extends State<StatsView> {
                     onPressed: () => Navigator.pop(context),
                     child: Text(
                       'Annuler',
-                      style: TextStyle(
-                        color: ColorPalette.textPrimary(context),
-                      ),
+                      style:
+                          TextStyle(color: ColorPalette.textSecondary(context)),
                     ),
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedYear == null
-                          ? ColorPalette.buttonDisabled(context)
-                          : ColorPalette.buttonPrimary(context),
-                    ),
-                    onPressed: selectedYear == null
-                        ? null
-                        : () => Navigator.pop(context, selectedYear),
+                  TextButton(
+                    onPressed: selectedYear != null
+                        ? () => Navigator.pop(context, selectedYear)
+                        : null,
                     child: Text(
                       'Appliquer',
-                      style: TextStyle(
-                        color: selectedYear == null
-                            ? ColorPalette.textSecondary(context)
-                                .withValues(alpha: 0.8)
-                            : ColorPalette.textPrimary(context),
-                      ),
+                      style: TextStyle(color: ColorPalette.accent(context)),
                     ),
                   ),
                 ],
@@ -306,6 +303,7 @@ class _StatsViewState extends State<StatsView> {
             end: DateTime(pickedYear + 1, 8, 1),
           );
         });
+        _startLoading();
       }
     }
   }
@@ -315,6 +313,7 @@ class _StatsViewState extends State<StatsView> {
       _dateRange = null;
       _saison = null;
     });
+    _startLoading();
   }
 
   @override
@@ -390,6 +389,7 @@ class _StatsViewState extends State<StatsView> {
                               _onlyPublicMatches = value ?? false;
                             });
                             setStateMenu(() {});
+                            _startLoading();
                           },
                         );
                       },
@@ -435,7 +435,6 @@ class _StatsViewState extends State<StatsView> {
                   ),
                 ),
               ),
-            // les onglets
             TabBar(
               isScrollable: true,
               indicatorColor: ColorPalette.accent(context),
@@ -455,56 +454,16 @@ class _StatsViewState extends State<StatsView> {
             ),
             Expanded(
               child: TabBarView(
-                children: [
-                  StatsLoaderWidget(
-                    showCards: _showCards,
-                    onlyPublicMatches:
-                        isCurrentUser() ? _onlyPublicMatches : true,
-                    dateRange: _dateRange,
-                    onglet: StatsOnglet.generales,
-                    user: widget.user,
-                  ),
-                  StatsLoaderWidget(
-                    showCards: _showCards,
-                    onlyPublicMatches:
-                        isCurrentUser() ? _onlyPublicMatches : true,
-                    dateRange: _dateRange,
-                    onglet: StatsOnglet.matchs,
-                    user: widget.user,
-                  ),
-                  StatsLoaderWidget(
-                    showCards: _showCards,
-                    onlyPublicMatches:
-                        isCurrentUser() ? _onlyPublicMatches : true,
-                    dateRange: _dateRange,
-                    onglet: StatsOnglet.equipes,
-                    user: widget.user,
-                  ),
-                  StatsLoaderWidget(
-                    showCards: _showCards,
-                    onlyPublicMatches:
-                        isCurrentUser() ? _onlyPublicMatches : true,
-                    dateRange: _dateRange,
-                    onglet: StatsOnglet.joueurs,
-                    user: widget.user,
-                  ),
-                  StatsLoaderWidget(
-                    showCards: _showCards,
-                    onlyPublicMatches:
-                        isCurrentUser() ? _onlyPublicMatches : true,
-                    dateRange: _dateRange,
-                    onglet: StatsOnglet.competitions,
-                    user: widget.user,
-                  ),
-                  StatsLoaderWidget(
-                    showCards: _showCards,
-                    onlyPublicMatches:
-                        isCurrentUser() ? _onlyPublicMatches : true,
-                    dateRange: _dateRange,
-                    onglet: StatsOnglet.habitudes,
-                    user: widget.user,
-                  ),
-                ],
+                children: StatsOnglet.values
+                    .map(
+                      (onglet) => StatsLoaderWidget(
+                        showCards: _showCards,
+                        onglet: onglet,
+                        user: widget.user,
+                        statsState: _statsState,
+                      ),
+                    )
+                    .toList(),
               ),
             ),
           ],

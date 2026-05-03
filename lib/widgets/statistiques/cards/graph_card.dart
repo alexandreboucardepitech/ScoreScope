@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/graph/stat_value.dart';
+import 'package:scorescope/models/stats/graph/stat_value_duo.dart';
 import 'package:scorescope/models/stats/graph/time_stat_value.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/statistiques/graphs/time_line_chart.dart';
 import 'package:scorescope/widgets/statistiques/graphs/pie_stat_graph.dart';
 import 'package:scorescope/widgets/statistiques/graphs/split_bar_chart.dart';
+import 'package:scorescope/widgets/statistiques/graphs/scatter_stat_graph.dart';
 
 class GraphCard extends StatelessWidget {
   final String title;
   final GraphType type;
   final dynamic values;
   final bool pourcentage;
+  final String? labelX;
+  final String? labelY;
 
   const GraphCard({
     super.key,
@@ -19,6 +23,8 @@ class GraphCard extends StatelessWidget {
     required this.type,
     required this.values,
     this.pourcentage = false,
+    this.labelX,
+    this.labelY,
   });
 
   @override
@@ -46,6 +52,8 @@ class GraphCard extends StatelessWidget {
             type: type,
             values: values,
             pourcentage: pourcentage,
+            labelX: labelX,
+            labelY: labelY,
           ),
         ],
       ),
@@ -57,11 +65,15 @@ class _GraphRenderer extends StatelessWidget {
   final GraphType type;
   final dynamic values;
   final bool pourcentage;
+  final String? labelX;
+  final String? labelY;
 
   const _GraphRenderer({
     required this.type,
     required this.values,
     required this.pourcentage,
+    this.labelX,
+    this.labelY,
   });
 
   @override
@@ -76,6 +88,12 @@ class _GraphRenderer extends StatelessWidget {
         return SplitBarChart(values: values as List<StatValue>);
       case GraphType.timeLine:
         return TimeLineChart(values: values as List<TimeStatValue>);
+      case GraphType.scatter:
+        return ScatterStatGraph(
+          values: values as List<StatValueDuo>,
+          labelX: labelX ?? 'X',
+          labelY: labelY ?? 'Y',
+        );
     }
   }
 }

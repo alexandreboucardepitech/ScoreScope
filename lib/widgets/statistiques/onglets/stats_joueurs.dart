@@ -57,9 +57,11 @@ class StatsJoueursOnglet extends StatelessWidget {
 
     final graphWidgets = <Widget>[
       GraphCard(
-        title: 'Répartition des buts par joueur',
-        type: GraphType.pie,
-        values: data.butsParJoueur,
+        title: 'Nombre de buts / votes MVP',
+        type: GraphType.scatter,
+        values: data.butsMvpParJoueur,
+        labelX: 'Buts',
+        labelY: 'Votes MVP',
       ),
     ];
 

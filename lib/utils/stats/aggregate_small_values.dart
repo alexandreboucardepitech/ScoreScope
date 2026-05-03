@@ -22,7 +22,7 @@ List<StatValue> aggregateSmallValues(List<StatValue> values) {
     ));
   }
 
-  if (otherSum / minValue > 5) {
+  if (topValues.length > 5) {
     return topValues;
   } else {
     return sortedValues;

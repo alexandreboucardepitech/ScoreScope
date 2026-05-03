@@ -6,6 +6,7 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/stats/graph/stat_value.dart';
+import 'package:scorescope/models/stats/graph/stat_value_duo.dart';
 import 'package:scorescope/models/stats/graph/time_stat_value.dart';
 import 'package:scorescope/models/stats/player_stats.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
@@ -185,7 +186,8 @@ class StatsLoader {
   }
 
   static Future<List<PodiumEntry<Joueur>>> getMvpsLesPlusVotes(
-      {required List<MatchUserData> matchsVusUser}) async {
+      {required List<MatchUserData> matchsVusUser,
+      Map<String, Joueur>? joueursCache}) async {
     Map<String, int> mvpsCount = {};
 
     for (final matchData in matchsVusUser) {
@@ -197,8 +199,10 @@ class StatsLoader {
 
     final podiumEntries = await Future.wait(
       mvpsCount.entries.map((entry) async {
-        final joueur = await RepositoryProvider.joueurRepository
-            .fetchJoueurById(entry.key);
+        final joueur = joueursCache == null || joueursCache[entry.key] == null
+            ? await RepositoryProvider.joueurRepository
+                .fetchJoueurById(entry.key)
+            : joueursCache[entry.key];
         if (joueur == null) return null;
 
         final color = await joueur.getColor();
@@ -555,6 +559,7 @@ class StatsLoader {
 
   static Future<List<PodiumEntry<MatchModel>>> getMatchsMieuxNotes({
     required List<MatchUserData> matchsVusUser,
+    Map<String, MatchModel>? matchCache,
   }) async {
     final List<PodiumEntry<MatchModel>> podiumEntries = [];
 
@@ -562,8 +567,9 @@ class StatsLoader {
       final note = matchUserData.note;
       if (note == null) continue;
 
-      final MatchModel? match = await RepositoryProvider.matchRepository
-          .fetchMatchById(matchUserData.matchId);
+      final MatchModel? match = matchCache?[matchUserData.matchId] ??
+          await RepositoryProvider.matchRepository
+              .fetchMatchById(matchUserData.matchId);
       if (match == null) continue;
 
       podiumEntries.add(
@@ -579,12 +585,15 @@ class StatsLoader {
 
   static Future<List<PodiumEntry<MatchModel>>> getMatchsPlusCommentes({
     required List<MatchUserData> matchsVusUser,
+    Map<String, MatchModel>? matchCache,
   }) async {
     final List<PodiumEntry<MatchModel>> podiumEntries = [];
 
     for (final matchUserData in matchsVusUser) {
-      final MatchModel? match = await RepositoryProvider.matchRepository
-          .fetchMatchById(matchUserData.matchId);
+      if (matchUserData.comments.isEmpty) continue;
+      final MatchModel? match = matchCache?[matchUserData.matchId] ??
+          await RepositoryProvider.matchRepository
+              .fetchMatchById(matchUserData.matchId);
       if (match == null) continue;
 
       podiumEntries.add(
@@ -600,12 +609,15 @@ class StatsLoader {
 
   static Future<List<PodiumEntry<MatchModel>>> getMatchsPlusReactions({
     required List<MatchUserData> matchsVusUser,
+    Map<String, MatchModel>? matchCache,
   }) async {
     final List<PodiumEntry<MatchModel>> podiumEntries = [];
 
     for (final matchUserData in matchsVusUser) {
-      final MatchModel? match = await RepositoryProvider.matchRepository
-          .fetchMatchById(matchUserData.matchId);
+      if (matchUserData.reactions.isEmpty) continue;
+      final MatchModel? match = matchCache?[matchUserData.matchId] ??
+          await RepositoryProvider.matchRepository
+              .fetchMatchById(matchUserData.matchId);
       if (match == null) continue;
 
       podiumEntries.add(
@@ -671,13 +683,14 @@ class StatsLoader {
       return [];
     }
 
+    sortedEntries.removeWhere((entry) => entry.value == 0);
+
     return sortedEntries.map((e) {
       final competition = competitionById[e.key]!;
-      final percentage = (e.value / totalMatchs) * 100;
 
       return StatValue(
         label: competition.nom,
-        value: percentage,
+        value: e.value,
       );
     }).toList();
   }
@@ -971,7 +984,8 @@ class StatsLoader {
     List<PodiumEntry<Joueur>> eluMvpMatchsVusUser =
         await getMvpsLesPlusVotesListeMatchs(matchs: matchsEquipeVusUser);
 
-    List<MatchModel> matchsAvecUneNote = matchsEquipe.where((match) => match.getNoteMoyenne() != -1).toList();
+    List<MatchModel> matchsAvecUneNote =
+        matchsEquipe.where((match) => match.getNoteMoyenne() != -1).toList();
 
     double noteMoyenne = matchsAvecUneNote.isEmpty
         ? 0
@@ -1075,5 +1089,77 @@ class StatsLoader {
       StatValue(label: "Nuls", value: (nuls / totalMatchs) * 100),
       StatValue(label: "Défaites", value: (defaites / totalMatchs) * 100),
     ];
+  }
+
+  static Future<List<StatValueDuo>> getButsEtMvpsParJoueur({
+    required Map<Joueur, int> butsParJoueur,
+    required Map<Joueur, int> mvpsParJoueur,
+    Map<String, Equipe>? equipesCache,
+  }) async {
+    final mvpParJoueurId = {
+      for (final entry in mvpsParJoueur.entries) entry.key.id: entry.value
+    };
+
+    final result = <StatValueDuo>[];
+
+    for (final entry in butsParJoueur.entries) {
+      final joueur = entry.key;
+      final nbButs = entry.value;
+      final nbMvps = mvpParJoueurId[joueur.id];
+
+      if (nbMvps == null || nbMvps == 0) continue;
+
+      final equipe = equipesCache?[joueur.equipeId] ??
+          await RepositoryProvider.equipeRepository
+              .fetchEquipeById(joueur.equipeId);
+
+      result.add(
+        StatValueDuo(
+          label: joueur.fullName,
+          valueX: nbButs,
+          valueY: nbMvps,
+          color: equipe?.couleurPrincipale,
+        ),
+      );
+    }
+
+    result.sort((a, b) => b.valueX.compareTo(a.valueX));
+
+    return result;
+  }
+
+  static List<StatValueDuo> getPourcentageVictoiresParEquipe({
+    required Map<Equipe, int> equipesDifferentes,
+    required List<PodiumEntry<Equipe>> equipesLesPlusVuesGagner,
+  }) {
+    final equipesTroisMatchJoues = Map<Equipe, int>.from(equipesDifferentes);
+    equipesTroisMatchJoues.removeWhere((equipe, nbMatchs) => nbMatchs < 3);
+    final result = equipesTroisMatchJoues
+        .map((equipe, nbMatchs) {
+          final entryGagnant = equipesLesPlusVuesGagner.firstWhere(
+            (entry) => entry.item.id == equipe.id,
+            orElse: () => PodiumEntry(
+              item: equipe,
+              value: 0,
+              color: equipe.couleurPrincipale,
+            ),
+          );
+          final pourcentageVictoires = (entryGagnant.value / nbMatchs) * 100;
+          return MapEntry(
+            equipe,
+            StatValueDuo(
+              label: equipe.nom,
+              valueX: nbMatchs,
+              valueY: pourcentageVictoires,
+              color: entryGagnant.color,
+            ),
+          );
+        })
+        .values
+        .toList();
+
+    result.sort((a, b) => b.valueX.compareTo(a.valueX));
+
+    return result;
   }
 }

@@ -1,5 +1,5 @@
 import 'package:scorescope/models/joueur.dart';
-import 'package:scorescope/models/stats/graph/stat_value.dart';
+import 'package:scorescope/models/stats/graph/stat_value_duo.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 
 class StatsJoueursData {
@@ -9,13 +9,13 @@ class StatsJoueursData {
   final List<PodiumEntry<Joueur>> mvpsLesPlusVotes;
   final List<PodiumEntry<Joueur>> meilleursButeursUnMatch;
 
-  final List<StatValue> butsParJoueur;
+  final List<StatValueDuo> butsMvpParJoueur;
 
   const StatsJoueursData({
     required this.meilleursButeurs,
     required this.titularisations,
     required this.mvpsLesPlusVotes,
     required this.meilleursButeursUnMatch,
-    required this.butsParJoueur,
+    required this.butsMvpParJoueur,
   });
 }

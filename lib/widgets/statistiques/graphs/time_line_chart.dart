@@ -45,10 +45,11 @@ class _TimeLineChartState extends State<TimeLineChart> {
     String monthLabel = _monthLabel(selected.period.month, false);
 
     monthLabel = _displayYear(
-        values: widget.values,
-        label: monthLabel,
-        index: selectedIndex,
-        short: false);
+      values: widget.values,
+      label: monthLabel,
+      index: selectedIndex,
+      short: false,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -130,6 +131,7 @@ class _TimeLineChartState extends State<TimeLineChart> {
                           label: label,
                           index: index,
                           short: true,
+                          onlyFirstMonth: true,
                         );
 
                         return Padding(
@@ -233,18 +235,19 @@ class _TimeLineChartState extends State<TimeLineChart> {
     required String label,
     required int index,
     required bool short,
+    bool onlyFirstMonth = false,
   }) {
     if (values.isEmpty) return label;
 
     final firstYear = values.first.period.year;
-    for (final value in values) {
-      if (value.period.year != firstYear) {
-        return short
-            ? '$label ${values[index].period.year.toString().substring(2)}'
-            : '$label ${values[index].period.year}';
-      }
-    }
-    return label;
+    final hasMultipleYears = values.any((v) => v.period.year != firstYear);
+
+    if (!hasMultipleYears) return label;
+
+    if (onlyFirstMonth && values[index].period.month != 1) return label;
+
+    final year = values[index].period.year;
+    return short ? '$label ${year.toString().substring(2)}' : '$label $year';
   }
 }
 

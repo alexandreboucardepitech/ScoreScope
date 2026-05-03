@@ -24,9 +24,11 @@ class MatchJoueur {
         'hasPlayed': hasPlayed,
       };
 
-  static Future<MatchJoueur> fromMatchJoueurId(MatchJoueurId data) async {
-    Joueur? joueur = await RepositoryProvider.joueurRepository
-        .fetchJoueurById(data.joueurId);
+  static Future<MatchJoueur> fromMatchJoueurId(MatchJoueurId data,
+      {Joueur? joueurDejaCharge}) async {
+    Joueur? joueur = joueurDejaCharge ??
+        await RepositoryProvider.joueurRepository
+            .fetchJoueurById(data.joueurId);
 
     return MatchJoueur(
       joueur: joueur,

@@ -45,7 +45,8 @@ class StatsHabitudesOnglet extends StatelessWidget {
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Matchs les + commentés',
-        items: data.matchsPlusCommentes[0].value != 0
+        items: data.matchsPlusCommentes.isNotEmpty &&
+                data.matchsPlusCommentes[0].value != 0
             ? data.matchsPlusCommentes
             : [],
         emptyStateText: 'Aucun match',
@@ -54,7 +55,8 @@ class StatsHabitudesOnglet extends StatelessWidget {
       buildPodiumCardOrListTile(
         showCards: showCards,
         title: 'Matchs les + réactions',
-        items: data.matchsPlusReactions[0].value != 0
+        items: data.matchsPlusReactions.isNotEmpty &&
+                data.matchsPlusReactions[0].value != 0
             ? data.matchsPlusReactions
             : [],
         emptyStateText: 'Aucun match',

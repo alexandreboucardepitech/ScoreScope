@@ -70,9 +70,11 @@ class StatsEquipesOnglet extends StatelessWidget {
 
     final graphWidgets = <Widget>[
       GraphCard(
-        title: 'Répartition des matchs par équipe',
-        type: GraphType.pie,
-        values: data.matchsVusParEquipe,
+        title: 'Pourcentage de victoires (min. 3 matchs vus)',
+        type: GraphType.scatter,
+        values: data.pourcentageVictoiresParEquipe,
+        labelX: 'Matchs',
+        labelY: '% Victoires',
       ),
     ];
 

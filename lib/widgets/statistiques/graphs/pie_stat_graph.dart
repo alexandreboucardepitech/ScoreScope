@@ -137,7 +137,7 @@ class _PieStatGraphState extends State<PieStatGraph> {
                       const SizedBox(width: 6),
                       Text(
                         widget.pourcentage
-                            ? '${v.value.toStringAsFixed(0)}%'
+                            ? '${(v.value / total * 100).toStringAsFixed(0)}%'
                             : v.value.toStringAsFixed(0),
                         style: TextStyle(
                           fontSize: 12,
