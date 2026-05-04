@@ -30,6 +30,7 @@ class MatchInfosCard extends StatelessWidget {
           const SizedBox(height: 8),
           if (match.stadiumName != null)
             Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Icon(
                   Icons.stadium,
@@ -40,6 +41,7 @@ class MatchInfosCard extends StatelessWidget {
                 Expanded(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       match.stadiumName!,
                       style: TextStyle(

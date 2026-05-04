@@ -46,6 +46,63 @@ class StatsLoader {
     );
   }
 
+  static Future<Map<Joueur, int>> getMeilleursPasseurs(
+      List<MatchModel> matchsVusModels) async {
+    final Map<String, int> countById = {};
+    final Map<String, Joueur> joueurById = {};
+
+    for (final match in matchsVusModels) {
+      final List<But> butsDuMatch =
+          match.butsEquipeDomicile + match.butsEquipeExterieur;
+      for (var but in butsDuMatch) {
+        if (but.typeBut == TypeBut.owngoal || but.passeur == null) continue;
+        final id = but.passeur!.id;
+        countById[id] = (countById[id] ?? 0) + 1;
+        joueurById[id] = but.passeur!;
+      }
+    }
+
+    final sortedEntries = countById.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Map.fromEntries(
+      sortedEntries.map(
+        (e) => MapEntry(joueurById[e.key]!, e.value),
+      ),
+    );
+  }
+
+  static Future<Map<Joueur, int>> getMeilleursGAs(
+      List<MatchModel> matchsVusModels) async {
+    final Map<String, int> countById = {};
+    final Map<String, Joueur> joueurById = {};
+
+    for (final match in matchsVusModels) {
+      final List<But> butsDuMatch =
+          match.butsEquipeDomicile + match.butsEquipeExterieur;
+      for (var but in butsDuMatch) {
+        if (but.typeBut == TypeBut.owngoal) continue;
+        final buteurId = but.buteur.id;
+        countById[buteurId] = (countById[buteurId] ?? 0) + 1;
+        joueurById[buteurId] = but.buteur;
+        if (but.passeur != null) {
+          final passeurId = but.passeur!.id;
+          countById[passeurId] = (countById[passeurId] ?? 0) + 1;
+          joueurById[passeurId] = but.passeur!;
+        }
+      }
+    }
+
+    final sortedEntries = countById.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Map.fromEntries(
+      sortedEntries.map(
+        (e) => MapEntry(joueurById[e.key]!, e.value),
+      ),
+    );
+  }
+
   static Future<Map<Joueur, int>> getTitularisations(
       List<MatchModel> matchsVusModels) async {
     final Map<String, int> countById = {};

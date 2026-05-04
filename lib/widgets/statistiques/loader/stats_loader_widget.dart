@@ -189,6 +189,9 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
 
     final buteursDifferents =
         await StatsLoader.getMeilleursButeurs(matchModels);
+    final passeursDifferents =
+        await StatsLoader.getMeilleursPasseurs(matchModels);
+    final gAsDifferents = await StatsLoader.getMeilleursGAs(matchModels);
     final titularisations = await StatsLoader.getTitularisations(matchModels);
     final meilleursButeursUnMatch =
         await StatsLoader.getMeilleursButeursUnMatch(matchModels);
@@ -207,6 +210,9 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
     return StatsJoueursData(
       meilleursButeurs:
           await StatsLoader.getPodiumFromMap<Joueur>(buteursDifferents),
+      meilleursPasseurs:
+          await StatsLoader.getPodiumFromMap<Joueur>(passeursDifferents),
+      meilleursGAs: await StatsLoader.getPodiumFromMap<Joueur>(gAsDifferents),
       titularisations:
           await StatsLoader.getPodiumFromMap<Joueur>(titularisations),
       mvpsLesPlusVotes: mvpsParJoueur,

@@ -461,7 +461,6 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 28,
             child: Text(
               rank.toString(),
               textAlign: TextAlign.center,
@@ -472,6 +471,7 @@ class _PodiumRow<T extends PodiumDisplayable> extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(width: 10),
           if (shimmer) ...[
             Expanded(
               child: Shimmer.fromColors(

@@ -497,10 +497,15 @@ exports.updateLiveMatches = onSchedule(
                     if (eventType === "Goal") {
                       const buteurId = event.player?.id?.toString();
                       const passeurId = event.assist?.id?.toString() || null;
-                      const minute = event.time?.elapsed?.toString();
+                      let minute = event.time?.elapsed?.toString();
+                      const extra = event.time?.extra?.toString();
                       const teamId = event.team?.id?.toString();
 
                       if (!buteurId || !minute || !teamId) continue;
+
+                      if (extra != null && extra !== "") {
+                        minute = minute + "+" + extra;
+                      }
 
                       let typeBut = "normal";
                       let missed = false;

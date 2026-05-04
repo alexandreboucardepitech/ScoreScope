@@ -31,6 +31,22 @@ class StatsJoueursOnglet extends StatelessWidget {
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
+        title: 'Passes décisives',
+        items: data.meilleursPasseurs,
+        emptyStateText: 'Aucun joueur',
+        user: user,
+        logoBackground: false,
+      ),
+      buildPodiumCardOrListTile<Joueur>(
+        showCards: showCards,
+        title: 'G+A',
+        items: data.meilleursGAs,
+        emptyStateText: 'Aucun joueur',
+        user: user,
+        logoBackground: false,
+      ),
+      buildPodiumCardOrListTile<Joueur>(
+        showCards: showCards,
         title: 'Titularisations',
         items: data.titularisations,
         emptyStateText: 'Aucun joueur',

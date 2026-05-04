@@ -49,8 +49,9 @@ class WebPostRepository implements IPostRepository {
           }
 
           if (cutoff != null &&
-              matchUserData.watchedAt != null &&
-              matchUserData.watchedAt!.isBefore(cutoff)) {
+                  matchUserData.watchedAt != null &&
+                  matchUserData.watchedAt!.isBefore(cutoff) ||
+              matchUserData.watchedAt == null) {
             continue;
           }
 

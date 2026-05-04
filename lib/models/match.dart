@@ -591,7 +591,7 @@ class MatchModel implements PodiumDisplayable {
   int getPlayerNbButs(String playerId) {
     int count = 0;
     for (But but in [...butsEquipeDomicile, ...butsEquipeExterieur]) {
-      if (but.buteur.id == playerId) {
+      if (but.buteur.id == playerId && but.typeBut != TypeBut.owngoal) {
         count++;
       }
     }
