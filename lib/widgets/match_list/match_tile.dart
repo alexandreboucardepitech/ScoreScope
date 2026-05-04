@@ -369,12 +369,15 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                             child: Container(
                               width: 44,
                               alignment: Alignment.center,
-                              child: Text(
-                                displayScoreOrMatchDate(match),
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w900,
-                                  color: ColorPalette.textPrimary(context),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  displayScoreOrMatchDate(match),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
                                 ),
                               ),
                             ),

@@ -239,7 +239,6 @@ class AuthService {
           AppleIDAuthorizationScopes.fullName,
         ],
 
-        // 👇 OBLIGATOIRE sur Android
         webAuthenticationOptions: Platform.isAndroid
             ? WebAuthenticationOptions(
                 clientId: 'com.scorescope.app.login',
