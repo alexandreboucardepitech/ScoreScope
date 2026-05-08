@@ -4,14 +4,11 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/edit_profile_view.dart';
 
-/// Presentational widget: affiche uniquement le statut fourni et
-/// émet des intentions d'action via `onActionRequested`.
 class ProfileAction extends StatelessWidget {
   final AppUser? user;
-  final Amitie? amitie; // source de vérité (peut être null)
+  final Amitie? amitie;
   final bool isMe;
-  final String?
-      currentUserId; // utile pour savoir si la demande a été envoyée par moi
+  final String? currentUserId;
   final void Function(String action)? onActionRequested;
 
   const ProfileAction({

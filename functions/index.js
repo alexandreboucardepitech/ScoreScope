@@ -3,6 +3,12 @@ const {onSchedule} = require("firebase-functions/v2/scheduler");
 const admin = require("firebase-admin");
 const fetch = require("node-fetch");
 const {onRequest} = require("firebase-functions/v2/https");
+const {sendNotification,
+  sendNotificationToUser,
+  NOTIF_TYPES,
+} = require("./notifications");
+
+exports.sendNotification = sendNotification;
 
 admin.initializeApp();
 setGlobalOptions({maxInstances: 10});
@@ -16,6 +22,37 @@ exports.getFootballData = onRequest(async (req, res) => {
 
   res.json({response: data});
 });
+
+// exports.sendTestNotification = onSchedule(
+//     {
+//       schedule: "* * * * *",
+//       timeZone: "Europe/Paris",
+//     },
+//     async () => {
+//       const message = {
+//         notification: {
+//           title: "Match terminé !",
+//           body: `Le match TEST TEST est terminé` +
+//                   ` ! Viens vite donner ta note et ` +
+//                   `voter pour le meilleur joueur !`,
+//         },
+//         data: {
+//           type: "result",
+//           matchId: "1419344",
+//         },
+//         token: "dFtZjtZRTSilkTZR2g8Ytg:APA91bFZE_U7_BHHExwm2Po7e" +
+//                   "PGZnDUVAqsaNSvxOJjmx3iBHP5NnNmDt6B1OBx5NT4h0ikn7nDMu22_s"+
+//                   "Uyd0W2I4AtKysS2TLiezCs9YVLGM5h4SjXvKXk",
+//       };
+//       try {
+//         const response = await admin.messaging().send(message);
+//         console.log(`Notif envoyée à alex: `, response);
+//       } catch (error) {
+//         console.error("Erreur : ", error);
+//       }
+
+//       return null;
+//     });
 
 // Fonction pour appeler l'API football
 async function getDataFromApi(endpoint, params = {}) {
@@ -709,8 +746,29 @@ exports.updateLiveMatches = onSchedule(
                     joueursEquipeDomicile: Object.values(mapDomicile),
                     joueursEquipeExterieur: Object.values(mapExterieur),
                   });
+
+              const usersSnapshot = await db.collection("users")
+                  .where("equipesPrefereesId",
+                      "array-contains-any",
+                      [data.equipeDomicileId, data.equipeExterieurId]).get();
+
+              // Filter users with notificationToken and options.results = true
+              const usersToNotify = usersSnapshot.docs
+                  .map((doc) => doc.data())
+                  .filter((user) => user.notificationToken != null &&
+                    (user.options === null || (user.options?.results === true &&
+                      user.options?.allNotifications !== false)));
+              console.log(usersToNotify.length, " Utilisateurs à notifier");
+              for (const user of usersToNotify) {
+                await sendNotificationToUser(user.uid,
+                    NOTIF_TYPES.FAVORITE_TEAM_MATCH_END, {
+                      matchName: `${matchData.teams.home.name} -` +
+                      ` ${matchData.teams.away.name}`,
+                      matchId: matchId,
+                    });
+              }
             } catch (error) {
-              console.error("🔥 Erreur finalisation :", matchId, error);
+              console.error("🔥 Erreur finalisation : ", matchId, error);
             }
           }
         } else {

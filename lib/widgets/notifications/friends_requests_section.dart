@@ -32,7 +32,7 @@ class FriendRequestsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader(context, 'Demandes d\'amis'),
+        _sectionHeader(context, "Demandes d'amis"),
         if (requests.isEmpty)
           Center(
             child: Padding(
@@ -157,6 +157,7 @@ class FriendRequestsSection extends StatelessWidget {
       child: CircleAvatar(
         radius: 18,
         backgroundColor: ColorPalette.pictureBackground(context),
+        backgroundImage: user?.photoUrl != null ? CachedNetworkImageProvider(user!.photoUrl!) : null,
         child: user?.photoUrl == null
             ? Text(
                 user?.displayName.characters.first.toUpperCase() ?? '?',
@@ -164,10 +165,7 @@ class FriendRequestsSection extends StatelessWidget {
                   color: ColorPalette.textPrimary(context),
                 ),
               )
-            : CachedNetworkImage(
-                imageUrl: user!.photoUrl!,
-                fit: BoxFit.cover,
-              ),
+            : null,
       ),
     );
   }

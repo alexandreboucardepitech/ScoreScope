@@ -3,6 +3,8 @@
   xmlns:tools="http://schemas.android.com/tools"
 >
   <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
   <application
     android:label="@string/app_name"
@@ -30,6 +32,15 @@
     </activity>
 
     <meta-data android:name="flutterEmbedding" android:value="2" />
+    <meta-data
+      android:name="com.google.firebase.messaging.default_notification_icon"
+      android:resource="@drawable/scorescope"
+    />
+
+    <meta-data
+      android:name="com.google.firebase.messaging.default_notification_channel_id"
+      android:value="high_importance_channel"
+    />
   </application>
 
   <queries>

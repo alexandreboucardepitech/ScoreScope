@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/amitie.dart';
+import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/post/commentaire.dart';
 import 'package:scorescope/models/post/reaction.dart';
 import 'package:scorescope/services/repositories/i_post_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/web_notification_repository.dart';
+import 'package:scorescope/utils/cloud_fonctions/notification_service.dart';
 
 class WebPostRepository implements IPostRepository {
   final CollectionReference usersCollection =
@@ -108,6 +111,10 @@ class WebPostRepository implements IPostRepository {
             continue;
           }
 
+          if (matchUserData.watchedAt == null) {
+            continue;
+          }
+
           entries.add(
             UserMatchEntry(
               user: friend,
@@ -173,10 +180,29 @@ class WebPostRepository implements IPostRepository {
 
     await newDocRef.set(commentData);
 
-    WebNotificationRepository().notifyNewComment(
+    await WebNotificationRepository().notifyNewComment(
       ownerUserId: ownerUserId,
       matchId: matchId,
       authorId: authorId,
+    );
+
+    AppUser? author =
+        await RepositoryProvider.userRepository.fetchUserById(authorId);
+
+    MatchModel? match =
+        await RepositoryProvider.matchRepository.fetchMatchById(matchId);
+
+    await NotificationService.send(
+      toUserId: ownerUserId,
+      type: 'comment',
+      payload: {
+        'fromUserName': author?.displayName ?? 'Quelqu\'un',
+        'matchName': match != null
+            ? '${match.equipeDomicile.nom} ${match.scoreEquipeDomicile}-${match.scoreEquipeExterieur} ${match.equipeExterieur.nom}'
+            : '',
+        'matchId': matchId,
+        'ownerUserId': ownerUserId,
+      },
     );
   }
 
@@ -294,10 +320,29 @@ class WebPostRepository implements IPostRepository {
 
     await reactionsRef.add(data);
 
-    WebNotificationRepository().notifyNewReaction(
+    await WebNotificationRepository().notifyNewReaction(
       ownerUserId: ownerUserId,
       matchId: matchId,
       authorId: authorId,
+    );
+
+    AppUser? author =
+        await RepositoryProvider.userRepository.fetchUserById(authorId);
+
+    MatchModel? match =
+        await RepositoryProvider.matchRepository.fetchMatchById(matchId);
+
+    await NotificationService.send(
+      toUserId: ownerUserId,
+      type: 'reaction',
+      payload: {
+        'fromUserName': author?.displayName ?? 'Quelqu\'un',
+        'matchName': match != null
+            ? '${match.equipeDomicile.nom} ${match.scoreEquipeDomicile}-${match.scoreEquipeExterieur} ${match.equipeExterieur.nom}'
+            : '',
+        'matchId': matchId,
+        'ownerUserId': ownerUserId,
+      },
     );
   }
 

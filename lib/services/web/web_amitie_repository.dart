@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/cloud_fonctions/notification_service.dart';
 import '../../models/amitie.dart';
 import '../repositories/i_amitie_repository.dart';
 
@@ -193,6 +195,18 @@ class WebAmitieRepository implements IAmitieRepository {
       'status': 'pending',
       'createdAt': DateTime.now(),
     });
+
+    final fromUser =
+        await RepositoryProvider.userRepository.fetchUserById(fromUserId);
+
+    await NotificationService.send(
+      toUserId: toUserId,
+      type: 'friendRequest',
+      payload: {
+        'fromUserName': fromUser?.displayName ?? "Quelqu'un",
+        'fromUserId': fromUserId,
+      },
+    );
   }
 
   @override
@@ -208,6 +222,18 @@ class WebAmitieRepository implements IAmitieRepository {
         'createdAt': DateTime.now(),
       });
     }
+
+    final fromUser =
+        await RepositoryProvider.userRepository.fetchUserById(userId1);
+
+    await NotificationService.send(
+      toUserId: userId1,
+      type: 'friendRequestAccepted',
+      payload: {
+        'fromUserName': fromUser?.displayName ?? "Quelqu'un",
+        'fromUserId': userId2,
+      },
+    );
   }
 
   @override

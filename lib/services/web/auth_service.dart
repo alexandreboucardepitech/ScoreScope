@@ -278,7 +278,7 @@ class AuthService {
       SnackBar(
         backgroundColor: ColorPalette.surface(context),
         content: Text(
-          "Erreur Apple : $e\n$st",
+          "Erreur lors de la connexion avec Apple.",
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
           ),

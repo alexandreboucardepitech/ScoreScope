@@ -790,51 +790,43 @@ class WebAppUserRepository implements IAppUserRepository {
   Future<void> updateOptions({
     required String userId,
     bool? allNotifications,
-    bool? newFollowers,
-    bool? likes,
-    bool? comments,
-    bool? replies,
+    bool? friendRequest,
+    bool? friendRequestAccepted,
+    bool? reaction,
+    bool? comment,
     bool? favoriteTeamMatch,
-    bool? results,
-    bool? emailNotifications,
+    bool? weeklyRecap,
     LanguageOptions? language,
     ThemeOptions? theme,
     VisionnageMatch? defaultVisionnageMatch,
   }) async {
     final userDocRef =
         FirebaseFirestore.instance.collection('users').doc(userId);
-
     final docSnapshot = await userDocRef.get();
 
-    if (docSnapshot.exists) {
-      final currentData = docSnapshot.data()!;
-      final currentOptions = currentData['options'] != null
-          ? Options.fromJson(currentData['options'] as Map<String, dynamic>)
-          : Options();
+    if (!docSnapshot.exists) throw Exception("Ce profil n'existe pas");
 
-      final updatedOptions = Options(
-        allNotifications: allNotifications ?? currentOptions.allNotifications,
-        newFollowers: newFollowers ?? currentOptions.newFollowers,
-        likes: likes ?? currentOptions.likes,
-        comments: comments ?? currentOptions.comments,
-        replies: replies ?? currentOptions.replies,
-        favoriteTeamMatch:
-            favoriteTeamMatch ?? currentOptions.favoriteTeamMatch,
-        results: results ?? currentOptions.results,
-        emailNotifications:
-            emailNotifications ?? currentOptions.emailNotifications,
-        language: language ?? currentOptions.language,
-        theme: theme ?? currentOptions.theme,
-        defaultVisionnageMatch:
-            defaultVisionnageMatch ?? currentOptions.defaultVisionnageMatch,
-      );
+    final currentData = docSnapshot.data()!;
+    final currentOptions = currentData['options'] != null
+        ? Options.fromJson(currentData['options'] as Map<String, dynamic>)
+        : Options();
 
-      await userDocRef.update({
-        'options': updatedOptions.toJson(),
-      });
-    } else {
-      throw Exception("Ce profil n'existe pas");
-    }
+    final updatedOptions = Options(
+      allNotifications: allNotifications ?? currentOptions.allNotifications,
+      friendRequest: friendRequest ?? currentOptions.friendRequest,
+      friendRequestAccepted:
+          friendRequestAccepted ?? currentOptions.friendRequestAccepted,
+      reaction: reaction ?? currentOptions.reaction,
+      comment: comment ?? currentOptions.comment,
+      favoriteTeamMatch: favoriteTeamMatch ?? currentOptions.favoriteTeamMatch,
+      weeklyRecap: weeklyRecap ?? currentOptions.weeklyRecap,
+      language: language ?? currentOptions.language,
+      theme: theme ?? currentOptions.theme,
+      defaultVisionnageMatch:
+          defaultVisionnageMatch ?? currentOptions.defaultVisionnageMatch,
+    );
+
+    await userDocRef.update({'options': updatedOptions.toJson()});
   }
 
   @override
@@ -910,6 +902,22 @@ class WebAppUserRepository implements IAppUserRepository {
         'notifications': activateNotifications,
         'matchDate': matchDate,
       });
+    }
+  }
+
+  @override
+  Future<void> updateNotificationToken(String userId, String token) async {
+    final userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+
+    final docSnapshot = await userDocRef.get();
+
+    if (docSnapshot.exists) {
+      await userDocRef.update({
+        'notificationToken': token,
+      });
+    } else {
+      throw Exception("Ce profil n'existe pas");
     }
   }
 }

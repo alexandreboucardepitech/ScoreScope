@@ -88,13 +88,12 @@ abstract class IAppUserRepository {
   Future<void> updateOptions({
     required String userId,
     bool? allNotifications,
-    bool? newFollowers,
-    bool? likes,
-    bool? comments,
-    bool? replies,
+    bool? friendRequest,
+    bool? friendRequestAccepted,
+    bool? reaction,
+    bool? comment,
     bool? favoriteTeamMatch,
-    bool? results,
-    bool? emailNotifications,
+    bool? weeklyRecap,
     LanguageOptions? language,
     ThemeOptions? theme,
     VisionnageMatch? defaultVisionnageMatch,
@@ -117,4 +116,9 @@ abstract class IAppUserRepository {
     required DateTime matchDate,
     required bool activateNotifications,
   });
+
+  Future<void> updateNotificationToken(
+    String userId,
+    String token,
+  );
 }

@@ -213,7 +213,6 @@ class _ProfileViewState extends State<ProfileView> {
     } catch (e) {
       if (!mounted) return;
       _setStateAndRemeasure(() {
-        _displayedUser = widget.user;
         _isLoadingMatchUserData = false;
       });
     }
@@ -226,6 +225,19 @@ class _ProfileViewState extends State<ProfileView> {
       if (!mounted) return;
       _setStateAndRemeasure(() {
         userEquipesPrefereesId = teams;
+        final base = _displayedUser ?? widget.user;
+        _displayedUser = AppUser(
+          uid: base.uid,
+          email: base.email,
+          displayName: base.displayName,
+          bio: base.bio,
+          photoUrl: base.photoUrl,
+          createdAt: base.createdAt,
+          equipesPrefereesId: teams,
+          competitionsPrefereesId: base.competitionsPrefereesId,
+          private: base.private,
+          matchsUserData: base.matchsUserData,
+        );
         _isLoadingEquipesPreferees = false;
       });
     } catch (_) {
@@ -390,7 +402,7 @@ class _ProfileViewState extends State<ProfileView> {
           content: Text(
             getFriendshipActionSnackbarMessage(action),
             style: TextStyle(
-              color: ColorPalette.textPrimary(
+              color: ColorPalette.textAccent(
                 context,
               ),
             ),

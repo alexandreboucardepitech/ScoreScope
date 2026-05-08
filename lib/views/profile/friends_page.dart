@@ -314,7 +314,7 @@ class _FriendsPageState extends State<FriendsPage>
           content: Text(
             getFriendshipActionSnackbarMessage(action),
             style: TextStyle(
-              color: ColorPalette.textPrimary(
+              color: ColorPalette.textAccent(
                 context,
               ),
             ),
@@ -414,6 +414,7 @@ class FriendListItem extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: CircleAvatar(
         backgroundColor: ColorPalette.pictureBackground(context),
+        backgroundImage: user.photoUrl != null ? CachedNetworkImageProvider(user.photoUrl!) : null,
         child: user.photoUrl == null
             ? Text(
                 user.displayName[0].toUpperCase(),

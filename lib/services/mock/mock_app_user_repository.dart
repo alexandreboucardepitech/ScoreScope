@@ -874,13 +874,12 @@ class MockAppUserRepository implements IAppUserRepository {
   Future<void> updateOptions({
     required String userId,
     bool? allNotifications,
-    bool? newFollowers,
-    bool? likes,
-    bool? comments,
-    bool? replies,
+    bool? friendRequest,
+    bool? friendRequestAccepted,
+    bool? reaction,
+    bool? comment,
     bool? favoriteTeamMatch,
-    bool? results,
-    bool? emailNotifications,
+    bool? weeklyRecap,
     LanguageOptions? language,
     ThemeOptions? theme,
     VisionnageMatch? defaultVisionnageMatch,
@@ -893,14 +892,13 @@ class MockAppUserRepository implements IAppUserRepository {
 
     final newOptions = Options(
       allNotifications: allNotifications ?? currentOptions.allNotifications,
-      newFollowers: newFollowers ?? currentOptions.newFollowers,
-      likes: likes ?? currentOptions.likes,
-      comments: comments ?? currentOptions.comments,
-      replies: replies ?? currentOptions.replies,
+      friendRequest: friendRequest ?? currentOptions.friendRequest,
+      friendRequestAccepted:
+          friendRequestAccepted ?? currentOptions.friendRequestAccepted,
+      reaction: reaction ?? currentOptions.reaction,
+      comment: comment ?? currentOptions.comment,
       favoriteTeamMatch: favoriteTeamMatch ?? currentOptions.favoriteTeamMatch,
-      results: results ?? currentOptions.results,
-      emailNotifications:
-          emailNotifications ?? currentOptions.emailNotifications,
+      weeklyRecap: weeklyRecap ?? currentOptions.weeklyRecap,
       language: language ?? currentOptions.language,
       theme: theme ?? currentOptions.theme,
       defaultVisionnageMatch:
@@ -1043,5 +1041,10 @@ class MockAppUserRepository implements IAppUserRepository {
     _users[userIdx] = newUser;
 
     await Future.delayed(const Duration(milliseconds: 30));
+  }
+
+  @override
+  Future<void> updateNotificationToken(String userId, String token) async {
+    // rien à faire dans le mock
   }
 }

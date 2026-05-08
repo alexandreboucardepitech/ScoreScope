@@ -14,29 +14,24 @@ class OptionsNotificationsView extends StatefulWidget {
 
 class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
   bool globalEnabled = true;
-
-  bool newFollowers = true;
-  bool likes = true;
-  bool comments = true;
-  bool replies = true;
+  bool friendRequest = true;
+  bool friendRequestAccepted = true;
+  bool reaction = true;
+  bool comment = true;
   bool favoriteTeamMatch = true;
-  bool results = true;
-  bool emailNotifications = false;
+  bool weeklyRecap = true;
 
   @override
   void initState() {
     super.initState();
-
     final options = widget.currentUser.options;
-
     globalEnabled = options.allNotifications;
-    newFollowers = options.newFollowers;
-    likes = options.likes;
-    comments = options.comments;
-    replies = options.replies;
+    friendRequest = options.friendRequest;
+    friendRequestAccepted = options.friendRequestAccepted;
+    reaction = options.reaction;
+    comment = options.comment;
     favoriteTeamMatch = options.favoriteTeamMatch;
-    results = options.results;
-    emailNotifications = options.emailNotifications;
+    weeklyRecap = options.weeklyRecap;
   }
 
   @override
@@ -54,9 +49,7 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        iconTheme: IconThemeData(
-          color: ColorPalette.textPrimary(context),
-        ),
+        iconTheme: IconThemeData(color: ColorPalette.textPrimary(context)),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -67,78 +60,76 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
             title: "Activer les notifications",
             value: globalEnabled,
             isMain: true,
-            onChanged: (value) async {
+            onChanged: (value) {
               RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
                 allNotifications: value,
               );
-              setState(() {
-                globalEnabled = value;
-              });
+              setState(() => globalEnabled = value);
             },
           ),
           const SizedBox(height: 16),
-          _buildSectionHeader(context, "Activité"),
+          _buildSectionHeader(context, "Social"),
           _buildToggleTile(
             context,
-            title: "Nouveaux abonnés",
-            value: newFollowers,
+            title: "Demandes d'amis",
+            value: friendRequest,
             enabled: globalEnabled,
-            onChanged: (value) async {
+            onChanged: (value) {
               RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
-                newFollowers: value,
+                friendRequest: value,
               );
-              setState(() => newFollowers = value);
+              setState(() => friendRequest = value);
             },
           ),
           _buildToggleTile(
             context,
-            title: "Likes",
-            value: likes,
+            title: "Demande d'ami acceptée",
+            value: friendRequestAccepted,
             enabled: globalEnabled,
-            onChanged: (value) async {
+            onChanged: (value) {
               RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
-                likes: value,
+                friendRequestAccepted: value,
               );
-              setState(() => likes = value);
+              setState(() => friendRequestAccepted = value);
             },
           ),
           _buildToggleTile(
             context,
-            title: "Commentaires",
-            value: comments,
+            title: "Réactions sur tes matchs",
+            value: reaction,
             enabled: globalEnabled,
-            onChanged: (value) async {
+            onChanged: (value) {
               RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
-                comments: value,
+                reaction: value,
               );
-              setState(() => comments = value);
+              setState(() => reaction = value);
             },
           ),
           _buildToggleTile(
             context,
-            title: "Réponses",
-            value: replies,
+            title: "Commentaires sur tes matchs",
+            value: comment,
             enabled: globalEnabled,
-            onChanged: (value) async {
+            onChanged: (value) {
               RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
-                replies: value,
+                comment: value,
               );
-              setState(() => replies = value);
+              setState(() => comment = value);
             },
           ),
           const SizedBox(height: 16),
           _buildSectionHeader(context, "Matchs"),
           _buildToggleTile(
             context,
-            title: "Match équipe favorite",
+            title: "Fin de match équipe favorite",
             value: favoriteTeamMatch,
             enabled: globalEnabled,
-            onChanged: (value) async {
+            onChanged: (value) {
               RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
                 favoriteTeamMatch: value,
@@ -148,30 +139,15 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
           ),
           _buildToggleTile(
             context,
-            title: "Résultats",
-            value: results,
+            title: "Récap hebdomadaire",
+            value: weeklyRecap,
             enabled: globalEnabled,
-            onChanged: (value) async {
+            onChanged: (value) {
               RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
-                results: value,
+                weeklyRecap: value,
               );
-              setState(() => results = value);
-            },
-          ),
-          const SizedBox(height: 16),
-          _buildSectionHeader(context, "Email"),
-          _buildToggleTile(
-            context,
-            title: "Communications par e-mail",
-            value: emailNotifications,
-            enabled: globalEnabled,
-            onChanged: (value) async {
-              RepositoryProvider.userRepository.updateOptions(
-                userId: widget.currentUser.uid,
-                emailNotifications: value,
-              );
-              setState(() => emailNotifications = value);
+              setState(() => weeklyRecap = value);
             },
           ),
           const SizedBox(height: 24),

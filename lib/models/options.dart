@@ -1,30 +1,27 @@
 import 'package:scorescope/models/enum/language_options.dart';
 import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
-import 'package:scorescope/services/repository_provider.dart';
 
 class Options {
   final bool allNotifications;
-  final bool newFollowers;
-  final bool likes;
-  final bool comments;
-  final bool replies;
+  final bool friendRequest;
+  final bool friendRequestAccepted;
+  final bool reaction;
+  final bool comment;
   final bool favoriteTeamMatch;
-  final bool results;
-  final bool emailNotifications;
+  final bool weeklyRecap;
   final LanguageOptions language;
   final ThemeOptions theme;
   final VisionnageMatch defaultVisionnageMatch;
 
   Options({
     this.allNotifications = true,
-    this.newFollowers = true,
-    this.likes = true,
-    this.comments = true,
-    this.replies = true,
+    this.friendRequest = true,
+    this.friendRequestAccepted = true,
+    this.reaction = true,
+    this.comment = true,
     this.favoriteTeamMatch = true,
-    this.results = true,
-    this.emailNotifications = true,
+    this.weeklyRecap = true,
     this.language = LanguageOptions.french,
     this.theme = ThemeOptions.system,
     this.defaultVisionnageMatch = VisionnageMatch.tele,
@@ -32,13 +29,12 @@ class Options {
 
   Map<String, dynamic> toJson() => {
         'allNotifications': allNotifications,
-        'newFollowers': newFollowers,
-        'likes': likes,
-        'comments': comments,
-        'replies': replies,
+        'friendRequest': friendRequest,
+        'friendRequestAccepted': friendRequestAccepted,
+        'reaction': reaction,
+        'comment': comment,
         'favoriteTeamMatch': favoriteTeamMatch,
-        'results': results,
-        'emailNotifications': emailNotifications,
+        'weeklyRecap': weeklyRecap,
         'language': language.name,
         'theme': theme.name,
         'defaultVisionnageMatch': defaultVisionnageMatch.label,
@@ -50,20 +46,18 @@ class Options {
     final theme = ThemeOptions.fromString(json['theme'] as String?) ??
         ThemeOptions.system;
     final defaultVisionnageMatch = VisionnageMatchExt.fromString(
-            json['defaultVisionnageMatch'] as String) ??
-        RepositoryProvider
-            .userRepository.currentUser?.options.defaultVisionnageMatch ??
+            json['defaultVisionnageMatch'] as String? ??
+                VisionnageMatch.tele.label) ??
         VisionnageMatch.tele;
 
     return Options(
-      allNotifications: json['allNotifications'] as bool? ?? false,
-      newFollowers: json['newFollowers'] as bool? ?? false,
-      likes: json['likes'] as bool? ?? false,
-      comments: json['comments'] as bool? ?? false,
-      replies: json['replies'] as bool? ?? false,
-      favoriteTeamMatch: json['favoriteTeamMatch'] as bool? ?? false,
-      results: json['results'] as bool? ?? false,
-      emailNotifications: json['emailNotifications'] as bool? ?? false,
+      allNotifications: json['allNotifications'] as bool? ?? true,
+      friendRequest: json['friendRequest'] as bool? ?? true,
+      friendRequestAccepted: json['friendRequestAccepted'] as bool? ?? true,
+      reaction: json['reaction'] as bool? ?? true,
+      comment: json['comment'] as bool? ?? true,
+      favoriteTeamMatch: json['favoriteTeamMatch'] as bool? ?? true,
+      weeklyRecap: json['weeklyRecap'] as bool? ?? true,
       language: language,
       theme: theme,
       defaultVisionnageMatch: defaultVisionnageMatch,

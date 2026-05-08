@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,9 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/app_theme.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/views/amis/comments_page.dart';
 import 'package:scorescope/views/amis/fil_actu_amis.dart';
+import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/views/feedback/feedbacks_view.dart';
 import 'package:scorescope/views/login/login.dart';
 import 'package:scorescope/views/profile/edit_profile_view.dart';
@@ -17,13 +20,36 @@ import 'package:scorescope/views/statistiques/stats_view.dart';
 import 'firebase_options.dart';
 import 'views/all_matches/all_matches.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  debugPrint('Notif reçue en background: ${message.notification?.title}');
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await FlutterLocalNotificationsPlugin()
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(
+        const AndroidNotificationChannel(
+          'high_importance_channel',
+          'Notifications ScoreScope',
+          description: 'Notifications pour les matchs terminés',
+          importance: Importance.high,
+        ),
+      );
 
   // Déconnexion automatique au début pour test :
   // await GoogleSignIn.instance.disconnect();
@@ -171,6 +197,7 @@ class MyApp extends StatelessWidget {
     final themeController = context.watch<ThemeController>();
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'ScoreScope',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
@@ -215,6 +242,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadPendingRequests();
+    _initNotifications();
   }
 
   Future<void> _loadPendingRequests() async {
@@ -239,6 +267,97 @@ class _HomePageState extends State<HomePage> {
     } catch (e, st) {
       debugPrint("Erreur lors du chargement des demandes : $e\n$st");
     }
+  }
+
+  Future<void> _initNotifications() async {
+    final messaging = FirebaseMessaging.instance;
+
+    final settings = await messaging.requestPermission();
+    debugPrint('Permission notifs: ${settings.authorizationStatus}');
+
+    if (settings.authorizationStatus == AuthorizationStatus.denied) return;
+
+    final token = await messaging.getToken();
+    if (token != null) {
+      await _saveToken(token);
+    }
+
+    messaging.onTokenRefresh.listen(_saveToken);
+
+    final initialMessage = await messaging.getInitialMessage();
+
+    if (initialMessage != null) {
+      _handleNotificationTap(initialMessage.data);
+    }
+
+    // App en background, l'utilisateur tape la notif
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      _handleNotificationTap(message.data);
+    });
+  }
+
+  void _handleNotificationTap(Map<String, dynamic> data) async {
+    final type = data['type'];
+    if (type == null) return;
+
+    switch (type) {
+      case 'favoriteTeamMatch':
+        final matchId = data['matchId'];
+        if (matchId == null) return;
+        final match =
+            await RepositoryProvider.matchRepository.fetchMatchById(matchId);
+        if (match == null) return;
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => MatchDetailsPage(match: match)),
+        );
+
+      case 'friendRequest':
+      case 'friendRequestAccepted':
+        final fromUserId = data['fromUserId'];
+        if (fromUserId == null) return;
+        final user =
+            await RepositoryProvider.userRepository.fetchUserById(fromUserId);
+        if (user == null) return;
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => ProfileView(user: user)),
+        );
+
+      case 'reaction':
+      case 'comment':
+        final matchId = data['matchId'];
+        if (matchId == null) return;
+        final ownerUserId = data['ownerUserId'];
+        if (ownerUserId == null) return;
+        final match =
+            await RepositoryProvider.matchRepository.fetchMatchById(matchId);
+        if (match == null) return;
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (_) => CommentsPage(
+              matchId: matchId,
+              ownerUserId: ownerUserId,
+            ),
+          ),
+        );
+
+      case 'weeklyRecap':
+        final currentUser =
+            await RepositoryProvider.userRepository.getCurrentUser();
+        if (currentUser == null) return;
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+              builder: (_) => StatsView(
+                  user: currentUser)), //TODO : faire la page de récap hebdo
+        );
+    }
+  }
+
+  Future<void> _saveToken(String token) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    RepositoryProvider.userRepository.updateNotificationToken(userId, token);
+    debugPrint('Token FCM sauvegardé : $token');
   }
 
   Widget _amisIconAvecRequests() {

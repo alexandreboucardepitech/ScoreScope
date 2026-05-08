@@ -99,7 +99,7 @@ Nous faisons de notre mieux pour protéger vos données.
                   ),
                 ),
                 content: Text(
-                  "ScoreScope v1.0.0",
+                  "ScoreScope v1.0.2",
                   style: TextStyle(
                     color: ColorPalette.textPrimary(
                       context,
@@ -169,7 +169,7 @@ Nous faisons de notre mieux pour protéger vos données.
               ),
               const SizedBox(height: 20),
               Text(
-                "Version 1.0.0",
+                "Version 1.0.2",
                 style: TextStyle(
                   color: ColorPalette.textSecondary(context),
                   fontSize: 12,
