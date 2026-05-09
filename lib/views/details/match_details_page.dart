@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/display_score_or_match_date.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
@@ -37,6 +38,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
 
   int _userDataVersion = 0;
 
+  MatchUserData? userData;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +47,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     _currentMatch = widget.match;
     _loadFavoriStatus();
     _loadPrivateStatus();
+    _loadMatchUserData();
   }
 
   Future<void> _reloadMatch() async {
@@ -114,6 +118,22 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       if (mounted) {
         setState(() => _isProcessingPrivacy = false);
       }
+    }
+  }
+
+  Future<void> _loadMatchUserData() async {
+    try {
+      final currentUser = RepositoryProvider.userRepository.currentUser;
+      if (currentUser != null) {
+        final data = await RepositoryProvider.userRepository
+            .fetchUserMatchUserData(currentUser.uid, _currentMatch.id);
+        if (!mounted) return;
+        setState(() => userData = data);
+      }
+    } catch (e) {
+      debugPrint(
+        'Erreur lors du chargement des données utilisateur du match: $e',
+      );
     }
   }
 
@@ -444,6 +464,53 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     }
   }
 
+  void _toggleNotifications(bool value) async {
+    if (userData != null) {
+      MatchUserData newUserData = MatchUserData(
+        matchId: userData!.matchId,
+        comments: userData!.comments,
+        favourite: userData!.favourite,
+        matchDate: userData!.matchDate,
+        mvpVoteId: userData!.mvpVoteId,
+        note: userData!.note,
+        notifications: value,
+        private: userData!.private,
+        reactions: userData!.reactions,
+        visionnageMatch: userData!.visionnageMatch,
+        watchedAt: userData!.watchedAt,
+      );
+      setState(() {
+        userData = newUserData;
+      });
+    } else {
+      setState(() {
+        userData = MatchUserData(
+          matchId: widget.match.id,
+          notifications: value,
+        );
+      });
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Notifications ${value ? 'activées' : 'désactivées'} pour ${widget.match.equipeDomicile.nomCourt ?? widget.match.equipeDomicile.nom} - ${widget.match.equipeExterieur.nomCourt ?? widget.match.equipeExterieur.nom}',
+        ),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+
+    AppUser? currentUser = RepositoryProvider.userRepository.currentUser;
+    if (currentUser != null) {
+      await RepositoryProvider.userRepository.updateMatchNotifications(
+        matchId: widget.match.id,
+        userId: currentUser.uid,
+        matchDate: widget.match.date,
+        activateNotifications: value,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
@@ -460,6 +527,18 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
+          if (widget.match.isLive)
+            IconButton(
+              icon: Icon(
+                userData?.notifications ?? false
+                    ? Icons.notifications_active
+                    : Icons.notifications_outlined,
+                color: ColorPalette.accent(context),
+              ),
+              onPressed: () => _toggleNotifications(
+                !(userData?.notifications ?? false),
+              ),
+            ),
           if (widget.match.isScheduled == false) ...[
             IconButton(
               icon: _isUpdatingFavori
@@ -477,114 +556,101 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                     ),
               onPressed: _toggleFavori,
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 4.0),
-              child: _isProcessingPrivacy
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            _isProcessingPrivacy
+                ? SizedBox(
+                    width: 48,
+                    child: Center(
                       child: SizedBox(
-                        width: 28,
-                        height: 28,
+                        width: 24,
+                        height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.2,
                           color: ColorPalette.accent(context),
                         ),
                       ),
-                    )
-                  : PopupMenuButton<String>(
-                      tooltip: _isPrivate ? 'Match privé' : 'Match public',
-                      icon: Icon(_isPrivate ? Icons.lock : Icons.public,
-                          color: ColorPalette.accent(context)),
-                      onSelected: (value) => _onPrivacyMenuSelected(value),
-                      itemBuilder: (context) {
-                        if (_isPrivate) {
-                          return [
-                            PopupMenuItem(
-                              value: 'publish',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.public, size: 18),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Rendre le match public',
-                                    style: TextStyle(
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.delete, size: 18),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Supprimer le match',
-                                    style: TextStyle(
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ];
-                        } else {
-                          return [
-                            PopupMenuItem(
-                              value: 'makePrivate',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.lock, size: 18),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Rendre le match privé',
-                                    style: TextStyle(
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.delete, size: 18),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Supprimer le match',
-                                    style: TextStyle(
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ];
-                        }
-                      },
                     ),
-            ),
-          ],
-          PopupMenuButton<String>(
-            icon: Icon(
-              Icons.more_vert,
-              color: ColorPalette.accent(context),
-            ),
-            onSelected: (value) {},
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'partager',
-                child: Text(
-                  'Partager',
-                  style: TextStyle(
-                    color: ColorPalette.textPrimary(context),
+                  )
+                : PopupMenuButton<String>(
+                    tooltip: _isPrivate ? 'Match privé' : 'Match public',
+                    icon: Icon(
+                      _isPrivate ? Icons.lock : Icons.public,
+                      color: ColorPalette.accent(context),
+                    ),
+                    onSelected: (value) => _onPrivacyMenuSelected(value),
+                    itemBuilder: (context) {
+                      if (_isPrivate) {
+                        return [
+                          PopupMenuItem(
+                            value: 'publish',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.public, size: 18),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Rendre le match public',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete, size: 18),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Supprimer le match',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ];
+                      } else {
+                        return [
+                          PopupMenuItem(
+                            value: 'makePrivate',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.lock, size: 18),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Rendre le match privé',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete, size: 18),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Supprimer le match',
+                                  style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ];
+                      }
+                    },
                   ),
-                ),
-              ),
-            ],
+          ],
+          IconButton(
+            icon: Icon(Icons.share, color: ColorPalette.accent(context)),
+            onPressed: () {},
           ),
         ],
       ),
@@ -678,7 +744,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 if (_currentMatch.isLive &&
                                     _currentMatch.liveMinute != null)
                                   Text(
-                                    "${_currentMatch.liveMinute!}'",
+                                    _currentMatch.extraTime != null
+                                        ? "${_currentMatch.liveMinute!}+${_currentMatch.extraTime!}'"
+                                        : "${_currentMatch.liveMinute}'",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 16,

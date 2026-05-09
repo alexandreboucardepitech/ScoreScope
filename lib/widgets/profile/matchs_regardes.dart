@@ -114,15 +114,15 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        TextButton(
-          onPressed: widget.onVoirPlus,
-          child: Text(
-            'Voir plus',
-            style: TextStyle(
-              color: ColorPalette.textSecondary(context),
-            ),
-          ),
-        ),
+        // TextButton(
+        //   onPressed: widget.onVoirPlus,
+        //   child: Text(
+        //     'Voir plus',
+        //     style: TextStyle(
+        //       color: ColorPalette.textSecondary(context),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

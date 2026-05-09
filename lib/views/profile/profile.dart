@@ -785,6 +785,7 @@ class _ProfileViewState extends State<ProfileView> {
                           matchsFavorisId: userMatchsFavorisId,
                           isLoading: matchsFavorisLoading,
                         ),
+                        SizedBox(height: 32),
                       ],
                     ),
                   )

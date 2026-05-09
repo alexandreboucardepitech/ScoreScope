@@ -261,7 +261,9 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
         splashColor: Colors.transparent,
         onTap: _navigateToDetails,
         child: Text(
-          "${match.liveMinute!}'",
+          match.extraTime != null
+              ? "${match.liveMinute!}+${match.extraTime!}'"
+              : "${match.liveMinute}'",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: ColorPalette.accent(context),

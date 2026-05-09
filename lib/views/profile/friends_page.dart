@@ -423,9 +423,7 @@ class FriendListItem extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               )
-            : CachedNetworkImage(
-                imageUrl: user.photoUrl!,
-              ),
+            : null,
       ),
       title: Text(
         user.displayName,

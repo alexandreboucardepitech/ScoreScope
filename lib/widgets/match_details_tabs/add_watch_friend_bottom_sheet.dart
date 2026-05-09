@@ -107,6 +107,11 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
 
                           return ListTile(
                             leading: CircleAvatar(
+                              backgroundImage: (item.user.photoUrl != null &&
+                                      item.user.photoUrl!.isNotEmpty)
+                                  ? CachedNetworkImageProvider(
+                                      item.user.photoUrl!)
+                                  : null,
                               child: (item.user.photoUrl == null ||
                                       item.user.photoUrl!.isEmpty)
                                   ? Text(
@@ -120,10 +125,7 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
                                         ),
                                       ),
                                     )
-                                  : CachedNetworkImage(
-                                      imageUrl: item.user.photoUrl!,
-                                      fit: BoxFit.cover,
-                                    ),
+                                  : null,
                             ),
                             title: Row(
                               children: [
@@ -152,12 +154,16 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade300,
+                                      color: ColorPalette.warning(context),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       "En attente",
-                                      style: TextStyle(fontSize: 12),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
                                     ),
                                   )
                                 : null,

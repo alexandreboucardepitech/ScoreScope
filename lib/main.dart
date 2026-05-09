@@ -46,7 +46,7 @@ void main() async {
         const AndroidNotificationChannel(
           'high_importance_channel',
           'Notifications ScoreScope',
-          description: 'Notifications pour les matchs terminés',
+          description: 'Toutes les notifications de ScoreScope',
           importance: Importance.high,
         ),
       );

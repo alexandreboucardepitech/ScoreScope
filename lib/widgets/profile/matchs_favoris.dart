@@ -47,15 +47,15 @@ class MatchsFavoris extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        TextButton(
-          onPressed: onVoirPlus,
-          child: Text(
-            'Voir plus',
-            style: TextStyle(
-              color: ColorPalette.textSecondary(context),
-            ),
-          ),
-        ),
+        // TextButton(
+        //   onPressed: onVoirPlus,
+        //   child: Text(
+        //     'Voir plus',
+        //     style: TextStyle(
+        //       color: ColorPalette.textSecondary(context),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

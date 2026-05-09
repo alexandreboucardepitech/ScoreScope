@@ -541,7 +541,7 @@ exports.updateLiveMatches = onSchedule(
                       if (!buteurId || !minute || !teamId) continue;
 
                       if (extra != null && extra !== "") {
-                        minute = minute + "+" + extra;
+                        minute = minute + "+" + extra.toString();
                       }
 
                       let typeBut = "normal";
@@ -748,22 +748,54 @@ exports.updateLiveMatches = onSchedule(
                   });
 
               const usersSnapshot = await db.collection("users")
-                  .where("equipesPrefereesId",
-                      "array-contains-any",
+                  .where("equipesPrefereesId", "array-contains-any",
                       [data.equipeDomicileId, data.equipeExterieurId]).get();
 
-              // Filter users with notificationToken and options.results = true
               const usersToNotify = usersSnapshot.docs
-                  .map((doc) => doc.data())
+                  .map((doc) => ({...doc.data(), uid: doc.id}))
                   .filter((user) => user.notificationToken != null &&
-                    (user.options === null || (user.options?.results === true &&
-                      user.options?.allNotifications !== false)));
-              console.log(usersToNotify.length, " Utilisateurs à notifier");
-              for (const user of usersToNotify) {
+                    (user.options?.favoriteTeamMatch === true &&
+                      user.options?.allNotifications !== false));
+
+              const now = new Date();
+              const yesterday = new Date(now);
+              yesterday.setDate(yesterday.getDate() - 1);
+              yesterday.setHours(0, 0, 0, 0); // minuit hier
+
+              const matchNotifsSnapshot =
+              await db.collectionGroup("matchUserData")
+                  .where("notifications", "==", true)
+                  .where("matchDate", ">=",
+                      admin.firestore.Timestamp.fromDate(yesterday))
+                  .get();
+
+              const matchNotifUserIds = matchNotifsSnapshot.docs
+                  .filter((doc) => doc.id === matchId)
+                  .map((doc) => doc.ref.parent.parent.id);
+
+              const existingUids = new Set(usersToNotify.map((u) => u.uid));
+              const extraUids =
+                matchNotifUserIds.filter((uid) => !existingUids.has(uid));
+
+              const extraUsersSnapshots = await Promise.all(
+                  extraUids.map((uid) =>
+                    db.collection("users").doc(uid).get()),
+              );
+
+              const extraUsers = extraUsersSnapshots
+                  .filter((doc) => doc.exists)
+                  .map((doc) => ({...doc.data(), uid: doc.id}))
+                  .filter((user) => user.notificationToken != null &&
+                    user.options?.allNotifications !== false);
+
+              const allUsersToNotify = [...usersToNotify, ...extraUsers];
+              console.log(allUsersToNotify.length, "utilisateurs à notifier");
+
+              for (const user of allUsersToNotify) {
                 await sendNotificationToUser(user.uid,
                     NOTIF_TYPES.FAVORITE_TEAM_MATCH_END, {
-                      matchName: `${matchData.teams.home.name} -` +
-                      ` ${matchData.teams.away.name}`,
+                      matchName:
+                  `${matchData.teams.home.name} - ${matchData.teams.away.name}`,
                       matchId: matchId,
                     });
               }
