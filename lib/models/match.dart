@@ -19,6 +19,7 @@ import 'but.dart';
 enum MatchStatus {
   scheduled,
   live,
+  halftime,
   finished,
   postponed,
 }
@@ -70,8 +71,9 @@ class MatchModel implements PodiumDisplayable {
         notes = notes ?? {};
 
   bool get isFinished => status == MatchStatus.finished;
-  bool get isLive => status == MatchStatus.live;
+  bool get isLive => status == MatchStatus.live || status == MatchStatus.halftime;
   bool get isScheduled => status == MatchStatus.scheduled;
+  bool get isHalftime => status == MatchStatus.halftime;
 
   @override
   Future<String?> getColor() async {

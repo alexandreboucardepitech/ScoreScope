@@ -5,7 +5,9 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
+import 'package:scorescope/views/all_matches/recap_week_view.dart';
 import 'package:scorescope/views/all_matches/recherche_view.dart';
+import 'package:scorescope/widgets/all_matches/recap_banner.dart';
 import 'package:scorescope/widgets/util/competitions_bottom_sheet.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
 import '../../services/repositories/i_match_repository.dart';
@@ -28,6 +30,9 @@ class _AllMatchesViewState extends State<AllMatchesView> {
 
   late Future<List<MatchModel>> _futureMatches;
   late Future<AppUser?> _futureCurrentUser;
+
+  bool _showRecapBanner = false;
+  bool _recapChecked = false;
 
   @override
   void initState() {
@@ -84,7 +89,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
 
   List<DateTime> _generateDatesAround(DateTime pivot, {int range = 7}) {
     final List<DateTime> newDates = [];
-    final cleanPivot = DateTime(pivot.year, pivot.month, pivot.day, 5); //5h du matin pour éviter les bugs au changement d'heure
+    final cleanPivot = DateTime(pivot.year, pivot.month, pivot.day,
+        5); //5h du matin pour éviter les bugs au changement d'heure
     for (int i = -range; i <= range; i++) {
       newDates.add(cleanPivot.add(Duration(days: i)));
     }
@@ -139,6 +145,33 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         .replaceAll('.', '');
   }
 
+  String get _recapWeekId {
+    final now = DateTime.now();
+    final thisMonday = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+    final lastMonday = thisMonday.subtract(const Duration(days: 7));
+    return '${lastMonday.year}-${lastMonday.month.toString().padLeft(2, '0')}-${lastMonday.day.toString().padLeft(2, '0')}';
+  }
+
+  String get _recapDateLabel {
+    final now = DateTime.now();
+    final thisMonday = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+    final lastMonday = thisMonday.subtract(const Duration(days: 7));
+    final lastSunday = lastMonday.add(const Duration(days: 6));
+    final fmt = DateFormat('d MMM', 'fr_FR');
+    return 'Du ${fmt.format(lastMonday)} au ${fmt.format(lastSunday)}';
+  }
+
+  Future<void> _markRecapAsSeen() async {
+    AppUser? currentUser =
+        await RepositoryProvider.userRepository.getCurrentUser();
+    if (currentUser == null) return;
+    await RepositoryProvider.userRepository
+        .markRecapAsSeen(currentUser.uid, _recapWeekId);
+    setState(() => _showRecapBanner = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,6 +194,39 @@ class _AllMatchesViewState extends State<AllMatchesView> {
           ],
         ),
         actions: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                constraints: const BoxConstraints(),
+                icon: Icon(Icons.insights_rounded,
+                    color: ColorPalette.textPrimary(context)),
+                onPressed: () {
+                  _markRecapAsSeen();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => RecapWeekView(),
+                    ),
+                  );
+                },
+              ),
+              if (_showRecapBanner)
+                Positioned(
+                  top: 8,
+                  right: 4,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: ColorPalette.accent(context),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
+          ),
           IconButton(
             icon: Icon(
               Icons.emoji_events_outlined,
@@ -207,6 +273,17 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                   final allMatches = snapshot.data![0] as List<MatchModel>;
                   final currentUser = snapshot.data![1] as AppUser?;
 
+                  if (!_recapChecked && currentUser != null) {
+                    _recapChecked = true;
+                    final lastSeen = currentUser.lastRecapSeenWeek;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted)
+                        setState(
+                          () => _showRecapBanner = lastSeen != _recapWeekId,
+                        );
+                    });
+                  }
+
                   final favoriteTeamsIds =
                       currentUser?.equipesPrefereesId ?? [];
                   final favoriteCompetitionsIds =
@@ -251,6 +328,22 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 80),
                       children: [
+                        if (_showRecapBanner) ...[
+                          RecapBanner(
+                            onTap: () {
+                              _markRecapAsSeen();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => RecapWeekView(),
+                                ),
+                              );
+                            },
+                            onDismiss: _markRecapAsSeen,
+                            recapDateLabel: _recapDateLabel,
+                          ),
+                          SizedBox(height: 12),
+                        ],
                         if (followedMatches.isNotEmpty)
                           MatchList(
                             matches: followedMatches,

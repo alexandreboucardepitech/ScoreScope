@@ -62,8 +62,8 @@ async function sendNotificationToUser(toUserId, type, payload) {
   const userData = userDoc.data();
 
   const options = userData.options ?? {};
-  if (!options.allNotifications) return;
-  if (!options[type]) return;
+  if (options.allNotifications === false) return;
+  if (options[type] === false) return;
 
   const notificationToken = userData.notificationToken;
   if (!notificationToken) return;

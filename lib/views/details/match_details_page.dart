@@ -648,10 +648,10 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                     },
                   ),
           ],
-          IconButton(
-            icon: Icon(Icons.share, color: ColorPalette.accent(context)),
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.share, color: ColorPalette.accent(context)),
+          //   onPressed: () {},
+          // ),
         ],
       ),
       body: Column(
@@ -744,9 +744,11 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 if (_currentMatch.isLive &&
                                     _currentMatch.liveMinute != null)
                                   Text(
-                                    _currentMatch.extraTime != null
-                                        ? "${_currentMatch.liveMinute!}+${_currentMatch.extraTime!}'"
-                                        : "${_currentMatch.liveMinute}'",
+                                    _currentMatch.isHalftime
+                                        ? "Mi-Temps"
+                                        : _currentMatch.extraTime != null
+                                            ? "${_currentMatch.liveMinute!}+${_currentMatch.extraTime!}'"
+                                            : "${_currentMatch.liveMinute}'",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 16,

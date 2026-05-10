@@ -64,7 +64,6 @@ Avec ScoreScope, garde un souvenir de chaque match, tel qu'il a été vécu !"""
   }
 }
 
-/// Onboarding Teams Card
 class TeamsCard extends StatelessWidget {
   final Widget equipesPrefereesWidget;
   final VoidCallback onAddTeams;

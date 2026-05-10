@@ -80,7 +80,7 @@ class ColorPalette {
   static const Color shimmerTertiaryLight = Color(0xFFF6EEFC);
   static const Color shimmerTertiaryDark = Color(0xFF3A2750);
 
-  // ----- OPPOSITE -----
+  // ----- LOGO BACKGROUND -----
   static const Color logoBackgroundLight = Color(0xFFE1C2F4);
   static const Color logoBackgroundDark = Color(0xFFE1C2F4);
 

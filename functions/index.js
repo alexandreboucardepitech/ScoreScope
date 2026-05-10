@@ -96,8 +96,9 @@ function getMatchStatusFromCode(code) {
     case "AET":
     case "PEN":
       return "finished"; // MatchStatus.finished
-    case "1H":
     case "HT":
+      return "halftime"; // MatchStatus.halftime
+    case "1H":
     case "2H":
     case "ET":
     case "BT":
@@ -765,12 +766,10 @@ exports.updateLiveMatches = onSchedule(
               const matchNotifsSnapshot =
               await db.collectionGroup("matchUserData")
                   .where("notifications", "==", true)
-                  .where("matchDate", ">=",
-                      admin.firestore.Timestamp.fromDate(yesterday))
+                  .where("matchId", "==", matchId)
                   .get();
 
               const matchNotifUserIds = matchNotifsSnapshot.docs
-                  .filter((doc) => doc.id === matchId)
                   .map((doc) => doc.ref.parent.parent.id);
 
               const existingUids = new Set(usersToNotify.map((u) => u.uid));
@@ -815,5 +814,54 @@ exports.updateLiveMatches = onSchedule(
         console.error("🔥 Erreur globale :", error);
       }
     // console.log("en pause : limite quotidienne atteinte");
+    },
+);
+
+exports.sendWeeklyRecapNotifications = onSchedule(
+    {
+      schedule: "35 21 * * 6", // tous les lundis à 7h00
+      timeZone: "Europe/Paris",
+    },
+    async () => {
+      console.log("📊 Envoi des notifications weekly recap...");
+
+      try {
+        const usersSnapshot = await db.collection("users").get();
+
+        const usersToNotify = usersSnapshot.docs
+            .map((doc) => ({...doc.data(), uid: doc.id}))
+            .filter((user) =>
+              user.notificationToken != null &&
+              user.options?.allNotifications !== false &&
+              user.options?.weeklyRecap !== false,
+            );
+
+        console.log(
+            usersToNotify.length,
+            "utilisateurs à notifier pour le récap hebdo",
+        );
+
+        for (const user of usersToNotify) {
+          try {
+            await sendNotificationToUser(
+                user.uid,
+                NOTIF_TYPES.WEEKLY_RECAP,
+                {},
+            );
+
+            console.log("✅ Weekly recap envoyée à :", user.uid);
+          } catch (error) {
+            console.error(
+                "🔥 Erreur notif weekly recap :",
+                user.uid,
+                error,
+            );
+          }
+        }
+
+        console.log("✅ Weekly recap terminé");
+      } catch (error) {
+        console.error("🔥 Erreur globale weekly recap :", error);
+      }
     },
 );

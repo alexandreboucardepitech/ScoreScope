@@ -261,9 +261,11 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
         splashColor: Colors.transparent,
         onTap: _navigateToDetails,
         child: Text(
-          match.extraTime != null
-              ? "${match.liveMinute!}+${match.extraTime!}'"
-              : "${match.liveMinute}'",
+          match.isHalftime
+              ? "MT"
+              : match.extraTime != null
+                  ? "${match.liveMinute!}+${match.extraTime!}'"
+                  : "${match.liveMinute}'",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: ColorPalette.accent(context),
@@ -297,8 +299,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final match = widget.match;
 
-    final bool displayScore = match.status == MatchStatus.live ||
-        match.status == MatchStatus.finished;
+    final bool displayScore = match.isLive || match.isFinished;
 
     return Container(
       color: ColorPalette.tileBackground(context),

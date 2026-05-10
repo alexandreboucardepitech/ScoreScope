@@ -341,14 +341,7 @@ class _HomePageState extends State<HomePage> {
         );
 
       case 'weeklyRecap':
-        final currentUser =
-            await RepositoryProvider.userRepository.getCurrentUser();
-        if (currentUser == null) return;
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(
-              builder: (_) => StatsView(
-                  user: currentUser)), //TODO : faire la page de récap hebdo
-        );
+        null; // ne fait rien volontairement pour inciter l'utilisateur à ouvrir l'app directement sur la page d'accueil
     }
   }
 

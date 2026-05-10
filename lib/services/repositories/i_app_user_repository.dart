@@ -121,4 +121,6 @@ abstract class IAppUserRepository {
     String userId,
     String token,
   );
+
+  Future<void> markRecapAsSeen(String userId, String recapWeekId);
 }

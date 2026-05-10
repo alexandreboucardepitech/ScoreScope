@@ -15,6 +15,7 @@ class AppUser {
   final List<String> competitionsPrefereesId;
   final List<MatchUserData> matchsUserData;
   final Options options;
+  final String? lastRecapSeenWeek;
 
   AppUser({
     required this.uid,
@@ -28,6 +29,7 @@ class AppUser {
     this.competitionsPrefereesId = const [],
     this.matchsUserData = const [],
     Options? options,
+    this.lastRecapSeenWeek,
   }) : options = options ?? Options();
 
   MatchUserData? getMatchUserDataByMatch({MatchModel? match, String? matchId}) {
@@ -72,6 +74,7 @@ class AppUser {
       options: json['options'] != null
           ? Options.fromJson(json['options'] as Map<String, dynamic>)
           : Options(),
+      lastRecapSeenWeek: json['lastRecapSeenWeek'] as String?,
     );
   }
 
@@ -88,6 +91,7 @@ class AppUser {
       'competitionsPrefereesId': competitionsPrefereesId,
       'matchsUserData': matchsUserData,
       'options': options.toJson(),
+      'lastRecapSeenWeek': lastRecapSeenWeek,
     };
   }
 }

@@ -920,4 +920,14 @@ class WebAppUserRepository implements IAppUserRepository {
       throw Exception("Ce profil n'existe pas");
     }
   }
+
+  @override
+  Future<void> markRecapAsSeen(String userId, String recapWeekId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .update({'lastRecapSeenWeek': recapWeekId});
+
+    currentUser = await getCurrentUser();
+  }
 }
