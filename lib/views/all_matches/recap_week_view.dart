@@ -1406,7 +1406,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
             ),
           ),
         ),
-        if (stats.length > 1) ...[
+        if (stats.length > 1 && !_isSharing) ...[
           SizedBox(width: 8),
           Opacity(
             opacity: _isSharing ? 0 : 1,
