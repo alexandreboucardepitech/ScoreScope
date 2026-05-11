@@ -30,43 +30,38 @@ class WebPostRepository implements IPostRepository {
 
     final usersCollection = FirebaseFirestore.instance.collection('users');
 
-    final List<UserMatchEntry> allEntries = [];
+    final futures = friends.map((friend) async {
+      final collRef =
+          usersCollection.doc(friend.uid).collection('matchUserData');
 
-    for (final friend in friends) {
-      final friendId = friend.uid;
-
-      final collRef = usersCollection.doc(friendId).collection('matchUserData');
-      final subCollectionSnap = onlyPublic
+      final snap = onlyPublic
           ? await collRef.where('private', isEqualTo: false).get()
           : await collRef.get();
 
-      for (final doc in subCollectionSnap.docs) {
+      final entries = <UserMatchEntry>[];
+      for (final doc in snap.docs) {
         final map = doc.data();
-
         try {
           final matchUserData = MatchUserData.fromJson(map);
 
-          if (onlyPublic &&
-              (map['private'] == true || matchUserData.private == true)) {
-            continue;
+          if (onlyPublic && matchUserData.private == true) continue;
+
+          if (cutoff != null) {
+            if (matchUserData.watchedAt == null ||
+                matchUserData.watchedAt!.isBefore(cutoff)) continue;
+          } else {
+            if (matchUserData.watchedAt == null) continue;
           }
 
-          if (cutoff != null &&
-                  matchUserData.watchedAt != null &&
-                  matchUserData.watchedAt!.isBefore(cutoff) ||
-              matchUserData.watchedAt == null) {
-            continue;
-          }
-
-          allEntries.add(
-            UserMatchEntry(
-              user: friend,
-              matchData: matchUserData,
-            ),
-          );
+          entries.add(UserMatchEntry(user: friend, matchData: matchUserData));
         } catch (_) {}
       }
-    }
+      return entries;
+    });
+
+    final results = await Future.wait(futures);
+
+    final allEntries = results.expand((list) => list).toList();
 
     allEntries.sort((a, b) {
       final da = a.matchData.watchedAt;

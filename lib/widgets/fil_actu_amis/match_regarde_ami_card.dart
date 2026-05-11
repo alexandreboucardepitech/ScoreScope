@@ -1,7 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/post/match_regarde_ami.dart';
@@ -10,6 +11,7 @@ import 'package:scorescope/models/post/reaction.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/watch_together.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/handle_data/app_cache.dart';
 import 'package:scorescope/utils/string/build_post_display_name.dart';
 import 'package:scorescope/utils/string/get_reaction_emoji.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
@@ -40,8 +42,11 @@ class MatchRegardeAmiCard extends StatefulWidget {
 
 class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
     with TickerProviderStateMixin {
-  late final MatchRegardeAmi entry;
+  late MatchRegardeAmi entry;
   late final MatchUserData matchData;
+
+  bool _isLoadingMatchData = false;
+
   String? _currentUserId;
   bool _loadingReactionOp = false;
   List<AppUser> _watchTogetherUsers = [];
@@ -61,10 +66,61 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
 
     entry = widget.entry;
     matchData = entry.matchData;
+
+    if (entry.match == null) {
+      _isLoadingMatchData = true;
+      _loadMatchData();
+    }
+
     if (widget.showInteractions) {
       _initLocalState();
     } else {
       _initCurrentUserOnly();
+    }
+  }
+
+  Future<void> _loadMatchData() async {
+    final String? matchId = matchData.matchId;
+    if (matchId == null) {
+      if (mounted) setState(() => _isLoadingMatchData = false);
+      return;
+    }
+
+    try {
+      MatchModel? match = AppCache.getMatch(matchId);
+      if (match == null) {
+        match =
+            await RepositoryProvider.matchRepository.fetchMatchById(matchId);
+        if (match != null) AppCache.setMatch(matchId, match);
+      }
+
+      String? mvpName;
+      final mvpId = matchData.mvpVoteId;
+      if (mvpId != null) {
+        mvpName = AppCache.getJoueurName(mvpId);
+        if (mvpName == null) {
+          final joueur =
+              await RepositoryProvider.joueurRepository.fetchJoueurById(mvpId);
+          if (joueur != null) {
+            mvpName = joueur.fullName;
+            AppCache.setJoueurName(mvpId, mvpName);
+          }
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        entry = MatchRegardeAmi(
+          friend: entry.friend,
+          matchData: entry.matchData,
+          match: match,
+          mvpName: mvpName,
+        );
+        _isLoadingMatchData = false;
+      });
+    } catch (e) {
+      debugPrint('_loadMatchData error: $e');
+      if (mounted) setState(() => _isLoadingMatchData = false);
     }
   }
 
@@ -83,20 +139,17 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
         .watchTogetherRepository
         .getFriendsWatchedWith(widget.entry.friend.uid, matchData.matchId);
 
-    final List<String> watchTogetherFriendsId = watchTogetherList
-        .where((watchTogether) => watchTogether.status == 'accepted')
-        .map((watchTogether) => watchTogether.friendId)
+    final ids = watchTogetherList
+        .where((w) => w.status == 'accepted')
+        .map((w) => w.friendId)
         .toList();
 
-    List<AppUser> watchTogetherUsers = [];
-    for (String userId in watchTogetherFriendsId) {
-      final user =
-          await RepositoryProvider.userRepository.fetchUserById(userId);
-      if (user != null) {
-        watchTogetherUsers.add(user);
-      }
+    final users = <AppUser>[];
+    for (final id in ids) {
+      final u = await RepositoryProvider.userRepository.fetchUserById(id);
+      if (u != null) users.add(u);
     }
-    _watchTogetherUsers = watchTogetherUsers;
+    _watchTogetherUsers = users;
   }
 
   Future<void> _initLocalState() async {
@@ -106,7 +159,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
   }
 
   Future<void> _refreshCommentsAndReactions({int? commentsLimit}) async {
-    setState(() {}); // spinner léger
+    setState(() {});
 
     final ownerId = entry.friend.uid;
     final matchId = matchData.matchId;
@@ -129,30 +182,24 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
       matchData.reactions = List<Reaction>.from(reactions);
       matchData.comments = List<Commentaire>.from(comments);
 
-      // on pré-charge les AppUser pour les commentaires
       for (final c in matchData.comments) {
         if (!_userCache.containsKey(c.authorId)) {
           try {
-            final user = await RepositoryProvider.userRepository
+            _userCache[c.authorId] = await RepositoryProvider.userRepository
                 .fetchUserById(c.authorId);
-            _userCache[c.authorId] = user; // peut être null si non trouvé
           } catch (_) {
             _userCache[c.authorId] = null;
           }
         }
       }
-    } catch (e) {
-      // ignore errors for now
+    } catch (_) {
     } finally {
-      if (mounted) {
-        setState(() {});
-      }
+      if (mounted) setState(() {});
     }
   }
 
   Future<void> _toggleReaction(String emoji) async {
     if (_currentUserId == null || _loadingReactionOp) return;
-
     setState(() => _loadingReactionOp = true);
 
     final ownerId = entry.friend.uid;
@@ -179,20 +226,16 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
           emoji: emoji,
         );
       }
-
       await _refreshCommentsAndReactions();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-            'Erreur réaction : ${e.toString()}',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
+            content: Text(
+              'Erreur réaction : ${e.toString()}',
+              style: TextStyle(color: ColorPalette.textPrimary(context)),
             ),
-          )),
+          ),
         );
       }
     } finally {
@@ -217,53 +260,36 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: ColorPalette.pictureBackground(context),
-        border: Border.all(
-          color: ColorPalette.border(context),
-          width: 2,
-        ),
+        border: Border.all(color: ColorPalette.border(context), width: 2),
       ),
       child: ClipOval(
         child: user.photoUrl != null
             ? CachedNetworkImage(
                 imageUrl: user.photoUrl!,
                 fit: BoxFit.cover,
-                errorWidget: (context, error, stackTrace) => Center(
-                  child: Text(
-                    user.displayName.isNotEmpty
-                        ? user.displayName[0].toUpperCase()
-                        : '?',
-                    style: TextStyle(
-                      color: ColorPalette.textPrimary(context),
-                      fontWeight: FontWeight.w800,
-                      fontSize: size * 0.45,
-                    ),
-                  ),
-                ),
+                errorWidget: (_, __, ___) => _initialsText(user, size),
               )
-            : Center(
-                child: Text(
-                  user.displayName.isNotEmpty
-                      ? user.displayName[0].toUpperCase()
-                      : '?',
-                  style: TextStyle(
-                    color: ColorPalette.textPrimary(context),
-                    fontWeight: FontWeight.w800,
-                    fontSize: size * 0.45,
-                  ),
-                ),
-              ),
+            : _initialsText(user, size),
+      ),
+    );
+  }
+
+  Widget _initialsText(AppUser user, double size) {
+    return Center(
+      child: Text(
+        user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : '?',
+        style: TextStyle(
+          color: ColorPalette.textPrimary(context),
+          fontWeight: FontWeight.w800,
+          fontSize: size * 0.45,
+        ),
       ),
     );
   }
 
   Widget _buildUsersStack(AppUser friend) {
-    final allUsers = [
-      friend,
-      ..._watchTogetherUsers,
-    ];
-
+    final allUsers = [friend, ..._watchTogetherUsers];
     final displayUsers = allUsers.take(4).toList();
-
     const double avatarSize = 32;
     final double overlap = avatarSize * 0.4;
 
@@ -276,12 +302,87 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
           for (int i = displayUsers.length - 1; i >= 0; i--)
             Positioned(
               left: i * overlap,
-              child: _avatarCircle(
-                displayUsers[i],
-                size: avatarSize,
-              ),
+              child: _avatarCircle(displayUsers[i], size: avatarSize),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _skeletonBox(double height, double width, {double radius = 4}) {
+    return Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+
+  Widget _buildMatchSkeleton() {
+    return Shimmer.fromColors(
+      baseColor: ColorPalette.tileBackground(context),
+      highlightColor: ColorPalette.surface(context),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: ColorPalette.tileBackground(context),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+          border: Border.all(color: ColorPalette.border(context), width: 3),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(children: [
+                  _skeletonBox(36, 36, radius: 8),
+                  const SizedBox(height: 6),
+                  _skeletonBox(12, 64, radius: 4),
+                ]),
+                _skeletonBox(22, 60, radius: 6),
+                Column(children: [
+                  _skeletonBox(36, 36, radius: 8),
+                  const SizedBox(height: 6),
+                  _skeletonBox(12, 64, radius: 4),
+                ]),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Container(height: 1, color: Colors.white24),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(children: [
+                  _skeletonBox(36, 36, radius: 18),
+                  const SizedBox(height: 6),
+                  _skeletonBox(12, 48, radius: 4),
+                ]),
+                Container(width: 1, height: 60, color: Colors.white24),
+                Column(children: [
+                  _skeletonBox(36, 36, radius: 18),
+                  const SizedBox(height: 6),
+                  _skeletonBox(12, 80, radius: 4),
+                ]),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Container(height: 1, color: Colors.white24),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _skeletonBox(16, 16, radius: 8),
+                const SizedBox(width: 8),
+                _skeletonBox(14, 180, radius: 4),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -302,7 +403,6 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           GestureDetector(
             onTap: () {
               if (_watchTogetherUsers.isEmpty) {
@@ -315,15 +415,13 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                   ),
                 );
               } else {
-                setState(() {
-                  _expandWatchTogether = true;
-                });
+                setState(() => _expandWatchTogether = true);
               }
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (_expandWatchTogether == false) ...[
+                if (!_expandWatchTogether) ...[
                   _buildUsersStack(friend),
                   const SizedBox(width: 12),
                 ],
@@ -332,10 +430,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildDisplayNameText(
-                        friend,
-                        _watchTogetherUsers,
-                        context,
-                      ),
+                          friend, _watchTogetherUsers, context),
                       if (relativeTime.isNotEmpty)
                         Text(
                           relativeTime,
@@ -352,290 +447,401 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                     splashRadius: 20,
                     icon: RotationTransition(
                       turns: _arrowAnim,
-                      child: Icon(
-                        Icons.expand_more,
-                        color: ColorPalette.accent(context),
-                      ),
+                      child: Icon(Icons.expand_more,
+                          color: ColorPalette.accent(context)),
                     ),
                     onPressed: () {
                       setState(() {
                         _expandWatchTogether = !_expandWatchTogether;
-                        if (_expandWatchTogether) {
-                          _controller.forward();
-                        } else {
-                          _controller.reverse();
-                        }
+                        _expandWatchTogether
+                            ? _controller.forward()
+                            : _controller.reverse();
                       });
                     },
                   ),
               ],
             ),
           ),
+
           if (_expandWatchTogether)
-            for (AppUser user in [friend, ..._watchTogetherUsers]) ...[
+            for (final user in [friend, ..._watchTogetherUsers]) ...[
               InkWell(
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => ProfileView(
-                      user: user,
-                      onBackPressed: () => Navigator.pop(context),
-                    ),
+                        user: user,
+                        onBackPressed: () => Navigator.pop(context)),
                   ),
                 ),
                 child: Row(
                   children: [
                     _avatarCircle(user, size: 36),
                     const SizedBox(width: 10),
-                    Text(
-                      user.displayName,
-                      style: TextStyle(
-                        color: ColorPalette.textPrimary(context),
-                        fontWeight: FontWeight.w800,
-                      ),
-                    )
+                    Text(user.displayName,
+                        style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                            fontWeight: FontWeight.w800)),
                   ],
                 ),
               ),
               const SizedBox(height: 4),
             ],
+
           const SizedBox(height: 10),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  if (match != null) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => MatchDetailsPage(match: match),
+
+          if (widget.matchDetails) ...[
+            if (_isLoadingMatchData)
+              _buildMatchSkeleton()
+            else
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      if (match != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => MatchDetailsPage(match: match)),
+                        );
+                      }
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: ColorPalette.tileBackground(context),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 4)
+                        ],
+                        border: Border.all(
+                            color: ColorPalette.border(context), width: 3),
                       ),
-                    );
-                  }
-                },
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: ColorPalette.tileBackground(context),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black12, blurRadius: 4)
-                    ],
-                    border: Border.all(
-                      color: ColorPalette.border(context),
-                      width: 3,
+                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (match != null &&
+                              home != null &&
+                              away != null) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (home.logoPath != null)
+                                        CachedNetworkImage(
+                                          imageUrl: home.logoPath!,
+                                          width: 36,
+                                          height: 36,
+                                          fit: BoxFit.contain,
+                                          errorWidget: (_, __, ___) => Icon(
+                                              Icons.shield,
+                                              size: 20,
+                                              color: ColorPalette.textPrimary(
+                                                  context)),
+                                        ),
+                                      const SizedBox(height: 4),
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          home.nom,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: ColorPalette.textPrimary(
+                                                  context)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w900,
+                                          color:
+                                              ColorPalette.textPrimary(context),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _formatMatchDate(match.date),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: ColorPalette.textSecondary(
+                                              context),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (away.logoPath != null)
+                                        CachedNetworkImage(
+                                          imageUrl: away.logoPath!,
+                                          width: 36,
+                                          height: 36,
+                                          fit: BoxFit.contain,
+                                          errorWidget: (_, __, ___) => Icon(
+                                              Icons.shield,
+                                              size: 20,
+                                              color: ColorPalette.textPrimary(
+                                                  context)),
+                                        ),
+                                      const SizedBox(height: 4),
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          away.nom,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: ColorPalette.textPrimary(
+                                                  context)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Divider(
+                                color: ColorPalette.border(context), height: 1),
+                            const SizedBox(height: 12),
+                          ],
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      matchData.note != null
+                                          ? getReactionEmoji(matchData.note!)
+                                          : '😐',
+                                      style: const TextStyle(fontSize: 36),
+                                    ),
+                                    Text(
+                                      matchData.note != null
+                                          ? '${matchData.note}/10'
+                                          : 'Pas noté/10',
+                                      style: TextStyle(
+                                          color: ColorPalette.accent(context),
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                  width: 1,
+                                  height: 60,
+                                  color: ColorPalette.border(context)),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      matchData.visionnageMatch.emoji.isNotEmpty
+                                          ? matchData.visionnageMatch.emoji
+                                          : '❓',
+                                      style: const TextStyle(fontSize: 36),
+                                    ),
+                                    Text(
+                                      matchData.visionnageMatch.label.isNotEmpty
+                                          ? matchData.visionnageMatch.label
+                                          : '?',
+                                      style: TextStyle(
+                                          color: ColorPalette.accent(context),
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Divider(
+                              color: ColorPalette.border(context), height: 1),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.how_to_vote,
+                                  size: 18,
+                                  color: ColorPalette.accentVariant(context)),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Vote pour MVP : ',
+                                style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Flexible(
+                                child: Text(
+                                  entry.mvpName != null &&
+                                          entry.mvpName!.isNotEmpty
+                                      ? entry.mvpName!
+                                      : 'Pas de vote pour le MVP',
+                                  style: TextStyle(
+                                    color: entry.mvpName != null &&
+                                            entry.mvpName!.isNotEmpty
+                                        ? ColorPalette.accent(context)
+                                        : ColorPalette.textSecondary(context),
+                                    fontWeight: FontWeight.bold,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (widget.matchDetails &&
-                          match != null &&
-                          home != null &&
-                          away != null) ...[
+                  if (matchData.favourite)
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Icon(Icons.star,
+                          size: 24, color: ColorPalette.accent(context)),
+                    ),
+                ],
+              ),
+          ] else ...[
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: match != null
+                      ? () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => MatchDetailsPage(match: match)))
+                      : null,
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: ColorPalette.tileBackground(context),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black12, blurRadius: 4)
+                      ],
+                      border: Border.all(
+                          color: ColorPalette.border(context), width: 3),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                    child: Column(
+                      children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Expanded(
                               child: Column(
-                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (home.logoPath != null)
-                                    CachedNetworkImage(
-                                      imageUrl: home.logoPath!,
-                                      width: 36,
-                                      height: 36,
-                                      fit: BoxFit.contain,
-                                      errorWidget:
-                                          (context, error, stackTrace) => Icon(
-                                        Icons.shield,
-                                        size: 20,
-                                        color:
-                                            ColorPalette.textPrimary(context),
-                                      ),
-                                    ),
-                                  const SizedBox(height: 4),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      home.nom,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            ColorPalette.textPrimary(context),
-                                      ),
-                                    ),
+                                  Text(
+                                    matchData.note != null
+                                        ? getReactionEmoji(matchData.note!)
+                                        : '😐',
+                                    style: const TextStyle(fontSize: 36),
+                                  ),
+                                  Text(
+                                    matchData.note != null
+                                        ? '${matchData.note}/10'
+                                        : 'Pas noté/10',
+                                    style: TextStyle(
+                                        color: ColorPalette.accent(context),
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w900,
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _formatMatchDate(match.date),
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color:
-                                          ColorPalette.textSecondary(context),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            Container(
+                                width: 1,
+                                height: 60,
+                                color: ColorPalette.border(context)),
                             Expanded(
                               child: Column(
-                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (away.logoPath != null)
-                                    CachedNetworkImage(
-                                      imageUrl: away.logoPath!,
-                                      errorWidget:
-                                          (context, error, stackTrace) => Icon(
-                                        Icons.shield,
-                                        size: 20,
-                                        color:
-                                            ColorPalette.textPrimary(context),
-                                      ),
-                                      width: 36,
-                                      height: 36,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  const SizedBox(height: 4),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      away.nom,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            ColorPalette.textPrimary(context),
-                                      ),
-                                    ),
+                                  Text(
+                                    matchData.visionnageMatch.emoji.isNotEmpty
+                                        ? matchData.visionnageMatch.emoji
+                                        : '❓',
+                                    style: const TextStyle(fontSize: 36),
+                                  ),
+                                  Text(
+                                    matchData.visionnageMatch.label.isNotEmpty
+                                        ? matchData.visionnageMatch.label
+                                        : '?',
+                                    style: TextStyle(
+                                        color: ColorPalette.accent(context),
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
                         Divider(color: ColorPalette.border(context), height: 1),
                         const SizedBox(height: 12),
-                      ],
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Text(
-                                  matchData.note != null
-                                      ? getReactionEmoji(matchData.note!)
-                                      : '😐',
-                                  style: const TextStyle(fontSize: 36),
-                                ),
-                                Text(
-                                  matchData.note != null
-                                      ? '${matchData.note}/10'
-                                      : 'Pas noté/10',
-                                  style: TextStyle(
-                                      color: ColorPalette.accent(context),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            width: 1,
-                            height: 60,
-                            color: ColorPalette.border(context),
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Text(
-                                  matchData.visionnageMatch.emoji.isNotEmpty
-                                      ? matchData.visionnageMatch.emoji
-                                      : '❓',
-                                  style: const TextStyle(fontSize: 36),
-                                ),
-                                Text(
-                                  matchData.visionnageMatch.label.isNotEmpty
-                                      ? matchData.visionnageMatch.label
-                                      : '?',
-                                  style: TextStyle(
-                                      color: ColorPalette.accent(context),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Divider(color: ColorPalette.border(context), height: 1),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.how_to_vote,
-                              size: 18,
-                              color: ColorPalette.accentVariant(context)),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Vote pour MVP : ',
-                            style: TextStyle(
-                                color: ColorPalette.textPrimary(context),
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Flexible(
-                            child: Text(
-                              entry.mvpName != null && entry.mvpName!.isNotEmpty
-                                  ? entry.mvpName!
-                                  : 'Pas de vote pour le MVP',
-                              style: TextStyle(
-                                color: entry.mvpName != null &&
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.how_to_vote,
+                                size: 18,
+                                color: ColorPalette.accentVariant(context)),
+                            const SizedBox(width: 8),
+                            Text('Vote pour MVP : ',
+                                style: TextStyle(
+                                    color: ColorPalette.textPrimary(context),
+                                    fontWeight: FontWeight.bold)),
+                            Flexible(
+                              child: Text(
+                                entry.mvpName != null &&
                                         entry.mvpName!.isNotEmpty
-                                    ? ColorPalette.accent(context)
-                                    : ColorPalette.textSecondary(context),
-                                fontWeight: FontWeight.bold,
-                                overflow: TextOverflow.ellipsis,
+                                    ? entry.mvpName!
+                                    : 'Pas de vote pour le MVP',
+                                style: TextStyle(
+                                  color: entry.mvpName != null &&
+                                          entry.mvpName!.isNotEmpty
+                                      ? ColorPalette.accent(context)
+                                      : ColorPalette.textSecondary(context),
+                                  fontWeight: FontWeight.bold,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (matchData.favourite)
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Icon(
-                    Icons.star,
-                    size: 24,
-                    color: ColorPalette.accent(context),
+                if (matchData.favourite)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Icon(Icons.star,
+                        size: 24, color: ColorPalette.accent(context)),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
+          ],
+
           if (widget.showInteractions) ...[
             ReactionRow(
               matchUserData: matchData,
@@ -677,18 +883,15 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
     if (match != null) {
       return GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CommentsPage(entry: entry, userCache: _userCache),
-            ),
-          );
-        },
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) =>
+                  CommentsPage(entry: entry, userCache: _userCache)),
+        ),
         child: cardContent,
       );
-    } else {
-      return cardContent;
     }
+    return cardContent;
   }
 }
