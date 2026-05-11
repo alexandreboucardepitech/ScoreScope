@@ -819,7 +819,7 @@ exports.updateLiveMatches = onSchedule(
 
 exports.sendWeeklyRecapNotifications = onSchedule(
     {
-      schedule: "35 21 * * 6", // tous les lundis à 7h00
+      schedule: "0 7 * * 1", // tous les lundis à 7h00
       timeZone: "Europe/Paris",
     },
     async () => {

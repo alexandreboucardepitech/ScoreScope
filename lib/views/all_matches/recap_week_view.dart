@@ -1098,7 +1098,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               ),
             ],
           ),
-          if (d.bestMatchesMvpName?[_bestMatchIndex] != null) ...[
+          if (d.bestMatchesMvpName != null && d.bestMatchesMvpName?[_bestMatchIndex] != null) ...[
             const SizedBox(height: 10),
             const Divider(height: 1),
             const SizedBox(height: 8),

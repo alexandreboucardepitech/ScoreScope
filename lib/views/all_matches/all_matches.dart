@@ -110,6 +110,29 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     return currentUser;
   }
 
+  bool get _isAwayFromToday {
+    final today = DateTime.now();
+    final diff = _selectedDate
+        .difference(DateTime(today.year, today.month, today.day))
+        .inDays
+        .abs();
+    return diff >= 7;
+  }
+
+  void _goToPreviousDay() {
+    final previous = _selectedDate.subtract(const Duration(days: 1));
+    _onDateSelected(previous);
+  }
+
+  void _goToNextDay() {
+    final next = _selectedDate.add(const Duration(days: 1));
+    _onDateSelected(next);
+  }
+
+  void _goToToday() {
+    _onDateSelected(DateTime.now());
+  }
+
   void _onDateSelected(DateTime date) {
     if (DateUtils.isSameDay(_selectedDate, date)) return;
     setState(() {
@@ -255,141 +278,172 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               }),
         ],
       ),
-      body: Column(
-        children: [
-          _buildDateSelector(),
-          Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: Future.wait([
-                _futureMatches,
-                _futureCurrentUser,
-              ]),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Erreur: ${snapshot.error}'));
-                } else {
-                  final allMatches = snapshot.data![0] as List<MatchModel>;
-                  final currentUser = snapshot.data![1] as AppUser?;
+      floatingActionButton: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        transitionBuilder: (child, animation) => ScaleTransition(
+          scale: animation,
+          child: FadeTransition(opacity: animation, child: child),
+        ),
+        child: _isAwayFromToday
+            ? FloatingActionButton.extended(
+                key: const ValueKey('today_fab'),
+                onPressed: _goToToday,
+                backgroundColor: ColorPalette.accent(context),
+                foregroundColor: ColorPalette.opposite(context),
+                icon: const Icon(Icons.today_rounded, size: 20),
+                label: const Text(
+                  "Aujourd'hui",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              )
+            : const SizedBox.shrink(key: ValueKey('no_fab')),
+      ),
+      body: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          const velocityThreshold = 300.0;
+          final vx = details.primaryVelocity ?? 0;
+          if (vx > velocityThreshold) {
+            _goToPreviousDay();
+          } else if (vx < -velocityThreshold) {
+            _goToNextDay();
+          }
+        },
+        child: Column(
+          children: [
+            _buildDateSelector(),
+            Expanded(
+              child: FutureBuilder<List<dynamic>>(
+                future: Future.wait([
+                  _futureMatches,
+                  _futureCurrentUser,
+                ]),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Erreur: ${snapshot.error}'));
+                  } else {
+                    final allMatches = snapshot.data![0] as List<MatchModel>;
+                    final currentUser = snapshot.data![1] as AppUser?;
 
-                  if (!_recapChecked && currentUser != null) {
-                    _recapChecked = true;
-                    final lastSeen = currentUser.lastRecapSeenWeek;
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted)
-                        setState(
-                          () => _showRecapBanner = lastSeen != _recapWeekId,
-                        );
-                    });
-                  }
+                    if (!_recapChecked && currentUser != null) {
+                      _recapChecked = true;
+                      final lastSeen = currentUser.lastRecapSeenWeek;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted)
+                          setState(
+                            () => _showRecapBanner = lastSeen != _recapWeekId,
+                          );
+                      });
+                    }
 
-                  final favoriteTeamsIds =
-                      currentUser?.equipesPrefereesId ?? [];
-                  final favoriteCompetitionsIds =
-                      currentUser?.competitionsPrefereesId ?? [];
+                    final favoriteTeamsIds =
+                        currentUser?.equipesPrefereesId ?? [];
+                    final favoriteCompetitionsIds =
+                        currentUser?.competitionsPrefereesId ?? [];
 
-                  if (allMatches.isEmpty) {
-                    return Center(
-                      child: Text(
-                        "Aucun match ce jour-là",
-                        style: TextStyle(
-                          color: ColorPalette.textPrimary(context),
+                    if (allMatches.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "Aucun match ce jour-là",
+                          style: TextStyle(
+                            color: ColorPalette.textPrimary(context),
+                          ),
                         ),
+                      );
+                    }
+
+                    List<MatchModel> followedMatches = allMatches
+                        .where((m) =>
+                            favoriteTeamsIds.contains(m.equipeDomicile.id) ||
+                            favoriteTeamsIds.contains(m.equipeExterieur.id) ||
+                            favoriteCompetitionsIds.contains(m.competition.id))
+                        .toList();
+
+                    List<MatchModel> otherMatches = allMatches
+                        .where((m) => !followedMatches.contains(m))
+                        .toList();
+
+                    followedMatches = sortMatchsCompetition(
+                      matchs: followedMatches,
+                      triDate: true,
+                    );
+                    otherMatches = sortMatchsCompetition(
+                      matchs: otherMatches,
+                      triDate: false,
+                    );
+
+                    return RefreshIndicator(
+                      color: ColorPalette.accent(context),
+                      backgroundColor: ColorPalette.background(context),
+                      onRefresh: _refresh,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 80),
+                        children: [
+                          if (_showRecapBanner) ...[
+                            RecapBanner(
+                              onTap: () {
+                                _markRecapAsSeen();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => RecapWeekView(),
+                                  ),
+                                );
+                              },
+                              onDismiss: _markRecapAsSeen,
+                              recapDateLabel: _recapDateLabel,
+                            ),
+                            SizedBox(height: 12),
+                          ],
+                          if (followedMatches.isNotEmpty)
+                            MatchList(
+                              matches: followedMatches,
+                              header: _buildSectionHeader(
+                                  "Favoris", Icons.star_rounded),
+                              user: currentUser,
+                              displayUserData: false,
+                            ),
+                          if (otherMatches.isNotEmpty)
+                            MatchList(
+                              matches: otherMatches,
+                              header: _buildSectionHeader(
+                                followedMatches.isEmpty
+                                    ? "Matchs du jour"
+                                    : "Autres matchs",
+                                Icons.sports_soccer,
+                              ),
+                              user: currentUser,
+                              displayUserData: false,
+                            ),
+                        ],
                       ),
                     );
                   }
-
-                  List<MatchModel> followedMatches = allMatches
-                      .where((m) =>
-                          favoriteTeamsIds.contains(m.equipeDomicile.id) ||
-                          favoriteTeamsIds.contains(m.equipeExterieur.id) ||
-                          favoriteCompetitionsIds.contains(m.competition.id))
-                      .toList();
-
-                  List<MatchModel> otherMatches = allMatches
-                      .where((m) => !followedMatches.contains(m))
-                      .toList();
-
-                  followedMatches = sortMatchsCompetition(
-                    matchs: followedMatches,
-                    triDate: true,
-                  );
-                  otherMatches = sortMatchsCompetition(
-                    matchs: otherMatches,
-                    triDate: false,
-                  );
-
-                  return RefreshIndicator(
-                    color: ColorPalette.accent(context),
-                    backgroundColor: ColorPalette.background(context),
-                    onRefresh: _refresh,
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 80),
-                      children: [
-                        if (_showRecapBanner) ...[
-                          RecapBanner(
-                            onTap: () {
-                              _markRecapAsSeen();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => RecapWeekView(),
-                                ),
-                              );
-                            },
-                            onDismiss: _markRecapAsSeen,
-                            recapDateLabel: _recapDateLabel,
-                          ),
-                          SizedBox(height: 12),
-                        ],
-                        if (followedMatches.isNotEmpty)
-                          MatchList(
-                            matches: followedMatches,
-                            header: _buildSectionHeader(
-                                "Favoris", Icons.star_rounded),
-                            user: currentUser,
-                            displayUserData: false,
-                          ),
-                        if (otherMatches.isNotEmpty)
-                          MatchList(
-                            matches: otherMatches,
-                            header: _buildSectionHeader(
-                              followedMatches.isEmpty
-                                  ? "Matchs du jour"
-                                  : "Autres matchs",
-                              Icons.sports_soccer,
-                            ),
-                            user: currentUser,
-                            displayUserData: false,
-                          ),
-                      ],
-                    ),
-                  );
-                }
-              },
+                },
+              ),
             ),
-          ),
-          // if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
-          //     RepositoryProvider.userRepository.currentUser?.uid ==
-          //         "UwigeExwFMfDrCk4x8AbODha3il1" ||
-          //     RepositoryProvider.userRepository.currentUser?.uid ==
-          //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
-          //   ElevatedButton(
-          //     onPressed: () async {
-          //       await FillDatabase.enleverToutesLesDonneesDeUser(
-          //         userId: "jSHnJN1cVWTsDirfm1sEaA358jJ3",
-          //         enleverFriendships: true,
-          //         enleverNotifications: true,
-          //         enleverMatchs: true,
-          //         enleverPreferences: true,
-          //         enleverWatchTogether: true,
-          //       );
-          //     },
-          //     child: Text("test pour développeur"),
-          //   ),
-        ],
+            // if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+            //     RepositoryProvider.userRepository.currentUser?.uid ==
+            //         "UwigeExwFMfDrCk4x8AbODha3il1" ||
+            //     RepositoryProvider.userRepository.currentUser?.uid ==
+            //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
+            //   ElevatedButton(
+            //     onPressed: () async {
+            //       await FillDatabase.enleverToutesLesDonneesDeUser(
+            //         userId: "jSHnJN1cVWTsDirfm1sEaA358jJ3",
+            //         enleverFriendships: true,
+            //         enleverNotifications: true,
+            //         enleverMatchs: true,
+            //         enleverPreferences: true,
+            //         enleverWatchTogether: true,
+            //       );
+            //     },
+            //     child: Text("test pour développeur"),
+            //   ),
+          ],
+        ),
       ),
     );
   }
