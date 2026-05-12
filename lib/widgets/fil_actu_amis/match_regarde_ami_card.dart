@@ -1,15 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:scorescope/models/enum/visionnage_match.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/post/match_regarde_ami.dart';
 import 'package:scorescope/models/post/commentaire.dart';
 import 'package:scorescope/models/post/reaction.dart';
 import 'package:scorescope/models/match.dart';
-import 'package:scorescope/models/watch_together.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/handle_data/app_cache.dart';
 import 'package:scorescope/utils/string/build_post_display_name.dart';
@@ -55,20 +53,33 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
   late final AnimationController _controller;
   late final Animation<double> _arrowAnim;
 
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseAnim;
+
   final Map<String, AppUser?> _userCache = {};
 
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
         duration: const Duration(milliseconds: 200), vsync: this);
     _arrowAnim = Tween<double>(begin: 0.0, end: 0.5).animate(_controller);
+
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 1100),
+      vsync: this,
+    );
+    _pulseAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     entry = widget.entry;
     matchData = entry.matchData;
 
     if (entry.match == null) {
       _isLoadingMatchData = true;
+      _pulseController.repeat(reverse: true);
       _loadMatchData();
     }
 
@@ -79,13 +90,19 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
     }
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadMatchData() async {
     final String? matchId = matchData.matchId;
     if (matchId == null) {
       if (mounted) setState(() => _isLoadingMatchData = false);
       return;
     }
-
     try {
       MatchModel? match = AppCache.getMatch(matchId);
       if (match == null) {
@@ -117,10 +134,16 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
           mvpName: mvpName,
         );
         _isLoadingMatchData = false;
+        _pulseController.stop();
       });
     } catch (e) {
       debugPrint('_loadMatchData error: $e');
-      if (mounted) setState(() => _isLoadingMatchData = false);
+      if (mounted) {
+        setState(() {
+          _isLoadingMatchData = false;
+          _pulseController.stop();
+        });
+      }
     }
   }
 
@@ -135,15 +158,12 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
   }
 
   Future<void> _initWatchTogether() async {
-    final List<WatchTogether> watchTogetherList = await RepositoryProvider
-        .watchTogetherRepository
+    final list = await RepositoryProvider.watchTogetherRepository
         .getFriendsWatchedWith(widget.entry.friend.uid, matchData.matchId);
-
-    final ids = watchTogetherList
+    final ids = list
         .where((w) => w.status == 'accepted')
         .map((w) => w.friendId)
         .toList();
-
     final users = <AppUser>[];
     for (final id in ids) {
       final u = await RepositoryProvider.userRepository.fetchUserById(id);
@@ -160,10 +180,8 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
 
   Future<void> _refreshCommentsAndReactions({int? commentsLimit}) async {
     setState(() {});
-
     final ownerId = entry.friend.uid;
     final matchId = matchData.matchId;
-
     try {
       final reactions = await RepositoryProvider.postRepository.fetchReactions(
         ownerUserId: ownerId,
@@ -171,17 +189,14 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
         limit: 100,
         removeBlockedUsersReactions: true,
       );
-
       final comments = await RepositoryProvider.postRepository.fetchComments(
         ownerUserId: ownerId,
         matchId: matchId,
         limit: commentsLimit,
         removeBlockedUsersComments: true,
       );
-
       matchData.reactions = List<Reaction>.from(reactions);
       matchData.comments = List<Commentaire>.from(comments);
-
       for (final c in matchData.comments) {
         if (!_userCache.containsKey(c.authorId)) {
           try {
@@ -201,16 +216,13 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
   Future<void> _toggleReaction(String emoji) async {
     if (_currentUserId == null || _loadingReactionOp) return;
     setState(() => _loadingReactionOp = true);
-
     final ownerId = entry.friend.uid;
     final matchId = matchData.matchId;
     final myId = _currentUserId!;
-
     try {
       final existingForEmoji = matchData.reactions
           .where((r) => r.userId == myId && r.emoji == emoji)
           .toList();
-
       if (existingForEmoji.isNotEmpty) {
         await RepositoryProvider.postRepository.deleteReaction(
           ownerUserId: ownerId,
@@ -292,7 +304,6 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
     final displayUsers = allUsers.take(4).toList();
     const double avatarSize = 32;
     final double overlap = avatarSize * 0.4;
-
     return SizedBox(
       width: avatarSize + (displayUsers.length - 1) * overlap,
       height: avatarSize,
@@ -309,80 +320,135 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
     );
   }
 
-  Widget _skeletonBox(double height, double width, {double radius = 4}) {
-    return Container(
-      height: height,
-      width: width,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(radius),
+  Color _pulseColor({required bool emphase}) {
+    final Color from = emphase
+        ? ColorPalette.pictureBackground(context)
+        : ColorPalette.tileBackground(context);
+    final Color to = emphase
+        ? ColorPalette.border(context)
+        : ColorPalette.pictureBackground(context);
+    return Color.lerp(from, to, _pulseAnim.value)!;
+  }
+
+  Widget _pulse({
+    required double height,
+    required double width,
+    double radius = 6,
+    bool emphase = false,
+  }) {
+    return AnimatedBuilder(
+      animation: _pulseAnim,
+      builder: (_, __) => Container(
+        height: height,
+        width: width,
+        decoration: BoxDecoration(
+          color: _pulseColor(emphase: emphase),
+          borderRadius: BorderRadius.circular(radius),
+        ),
       ),
     );
   }
 
+  Widget _skeletonDivider() {
+    return AnimatedBuilder(
+      animation: _pulseAnim,
+      builder: (_, __) => Container(
+        height: 1,
+        color: _pulseColor(emphase: false),
+      ),
+    );
+  }
+
+  Widget _skeletonVertDivider() {
+    return AnimatedBuilder(
+      animation: _pulseAnim,
+      builder: (_, __) => Container(
+        width: 1,
+        height: 60,
+        color: _pulseColor(emphase: false),
+      ),
+    );
+  }
+
+  Widget _skeletonTeamColumn() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _pulse(height: 36, width: 36, radius: 10, emphase: true),
+        const SizedBox(height: 6),
+        _pulse(height: 11, width: 72, emphase: false),
+      ],
+    );
+  }
+
+  Widget _skeletonScore() {
+    return Column(
+      children: [
+        _pulse(height: 22, width: 56, radius: 6, emphase: true),
+        const SizedBox(height: 6),
+        _pulse(height: 10, width: 88, emphase: false),
+      ],
+    );
+  }
+
+  Widget _skeletonEmojiColumn() {
+    return Column(
+      children: [
+        _pulse(height: 40, width: 40, radius: 20, emphase: true),
+        const SizedBox(height: 6),
+        _pulse(height: 11, width: 52, emphase: false),
+      ],
+    );
+  }
+
   Widget _buildMatchSkeleton() {
-    return Shimmer.fromColors(
-      baseColor: ColorPalette.tileBackground(context),
-      highlightColor: ColorPalette.surface(context),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: ColorPalette.tileBackground(context),
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
-          border: Border.all(color: ColorPalette.border(context), width: 3),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(children: [
-                  _skeletonBox(36, 36, radius: 8),
-                  const SizedBox(height: 6),
-                  _skeletonBox(12, 64, radius: 4),
-                ]),
-                _skeletonBox(22, 60, radius: 6),
-                Column(children: [
-                  _skeletonBox(36, 36, radius: 8),
-                  const SizedBox(height: 6),
-                  _skeletonBox(12, 64, radius: 4),
-                ]),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Container(height: 1, color: Colors.white24),
-            const SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(children: [
-                  _skeletonBox(36, 36, radius: 18),
-                  const SizedBox(height: 6),
-                  _skeletonBox(12, 48, radius: 4),
-                ]),
-                Container(width: 1, height: 60, color: Colors.white24),
-                Column(children: [
-                  _skeletonBox(36, 36, radius: 18),
-                  const SizedBox(height: 6),
-                  _skeletonBox(12, 80, radius: 4),
-                ]),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Container(height: 1, color: Colors.white24),
-            const SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _skeletonBox(16, 16, radius: 8),
-                const SizedBox(width: 8),
-                _skeletonBox(14, 180, radius: 4),
-              ],
-            ),
-          ],
-        ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: ColorPalette.tileBackground(context),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+        border: Border.all(color: ColorPalette.border(context), width: 3),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(child: Center(child: _skeletonTeamColumn())),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: _skeletonScore(),
+              ),
+              Expanded(child: Center(child: _skeletonTeamColumn())),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _skeletonDivider(),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(child: Center(child: _skeletonEmojiColumn())),
+              _skeletonVertDivider(),
+              Expanded(child: Center(child: _skeletonEmojiColumn())),
+            ],
+          ),
+          const SizedBox(height: 14),
+          _skeletonDivider(),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _pulse(height: 16, width: 16, radius: 8, emphase: true),
+              const SizedBox(width: 8),
+              _pulse(height: 13, width: 90, emphase: false),
+              const SizedBox(width: 6),
+              _pulse(height: 13, width: 110, emphase: true),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -394,7 +460,6 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
     final String relativeTime = matchData.watchedAt != null
         ? timeago.format(matchData.watchedAt!, locale: 'fr')
         : '';
-
     final Equipe? home = match?.equipeDomicile;
     final Equipe? away = match?.equipeExterieur;
 
@@ -462,7 +527,6 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
               ],
             ),
           ),
-
           if (_expandWatchTogether)
             for (final user in [friend, ..._watchTogetherUsers]) ...[
               InkWell(
@@ -487,9 +551,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
               ),
               const SizedBox(height: 4),
             ],
-
           const SizedBox(height: 10),
-
           if (widget.matchDetails) ...[
             if (_isLoadingMatchData)
               _buildMatchSkeleton()
@@ -548,13 +610,11 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                       const SizedBox(height: 4),
                                       FittedBox(
                                         fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          home.nom,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: ColorPalette.textPrimary(
-                                                  context)),
-                                        ),
+                                        child: Text(home.nom,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: ColorPalette.textPrimary(
+                                                    context))),
                                       ),
                                     ],
                                   ),
@@ -605,13 +665,11 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                       const SizedBox(height: 4),
                                       FittedBox(
                                         fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          away.nom,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: ColorPalette.textPrimary(
-                                                  context)),
-                                        ),
+                                        child: Text(away.nom,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: ColorPalette.textPrimary(
+                                                    context))),
                                       ),
                                     ],
                                   ),
@@ -683,12 +741,10 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                   size: 18,
                                   color: ColorPalette.accentVariant(context)),
                               const SizedBox(width: 8),
-                              Text(
-                                'Vote pour MVP : ',
-                                style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
-                                    fontWeight: FontWeight.bold),
-                              ),
+                              Text('Vote pour MVP : ',
+                                  style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
+                                      fontWeight: FontWeight.bold)),
                               Flexible(
                                 child: Text(
                                   entry.mvpName != null &&
@@ -841,7 +897,6 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
               ],
             ),
           ],
-
           if (widget.showInteractions) ...[
             ReactionRow(
               matchUserData: matchData,
