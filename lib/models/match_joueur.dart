@@ -24,6 +24,18 @@ class MatchJoueur {
         'hasPlayed': hasPlayed,
       };
 
+  factory MatchJoueur.fromJson(Map<String, dynamic> json) {
+    return MatchJoueur(
+      joueur: json['joueur'] != null
+          ? Joueur.fromJson(json: json['joueur'] as Map<String, dynamic>)
+          : null,
+      number: json['number'] as int?,
+      pos: json['pos'] as String?,
+      grid: json['grid'] as String?,
+      hasPlayed: json['hasPlayed'] as bool? ?? false,
+    );
+  }
+
   static Future<MatchJoueur> fromMatchJoueurId(MatchJoueurId data,
       {Joueur? joueurDejaCharge}) async {
     Joueur? joueur = joueurDejaCharge ??

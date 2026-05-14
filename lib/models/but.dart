@@ -42,6 +42,20 @@ class But {
         'typeBut': typeBut.name,
       };
 
+  factory But.fromJson(Map<String, dynamic> json) {
+    return But(
+      // toJson() embarque le Joueur complet (buteur.toJson()), pas juste l'id
+      buteur: Joueur.fromJson(json: json['buteur'] as Map<String, dynamic>),
+      minute: json['minute'] as String?,
+      passeur: json['passeur'] != null
+          ? Joueur.fromJson(json: json['passeur'] as Map<String, dynamic>)
+          : null,
+      typeBut: json['typeBut'] != null
+          ? TypeButExt.fromString(json['typeBut'] as String) ?? TypeBut.normal
+          : TypeBut.normal,
+    );
+  }
+
   static Future<But> fromButId(ButId butId, {Joueur? buteurDejaCharge}) async {
     final buteur = buteurDejaCharge ??
         await RepositoryProvider.joueurRepository

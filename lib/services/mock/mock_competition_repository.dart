@@ -85,4 +85,26 @@ class MockCompetitionRepository implements ICompetitionRepository {
       await addCompetition(comp);
     }
   }
+
+  @override
+  Future<void> updateCompetition({
+    required String id,
+    String? nom,
+    String? country,
+    String? logoUrl,
+    int? popularite,
+  }) async {
+    await Future.delayed(Duration(milliseconds: 200));
+    final index = _competitions.indexWhere((comp) => comp.id == id);
+    if (index != -1) {
+      final comp = _competitions[index];
+      _competitions[index] = Competition(
+        id: comp.id,
+        nom: nom ?? comp.nom,
+        country: country ?? comp.country,
+        logoUrl: logoUrl ?? comp.logoUrl,
+        popularite: popularite ?? comp.popularite,
+      );
+    }
+  }
 }

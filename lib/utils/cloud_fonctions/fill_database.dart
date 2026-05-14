@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/enum/language_options.dart';
@@ -776,6 +777,32 @@ class FillDatabase {
       await RepositoryProvider.watchTogetherRepository
           .removeAllWatchTogetherForUser(userId: userId);
       print("watch together enlevés");
+    }
+  }
+
+  static Future<void> updateAllCompetitionsPopularite() async {
+    List<AppUser> allUsers =
+        await RepositoryProvider.userRepository.fetchAllUsers();
+    Map<String, int> competitionIdToCount = {};
+    for (AppUser user in allUsers) {
+      for (String competitionId in user.competitionsPrefereesId) {
+        if (competitionIdToCount.containsKey(competitionId)) {
+          competitionIdToCount[competitionId] =
+              competitionIdToCount[competitionId]! + 1;
+        } else {
+          competitionIdToCount[competitionId] = 1;
+        }
+      }
+    }
+    List<Competition> allCompetitions =
+        await RepositoryProvider.competitionRepository.fetchAllCompetitions();
+    for (Competition competition in allCompetitions) {
+      int newPopularite = competitionIdToCount[competition.id] ?? 0;
+      await RepositoryProvider.competitionRepository.updateCompetition(
+        id: competition.id,
+        popularite: newPopularite,
+      );
+      print("popularité mise à jour pour ${competition.nom} : $newPopularite");
     }
   }
 }

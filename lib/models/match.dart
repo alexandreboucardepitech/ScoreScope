@@ -71,9 +71,56 @@ class MatchModel implements PodiumDisplayable {
         notes = notes ?? {};
 
   bool get isFinished => status == MatchStatus.finished;
-  bool get isLive => status == MatchStatus.live || status == MatchStatus.halftime;
+  bool get isLive =>
+      status == MatchStatus.live || status == MatchStatus.halftime;
   bool get isScheduled => status == MatchStatus.scheduled;
   bool get isHalftime => status == MatchStatus.halftime;
+
+  MatchModel copyWith({
+    String? id,
+    MatchStatus? status,
+    int? liveMinute,
+    int? extraTime,
+    int? saison,
+    Equipe? equipeDomicile,
+    Equipe? equipeExterieur,
+    Competition? competition,
+    DateTime? date,
+    String? refereeName,
+    String? stadiumName,
+    int? scoreEquipeDomicile,
+    int? scoreEquipeExterieur,
+    List<But>? butsEquipeDomicile,
+    List<But>? butsEquipeExterieur,
+    List<MatchJoueur>? joueursEquipeDomicile,
+    List<MatchJoueur>? joueursEquipeExterieur,
+    Map<String, String>? mvpVotes,
+    Map<String, int>? notes,
+  }) {
+    return MatchModel(
+      id: id ?? this.id,
+      status: status ?? this.status,
+      liveMinute: liveMinute ?? this.liveMinute,
+      extraTime: extraTime ?? this.extraTime,
+      saison: saison ?? this.saison,
+      equipeDomicile: equipeDomicile ?? this.equipeDomicile,
+      equipeExterieur: equipeExterieur ?? this.equipeExterieur,
+      competition: competition ?? this.competition,
+      date: date ?? this.date,
+      refereeName: refereeName ?? this.refereeName,
+      stadiumName: stadiumName ?? this.stadiumName,
+      scoreEquipeDomicile: scoreEquipeDomicile ?? this.scoreEquipeDomicile,
+      scoreEquipeExterieur: scoreEquipeExterieur ?? this.scoreEquipeExterieur,
+      butsEquipeDomicile: butsEquipeDomicile ?? this.butsEquipeDomicile,
+      butsEquipeExterieur: butsEquipeExterieur ?? this.butsEquipeExterieur,
+      joueursEquipeDomicile:
+          joueursEquipeDomicile ?? this.joueursEquipeDomicile,
+      joueursEquipeExterieur:
+          joueursEquipeExterieur ?? this.joueursEquipeExterieur,
+      mvpVotes: mvpVotes ?? this.mvpVotes,
+      notes: notes ?? this.notes,
+    );
+  }
 
   @override
   Future<String?> getColor() async {
@@ -635,6 +682,77 @@ class MatchModel implements PodiumDisplayable {
         'mvpVotes': mvpVotes,
         'notes': notes,
       };
+
+  Map<String, dynamic> toCacheJson() => {
+        'id': id,
+        'status': status.name,
+        'liveMinute': liveMinute,
+        'extraTime': extraTime,
+        'saison': saison,
+        'competition': competition.toJson(),
+        'equipeDomicile': equipeDomicile.toJson(),
+        'equipeExterieur': equipeExterieur.toJson(),
+        'date': date.toIso8601String(),
+        'refereeName': refereeName,
+        'stadiumName': stadiumName,
+        'scoreEquipeDomicile': scoreEquipeDomicile,
+        'scoreEquipeExterieur': scoreEquipeExterieur,
+        'joueursEquipeDomicile':
+            joueursEquipeDomicile.map((j) => j.toJson()).toList(),
+        'joueursEquipeExterieur':
+            joueursEquipeExterieur.map((j) => j.toJson()).toList(),
+        'butsEquipeDomicile':
+            butsEquipeDomicile.map((b) => b.toJson()).toList(),
+        'butsEquipeExterieur':
+            butsEquipeExterieur.map((b) => b.toJson()).toList(),
+        // mvpVotes et notes intentionnellement absents :
+        // ce sont des données live rechargées depuis Firestore à chaque affichage
+      };
+
+  static MatchModel fromCacheJson(Map<String, dynamic> json) {
+    final status = MatchStatus.values.firstWhere(
+      (e) => e.name == json['status'],
+      orElse: () => MatchStatus.scheduled,
+    );
+
+    return MatchModel(
+      id: json['id'] as String,
+      status: status,
+      liveMinute: json['liveMinute'] as int?,
+      extraTime: json['extraTime'] as int?,
+      saison: json['saison'] as int?,
+      competition: Competition.fromJson(
+        json: json['competition'] as Map<String, dynamic>,
+      ),
+      equipeDomicile: Equipe.fromJson(
+        json: json['equipeDomicile'] as Map<String, dynamic>,
+      ),
+      equipeExterieur: Equipe.fromJson(
+        json: json['equipeExterieur'] as Map<String, dynamic>,
+      ),
+      date: DateTime.parse(json['date'] as String),
+      refereeName: json['refereeName'] as String?,
+      stadiumName: json['stadiumName'] as String?,
+      scoreEquipeDomicile: json['scoreEquipeDomicile'] as int? ?? 0,
+      scoreEquipeExterieur: json['scoreEquipeExterieur'] as int? ?? 0,
+      joueursEquipeDomicile: (json['joueursEquipeDomicile'] as List? ?? [])
+          .map((j) => MatchJoueur.fromJson(j as Map<String, dynamic>))
+          .toList(),
+      joueursEquipeExterieur: (json['joueursEquipeExterieur'] as List? ?? [])
+          .map((j) => MatchJoueur.fromJson(j as Map<String, dynamic>))
+          .toList(),
+      butsEquipeDomicile: (json['butsEquipeDomicile'] as List? ?? [])
+          .map((b) => But.fromJson(b as Map<String, dynamic>))
+          .toList(),
+      butsEquipeExterieur: (json['butsEquipeExterieur'] as List? ?? [])
+          .map((b) => But.fromJson(b as Map<String, dynamic>))
+          .toList(),
+      // Données live : toujours vides depuis le cache,
+      // le repository les re-fetche séparément si nécessaire
+      mvpVotes: {},
+      notes: {},
+    );
+  }
 
   static Future<MatchModel> fromMatchId(MatchModelId data) async {
     final competition = await RepositoryProvider.competitionRepository

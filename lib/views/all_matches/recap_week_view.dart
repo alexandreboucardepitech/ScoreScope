@@ -952,7 +952,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               if (d.avgRating != null)
                 Expanded(
                   child: _buildHeaderStat(
-                    value: d.avgRating!.toStringAsFixed(1),
+                    value: roundSmart(d.avgRating!, decimals: 1),
                     label: 'note moyenne',
                     badge: diffRating != null &&
                             diffRatingColor != null &&
@@ -1098,7 +1098,8 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               ),
             ],
           ),
-          if (d.bestMatchesMvpName != null && d.bestMatchesMvpName?[_bestMatchIndex] != null) ...[
+          if (d.bestMatchesMvpName != null &&
+              d.bestMatchesMvpName?[_bestMatchIndex] != null) ...[
             const SizedBox(height: 10),
             const Divider(height: 1),
             const SizedBox(height: 8),

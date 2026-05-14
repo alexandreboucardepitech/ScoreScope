@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/competition.dart';
+import 'package:scorescope/services/cache/local_cache.dart';
 import 'package:scorescope/services/repositories/i_competition_repository.dart';
+import 'package:scorescope/utils/handle_data/app_cache.dart';
 
 class WebCompetitionRepository implements ICompetitionRepository {
   final CollectionReference<Map<String, dynamic>> _competitionsCollection =
@@ -19,9 +21,30 @@ class WebCompetitionRepository implements ICompetitionRepository {
 
   @override
   Future<Competition?> fetchCompetitionById(String id) async {
+    // L1 — mémoire
+    final l1 = AppCache.getCompetition(id);
+    if (l1 != null) return l1;
+
+    // L2 — disque
+    final l2 = LocalCache.getCompetition(id);
+    if (l2 != null) {
+      AppCache.setCompetition(id, l2); // remonte en L1
+      return l2;
+    }
+
+    // Firestore
     final doc = await _competitionsCollection.doc(id).get();
     if (!doc.exists) return null;
-    return Competition.fromJson(json: doc.data()!, competitionId: doc.id);
+    final competition = Competition.fromJson(
+      json: doc.data()!,
+      competitionId: doc.id,
+    );
+
+    // Écriture dans les deux couches
+    AppCache.setCompetition(id, competition);
+    await LocalCache.setCompetition(id, competition);
+
+    return competition;
   }
 
   @override
@@ -89,5 +112,22 @@ class WebCompetitionRepository implements ICompetitionRepository {
     for (Competition comp in competitions) {
       await addCompetition(comp);
     }
+  }
+
+  @override
+  Future<void> updateCompetition({
+    required String id,
+    String? nom,
+    String? country,
+    String? logoUrl,
+    int? popularite,
+  }) async {
+    final docRef = _competitionsCollection.doc(id);
+    await docRef.update({
+      if (nom != null) 'nom': nom,
+      if (country != null) 'country': country,
+      if (logoUrl != null) 'logoUrl': logoUrl,
+      if (popularite != null) 'popularite': popularite,
+    });
   }
 }

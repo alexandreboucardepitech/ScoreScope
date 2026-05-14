@@ -130,9 +130,8 @@ class ResultatsRecherche extends StatelessWidget {
             leading: SizedBox(
               width: 32,
               height: 32,
-              child: CachedNetworkImage(
-                imageUrl: joueur.picture,
-                fit: BoxFit.cover,
+              child: CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(joueur.picture),
               ),
             ),
             title: Text(

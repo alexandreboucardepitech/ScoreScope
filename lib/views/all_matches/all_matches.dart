@@ -431,14 +431,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
             //   ElevatedButton(
             //     onPressed: () async {
-            //       await FillDatabase.enleverToutesLesDonneesDeUser(
-            //         userId: "jSHnJN1cVWTsDirfm1sEaA358jJ3",
-            //         enleverFriendships: true,
-            //         enleverNotifications: true,
-            //         enleverMatchs: true,
-            //         enleverPreferences: true,
-            //         enleverWatchTogether: true,
-            //       );
+            //       await FillDatabase.updateAllCompetitionsPopularite();
             //     },
             //     child: Text("test pour développeur"),
             //   ),
@@ -553,9 +546,9 @@ void _showCompetitionsSelector(
       ),
     );
     if (competitionsSelected != null) {
-      await RepositoryProvider.userRepository.editProfile(
+      await RepositoryProvider.competitionRepository.updateFavoriteCompetitions(
         userId: currentUser.uid,
-        newCompetitionsPrefereesId: competitionsSelected,
+        competitionIds: competitionsSelected,
       );
     }
 

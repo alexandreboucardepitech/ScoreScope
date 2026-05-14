@@ -97,6 +97,7 @@ abstract class IAppUserRepository {
     LanguageOptions? language,
     ThemeOptions? theme,
     VisionnageMatch? defaultVisionnageMatch,
+    bool? utiliserCache,
   });
 
   Future<void> updatePrivateAccount({

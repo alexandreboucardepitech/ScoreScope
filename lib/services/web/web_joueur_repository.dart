@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scorescope/services/cache/local_cache.dart';
 import 'package:scorescope/services/repositories/i_joueur_repository.dart';
+import 'package:scorescope/utils/handle_data/app_cache.dart';
 import '../../../models/joueur.dart';
 
 class WebJoueurRepository implements IJoueurRepository {
@@ -16,9 +18,26 @@ class WebJoueurRepository implements IJoueurRepository {
 
   @override
   Future<Joueur?> fetchJoueurById(String id) async {
+    // L1 — mémoire
+    final l1 = AppCache.getJoueur(id);
+    if (l1 != null) return l1;
+
+    // L2 — disque
+    final l2 = LocalCache.getJoueur(id);
+    if (l2 != null) {
+      AppCache.setJoueur(id, l2); // remonte en L1 (met aussi le nom en index)
+      return l2;
+    }
+
+    // Firestore
     final doc = await _collection.doc(id).get();
     if (!doc.exists) return null;
-    return Joueur.fromJson(json: doc.data()!, joueurId: doc.id);
+    final joueur = Joueur.fromJson(json: doc.data()!, joueurId: doc.id);
+
+    AppCache.setJoueur(id, joueur);
+    await LocalCache.setJoueur(id, joueur);
+
+    return joueur;
   }
 
   @override
@@ -34,13 +53,15 @@ class WebJoueurRepository implements IJoueurRepository {
       print("Joueur déjà existant : ${joueur.fullName} (${joueur.id})");
       final data = doc.data();
       if (data != null && data['equipeId'] != joueur.equipeId) {
-        print("Le joueur ${joueur.fullName} a changé d'équipe ! : ${joueur.equipeId}");
+        print(
+            "Le joueur ${joueur.fullName} a changé d'équipe ! : ${joueur.equipeId}");
         _collection.doc(joueur.id).update({'equipeId': joueur.equipeId});
       }
       if (data != null &&
           joueur.equipeNationaleId != null &&
           joueur.equipeNationaleId != data["equipeNationaleId"]) {
-        print("Le joueur ${joueur.fullName} a une nouvelle équipe nationale ! : ${joueur.equipeNationaleId}");
+        print(
+            "Le joueur ${joueur.fullName} a une nouvelle équipe nationale ! : ${joueur.equipeNationaleId}");
         _collection.doc(joueur.id).update({
           'equipeNationaleId': joueur.equipeNationaleId,
         });

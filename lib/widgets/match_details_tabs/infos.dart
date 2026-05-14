@@ -32,13 +32,14 @@ class InfosTab extends StatefulWidget {
 }
 
 class _InfosTabState extends State<InfosTab> {
-  Joueur? currentMvp;
+  List<MvpVoteEntry> _mvpTopPlayers = [];
   Joueur? userVoteMVP;
+
   int? userVoteNoteMatch;
+  bool loadingNote = false;
+
   final user = RepositoryProvider.userRepository.currentUser;
   List<WatchFriend> _watchFriends = [];
-
-  bool loadingNote = false;
 
   @override
   void initState() {
@@ -50,12 +51,11 @@ class _InfosTabState extends State<InfosTab> {
   @override
   void didUpdateWidget(covariant InfosTab oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (widget.userDataVersion != oldWidget.userDataVersion) {
       setState(() {
         userVoteMVP = null;
         userVoteNoteMatch = null;
-        currentMvp = null;
+        _mvpTopPlayers = [];
       });
       _loadMvpEtNote();
     }
@@ -65,18 +65,14 @@ class _InfosTabState extends State<InfosTab> {
     if (!mounted) return;
 
     if (userVoteNoteMatch == null) {
-      setState(() {
-        loadingNote = true;
-      });
+      setState(() => loadingNote = true);
     }
 
-    Joueur? loadedCurrentMvp;
     Joueur? loadedUserVoteMVP;
     int? loadedUserNote;
+    List<MvpVoteEntry> loadedTopPlayers = [];
 
     try {
-      loadedCurrentMvp = await widget.match.getMvp();
-
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null) {
         final match = await RepositoryProvider.matchRepository
@@ -84,36 +80,61 @@ class _InfosTabState extends State<InfosTab> {
 
         if (match != null) {
           final userVoteId = match.mvpVotes[firebaseUser.uid];
-
           if (userVoteId != null) {
-            loadedUserVoteMVP =
-                await RepositoryProvider.joueurRepository.fetchJoueurById(
-              userVoteId,
-            );
+            loadedUserVoteMVP = await RepositoryProvider.joueurRepository
+                .fetchJoueurById(userVoteId);
           }
 
           loadedUserNote = match.notes[firebaseUser.uid];
-          loadedCurrentMvp = await match.getMvp();
+
+          final voteCountMap = <String, int>{};
+          for (final joueurId in match.mvpVotes.values) {
+            voteCountMap[joueurId] = (voteCountMap[joueurId] ?? 0) + 1;
+          }
+
+          final totalVotes =
+              voteCountMap.values.fold<int>(0, (sum, v) => sum + v);
+
+          final sorted = voteCountMap.entries.toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
+
+          for (final entry in sorted.take(3)) {
+            final joueur = await RepositoryProvider.joueurRepository
+                .fetchJoueurById(entry.key);
+            if (joueur == null) continue;
+
+            Equipe? equipe;
+            try {
+              equipe = await RepositoryProvider.equipeRepository
+                  .fetchEquipeById(joueur.equipeId);
+            } catch (_) {
+              equipe = null;
+            }
+
+            loadedTopPlayers.add(MvpVoteEntry(
+              joueur: joueur,
+              equipe: equipe,
+              voteCount: entry.value,
+              percentage: totalVotes > 0 ? entry.value / totalVotes * 100 : 0.0,
+            ));
+          }
         }
       }
 
       if (!mounted) return;
-
       setState(() {
-        currentMvp = loadedCurrentMvp;
         userVoteMVP = loadedUserVoteMVP;
         userVoteNoteMatch = loadedUserNote;
+        _mvpTopPlayers = loadedTopPlayers;
         loadingNote = false;
       });
     } catch (e) {
-      debugPrint('Erreur lors du chargement du MVP ou du vote utilisateur: $e');
-
+      debugPrint('Erreur lors du chargement MVP/note : $e');
       if (!mounted) return;
-
       setState(() {
-        currentMvp = loadedCurrentMvp;
         userVoteMVP = null;
         userVoteNoteMatch = null;
+        _mvpTopPlayers = [];
         loadingNote = false;
       });
     }
@@ -131,10 +152,8 @@ class _InfosTabState extends State<InfosTab> {
     final friendsMap = {for (var friend in friends) friend.uid: friend};
 
     final List<WatchFriend> result = [];
-
     for (final doc in watchedDocs) {
       final friendUser = friendsMap[doc.friendId];
-
       if (friendUser != null) {
         result.add(
           WatchFriend(
@@ -148,10 +167,7 @@ class _InfosTabState extends State<InfosTab> {
     }
 
     if (!mounted) return;
-
-    setState(() {
-      _watchFriends = result;
-    });
+    setState(() => _watchFriends = result);
   }
 
   Future<void> _reloadAll() async {
@@ -171,16 +187,12 @@ class _InfosTabState extends State<InfosTab> {
 
     final ownerId = user!.uid;
 
-    final friendships =
-        await RepositoryProvider.amitieRepository.fetchFriendshipsForUser(
-      userId: ownerId,
-    );
+    final friendships = await RepositoryProvider.amitieRepository
+        .fetchFriendshipsForUser(userId: ownerId);
 
-    final existingWatchTogether =
-        await RepositoryProvider.watchTogetherRepository.getFriendsWatchedWith(
-      ownerId,
-      matchId,
-    );
+    final existingWatchTogether = await RepositoryProvider
+        .watchTogetherRepository
+        .getFriendsWatchedWith(ownerId, matchId);
 
     final invitedFriendIds =
         existingWatchTogether.map((e) => e.friendId).toSet();
@@ -194,15 +206,12 @@ class _InfosTabState extends State<InfosTab> {
 
       final friend =
           await RepositoryProvider.userRepository.fetchUserById(friendId);
-
       if (friend == null) continue;
 
       List<Equipe> equipesPrefereesMatch = [];
-
       if (friend.equipesPrefereesId.contains(equipeDomicile.id)) {
         equipesPrefereesMatch.add(equipeDomicile);
       }
-
       if (friend.equipesPrefereesId.contains(equipeExterieur.id)) {
         equipesPrefereesMatch.add(equipeExterieur);
       }
@@ -228,13 +237,11 @@ class _InfosTabState extends State<InfosTab> {
       context: context,
       isScrollControlled: true,
       backgroundColor: ColorPalette.surface(context),
-      builder: (_) {
-        return AddWatchFriendBottomSheet(
-          matchId: matchId,
-          ownerId: ownerId,
-          friends: friendItems,
-        );
-      },
+      builder: (_) => AddWatchFriendBottomSheet(
+        matchId: matchId,
+        ownerId: ownerId,
+        friends: friendItems,
+      ),
     );
 
     await _reloadAll();
@@ -266,9 +273,7 @@ class _InfosTabState extends State<InfosTab> {
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               'Annuler',
-              style: TextStyle(
-                color: ColorPalette.textPrimary(context),
-              ),
+              style: TextStyle(color: ColorPalette.textPrimary(context)),
             ),
           ),
           TextButton(
@@ -308,14 +313,33 @@ class _InfosTabState extends State<InfosTab> {
   }
 
   void voteMVP() async {
-    Map<String, dynamic> result = await openBottomSheetAndVoteMVP(
+    final Map<String, dynamic> result = await openBottomSheetAndVoteMVP(
       context: context,
       match: widget.match,
       initialUserVote: userVoteMVP,
     );
     userVoteMVP = result["joueur"];
-
     await _reloadAll();
+  }
+
+  int? get _noteCount {
+    final valid =
+        widget.match.notes.values.whereType<int>().where((n) => n > 0).toList();
+    return valid.isEmpty ? null : valid.length;
+  }
+
+  int? get _noteMin {
+    final valid =
+        widget.match.notes.values.whereType<int>().where((n) => n > 0).toList();
+    if (valid.isEmpty) return null;
+    return valid.reduce((a, b) => a < b ? a : b);
+  }
+
+  int? get _noteMax {
+    final valid =
+        widget.match.notes.values.whereType<int>().where((n) => n > 0).toList();
+    if (valid.isEmpty) return null;
+    return valid.reduce((a, b) => a > b ? a : b);
   }
 
   @override
@@ -331,13 +355,13 @@ class _InfosTabState extends State<InfosTab> {
           child: ConstrainedBox(
             constraints: widget.match.isScheduled
                 ? BoxConstraints(minHeight: MediaQuery.of(context).size.height)
-                : BoxConstraints(minHeight: 0),
+                : const BoxConstraints(minHeight: 0),
             child: widget.match.isScheduled
                 ? Align(
                     alignment: Alignment.topCenter,
                     child: MatchNotStarted(
                       onNotificationsChanged: (value) async {
-                        AppUser? currentUser =
+                        final currentUser =
                             RepositoryProvider.userRepository.currentUser;
                         if (currentUser != null) {
                           await RepositoryProvider.userRepository
@@ -355,10 +379,13 @@ class _InfosTabState extends State<InfosTab> {
                 : Column(
                     children: [
                       loadingNote
-                          ? MatchRatingCardShimmer()
+                          ? const MatchRatingCardShimmer()
                           : MatchRatingCard(
                               noteMoyenne: widget.match.getNoteMoyenne(),
                               userVote: userVoteNoteMatch,
+                              noteCount: _noteCount,
+                              noteMin: _noteMin,
+                              noteMax: _noteMax,
                               onCancelled: (cancelled) async {
                                 if (!cancelled) return;
                                 final uid =
@@ -371,26 +398,30 @@ class _InfosTabState extends State<InfosTab> {
                                 final uid =
                                     FirebaseAuth.instance.currentUser!.uid;
                                 widget.match.noterMatch(
-                                    userId: uid, note: valeurConfirmee);
+                                  userId: uid,
+                                  note: valeurConfirmee,
+                                );
                                 userVoteNoteMatch = valeurConfirmee;
                                 await _reloadAll();
                               },
                             ),
+
                       const SizedBox(height: 12),
+
                       MvpCard(
-                        mvp: currentMvp,
+                        topPlayers: _mvpTopPlayers,
                         userVote: userVoteMVP,
                         onVotePressed: voteMVP,
                       ),
+
                       const SizedBox(height: 12),
+
                       IntrinsicHeight(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Expanded(
-                              child: VisionnageMatchCard(
-                                match: widget.match,
-                              ),
+                              child: VisionnageMatchCard(match: widget.match),
                             ),
                             const SizedBox(width: 6),
                             Expanded(

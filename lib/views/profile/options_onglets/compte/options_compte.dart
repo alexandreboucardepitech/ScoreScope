@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/main.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/services/cache/local_cache.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
+import 'package:scorescope/utils/handle_data/app_cache.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/change_email.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/change_password.dart';
@@ -211,6 +213,8 @@ class OptionsCompteView extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
+              AppCache.clearAll();
+              await LocalCache.clearAll();
               await RepositoryProvider.userRepository.signOut();
 
               RootAppState? root =
@@ -421,7 +425,8 @@ class OptionsCompteView extends StatelessWidget {
                   if (!context.mounted) return;
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(backgroundColor: ColorPalette.accent(context),
+                    SnackBar(
+                      backgroundColor: ColorPalette.accent(context),
                       content: Text(
                         "Données supprimées avec succès.",
                         style: TextStyle(

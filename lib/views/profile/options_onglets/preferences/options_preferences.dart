@@ -25,6 +25,7 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
   late ThemeOptions theme;
   late LanguageOptions language;
   late VisionnageMatch visionnage;
+  late bool utiliserCache;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
     theme = options.theme;
     language = options.language;
     visionnage = options.defaultVisionnageMatch;
+    utiliserCache = options.utiliserCache;
   }
 
   @override
@@ -146,6 +148,54 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
             },
           ),
           const SizedBox(height: 24),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: ColorPalette.tileBackground(context),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: ColorPalette.border(context),
+              ),
+            ),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+              ),
+              child: SwitchTheme(
+                data: SwitchTheme.of(context).copyWith(
+                  trackOutlineColor:
+                      MaterialStateProperty.all(Colors.transparent),
+                  trackOutlineWidth: MaterialStateProperty.all(0),
+                ),
+                child: SwitchListTile(
+                  hoverColor: Colors.transparent,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  activeColor: ColorPalette.accent(context),
+                  inactiveThumbColor: ColorPalette.buttonDisabled(context),
+                  inactiveTrackColor:
+                      ColorPalette.buttonDisabled(context).withOpacity(0.4),
+                  value: utiliserCache,
+                  onChanged: (value) {
+                    RepositoryProvider.userRepository.updateOptions(
+                      userId: widget.currentUser.uid,
+                      utiliserCache: value,
+                    );
+                    setState(() => utiliserCache = value);
+                  },
+                  title: Text(
+                    "Utiliser le cache",
+                    style: TextStyle(
+                      color: ColorPalette.textAccent(context),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );

@@ -883,6 +883,7 @@ class MockAppUserRepository implements IAppUserRepository {
     LanguageOptions? language,
     ThemeOptions? theme,
     VisionnageMatch? defaultVisionnageMatch,
+    bool? utiliserCache,
   }) async {
     final userIdx = _users.indexWhere((u) => u.uid == userId);
     if (userIdx < 0) return;
@@ -903,6 +904,7 @@ class MockAppUserRepository implements IAppUserRepository {
       theme: theme ?? currentOptions.theme,
       defaultVisionnageMatch:
           defaultVisionnageMatch ?? currentOptions.defaultVisionnageMatch,
+      utiliserCache: utiliserCache ?? currentOptions.utiliserCache,
     );
 
     final newUser = AppUser(

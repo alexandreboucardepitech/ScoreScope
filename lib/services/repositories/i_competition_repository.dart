@@ -9,4 +9,11 @@ abstract class ICompetitionRepository {
   });
   Future<void> addCompetition(Competition competition);
   Future<void> addCompetitionList(List<Competition> competitions);
+  Future<void> updateCompetition({
+    required String id,
+    String? nom,
+    String? country,
+    String? logoUrl,
+    int? popularite,
+  });
 }

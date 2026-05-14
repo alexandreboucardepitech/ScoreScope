@@ -799,6 +799,7 @@ class WebAppUserRepository implements IAppUserRepository {
     LanguageOptions? language,
     ThemeOptions? theme,
     VisionnageMatch? defaultVisionnageMatch,
+    bool? utiliserCache,
   }) async {
     final userDocRef =
         FirebaseFirestore.instance.collection('users').doc(userId);
@@ -824,6 +825,7 @@ class WebAppUserRepository implements IAppUserRepository {
       theme: theme ?? currentOptions.theme,
       defaultVisionnageMatch:
           defaultVisionnageMatch ?? currentOptions.defaultVisionnageMatch,
+      utiliserCache: utiliserCache ?? currentOptions.utiliserCache,
     );
 
     await userDocRef.update({'options': updatedOptions.toJson()});

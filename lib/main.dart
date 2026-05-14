@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/theme_options.dart';
+import 'package:scorescope/services/cache/local_cache.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/app_theme.dart';
@@ -60,6 +61,8 @@ void main() async {
   await authService.initialize();
 
   await initializeDateFormatting('fr_FR', null);
+
+  await LocalCache.init();
 
   runApp(const RootApp());
 }

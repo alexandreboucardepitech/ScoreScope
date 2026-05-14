@@ -13,6 +13,7 @@ class Options {
   final LanguageOptions language;
   final ThemeOptions theme;
   final VisionnageMatch defaultVisionnageMatch;
+  final bool utiliserCache;
 
   Options({
     this.allNotifications = true,
@@ -25,6 +26,7 @@ class Options {
     this.language = LanguageOptions.french,
     this.theme = ThemeOptions.system,
     this.defaultVisionnageMatch = VisionnageMatch.tele,
+    this.utiliserCache = true,
   });
 
   Map<String, dynamic> toJson() => {
@@ -38,6 +40,7 @@ class Options {
         'language': language.name,
         'theme': theme.name,
         'defaultVisionnageMatch': defaultVisionnageMatch.label,
+        'utiliserCache': utiliserCache,
       };
 
   factory Options.fromJson(Map<String, dynamic> json) {
@@ -61,6 +64,7 @@ class Options {
       language: language,
       theme: theme,
       defaultVisionnageMatch: defaultVisionnageMatch,
+      utiliserCache: json['utiliserCache'] as bool? ?? true,
     );
   }
 }

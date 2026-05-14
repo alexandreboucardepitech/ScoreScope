@@ -457,7 +457,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       );
     }
 
-    final shortName = joueur?.nom ?? "?";
+    final shortName = joueur?.fullName ?? "?";
 
     return Column(
       mainAxisSize: MainAxisSize.min,
