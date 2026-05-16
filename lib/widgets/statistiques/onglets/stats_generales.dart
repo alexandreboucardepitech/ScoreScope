@@ -86,7 +86,7 @@ class StatsGeneralesOnglet extends StatelessWidget {
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'MVP les plus voté',
+        title: 'MVP les plus votés',
         items: data.mvpsLesPlusVotes,
         emptyStateText: 'Aucun MVP',
         user: user,

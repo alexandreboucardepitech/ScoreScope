@@ -865,3 +865,65 @@ exports.sendWeeklyRecapNotifications = onSchedule(
       }
     },
 );
+exports.updatePopulariteCompetitions = onSchedule(
+    {
+      schedule: "0 0 * * *",
+      timeZone: "Europe/Paris",
+    },
+    async () => {
+      try {
+        const usersSnapshot = await db.collection("users").get();
+
+        const competitionIdToCount = {};
+
+        usersSnapshot.forEach((doc) => {
+          const userData = doc.data();
+
+          const competitionsPrefereesId =
+          userData.competitionsPrefereesId || [];
+
+          for (const competitionId of competitionsPrefereesId) {
+            if (competitionIdToCount[competitionId]) {
+              competitionIdToCount[competitionId]++;
+            } else {
+              competitionIdToCount[competitionId] = 1;
+            }
+          }
+        });
+
+        const competitionsSnapshot = await db
+            .collection("competitions")
+            .get();
+
+        const batch = db.batch();
+
+        competitionsSnapshot.forEach((doc) => {
+          const competitionData = doc.data();
+
+          const newPopularite =
+          competitionIdToCount[doc.id] || 0;
+
+          const oldPopularite = competitionData.popularite;
+
+          batch.update(doc.ref, {
+            popularite: newPopularite,
+          });
+
+          console.log(
+              `popularité mise à jour pour ` +
+              `${competitionData.nom} : ${newPopularite} ` +
+              `(ancienne : ${oldPopularite})`,
+          );
+        });
+
+        await batch.commit();
+
+        console.log("Toutes les popularités ont été mises à jour.");
+      } catch (error) {
+        console.error(
+            "Erreur updatePopulariteCompetitions :",
+            error,
+        );
+      }
+    },
+);

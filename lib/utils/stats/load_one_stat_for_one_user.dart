@@ -45,7 +45,7 @@ Future<List<PodiumEntry<T>>> loadOneStatForOneUser<T extends PodiumDisplayable>(
         return result.map((e) => e as PodiumEntry<T>).toList();
       }
 
-    case 'MVP les plus voté':
+    case 'MVP les plus votés':
       {
         final result =
             await StatsLoader.getMvpsLesPlusVotes(matchsVusUser: matchsVusUser);
