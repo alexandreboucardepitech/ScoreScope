@@ -205,9 +205,9 @@ class _TopPlayerRow extends StatelessWidget {
                     if (isUserVote) ...[
                       const SizedBox(width: 4),
                       Icon(
-                        Icons.check_circle,
-                        size: 14,
-                        color: ColorPalette.accent(context),
+                        Icons.how_to_vote,
+                        size: 18,
+                        color: ColorPalette.success(context),
                       ),
                     ],
                   ],
@@ -216,13 +216,11 @@ class _TopPlayerRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      buildTeamLogo(
-                        context,
-                        entry.equipe!.logoPath,
-                        clickable: false,
-                        size: 18
+                      buildTeamLogo(context, entry.equipe!.logoPath,
+                          clickable: false, size: 18),
+                      SizedBox(
+                        width: 4,
                       ),
-                      SizedBox(width: 4,),
                       Text(
                         entry.equipe!.nom,
                         style: TextStyle(

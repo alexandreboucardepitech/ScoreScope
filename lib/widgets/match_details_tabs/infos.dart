@@ -36,6 +36,9 @@ class _InfosTabState extends State<InfosTab> {
   Joueur? userVoteMVP;
 
   int? userVoteNoteMatch;
+
+  bool _noteInitialLoadDone = false;
+
   bool loadingNote = false;
 
   final user = RepositoryProvider.userRepository.currentUser;
@@ -56,6 +59,7 @@ class _InfosTabState extends State<InfosTab> {
         userVoteMVP = null;
         userVoteNoteMatch = null;
         _mvpTopPlayers = [];
+        _noteInitialLoadDone = false;
       });
       _loadMvpEtNote();
     }
@@ -64,7 +68,9 @@ class _InfosTabState extends State<InfosTab> {
   Future<void> _loadMvpEtNote() async {
     if (!mounted) return;
 
-    if (userVoteNoteMatch == null) {
+    final isInitialLoad = !_noteInitialLoadDone;
+
+    if (isInitialLoad) {
       setState(() => loadingNote = true);
     }
 
@@ -85,13 +91,14 @@ class _InfosTabState extends State<InfosTab> {
                 .fetchJoueurById(userVoteId);
           }
 
-          loadedUserNote = match.notes[firebaseUser.uid];
+          if (isInitialLoad) {
+            loadedUserNote = match.notes[firebaseUser.uid];
+          }
 
           final voteCountMap = <String, int>{};
           for (final joueurId in match.mvpVotes.values) {
             voteCountMap[joueurId] = (voteCountMap[joueurId] ?? 0) + 1;
           }
-
           final totalVotes =
               voteCountMap.values.fold<int>(0, (sum, v) => sum + v);
 
@@ -122,9 +129,13 @@ class _InfosTabState extends State<InfosTab> {
       }
 
       if (!mounted) return;
+
       setState(() {
         userVoteMVP = loadedUserVoteMVP;
-        userVoteNoteMatch = loadedUserNote;
+        if (isInitialLoad) {
+          userVoteNoteMatch = loadedUserNote;
+          _noteInitialLoadDone = true;
+        }
         _mvpTopPlayers = loadedTopPlayers;
         loadingNote = false;
       });
@@ -133,7 +144,10 @@ class _InfosTabState extends State<InfosTab> {
       if (!mounted) return;
       setState(() {
         userVoteMVP = null;
-        userVoteNoteMatch = null;
+        if (isInitialLoad) {
+          userVoteNoteMatch = null;
+          _noteInitialLoadDone = true;
+        }
         _mvpTopPlayers = [];
         loadingNote = false;
       });
@@ -145,10 +159,8 @@ class _InfosTabState extends State<InfosTab> {
 
     final friends = await RepositoryProvider.amitieRepository
         .fetchFriendsForUser(user!.uid);
-
     final watchedDocs = await RepositoryProvider.watchTogetherRepository
         .getFriendsWatchedWith(user!.uid, widget.match.id);
-
     final friendsMap = {for (var friend in friends) friend.uid: friend};
 
     final List<WatchFriend> result = [];
@@ -186,24 +198,19 @@ class _InfosTabState extends State<InfosTab> {
     if (user == null) return;
 
     final ownerId = user!.uid;
-
     final friendships = await RepositoryProvider.amitieRepository
         .fetchFriendshipsForUser(userId: ownerId);
-
     final existingWatchTogether = await RepositoryProvider
         .watchTogetherRepository
         .getFriendsWatchedWith(ownerId, matchId);
-
     final invitedFriendIds =
         existingWatchTogether.map((e) => e.friendId).toSet();
 
     final List<FriendItem> friendItems = [];
-
     for (final friendship in friendships) {
       final friendId = friendship.firstUserId == ownerId
           ? friendship.secondUserId
           : friendship.firstUserId;
-
       final friend =
           await RepositoryProvider.userRepository.fetchUserById(friendId);
       if (friend == null) continue;
@@ -271,10 +278,8 @@ class _InfosTabState extends State<InfosTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Annuler',
-              style: TextStyle(color: ColorPalette.textPrimary(context)),
-            ),
+            child: Text('Annuler',
+                style: TextStyle(color: ColorPalette.textPrimary(context))),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -301,7 +306,6 @@ class _InfosTabState extends State<InfosTab> {
       friendId: friend.uid,
       matchId: widget.match.id,
     );
-
     await RepositoryProvider.notificationRepository
         .notifyWatchTogetherInvitationDeleted(
       ownerUserId: friend.uid,
@@ -390,32 +394,30 @@ class _InfosTabState extends State<InfosTab> {
                                 if (!cancelled) return;
                                 final uid =
                                     FirebaseAuth.instance.currentUser!.uid;
+                                setState(() => userVoteNoteMatch = null);
                                 widget.match.enleverNote(userId: uid);
-                                userVoteNoteMatch = 0;
                                 await _reloadAll();
                               },
                               onConfirm: (valeurConfirmee) async {
+                                if (valeurConfirmee == null) return;
                                 final uid =
                                     FirebaseAuth.instance.currentUser!.uid;
+                                setState(
+                                    () => userVoteNoteMatch = valeurConfirmee);
                                 widget.match.noterMatch(
                                   userId: uid,
                                   note: valeurConfirmee,
                                 );
-                                userVoteNoteMatch = valeurConfirmee;
                                 await _reloadAll();
                               },
                             ),
-
                       const SizedBox(height: 12),
-
                       MvpCard(
                         topPlayers: _mvpTopPlayers,
                         userVote: userVoteMVP,
                         onVotePressed: voteMVP,
                       ),
-
                       const SizedBox(height: 12),
-
                       IntrinsicHeight(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,

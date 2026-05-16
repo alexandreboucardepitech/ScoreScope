@@ -91,13 +91,9 @@ Widget _buildStatChip(
 class MatchRatingCard extends StatefulWidget {
   final double noteMoyenne;
   final int? userVote;
-
   final int? noteCount;
-
   final int? noteMin;
-
   final int? noteMax;
-
   final ValueChanged<bool>? onCancelled;
   final ValueChanged<int?>? onConfirm;
 
@@ -121,20 +117,34 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
 
   double get ratingDouble => (_rating ?? 0).toDouble();
 
+  bool get _hasUnsavedChange => _rating != widget.userVote;
+  bool get _isAlreadyVoted => widget.userVote != null;
+  bool get _isConfirmed => _isAlreadyVoted && !_hasUnsavedChange;
+
+  bool get _canConfirm => _rating != null;
+
+  bool get _hasStats =>
+      widget.noteMoyenne != -1 ||
+      widget.noteMin != null ||
+      widget.noteMax != null;
+
   @override
   void initState() {
     super.initState();
     _rating = widget.userVote;
   }
 
+  @override
+  void didUpdateWidget(covariant MatchRatingCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.userVote != oldWidget.userVote) {
+      setState(() => _rating = widget.userVote);
+    }
+  }
+
   void _updateFromDouble(double value) {
     setState(() => _rating = value.round());
   }
-
-  bool get _hasStats =>
-      widget.noteMoyenne != -1 ||
-      widget.noteMin != null ||
-      widget.noteMax != null;
 
   @override
   Widget build(BuildContext context) {
@@ -194,11 +204,9 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                           data: SliderTheme.of(context).copyWith(
                             trackHeight: 6,
                             thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 10,
-                            ),
+                                enabledThumbRadius: 10),
                             overlayShape: const RoundSliderOverlayShape(
-                              overlayRadius: 20,
-                            ),
+                                overlayRadius: 20),
                             thumbColor: getThumbColor(ratingDouble),
                             trackShape: SliderDegradeCouleur(
                               gradient: LinearGradient(
@@ -249,7 +257,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: (_rating != null)
+                    color: _rating != null
                         ? ColorPalette.surface(context).withValues(alpha: 0.8)
                         : ColorPalette.surface(context),
                     borderRadius: BorderRadius.circular(12),
@@ -269,16 +277,19 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                 ),
               ],
             ),
-            if (_hasStats) ...[
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  if (widget.noteMoyenne != -1)
-                    _buildStatChip(
-                      context,
-                      'Moyenne',
-                      widget.noteMoyenne.toStringAsPrecision(3),
-                    ),
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (_hasStats) ...[
+                  _buildStatChip(
+                    context,
+                    'Moyenne',
+                    widget.noteMoyenne != -1
+                        ? widget.noteMoyenne.toStringAsPrecision(3)
+                        : '—',
+                    placeholder: widget.noteMoyenne == -1,
+                  ),
                   if (widget.noteMin != null) ...[
                     const SizedBox(width: 8),
                     _buildStatChip(context, 'Min', '${widget.noteMin}'),
@@ -287,26 +298,61 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                     const SizedBox(width: 8),
                     _buildStatChip(context, 'Max', '${widget.noteMax}'),
                   ],
-                  Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      setState(() => _rating = null);
-                      widget.onCancelled?.call(true);
-                    },
-                    icon: Icon(
-                      Icons.delete_outline,
-                      size: 16,
-                      color: ColorPalette.accent(context),
-                    ),
+                ],
+                const Spacer(),
+                IconButton(
+                  onPressed: (_rating != null || _isAlreadyVoted)
+                      ? () {
+                          setState(() => _rating = null);
+                          widget.onCancelled?.call(true);
+                        }
+                      : null,
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: (_rating != null || _isAlreadyVoted)
+                        ? ColorPalette.textSecondary(context)
+                        : ColorPalette.textSecondary(context)
+                            .withValues(alpha: 0.3),
                   ),
+                  tooltip: 'Effacer ma note',
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                ),
+
+                const SizedBox(width: 4),
+
+                if (_isConfirmed)
+                  OutlinedButton.icon(
+                    onPressed: null,
+                    icon: const Icon(Icons.check_circle_outline, size: 15),
+                    label: const Text('Noté'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: ColorPalette.accent(context),
+                      disabledForegroundColor: ColorPalette.accent(context),
+                      side: BorderSide(
+                        color:
+                            ColorPalette.accent(context).withValues(alpha: 0.6),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 9),
+                      textStyle: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  )
+                else
                   GradientButton(
-                    onPressed: () => widget.onConfirm?.call(_rating),
-                    icon: Icons.check_rounded,
+                    onPressed: _canConfirm
+                        ? () => widget.onConfirm?.call(_rating)
+                        : null,
+                    icon: _isAlreadyVoted ? Icons.refresh : Icons.check_rounded,
                     label: 'Valider',
                   ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ],
         ),
       ),
@@ -351,11 +397,9 @@ class MatchRatingCardShimmer extends StatelessWidget {
                           data: SliderTheme.of(context).copyWith(
                             trackHeight: 6,
                             thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 10,
-                            ),
+                                enabledThumbRadius: 10),
                             overlayShape: const RoundSliderOverlayShape(
-                              overlayRadius: 20,
-                            ),
+                                overlayRadius: 20),
                             thumbColor: getThumbColor(0),
                             trackShape: SliderDegradeCouleur(
                               gradient: LinearGradient(
@@ -414,26 +458,30 @@ class MatchRatingCardShimmer extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildStatChip(context, 'Moyenne', '—', placeholder: true),
                 const SizedBox(width: 8),
                 _buildStatChip(context, 'Min', '—', placeholder: true),
                 const SizedBox(width: 8),
                 _buildStatChip(context, 'Max', '—', placeholder: true),
-                Spacer(),
-                GradientButton(
-                  onPressed: null,
-                  icon: Icons.check_rounded,
-                  label: 'Valider',
-                ),
-                const SizedBox(width: 8),
+                const Spacer(),
                 IconButton(
                   onPressed: null,
                   icon: Icon(
                     Icons.delete_outline,
-                    size: 15,
-                    color: ColorPalette.accent(context),
+                    size: 18,
+                    color: ColorPalette.textSecondary(context)
+                        .withValues(alpha: 0.3),
                   ),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                ),
+                const SizedBox(width: 4),
+                GradientButton(
+                  onPressed: null,
+                  icon: Icons.check_rounded,
+                  label: 'Valider',
                 ),
               ],
             ),

@@ -179,13 +179,44 @@ class WebMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> enleverNote(String matchId, String userId) async {
+  Future<void> enleverNote(
+    String matchId,
+    String userId,
+    DateTime matchDate,
+  ) async {
     final docRef = _collection.doc(matchId);
     final doc = await docRef.get();
     final data = doc.data() ?? {};
     final notes = Map<String, dynamic>.from(data['notes'] ?? {});
     notes.remove(userId);
     await docRef.update({'notes': notes});
+
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+    if (docSnapshot.exists) {
+      final userMatchData = docSnapshot.data()!;
+      if (userMatchData['watchedAt'] == null) {
+        await userMatchDocRef
+            .update({'note': null, 'watchedAt': DateTime.now().toUtc()});
+      } else {
+        await userMatchDocRef.update({'note': null});
+      }
+    } else {
+      await userMatchDocRef.set({
+        'matchId': matchId,
+        'note': null,
+        'mvpVoteId': null,
+        'favourite': false,
+        'private': false,
+        'watchedAt': DateTime.now().toUtc(),
+        'matchDate': matchDate,
+      });
+    }
 
     _invalidateMatch(matchId);
   }

@@ -567,7 +567,7 @@ class MatchModel implements PodiumDisplayable {
 
   Future<void> enleverNote({required String userId}) async {
     notes.remove(userId);
-    RepositoryProvider.matchRepository.enleverNote(id, userId);
+    RepositoryProvider.matchRepository.enleverNote(id, userId, date);
   }
 
   ///////////////////////// MVP /////////////////////////

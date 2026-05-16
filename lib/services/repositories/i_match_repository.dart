@@ -43,7 +43,11 @@ abstract class IMatchRepository {
     DateTime matchDate,
     int? note,
   );
-  Future<void> enleverNote(String matchId, String userId);
+  Future<void> enleverNote(
+    String matchId,
+    String userId,
+    DateTime matchDate,
+  );
   Future<void> voterPourMVP(
     String matchId,
     String userId,

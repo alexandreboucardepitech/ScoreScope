@@ -374,7 +374,11 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> enleverNote(String matchId, String userId) async {
+  Future<void> enleverNote(
+    String matchId,
+    String userId,
+    DateTime matchDate,
+  ) async {
     final idx = _matches.indexWhere((match) => match.id == matchId);
     if (idx < 0) return;
 
