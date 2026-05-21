@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/post/post_notification.dart';
 import 'package:scorescope/services/repositories/i_notification_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/cloud_fonctions/notification_service.dart';
 
 class WebNotificationRepository implements INotificationRepository {
   final CollectionReference usersCollection =
@@ -239,6 +243,25 @@ class WebNotificationRepository implements INotificationRepository {
         'lastPostActivity': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     });
+
+    MatchModel? match =
+        await RepositoryProvider.matchRepository.fetchMatchById(matchId);
+
+    AppUser? author =
+        await RepositoryProvider.userRepository.fetchUserById(authorId);
+
+    await NotificationService.send(
+      toUserId: ownerUserId,
+      type: 'watchTogetherInvited',
+      payload: {
+        'fromUserName': author?.displayName ?? 'Quelqu\'un',
+        'matchName': match != null
+            ? '${match.equipeDomicile.nom} ${match.scoreEquipeDomicile}-${match.scoreEquipeExterieur} ${match.equipeExterieur.nom}'
+            : 'un match',
+        'matchId': matchId,
+        'ownerUserId': ownerUserId,
+      },
+    );
   }
 
   @override

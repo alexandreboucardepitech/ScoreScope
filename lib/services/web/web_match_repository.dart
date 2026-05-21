@@ -22,7 +22,15 @@ class WebMatchRepository implements IMatchRepository {
     if (RepositoryProvider.userRepository.currentUser?.options.utiliserCache ??
         true) {
       final l1 = AppCache.getMatch(id);
-      if (l1 != null) return l1;
+      if (l1 != null) {
+        final liveData = await _fetchLiveMatchData(id);
+        final refreshed = l1.copyWith(
+          mvpVotes: liveData.$1,
+          notes: liveData.$2,
+        );
+        AppCache.setMatch(id, refreshed);
+        return refreshed;
+      }
 
       final l2 = LocalCache.getMatch(id);
       if (l2 != null) {
@@ -364,9 +372,9 @@ class WebMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> deleteMatch(MatchModel match) async {
-    await _collection.doc(match.id).delete();
-    _invalidateMatch(match.id);
+  Future<void> deleteMatch(String matchId) async {
+    await _collection.doc(matchId).delete();
+    _invalidateMatch(matchId);
   }
 
   @override

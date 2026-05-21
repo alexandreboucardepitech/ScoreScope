@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/resultats_recherche_model.dart';
-import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/search/search_page_state.dart';
+import 'package:scorescope/utils/search/search_query.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/recherche/barre_recherche.dart';
 import 'package:scorescope/widgets/recherche/filtres_recherche.dart';
@@ -15,40 +18,144 @@ class RechercheView extends StatefulWidget {
 
 class _RechercheViewState extends State<RechercheView> {
   String _query = '';
-  String _filter = 'Équipes';
-
+  String _filter = 'Tous';
   final TextEditingController _searchController = TextEditingController();
 
-  Future<ResultatsRechercheModel>? _searchFuture;
+  ResultatsRechercheModel? _cacheResults;
+  ResultatsRechercheModel? _results;
+  SearchPageState _pageState = SearchPageState.empty;
+
+  bool _isSearching = false;
+  String? _loadingSection;
+
+  Timer? _debounceTimer;
+  static const int _minQueryLength = 3;
+  static const Duration _debounceDuration = Duration(milliseconds: 350);
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged(String value) {
-    setState(() {
-      _query = value;
+  void _triggerSearch() {
+    _debounceTimer?.cancel();
 
-      if (_query.isNotEmpty) {
-        _searchFuture = RepositoryProvider.rechercheRepository
-            .search(_query, filter: _filter);
-      } else {
-        _searchFuture = null;
-      }
+    if (_query.length < _minQueryLength) {
+      setState(() {
+        _cacheResults = null;
+        _results = null;
+        _pageState = SearchPageState.empty;
+        _isSearching = false;
+      });
+      return;
+    }
+
+    final cache = searchCacheOnlyQuery(_query, filter: _filter);
+    setState(() {
+      _cacheResults = cache;
+      _isSearching = true;
+      _results = null;
+      _pageState = SearchPageState.empty;
+    });
+
+    _debounceTimer = Timer(_debounceDuration, _runFullSearch);
+  }
+
+  Future<void> _runFullSearch() async {
+    if (!mounted) return;
+    final currentQuery = _query;
+    final currentFilter = _filter;
+
+    final (results, pageState) = await searchQuery(
+      currentQuery,
+      filter: currentFilter,
+    );
+
+    if (!mounted || _query != currentQuery || _filter != currentFilter) return;
+
+    setState(() {
+      _results = results;
+      _pageState = pageState;
+      _isSearching = false;
     });
   }
 
-  void _onFilterChanged(String filter) {
-    setState(() {
-      _filter = filter;
+  Future<void> _loadMore(String section) async {
+    if (_loadingSection != null) return;
+    if (!_pageState.hasMoreForSection(section)) return;
 
-      if (_query.isNotEmpty) {
-        _searchFuture = RepositoryProvider.rechercheRepository
-            .search(_query, filter: _filter);
-      }
+    setState(() => _loadingSection = section);
+
+    final currentQuery = _query;
+    final currentFilter = _filter;
+
+    final (more, newPageState) = await searchQueryLoadMore(
+      query: currentQuery,
+      section: section,
+      currentState: _pageState,
+    );
+
+    if (!mounted || _query != currentQuery || _filter != currentFilter) return;
+
+    setState(() {
+      _results = _mergeResults(_results, more, section);
+      _pageState = newPageState;
+      _loadingSection = null;
     });
+  }
+
+  ResultatsRechercheModel _mergeResults(
+    ResultatsRechercheModel? existing,
+    ResultatsRechercheModel more,
+    String section,
+  ) {
+    if (existing == null) return more;
+
+    Set<String> ids(List items) =>
+        items.map((e) => (e as dynamic).id as String).toSet();
+
+    return ResultatsRechercheModel(
+      user: existing.user,
+      matchs: section == 'Matchs'
+          ? [
+              ...existing.matchs,
+              ...more.matchs.where((m) => !ids(existing.matchs).contains(m.id)),
+            ]
+          : existing.matchs,
+      equipes: section == 'Équipes'
+          ? [
+              ...existing.equipes,
+              ...more.equipes
+                  .where((e) => !ids(existing.equipes).contains(e.id)),
+            ]
+          : existing.equipes,
+      competitions: section == 'Compétitions'
+          ? [
+              ...existing.competitions,
+              ...more.competitions
+                  .where((c) => !ids(existing.competitions).contains(c.id)),
+            ]
+          : existing.competitions,
+      joueurs: section == 'Joueurs'
+          ? [
+              ...existing.joueurs,
+              ...more.joueurs
+                  .where((j) => !ids(existing.joueurs).contains(j.id)),
+            ]
+          : existing.joueurs,
+    );
+  }
+
+  void _onSearchChanged(String value) {
+    _query = value.trim();
+    _triggerSearch();
+  }
+
+  void _onFilterChanged(String filter) {
+    _filter = filter;
+    _triggerSearch();
   }
 
   @override
@@ -75,50 +182,65 @@ class _RechercheViewState extends State<RechercheView> {
           onChanged: _onFilterChanged,
         ),
         const SizedBox(height: 12),
-        Expanded(
-          child: _buildResults(),
-        ),
+        Expanded(child: _buildResults()),
       ],
     );
   }
 
   Widget _buildResults() {
-    if (_searchFuture == null) {
+    if (_query.length < _minQueryLength) {
       return Center(
         child: Text(
-          'Commence à taper pour rechercher',
-          style: TextStyle(
-            color: ColorPalette.textPrimary(
-              context,
-            ),
-          ),
+          _query.isEmpty
+              ? 'Commence à taper pour rechercher'
+              : 'Encore ${_minQueryLength - _query.length} caractère${_minQueryLength - _query.length > 1 ? 's' : ''}…',
+          style: TextStyle(color: ColorPalette.textSecondary(context)),
         ),
       );
     }
 
-    return FutureBuilder<ResultatsRechercheModel>(
-      future: _searchFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final displayData = (_results != null && !_results!.isEmpty)
+        ? _results
+        : (_cacheResults != null && !_cacheResults!.isEmpty)
+            ? _cacheResults
+            : null;
 
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-              child: Text(
-            'Aucun résultat',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
+    if (_isSearching && displayData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (!_isSearching && displayData == null) {
+      return Center(
+        child: Text(
+          'Aucun résultat',
+          style: TextStyle(color: ColorPalette.textPrimary(context)),
+        ),
+      );
+    }
+
+    final showPagination = _results != null && !_results!.isEmpty;
+
+    return Stack(
+      children: [
+        if (displayData != null)
+          ResultatsRecherche(
+            resultats: displayData,
+            pageState: showPagination ? _pageState : null,
+            loadingSection: _loadingSection,
+            onLoadMore: _loadMore,
+          ),
+        if (_isSearching)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: LinearProgressIndicator(
+              minHeight: 2,
+              backgroundColor: Colors.transparent,
+              color: ColorPalette.accent(context),
             ),
-          ));
-        }
-
-        return ResultatsRecherche(
-          resultats: snapshot.data!,
-        );
-      },
+          ),
+      ],
     );
   }
 }

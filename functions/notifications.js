@@ -4,6 +4,7 @@ const functions = require("firebase-functions");
 const NOTIF_TYPES = {
   FRIEND_REQUEST: "friendRequest",
   FRIEND_REQUEST_ACCEPTED: "friendRequestAccepted",
+  WATCH_TOGETHER_INVITED: "watchTogetherInvited",
   REACTION: "reaction",
   COMMENT: "comment",
   FAVORITE_TEAM_MATCH_END: "favoriteTeamMatch",
@@ -21,6 +22,12 @@ function buildNotificationContent(type, payload) {
       return {
         title: "Demande acceptée",
         body: `${payload.fromUserName} a accepté ta demande d'ami`,
+      };
+    case NOTIF_TYPES.WATCH_TOGETHER_INVITED:
+      return {
+        title: "Invitation à regarder ensemble",
+        body: `${payload.fromUserName} t'invite ` +
+        `à regarder ${payload.matchName} ensemble`,
       };
     case NOTIF_TYPES.REACTION:
       return {

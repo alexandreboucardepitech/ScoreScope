@@ -11,7 +11,7 @@ abstract class IEquipeRepository {
     BuildContext? context,
   });
   Future<void> updateEquipe(Equipe e);
-  Future<void> deleteEquipe(Equipe e);
+  Future<void> deleteEquipe(String equipeId);
   Future<List<Equipe>> searchEquipes(String query, {int limit = 8});
   Future<void> addEquipesList(
     List<Equipe> equipes, {

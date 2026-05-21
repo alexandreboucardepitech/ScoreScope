@@ -28,6 +28,8 @@ class AppCache {
 
   static void invalidateMatch(String id) => _matches.remove(id);
 
+  static Iterable<MatchModel> get allMatches => _matches.values;
+
   static final Map<String, Joueur> _joueurs = {};
   static final Map<String, String> _joueurNames = {};
 
@@ -41,15 +43,21 @@ class AppCache {
       _joueurNames[id] ?? _joueurs[id]?.fullName;
   static void setJoueurName(String id, String name) => _joueurNames[id] = name;
 
+  static Iterable<Joueur> get allJoueurs => _joueurs.values;
+
   static final Map<String, Equipe> _equipes = {};
 
   static Equipe? getEquipe(String id) => _equipes[id];
   static void setEquipe(String id, Equipe e) => _equipes[id] = e;
 
+  static Iterable<Equipe> get allEquipes => _equipes.values;
+
   static final Map<String, Competition> _competitions = {};
 
   static Competition? getCompetition(String id) => _competitions[id];
   static void setCompetition(String id, Competition c) => _competitions[id] = c;
+
+  static Iterable<Competition> get allCompetitions => _competitions.values;
 
   static void clearAll() {
     _matches.clear();

@@ -89,8 +89,8 @@ class MockEquipeRepository implements IEquipeRepository {
   }
 
   @override
-  Future<void> deleteEquipe(Equipe e) async {
-    _equipes.remove(e);
+  Future<void> deleteEquipe(String equipeId) async {
+    _equipes.removeWhere((e) => e.id == equipeId);
     await Future.delayed(const Duration(milliseconds: 50));
   }
 

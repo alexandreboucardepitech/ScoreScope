@@ -223,14 +223,14 @@ class WebAmitieRepository implements IAmitieRepository {
       });
     }
 
-    final fromUser =
-        await RepositoryProvider.userRepository.fetchUserById(userId1);
+    final toUser =
+        await RepositoryProvider.userRepository.fetchUserById(userId2);
 
     await NotificationService.send(
       toUserId: userId1,
       type: 'friendRequestAccepted',
       payload: {
-        'fromUserName': fromUser?.displayName ?? "Quelqu'un",
+        'fromUserName': toUser?.displayName ?? "Quelqu'un",
         'fromUserId': userId2,
       },
     );

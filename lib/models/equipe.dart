@@ -12,15 +12,16 @@ class Equipe extends BasicPodiumDisplayable {
   final String? couleurSecondaire;
   final bool national;
 
-  Equipe(
-      {required this.id,
-      required this.nom,
-      this.nomCourt,
-      this.code,
-      this.logoPath,
-      this.couleurPrincipale,
-      this.couleurSecondaire,
-      this.national = false,});
+  Equipe({
+    required this.id,
+    required this.nom,
+    this.nomCourt,
+    this.code,
+    this.logoPath,
+    this.couleurPrincipale,
+    this.couleurSecondaire,
+    this.national = false,
+  });
 
   @override
   String get displayLabel => nomCourt ?? nom;
@@ -59,6 +60,28 @@ class Equipe extends BasicPodiumDisplayable {
         couleurSecondaire: json['couleurSecondaire'] as String?,
         national: json['national'] as bool? ?? false,
       );
+
+  Equipe copyWith({
+    String? id,
+    String? nom,
+    String? nomCourt,
+    String? code,
+    String? logoPath,
+    String? couleurPrincipale,
+    String? couleurSecondaire,
+    bool? national,
+  }) {
+    return Equipe(
+      id: id ?? this.id,
+      nom: nom ?? this.nom,
+      nomCourt: nomCourt ?? this.nomCourt,
+      code: code ?? this.code,
+      logoPath: logoPath ?? this.logoPath,
+      couleurPrincipale: couleurPrincipale ?? this.couleurPrincipale,
+      couleurSecondaire: couleurSecondaire ?? this.couleurSecondaire,
+      national: national ?? this.national,
+    );
+  }
 
   @override
   String toString() => nom;

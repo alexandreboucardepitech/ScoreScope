@@ -342,8 +342,8 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   @override
-  Future<void> deleteMatch(MatchModel match) async {
-    _matches.remove(match);
+  Future<void> deleteMatch(String matchId) async {
+    _matches.removeWhere((match) => match.id == matchId);
     await Future.delayed(const Duration(milliseconds: 50));
   }
 

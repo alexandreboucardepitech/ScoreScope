@@ -12,6 +12,7 @@ import 'package:scorescope/utils/ui/app_theme.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/amis/comments_page.dart';
 import 'package:scorescope/views/amis/fil_actu_amis.dart';
+import 'package:scorescope/views/amis/notifications.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/views/feedback/feedbacks_view.dart';
 import 'package:scorescope/views/login/login.dart';
@@ -340,6 +341,12 @@ class _HomePageState extends State<HomePage> {
               matchId: matchId,
               ownerUserId: ownerUserId,
             ),
+          ),
+        );
+      case 'watchTogetherInvited': // écran de notifications
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (_) => NotificationsView(),
           ),
         );
 

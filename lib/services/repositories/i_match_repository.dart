@@ -36,7 +36,7 @@ abstract class IMatchRepository {
     Map<String, String>? mvpVotes,
     Map<String, int>? notes,
   });
-  Future<void> deleteMatch(MatchModel match);
+  Future<void> deleteMatch(String matchId);
   Future<void> noterMatch(
     String matchId,
     String userId,

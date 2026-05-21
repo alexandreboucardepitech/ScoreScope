@@ -805,4 +805,204 @@ class FillDatabase {
       print("popularité mise à jour pour ${competition.nom} : $newPopularite");
     }
   }
+
+  static Future<void> countEquipesPreferees() async {
+    List<AppUser> allUsers =
+        await RepositoryProvider.userRepository.fetchAllUsers();
+    Map<String, int> equipesPrefereesCount = {};
+    for (AppUser user in allUsers) {
+      for (String equipeId in user.equipesPrefereesId) {
+        if (equipesPrefereesCount.containsKey(equipeId)) {
+          equipesPrefereesCount[equipeId] =
+              equipesPrefereesCount[equipeId]! + 1;
+        } else {
+          equipesPrefereesCount[equipeId] = 1;
+        }
+      }
+    }
+    print(equipesPrefereesCount);
+    Map<String, int> sortedEquipesPrefereesCount = Map.fromEntries(
+      equipesPrefereesCount.entries.toList()
+        ..sort(
+          (a, b) => b.value.compareTo(a.value),
+        ),
+    );
+    print(sortedEquipesPrefereesCount);
+    for (final entry in sortedEquipesPrefereesCount.entries) {
+      String equipeId = entry.key;
+      int count = entry.value;
+
+      Equipe? equipe =
+          await RepositoryProvider.equipeRepository.fetchEquipeById(equipeId);
+
+      print("Equipe ${equipe?.nom} ($equipeId) : $count préférences");
+    }
+  }
+
+  static Future<Equipe?> createEquipeFromApiId({
+    required String teamApiId,
+    required String season,
+    bool overwrite = false,
+  }) async {
+    if (!overwrite) {
+      final existing =
+          await RepositoryProvider.equipeRepository.fetchEquipeById(teamApiId);
+      if (existing != null) {
+        print("Équipe $teamApiId déjà présente en base (${existing.nom}), "
+            "utilise overwrite: true pour la remplacer.");
+        return existing;
+      }
+    }
+
+    List<dynamic> data = await getDataFromApi(
+      "teams",
+      params: {"id": teamApiId},
+    );
+
+    if (data.isEmpty) {
+      print("ERREUR DATA EMPTY: impossible de trouver l'équipe $teamApiId");
+      return null;
+    }
+
+    final teamData = data[0];
+    final String id = teamData['team']['id'].toString();
+    final String nom = teamData['team']['name'].toString();
+    final String code = teamData['team']['code'].toString();
+    final String logoPath = teamData['team']['logo'].toString();
+    final bool national = teamData['team']['national'] ?? false;
+
+    int saisonCouleurs = int.parse(season);
+    Map<String, String?> couleurs = {"principale": null, "secondaire": null};
+    while ((couleurs["principale"] == null && couleurs["secondaire"] == null) &&
+        saisonCouleurs >= int.parse(season) - 10) {
+      couleurs = await getTeamColors(id, saisonCouleurs.toString());
+      saisonCouleurs--;
+    }
+
+    final Equipe newEquipe = Equipe(
+      id: id,
+      nom: nom,
+      code: code,
+      logoPath: logoPath,
+      couleurPrincipale: couleurs["principale"],
+      couleurSecondaire: couleurs["secondaire"],
+      national: national,
+    );
+
+    await RepositoryProvider.equipeRepository.addEquipe(newEquipe);
+    print("Équipe créée : $nom ($id) — couleurs: ${couleurs['principale']} / "
+        "${couleurs['secondaire']}");
+    return newEquipe;
+  }
+
+  static Future<Equipe?> getOrCreateEquipe({
+    required String teamApiId,
+    required String season,
+  }) async {
+    final existing =
+        await RepositoryProvider.equipeRepository.fetchEquipeById(teamApiId);
+    if (existing != null) return existing;
+    return createEquipeFromApiId(teamApiId: teamApiId, season: season);
+  }
+
+  static Future<MatchModelId?> createMatchFromFixtureId(
+      String fixtureId) async {
+    List<dynamic> data = await getDataFromApi(
+      "fixtures",
+      params: {"id": fixtureId},
+    );
+
+    if (data.isEmpty) {
+      print("ERREUR DATA EMPTY: fixture $fixtureId introuvable");
+      return null;
+    }
+
+    final MatchModelId newMatch = await getMatchFromData(data[0]);
+    await RepositoryProvider.matchRepository.addMatchModelId(newMatch);
+    print("Match créé depuis fixture $fixtureId : "
+        "${newMatch.equipeDomicileId} vs ${newMatch.equipeExterieurId}");
+    return newMatch;
+  }
+
+  static Future<void> updateEquipeCouleurs({
+    required String teamApiId,
+    required String season,
+  }) async {
+    Equipe? equipe =
+        await RepositoryProvider.equipeRepository.fetchEquipeById(teamApiId);
+    if (equipe == null) {
+      print(
+          "Équipe $teamApiId introuvable en base, impossible de mettre à jour "
+          "les couleurs. Crée-la d'abord avec getOrCreateEquipe.");
+      return;
+    }
+    final Map<String, String?> couleurs =
+        await getTeamColors(teamApiId, season);
+
+    if (couleurs["principale"] == null && couleurs["secondaire"] == null) {
+      print("Impossible de récupérer les couleurs pour $teamApiId / $season");
+      return;
+    }
+
+    equipe = equipe.copyWith(
+      couleurPrincipale: couleurs["principale"],
+      couleurSecondaire: couleurs["secondaire"],
+    );
+
+    await RepositoryProvider.equipeRepository.updateEquipe(equipe);
+    print("Couleurs mises à jour pour $teamApiId : "
+        "${couleurs['principale']} / ${couleurs['secondaire']}");
+  }
+
+  static Future<void> updateJoueurEquipe({
+    required String joueurId,
+    required String newEquipeId,
+  }) async {
+    final Joueur? joueur =
+        await RepositoryProvider.joueurRepository.fetchJoueurById(joueurId);
+    if (joueur == null) {
+      print("Joueur $joueurId introuvable en base");
+      return;
+    }
+    final Joueur updated = joueur.copyWith(equipeId: newEquipeId);
+    await RepositoryProvider.joueurRepository.updateJoueur(updated);
+    print("Joueur ${joueur.fullName} (${joueur.id}) : équipe mise à jour "
+        "${joueur.equipeId} → $newEquipeId");
+  }
+
+  static Future<void> deleteMatch(String matchId) async {
+    await RepositoryProvider.matchRepository.deleteMatch(matchId);
+    print("Match $matchId supprimé");
+  }
+
+  static Future<void> deleteEquipe(String equipeId) async {
+    await RepositoryProvider.equipeRepository.deleteEquipe(equipeId);
+    print("Équipe $equipeId supprimée");
+  }
+
+  static Future<void> inspectEquipeFromApi(String teamApiId) async {
+    List<dynamic> data = await getDataFromApi(
+      "teams",
+      params: {"id": teamApiId},
+    );
+    if (data.isEmpty) {
+      print("Aucune équipe trouvée pour l'ID $teamApiId");
+      return;
+    }
+    print("=== Infos API pour l'équipe $teamApiId ===");
+    print(const JsonEncoder.withIndent('  ').convert(data[0]));
+  }
+
+  static Future<void> inspectFixtureFromApi(String fixtureId) async {
+    List<dynamic> data = await getDataFromApi(
+      "fixtures",
+      params: {"id": fixtureId},
+    );
+    if (data.isEmpty) {
+      print("Aucun fixture trouvé pour l'ID $fixtureId");
+      return;
+    }
+    print("=== Infos API pour le fixture $fixtureId ===");
+    print(const JsonEncoder.withIndent('  ').convert(data[0]));
+  }
 }

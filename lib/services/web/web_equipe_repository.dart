@@ -51,8 +51,8 @@ class WebEquipeRepository implements IEquipeRepository {
   }
 
   @override
-  Future<void> deleteEquipe(Equipe e) async {
-    await _collection.doc(e.id).delete();
+  Future<void> deleteEquipe(String equipeId) async {
+    await _collection.doc(equipeId).delete();
   }
 
   @override

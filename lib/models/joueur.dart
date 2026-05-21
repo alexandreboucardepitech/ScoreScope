@@ -113,6 +113,30 @@ class Joueur extends BasicPodiumDisplayable {
     );
   }
 
+  Joueur copyWith({
+    String? id,
+    String? prenom,
+    String? nom,
+    String? fullName,
+    String? equipeId,
+    String? equipeNationaleId,
+    DateTime? dateNaissance,
+    String? nationalite,
+    String? picture,
+  }) {
+    return Joueur(
+      id: id ?? this.id,
+      prenom: prenom ?? this.prenom,
+      nom: nom ?? this.nom,
+      fullName: fullName ?? this.fullName,
+      equipeId: equipeId ?? this.equipeId,
+      equipeNationaleId: equipeNationaleId ?? this.equipeNationaleId,
+      dateNaissance: dateNaissance ?? this.dateNaissance,
+      nationalite: nationalite ?? this.nationalite,
+      picture: picture ?? this.picture,
+    );
+  }
+
   @override
   String toString() => fullName;
 

@@ -328,20 +328,20 @@ class _InfosTabState extends State<InfosTab> {
 
   int? get _noteCount {
     final valid =
-        widget.match.notes.values.whereType<int>().where((n) => n > 0).toList();
+        widget.match.notes.values.whereType<int>().where((n) => n >= 0).toList();
     return valid.isEmpty ? null : valid.length;
   }
 
   int? get _noteMin {
     final valid =
-        widget.match.notes.values.whereType<int>().where((n) => n > 0).toList();
+        widget.match.notes.values.whereType<int>().where((n) => n >= 0).toList();
     if (valid.isEmpty) return null;
     return valid.reduce((a, b) => a < b ? a : b);
   }
 
   int? get _noteMax {
     final valid =
-        widget.match.notes.values.whereType<int>().where((n) => n > 0).toList();
+        widget.match.notes.values.whereType<int>().where((n) => n >= 0).toList();
     if (valid.isEmpty) return null;
     return valid.reduce((a, b) => a > b ? a : b);
   }

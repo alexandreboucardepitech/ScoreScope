@@ -84,6 +84,18 @@ class LocalCache {
         _CacheEntry(data: c.toJson(), fetchedAt: DateTime.now()).encode(),
       );
 
+  static List<Competition> getAllCompetitions() {
+    final result = <Competition>[];
+    for (final raw in _competitions.values) {
+      final entry = _CacheEntry.decode(raw as Object?);
+      if (entry == null || entry.isExpired(_ttlCompetition)) continue;
+      try {
+        result.add(Competition.fromJson(json: entry.data));
+      } catch (_) {}
+    }
+    return result;
+  }
+
   static Equipe? getEquipe(String id) {
     final entry = _CacheEntry.decode(_equipes.get(id));
     if (entry == null || entry.isExpired(_ttlEquipe)) return null;
@@ -99,6 +111,18 @@ class LocalCache {
         _CacheEntry(data: e.toJson(), fetchedAt: DateTime.now()).encode(),
       );
 
+  static List<Equipe> getAllEquipes() {
+    final result = <Equipe>[];
+    for (final raw in _equipes.values) {
+      final entry = _CacheEntry.decode(raw as Object?);
+      if (entry == null || entry.isExpired(_ttlEquipe)) continue;
+      try {
+        result.add(Equipe.fromJson(json: entry.data));
+      } catch (_) {}
+    }
+    return result;
+  }
+
   static Joueur? getJoueur(String id) {
     final entry = _CacheEntry.decode(_joueurs.get(id));
     if (entry == null || entry.isExpired(_ttlJoueur)) return null;
@@ -113,6 +137,18 @@ class LocalCache {
         id,
         _CacheEntry(data: j.toJson(), fetchedAt: DateTime.now()).encode(),
       );
+
+  static List<Joueur> getAllJoueurs() {
+    final result = <Joueur>[];
+    for (final raw in _joueurs.values) {
+      final entry = _CacheEntry.decode(raw as Object?);
+      if (entry == null || entry.isExpired(_ttlJoueur)) continue;
+      try {
+        result.add(Joueur.fromJson(json: entry.data));
+      } catch (_) {}
+    }
+    return result;
+  }
 
   static MatchModel? getMatch(String id) {
     final entry = _CacheEntry.decode(_matchs.get(id));
@@ -144,6 +180,20 @@ class LocalCache {
       );
 
   static Future<void> invalidateMatch(String id) => _matchs.delete(id);
+
+  static List<MatchModel> getAllMatches() {
+    final result = <MatchModel>[];
+    for (final raw in _matchs.values) {
+      final entry = _CacheEntry.decode(raw as Object?);
+      if (entry == null) continue;
+      try {
+        final match = MatchModel.fromCacheJson(entry.data);
+        if (entry.isExpired(_matchTtl(match.date))) continue;
+        result.add(match);
+      } catch (_) {}
+    }
+    return result;
+  }
 
   static Future<void> clearAll() => Future.wait([
         _competitions.clear(),
