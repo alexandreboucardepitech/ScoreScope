@@ -12,6 +12,7 @@ import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/options.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/web_match_repository.dart';
+import 'package:scorescope/utils/handle_data/profile_stats.dart';
 
 import '../../models/app_user.dart';
 import '../repositories/i_app_user_repository.dart';
@@ -129,30 +130,33 @@ class WebAppUserRepository implements IAppUserRepository {
             .get()
         : await _usersCollection.doc(userId).collection('matchUserData').get();
 
-    int totalButs = 0;
-
-    final matchsCollection = FirebaseFirestore.instance.collection('matchs');
-
-    for (var doc in matchUserDataSnapshot.docs) {
-      if ((onlyPublic && (doc.data()['private'] == true)) ||
-          !doc.data().containsKey('watchedAt') ||
-          doc.data()['watchedAt'] == null) {
+    // Collect matchIds to fetch (only watched, non-private entries)
+    final List<String> matchIds = [];
+    for (final doc in matchUserDataSnapshot.docs) {
+      final data = doc.data();
+      if ((onlyPublic && data['private'] == true) ||
+          !data.containsKey('watchedAt') ||
+          data['watchedAt'] == null) {
         continue;
       }
-      final matchId = doc.data()['matchId'] as String?;
-
-      if (matchId == null) continue;
-
-      final matchDoc = await matchsCollection.doc(matchId).get();
-      if (!matchDoc.exists) continue;
-
-      final matchData = matchDoc.data()!;
-      final int scoreDomicile = matchData['scoreEquipeDomicile'] as int? ?? 0;
-      final int scoreExterieur = matchData['scoreEquipeExterieur'] as int? ?? 0;
-
-      totalButs += scoreDomicile + scoreExterieur;
+      final matchId = data['matchId'] as String?;
+      if (matchId != null) matchIds.add(matchId);
     }
 
+    if (matchIds.isEmpty) return 0;
+
+    // Fetch all match docs in parallel instead of sequentially
+    final matchDocs = await Future.wait(
+      matchIds.map((id) => _matchsCollection.doc(id).get()),
+    );
+
+    int totalButs = 0;
+    for (final doc in matchDocs) {
+      if (!doc.exists) continue;
+      final data = doc.data()!;
+      totalButs += (data['scoreEquipeDomicile'] as int? ?? 0) +
+          (data['scoreEquipeExterieur'] as int? ?? 0);
+    }
     return totalButs;
   }
 
@@ -489,6 +493,71 @@ class WebAppUserRepository implements IAppUserRepository {
 
     matchs.sort((a, b) => b.watchedAt!.compareTo(a.watchedAt!));
     return matchs;
+  }
+
+  @override
+  Future<ProfileStats> loadProfileStats({
+    required String userId,
+    required bool onlyPublic,
+  }) async {
+    Query<Map<String, dynamic>> query =
+        _usersCollection.doc(userId).collection('matchUserData');
+    if (onlyPublic) {
+      query = query.where('private', isEqualTo: false);
+    }
+    final snapshot = await query.get();
+
+    final List<MatchUserData> allMatchUserData = [];
+    final List<String> matchsFavorisId = [];
+    final List<String> watchedMatchIds = [];
+
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final String? matchId = data['matchId'] as String?;
+      if (matchId == null) continue;
+
+      final bool isWatched =
+          data.containsKey('watchedAt') && data['watchedAt'] != null;
+
+      if (isWatched) {
+        allMatchUserData.add(MatchUserData.fromJson(data));
+        watchedMatchIds.add(matchId);
+      }
+
+      if (data['favourite'] == true &&
+          (!onlyPublic || data['private'] == false)) {
+        matchsFavorisId.add(matchId);
+      }
+    }
+
+    allMatchUserData.sort((a, b) => b.watchedAt!.compareTo(a.watchedAt!));
+    final List<String> matchsRegardesId =
+        allMatchUserData.map((m) => m.matchId).toList();
+
+    final Map<String, Map<String, dynamic>> matchesData = {};
+    int nbButs = 0;
+
+    if (watchedMatchIds.isNotEmpty) {
+      final matchDocs = await Future.wait(
+        watchedMatchIds.map((id) => _matchsCollection.doc(id).get()),
+      );
+      for (final doc in matchDocs) {
+        if (!doc.exists) continue;
+        final data = doc.data()!;
+        matchesData[doc.id] = data;
+        nbButs += (data['scoreEquipeDomicile'] as int? ?? 0) +
+            (data['scoreEquipeExterieur'] as int? ?? 0);
+      }
+    }
+
+    return ProfileStats(
+      nbMatchsRegardes: allMatchUserData.length,
+      nbButs: nbButs,
+      matchsRegardesId: matchsRegardesId,
+      matchsFavorisId: matchsFavorisId,
+      allMatchUserData: allMatchUserData,
+      matchesData: matchesData,
+    );
   }
 
   @override

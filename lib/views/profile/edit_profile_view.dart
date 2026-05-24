@@ -313,7 +313,6 @@ class _EditProfileViewState extends State<EditProfileView> {
             teamsId: _equipesPrefereesId,
             user: widget.user,
             isMe: true,
-            isLoading: false,
             displayTitle: false,
             displayNbMatchs: false,
             onTeamTap: _onTeamTap,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
+import 'package:scorescope/utils/handle_data/profile_stats.dart';
 import 'package:scorescope/utils/string/get_friendship_action_snackbar_message.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/users/can_access_private_infos.dart';
@@ -13,7 +14,6 @@ import 'package:scorescope/widgets/profile/matchs_favoris.dart';
 import 'package:scorescope/widgets/profile/matchs_regardes.dart';
 import 'package:scorescope/widgets/profile/profile_scrolled_title.dart';
 import 'package:scorescope/models/app_user.dart';
-import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repositories/i_app_user_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
 
@@ -36,13 +36,13 @@ class _ProfileViewState extends State<ProfileView> {
   bool _isLoadingCurrentUser = true;
 
   AppUser? _displayedUser;
-  bool _isLoadingMatchUserData = true;
 
-  bool _isLoadingEquipesPreferees = true;
-  bool _isLoadingMatchsRegardes = true;
-  bool _isLoadingMatchsFavoris = true;
-  bool _isLoadingNbMatchsRegardes = true;
-  bool _isLoadingNbButs = true;
+  /// Un seul flag pour tous les compteurs et listes de matchs.
+  /// Remplace _isLoadingMatchUserData, _isLoadingMatchsRegardes,
+  /// _isLoadingMatchsFavoris, _isLoadingNbMatchsRegardes, _isLoadingNbButs,
+  /// _isLoadingEquipesPreferees.
+  bool _isLoadingStats = true;
+
   bool _isLoadingNbAmis = true;
   bool _isLoadingFriendship = true;
 
@@ -54,6 +54,11 @@ class _ProfileViewState extends State<ProfileView> {
   int? userNbMatchsRegardes;
   int? userNbButs;
   int? userNbAmis;
+
+  /// Documents match bruts (indexés par matchId) issus de loadProfileStats.
+  /// Passés à EquipesPreferees pour calculer le nb de matchs par équipe
+  /// en mémoire, sans requête Firestore supplémentaire.
+  Map<String, Map<String, dynamic>> _matchesData = {};
 
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _equipesKey = GlobalKey();
@@ -173,23 +178,29 @@ class _ProfileViewState extends State<ProfileView> {
 
   void _loadProfileData() {
     final uid = _displayedUser?.uid ?? widget.user.uid;
-    _loadTeams(uid);
-    _loadMatchsRegardes(uid);
-    _loadFavoris(uid);
-    _loadUserNbMatchsRegardes(uid);
-    _loadUserNbButs(uid);
-    _loadUserNbAmis(uid);
+    final bool onlyPublic = uid != currentUser?.uid;
 
-    _loadMatchUserData(uid);
+    // Les equipesPrefereesId sont déjà dans _displayedUser (issu de widget.user
+    // ou rechargé après édition de profil) : pas de lecture Firestore séparée.
+    _setStateAndRemeasure(() {
+      userEquipesPrefereesId =
+          _displayedUser?.equipesPrefereesId ?? widget.user.equipesPrefereesId;
+    });
+
+    _loadStats(uid, onlyPublic);
+    _loadUserNbAmis(uid);
   }
 
-  Future<void> _loadMatchUserData(String uid) async {
-    _setStateAndRemeasure(() => _isLoadingMatchUserData = true);
+  /// Charge toutes les données dépendant de matchUserData en un seul appel :
+  /// nbMatchsRegardes, nbButs, matchsRegardesId, matchsFavorisId,
+  /// allMatchUserData et matchesData (pour les équipes préférées).
+  Future<void> _loadStats(String uid, bool onlyPublic) async {
+    _setStateAndRemeasure(() => _isLoadingStats = true);
     try {
-      final List<MatchUserData> data =
-          await userRepository.fetchUserAllMatchUserData(
-              userId: uid, onlyPublic: uid != currentUser?.uid);
-
+      final ProfileStats stats = await userRepository.loadProfileStats(
+        userId: uid,
+        onlyPublic: onlyPublic,
+      );
       if (!mounted) return;
 
       final base = _displayedUser ?? widget.user;
@@ -203,118 +214,21 @@ class _ProfileViewState extends State<ProfileView> {
         equipesPrefereesId: base.equipesPrefereesId,
         competitionsPrefereesId: base.competitionsPrefereesId,
         private: base.private,
-        matchsUserData: data,
+        matchsUserData: stats.allMatchUserData,
       );
 
       _setStateAndRemeasure(() {
         _displayedUser = updatedUser;
-        _isLoadingMatchUserData = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      _setStateAndRemeasure(() {
-        _isLoadingMatchUserData = false;
-      });
-    }
-  }
-
-  Future<void> _loadTeams(String uid) async {
-    _setStateAndRemeasure(() => _isLoadingEquipesPreferees = true);
-    try {
-      final teams = await userRepository.getUserEquipesPrefereesId(uid);
-      if (!mounted) return;
-      _setStateAndRemeasure(() {
-        userEquipesPrefereesId = teams;
-        final base = _displayedUser ?? widget.user;
-        _displayedUser = AppUser(
-          uid: base.uid,
-          email: base.email,
-          displayName: base.displayName,
-          bio: base.bio,
-          photoUrl: base.photoUrl,
-          createdAt: base.createdAt,
-          equipesPrefereesId: teams,
-          competitionsPrefereesId: base.competitionsPrefereesId,
-          private: base.private,
-          matchsUserData: base.matchsUserData,
-        );
-        _isLoadingEquipesPreferees = false;
+        userMatchsRegardesId = stats.matchsRegardesId;
+        userMatchsFavorisId = stats.matchsFavorisId;
+        userNbMatchsRegardes = stats.nbMatchsRegardes;
+        userNbButs = stats.nbButs;
+        _matchesData = stats.matchesData;
+        _isLoadingStats = false;
       });
     } catch (_) {
       if (!mounted) return;
-      _setStateAndRemeasure(() => _isLoadingEquipesPreferees = false);
-    }
-  }
-
-  Future<void> _loadMatchsRegardes(String uid) async {
-    _setStateAndRemeasure(() => _isLoadingMatchsRegardes = true);
-    try {
-      final matchs = await userRepository.getUserMatchsRegardesId(
-        userId: uid,
-        onlyPublic: uid != currentUser?.uid,
-      );
-      if (!mounted) return;
-      _setStateAndRemeasure(() {
-        userMatchsRegardesId = matchs;
-        _isLoadingMatchsRegardes = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      _setStateAndRemeasure(() => _isLoadingMatchsRegardes = false);
-    }
-  }
-
-  Future<void> _loadFavoris(String uid) async {
-    _setStateAndRemeasure(() => _isLoadingMatchsFavoris = true);
-    try {
-      final favs = await userRepository.getUserMatchsFavorisId(
-        uid,
-        uid != currentUser?.uid,
-      );
-      if (!mounted) return;
-      _setStateAndRemeasure(() {
-        userMatchsFavorisId = favs;
-        _isLoadingMatchsFavoris = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      _setStateAndRemeasure(() => _isLoadingMatchsFavoris = false);
-    }
-  }
-
-  Future<void> _loadUserNbMatchsRegardes(String uid) async {
-    _setStateAndRemeasure(() => _isLoadingNbMatchsRegardes = true);
-    try {
-      final nbMatchs = await userRepository.getUserNbMatchsRegardes(
-        uid,
-        uid != currentUser?.uid,
-      );
-      if (!mounted) return;
-      _setStateAndRemeasure(() {
-        userNbMatchsRegardes = nbMatchs;
-        _isLoadingNbMatchsRegardes = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      _setStateAndRemeasure(() => _isLoadingNbMatchsRegardes = false);
-    }
-  }
-
-  Future<void> _loadUserNbButs(String uid) async {
-    _setStateAndRemeasure(() => _isLoadingNbButs = true);
-    try {
-      final nbButs = await userRepository.getUserNbButs(
-        uid,
-        uid != currentUser?.uid,
-      );
-      if (!mounted) return;
-      _setStateAndRemeasure(() {
-        userNbButs = nbButs;
-        _isLoadingNbButs = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      _setStateAndRemeasure(() => _isLoadingNbButs = false);
+      _setStateAndRemeasure(() => _isLoadingStats = false);
     }
   }
 
@@ -518,12 +432,8 @@ class _ProfileViewState extends State<ProfileView> {
     final bool isMe = widget.user.uid == currentUser?.uid;
     final userToUse = _displayedUser ?? widget.user;
 
-    final bool equipesLoading = _isLoadingEquipesPreferees;
-
-    final bool matchsRegardesLoading =
-        _isLoadingMatchsRegardes || _isLoadingMatchUserData;
-
-    final bool matchsFavorisLoading = _isLoadingMatchsFavoris;
+    final bool matchsRegardesLoading = _isLoadingStats;
+    final bool matchsFavorisLoading = _isLoadingStats;
 
     return PopScope<bool>(
       canPop: false,
@@ -578,15 +488,11 @@ class _ProfileViewState extends State<ProfileView> {
                         : Header(
                             user: userToUse,
                             isMe: isMe,
-                            isLoadingNbMatchsRegardes:
-                                _isLoadingNbMatchsRegardes ||
-                                    _isLoadingMatchUserData,
+                            isLoadingNbMatchsRegardes: _isLoadingStats,
                             userNbMatchsRegardes: userNbMatchsRegardes,
-                            isLoadingNbButs:
-                                _isLoadingNbButs || _isLoadingMatchUserData,
+                            isLoadingNbButs: _isLoadingStats,
                             userNbButs: userNbButs,
-                            isLoadingNbAmis:
-                                _isLoadingNbAmis || _isLoadingMatchUserData,
+                            isLoadingNbAmis: _isLoadingNbAmis,
                             userNbAmis: userNbAmis,
                             friendship: friendship,
                             currentUser: currentUser,
@@ -769,7 +675,7 @@ class _ProfileViewState extends State<ProfileView> {
                           teamsId: userEquipesPrefereesId,
                           user: userToUse,
                           isMe: isMe,
-                          isLoading: equipesLoading,
+                          matchesData: _matchesData,
                           onTeamTap: _onTeamTap,
                         ),
                         const Divider(height: 32),

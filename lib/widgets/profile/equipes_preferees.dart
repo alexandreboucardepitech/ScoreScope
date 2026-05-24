@@ -10,11 +10,13 @@ import 'package:shimmer/shimmer.dart';
 class EquipesPreferees extends StatefulWidget {
   final List<String>? teamsId;
   final AppUser user;
-  final bool isLoading;
   final bool isMe;
+  final bool isLoading;
   final bool displayTitle;
   final bool displayNbMatchs;
   final void Function(String teamId, String teamName)? onTeamTap;
+
+  final Map<String, Map<String, dynamic>>? matchesData;
 
   const EquipesPreferees({
     super.key,
@@ -25,6 +27,7 @@ class EquipesPreferees extends StatefulWidget {
     this.displayTitle = true,
     this.displayNbMatchs = true,
     this.onTeamTap,
+    this.matchesData,
   });
 
   @override
@@ -35,19 +38,11 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
   final equipesRepo = RepositoryProvider.equipeRepository;
   final userRepo = RepositoryProvider.userRepository;
 
-  // cache séparé pour les équipes et pour le nombre de matchs
   final Map<String, Equipe?> _loadedEquipe = {};
-  final Map<String, int?> _loadedNbMatchs = {};
-
-  // sets pour éviter de lancer plusieurs fetchs simultanés
   final Set<String> _fetchingEquipe = {};
-  final Set<String> _fetchingNb = {};
 
-  @override
-  void didUpdateWidget(covariant EquipesPreferees oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _ensureFetch();
-  }
+  final Map<String, int?> _loadedNbMatchs = {};
+  final Set<String> _fetchingNb = {};
 
   @override
   void initState() {
@@ -55,20 +50,27 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
     _ensureFetch();
   }
 
+  @override
+  void didUpdateWidget(covariant EquipesPreferees oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _ensureFetch();
+  }
+
   void _ensureFetch() {
     final ids = widget.teamsId ?? [];
 
-    // lancer fetch équipe si nécessaire
     for (final id in ids) {
       if (!_loadedEquipe.containsKey(id) && !_fetchingEquipe.contains(id)) {
         _fetchEquipe(id);
       }
-      if (!_loadedNbMatchs.containsKey(id) && !_fetchingNb.contains(id)) {
+
+      if (widget.matchesData == null &&
+          !_loadedNbMatchs.containsKey(id) &&
+          !_fetchingNb.contains(id)) {
         _fetchNbMatchsParEquipe(id);
       }
     }
 
-    // cleanup : retirer les clés qui ne sont plus présentes
     _loadedEquipe.keys
         .where((k) => !ids.contains(k))
         .toList()
@@ -79,23 +81,31 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
         .forEach(_loadedNbMatchs.remove);
   }
 
+  int? _getNbMatchs(String equipeId) {
+    if (widget.matchesData == null) {
+      return _loadedNbMatchs[equipeId];
+    }
+    if (widget.matchesData!.isEmpty) {
+      return null; // encore en chargement → shimmer dans EquipePrefereeTile
+    }
+    return widget.matchesData!.values.where((m) {
+      return m['equipeDomicileId'] == equipeId ||
+          m['equipeExterieurId'] == equipeId;
+    }).length;
+  }
+
   Future<void> _fetchEquipe(String id) async {
     _fetchingEquipe.add(id);
     setState(() {
-      _loadedEquipe.putIfAbsent(id, () => null); // placeholder
+      _loadedEquipe.putIfAbsent(id, () => null);
     });
     try {
       final equipe = await equipesRepo.fetchEquipeById(id);
       if (!mounted) return;
-      setState(() {
-        _loadedEquipe[id] = equipe;
-      });
+      setState(() => _loadedEquipe[id] = equipe);
     } catch (_) {
       if (!mounted) return;
-      setState(() {
-        _loadedEquipe[id] =
-            null; // erreur -> on garde null pour indiquer l'échec
-      });
+      setState(() => _loadedEquipe[id] = null);
     } finally {
       _fetchingEquipe.remove(id);
     }
@@ -104,7 +114,7 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
   Future<void> _fetchNbMatchsParEquipe(String equipeId) async {
     _fetchingNb.add(equipeId);
     setState(() {
-      _loadedNbMatchs.putIfAbsent(equipeId, () => null); // placeholder
+      _loadedNbMatchs.putIfAbsent(equipeId, () => null);
     });
     try {
       final nb = await userRepo.getUserNbMatchsRegardesParEquipe(
@@ -113,15 +123,10 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
         widget.isMe ? false : true,
       );
       if (!mounted) return;
-      setState(() {
-        _loadedNbMatchs[equipeId] = nb;
-      });
+      setState(() => _loadedNbMatchs[equipeId] = nb);
     } catch (_) {
       if (!mounted) return;
-      setState(() {
-        _loadedNbMatchs[equipeId] =
-            0; // ou null selon ce que tu préfères afficher en erreur
-      });
+      setState(() => _loadedNbMatchs[equipeId] = 0);
     } finally {
       _fetchingNb.remove(equipeId);
     }
@@ -165,7 +170,7 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
                 runSpacing: spacing,
                 children: display.map((teamId) {
                   final equipe = _loadedEquipe[teamId];
-                  final nbMatchs = _loadedNbMatchs[teamId];
+                  final nbMatchs = _getNbMatchs(teamId);
 
                   if (equipe == null) {
                     return SizedBox(
@@ -240,7 +245,6 @@ class _EquipesPrefereesState extends State<EquipesPreferees> {
   }
 }
 
-// tuile shimmer inchangée
 class _EquipeCellShimmer extends StatelessWidget {
   const _EquipeCellShimmer();
 

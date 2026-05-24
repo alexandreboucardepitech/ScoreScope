@@ -7,6 +7,7 @@ import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/utils/handle_data/profile_stats.dart';
 
 abstract class IAppUserRepository {
   // à utiliser que quand on ne peut vraiment pas faire d'async
@@ -58,6 +59,10 @@ abstract class IAppUserRepository {
     required String userId,
     bool onlyPublic = false,
     DateTimeRange? dateRange,
+  });
+  Future<ProfileStats> loadProfileStats({
+    required String userId,
+    required bool onlyPublic,
   });
   Future<MatchUserData?> fetchUserMatchUserData(String userId, String matchId);
   Future<void> removeMatchUserData(String userId, String matchId);

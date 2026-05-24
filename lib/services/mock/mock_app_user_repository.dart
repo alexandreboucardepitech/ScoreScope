@@ -12,6 +12,7 @@ import 'package:scorescope/models/options.dart';
 import 'package:scorescope/services/mock/mock_equipe_repository.dart';
 import 'package:scorescope/services/mock/mock_match_repository.dart';
 import 'package:scorescope/services/repositories/i_app_user_repository.dart';
+import 'package:scorescope/utils/handle_data/profile_stats.dart';
 
 class MockAppUserRepository implements IAppUserRepository {
   MockAppUserRepository({String currentUserId = 'u_alex'})
@@ -740,6 +741,72 @@ class MockAppUserRepository implements IAppUserRepository {
     } else {
       return user.matchsUserData;
     }
+  }
+
+  @override
+  Future<ProfileStats> loadProfileStats({
+    required String userId,
+    required bool onlyPublic,
+  }) async {
+    await _seedingFuture;
+
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () =>
+          AppUser(uid: '', displayName: '', createdAt: DateTime.now()),
+    );
+    if (user.uid.isEmpty) {
+      return ProfileStats(
+        nbMatchsRegardes: 0,
+        nbButs: 0,
+        matchsRegardesId: [],
+        matchsFavorisId: [],
+        allMatchUserData: [],
+        matchesData: {},
+      );
+    }
+
+    final allData = onlyPublic
+        ? user.matchsUserData.where((m) => !m.private).toList()
+        : user.matchsUserData.toList();
+
+    final watched = allData.where((m) => m.watchedAt != null).toList()
+      ..sort((a, b) => b.watchedAt!.compareTo(a.watchedAt!));
+
+    final matchsRegardesId = watched.map((m) => m.matchId).toList();
+
+    final matchsFavorisId = allData
+        .where((m) => m.favourite == true)
+        .map((m) => m.matchId)
+        .toList();
+
+    final matchRepo = MockMatchRepository();
+    final matchModels = await Future.wait(
+      matchsRegardesId.map((id) => matchRepo.fetchMatchById(id)),
+    );
+
+    int nbButs = 0;
+    final Map<String, Map<String, dynamic>> matchesData = {};
+
+    for (final match in matchModels) {
+      if (match == null) continue;
+      nbButs += match.scoreEquipeDomicile + match.scoreEquipeExterieur;
+      matchesData[match.id] = {
+        'scoreEquipeDomicile': match.scoreEquipeDomicile,
+        'scoreEquipeExterieur': match.scoreEquipeExterieur,
+        'equipeDomicileId': match.equipeDomicile.id,
+        'equipeExterieurId': match.equipeExterieur.id,
+      };
+    }
+
+    return ProfileStats(
+      nbMatchsRegardes: watched.length,
+      nbButs: nbButs,
+      matchsRegardesId: matchsRegardesId,
+      matchsFavorisId: matchsFavorisId,
+      allMatchUserData: watched,
+      matchesData: matchesData,
+    );
   }
 
   @override
