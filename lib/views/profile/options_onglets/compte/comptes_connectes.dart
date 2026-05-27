@@ -215,14 +215,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: TextStyle(
-            color: ColorPalette.textPrimary(
-              context,
-            ),
-          ),
-        ),
+        content: Text(message),
       ),
     );
   }

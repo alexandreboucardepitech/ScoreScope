@@ -427,12 +427,7 @@ class OptionsCompteView extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       backgroundColor: ColorPalette.accent(context),
-                      content: Text(
-                        "Données supprimées avec succès.",
-                        style: TextStyle(
-                          color: ColorPalette.textPrimary(context),
-                        ),
-                      ),
+                      content: Text("Données supprimées avec succès."),
                     ),
                   );
                 } catch (e) {
@@ -440,12 +435,7 @@ class OptionsCompteView extends StatelessWidget {
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(
-                        "Erreur : ${e.toString()}",
-                        style: TextStyle(
-                          color: ColorPalette.textPrimary(context),
-                        ),
-                      ),
+                      content: Text("Erreur : ${e.toString()}"),
                     ),
                   );
                 }
@@ -513,16 +503,7 @@ class OptionsCompteView extends StatelessWidget {
                 if (!context.mounted) return;
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "Compte supprimé avec succès.",
-                      style: TextStyle(
-                        color: ColorPalette.textPrimary(
-                          context,
-                        ),
-                      ),
-                    ),
-                  ),
+                  SnackBar(content: Text("Compte supprimé avec succès.")),
                 );
                 await RepositoryProvider.userRepository.signOut();
 
@@ -535,16 +516,7 @@ class OptionsCompteView extends StatelessWidget {
                 if (!context.mounted) return;
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "Erreur : ${e.toString()}",
-                      style: TextStyle(
-                        color: ColorPalette.textPrimary(
-                          context,
-                        ),
-                      ),
-                    ),
-                  ),
+                  SnackBar(content: Text("Erreur : ${e.toString()}")),
                 );
               }
             },

@@ -238,7 +238,6 @@ class AuthService {
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
-
         webAuthenticationOptions: Platform.isAndroid
             ? WebAuthenticationOptions(
                 clientId: 'com.scorescope.app.login',
@@ -275,16 +274,11 @@ class AuthService {
     } catch (e, st) {
       print("Unexpected Apple Sign-In error: $e\n$st");
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: ColorPalette.surface(context),
-        content: Text(
-          "Erreur lors de la connexion avec Apple.",
-          style: TextStyle(
-            color: ColorPalette.textPrimary(context),
-          ),
+        SnackBar(
+          backgroundColor: ColorPalette.surface(context),
+          content: Text("Erreur lors de la connexion avec Apple."),
         ),
-      ),
-    );
+      );
       return null;
     }
   }

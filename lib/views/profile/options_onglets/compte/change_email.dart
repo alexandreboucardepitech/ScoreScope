@@ -86,28 +86,14 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
         } catch (reauthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                "Mot de passe incorrect.",
-                style: TextStyle(
-                  color: ColorPalette.textPrimary(
-                    context,
-                  ),
-                ),
-              ),
+              content: Text("Mot de passe incorrect."),
             ),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              e.message ?? "Erreur inconnue",
-              style: TextStyle(
-                color: ColorPalette.textPrimary(
-                  context,
-                ),
-              ),
-            ),
+            content: Text(e.message ?? "Erreur inconnue"),
           ),
         );
       }

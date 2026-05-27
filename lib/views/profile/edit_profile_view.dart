@@ -130,14 +130,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: ColorPalette.buttonPrimary(context),
-          content: Text(
-            "Le nom d'utilisateur est obligatoire",
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text("Le nom d'utilisateur est obligatoire"),
         ),
       );
       return;
@@ -624,7 +617,9 @@ class _EditProfileViewState extends State<EditProfileView> {
         title: Row(
           children: [
             const SizedBox(width: 8),
-            widget.isOnboarding ? AppLogos.logoPrimary(context, size: 32) : AppLogos.logoTransparent(context, size: 32),
+            widget.isOnboarding
+                ? AppLogos.logoPrimary(context, size: 32)
+                : AppLogos.logoTransparent(context, size: 32),
             const SizedBox(width: 8),
             Text(
               widget.isOnboarding ? 'Créez votre profil' : 'Modifier le profil',

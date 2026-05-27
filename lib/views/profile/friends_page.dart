@@ -311,28 +311,14 @@ class _FriendsPageState extends State<FriendsPage>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            getFriendshipActionSnackbarMessage(action),
-            style: TextStyle(
-              color: ColorPalette.textAccent(
-                context,
-              ),
-            ),
-          ),
+          content: Text(getFriendshipActionSnackbarMessage(action)),
         ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Erreur lors de l'action sur l'utilisateur.",
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text("Erreur lors de l'action sur l'utilisateur."),
         ),
       );
     } finally {
@@ -414,7 +400,9 @@ class FriendListItem extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: CircleAvatar(
         backgroundColor: ColorPalette.pictureBackground(context),
-        backgroundImage: user.photoUrl != null ? CachedNetworkImageProvider(user.photoUrl!) : null,
+        backgroundImage: user.photoUrl != null
+            ? CachedNetworkImageProvider(user.photoUrl!)
+            : null,
         child: user.photoUrl == null
             ? Text(
                 user.displayName[0].toUpperCase(),

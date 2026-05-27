@@ -172,14 +172,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Erreur lors de la mise à jour du favori',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text('Erreur lors de la mise à jour du favori'),
           duration: const Duration(seconds: 1),
         ),
       );
@@ -370,14 +363,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            makePrivate ? 'Match rendu privé' : 'Match rendu public',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content:
+              Text(makePrivate ? 'Match rendu privé' : 'Match rendu public'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -385,14 +372,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Erreur lors de la mise à jour de la confidentialité',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text('Erreur lors de la mise à jour de la confidentialité'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -434,28 +414,14 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: ColorPalette.accent(context),
-          content: Text(
-            'Match supprimé',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text('Match supprimé'),
         ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Erreur lors de la suppression du match (réessayez)',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text('Erreur lors de la suppression du match (réessayez)'),
         ),
       );
     } finally {

@@ -154,15 +154,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-            'Erreur envoi commentaire: $e',
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          )),
+          SnackBar(content: Text('Erreur envoi commentaire: $e')),
         );
       }
     } finally {

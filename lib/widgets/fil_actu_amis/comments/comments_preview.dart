@@ -56,18 +56,8 @@ class CommentsPreview extends StatelessWidget {
                           }
 
                           if (profile == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Utilisateur introuvable',
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(
-                                      context,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text('Utilisateur introuvable')));
                             return;
                           }
 
@@ -142,8 +132,10 @@ class CommentsPreview extends StatelessWidget {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(
-                                              content: Text(
-                                                  'Utilisateur introuvable')),
+                                            content: Text(
+                                              'Utilisateur introuvable',
+                                            ),
+                                          ),
                                         );
                                         return;
                                       }

@@ -85,28 +85,14 @@ class _BlockedUsersViewState extends State<BlockedUsersView> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Utilisateur débloqué",
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text("Utilisateur débloqué"),
         ),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Erreur lors du déblocage",
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text("Erreur lors du déblocage"),
         ),
       );
     } finally {

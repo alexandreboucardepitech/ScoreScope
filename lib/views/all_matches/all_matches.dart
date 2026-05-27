@@ -431,15 +431,13 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
             //   ElevatedButton(
             //     onPressed: () async {
-            //       // await FillDatabase.createEquipeFromApiId(season: "2025", teamApiId: "3221", overwrite: true);
-            //       List<MatchModelId> listmatchs = await RepositoryProvider
-            //           .matchRepository
-            //           .fetchAllMatchesId(loadVotesAndNotes: false);
-            //       for (var matchId in listmatchs) {
-            //         if (matchId.status == MatchStatus.live) {
-            //           print(matchId.id);
-            //         }
-            //       }
+            //       ScaffoldMessenger.of(context).showSnackBar(
+            //         SnackBar(
+            //           content: Text(
+            //             'test coucou',
+            //           ),
+            //         ),
+            //       );
             //     },
             //     child: Text("test pour développeur"),
             //   ),

@@ -93,14 +93,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
                       if (_currentUserId == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              'Erreur : utilisateur non connecté',
-                              style: TextStyle(
-                                color: ColorPalette.textPrimary(
-                                  context,
-                                ),
-                              ),
-                            ),
+                            content: Text('Erreur : utilisateur non connecté'),
                             duration: const Duration(seconds: 1),
                           ),
                         );

@@ -115,14 +115,7 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              "Impossible de récupérer l'utilisateur.",
-              style: TextStyle(
-                color: ColorPalette.textPrimary(
-                  context,
-                ),
-              ),
-            ),
+            content: Text("Impossible de récupérer l'utilisateur."),
           ),
         );
         return;
@@ -150,14 +143,7 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Échec de la sauvegarde — réessaye plus tard.",
-            style: TextStyle(
-              color: ColorPalette.textPrimary(
-                context,
-              ),
-            ),
-          ),
+          content: Text("Échec de la sauvegarde — réessaye plus tard."),
         ),
       );
     }
