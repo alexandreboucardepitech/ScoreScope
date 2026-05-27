@@ -65,14 +65,14 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
             values: ThemeOptions.values,
             selectedValue: theme,
             onChanged: (value) async {
-              await RepositoryProvider.userRepository.updateOptions(
-                userId: widget.currentUser.uid,
-                theme: value,
-              );
-
               context.read<ThemeController>().setTheme(value);
 
               setState(() => theme = value);
+
+              RepositoryProvider.userRepository.updateOptions(
+                userId: widget.currentUser.uid,
+                theme: value,
+              );
             },
             itemBuilder: (value, selected) {
               final label = switch (value) {
@@ -97,13 +97,12 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
           SegmentedOptionRow<LanguageOptions>(
             values: LanguageOptions.values,
             selectedValue: language,
-            onChanged: (value) async {
-              await RepositoryProvider.userRepository.updateOptions(
+            onChanged: (value) {
+              setState(() => language = value);
+              RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
                 language: value,
               );
-
-              setState(() => language = value);
             },
             itemBuilder: (value, selected) {
               final label = switch (value) {
@@ -127,13 +126,12 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
           SegmentedOptionRow<VisionnageMatch>(
             values: VisionnageMatch.values,
             selectedValue: visionnage,
-            onChanged: (value) async {
-              await RepositoryProvider.userRepository.updateOptions(
+            onChanged: (value) {
+              setState(() => visionnage = value);
+              RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
                 defaultVisionnageMatch: value,
               );
-
-              setState(() => visionnage = value);
             },
             itemBuilder: (value, selected) {
               return Text(
@@ -179,11 +177,11 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
                       ColorPalette.buttonDisabled(context).withOpacity(0.4),
                   value: utiliserCache,
                   onChanged: (value) {
+                    setState(() => utiliserCache = value);
                     RepositoryProvider.userRepository.updateOptions(
                       userId: widget.currentUser.uid,
                       utiliserCache: value,
                     );
-                    setState(() => utiliserCache = value);
                   },
                   title: Text(
                     "Utiliser le cache",
