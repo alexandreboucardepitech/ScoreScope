@@ -1,3 +1,5 @@
+import 'package:scorescope/utils/translate/language_controller.dart';
+
 enum VisionnageMatch {
   tele,
   stade,
@@ -19,22 +21,34 @@ extension VisionnageMatchExt on VisionnageMatch {
   String get label {
     switch (this) {
       case VisionnageMatch.tele:
-        return 'Télé';
+        return translate.tele;
       case VisionnageMatch.bar:
-        return 'Bar';
+        return translate.bar;
       case VisionnageMatch.stade:
-        return 'Stade';
+        return translate.stade;
+    }
+  }
+
+  String get labelFR {
+    switch (this) {
+      case VisionnageMatch.tele:
+        return "Télé";
+      case VisionnageMatch.bar:
+        return "Bar";
+      case VisionnageMatch.stade:
+        return "Stade";
     }
   }
 
   static VisionnageMatch? fromString(String value) {
-    switch (value) {
-      case 'Télé':
-        return VisionnageMatch.tele;
-      case 'Bar':
-        return VisionnageMatch.bar;
-      case 'Stade':
-        return VisionnageMatch.stade;
+    if (value == translate.tele) {
+      return VisionnageMatch.tele;
+    }
+    if (value == translate.bar) {
+      return VisionnageMatch.bar;
+    }
+    if (value == translate.stade) {
+      return VisionnageMatch.stade;
     }
     return null;
   }

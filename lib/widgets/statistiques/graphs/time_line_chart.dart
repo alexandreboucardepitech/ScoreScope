@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/stats/graph/time_stat_value.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
 class TimeLineChart extends StatefulWidget {
@@ -77,7 +78,7 @@ class _TimeLineChartState extends State<TimeLineChart> {
               ),
               const SizedBox(width: 4),
               Text(
-                'matchs regardés',
+                translate.matchsRegardes,
                 style: TextStyle(
                   fontSize: 14,
                   color: ColorPalette.textAccent(context),
@@ -199,33 +200,33 @@ class _TimeLineChartState extends State<TimeLineChart> {
   }
 
   String _monthLabel(int month, bool short) {
-    const months = [
-      'Janvier',
-      'Février',
-      'Mars',
-      'Avril',
-      'Mai',
-      'Juin',
-      'Juillet',
-      'Août',
-      'Septembre',
-      'Octobre',
-      'Novembre',
-      'Décembre',
+    var months = [
+      translate.janvier,
+      translate.fevrier,
+      translate.mars,
+      translate.avril,
+      translate.mai,
+      translate.juin,
+      translate.juillet,
+      translate.aout,
+      translate.septembre,
+      translate.octobre,
+      translate.novembre,
+      translate.decembre,
     ];
-    const shortMonths = [
-      'Jan',
-      'Fév',
-      'Mar',
-      'Avr',
-      'Mai',
-      'Juin',
-      'Juil',
-      'Août',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Déc',
+    var shortMonths = [
+      translate.jan,
+      translate.fev,
+      translate.mar,
+      translate.avr,
+      translate.mai,
+      translate.juin,
+      translate.juillet,
+      translate.aout,
+      translate.sep,
+      translate.oct,
+      translate.nov,
+      translate.dec,
     ];
     return short ? shortMonths[month - 1] : months[month - 1];
   }

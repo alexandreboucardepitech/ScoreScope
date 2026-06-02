@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/views/all_matches/recap_week_view.dart';
@@ -145,14 +146,14 @@ class _AllMatchesViewState extends State<AllMatchesView> {
 
   String _getDateLabel(DateTime date) {
     final now = DateTime.now();
-    if (DateUtils.isSameDay(date, now)) return "Aujourd'hui";
+    if (DateUtils.isSameDay(date, now)) return translate.aujourdHui;
     if (DateUtils.isSameDay(
       date,
       now.subtract(
         const Duration(days: 1),
       ),
     )) {
-      return "Hier";
+      return translate.hier;
     }
     if (DateUtils.isSameDay(
       date,
@@ -160,7 +161,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         const Duration(days: 1),
       ),
     )) {
-      return "Demain";
+      return translate.demain;
     }
     return DateFormat('EEE', 'fr_FR')
         .format(date)
@@ -291,8 +292,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                 backgroundColor: ColorPalette.accent(context),
                 foregroundColor: ColorPalette.opposite(context),
                 icon: const Icon(Icons.today_rounded, size: 20),
-                label: const Text(
-                  "Aujourd'hui",
+                label: Text(
+                  translate.aujourdHui,
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               )
@@ -345,7 +346,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                     if (allMatches.isEmpty) {
                       return Center(
                         child: Text(
-                          "Aucun match ce jour-là",
+                          translate.aucunMatchCeJourLa,
                           style: TextStyle(
                             color: ColorPalette.textPrimary(context),
                           ),
@@ -401,7 +402,9 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                             MatchList(
                               matches: followedMatches,
                               header: _buildSectionHeader(
-                                  "Favoris", Icons.star_rounded),
+                                "Favoris",
+                                Icons.star_rounded,
+                              ),
                               user: currentUser,
                               displayUserData: false,
                             ),
@@ -410,8 +413,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                               matches: otherMatches,
                               header: _buildSectionHeader(
                                 followedMatches.isEmpty
-                                    ? "Matchs du jour"
-                                    : "Autres matchs",
+                                    ? translate.matchsDuJour
+                                    : translate.autresMatchs,
                                 Icons.sports_soccer,
                               ),
                               user: currentUser,
@@ -580,14 +583,14 @@ Future<DateTime?> _openDatePicker(
   DateTime selectedDate,
 ) async {
   final pickedDate = await showDatePicker(
-    locale: const Locale('en', 'GB'),
+    locale: const Locale('fr', 'FR'),
     context: context,
     initialDate: selectedDate,
     firstDate: DateTime(2000),
     lastDate: DateTime(2100),
-    helpText: 'Sélectionner une date',
-    cancelText: 'Annuler',
-    confirmText: 'Appliquer',
+    helpText: translate.selectionnerUneDate,
+    cancelText: translate.annuler,
+    confirmText: translate.appliquer,
     builder: (context, child) {
       final baseTheme = Theme.of(context);
       return Theme(

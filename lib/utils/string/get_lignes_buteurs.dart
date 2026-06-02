@@ -1,5 +1,6 @@
 import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class ButeurLine {
   final Joueur joueur;
@@ -29,9 +30,9 @@ List<ButeurLine> getLignesButeurs({
       String suffix = "";
 
       if (but.typeBut == TypeBut.owngoal) {
-        suffix = " (CSC)";
+        suffix = " (${translate.csc})";
       } else if (but.typeBut == TypeBut.penalty) {
-        suffix = " (Pen)";
+        suffix = " (${translate.pen})";
       }
 
       butsMap[but.buteur]!.add("$minute'$suffix");

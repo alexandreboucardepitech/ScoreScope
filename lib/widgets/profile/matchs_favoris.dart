@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_list.dart';
@@ -26,7 +27,7 @@ class MatchsFavoris extends StatelessWidget {
         if (isLoading)
           _buildShimmer(context)
         else if (ids.isEmpty)
-          _buildEmptyMessage(context, "Aucun match favori")
+          _buildEmptyMessage(context, translate.aucunMatchFavori)
         else
           MatchList(
             ids: ids,
@@ -41,7 +42,7 @@ class MatchsFavoris extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Matchs favoris',
+          translate.matchsFavoris,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.w600,
@@ -50,7 +51,7 @@ class MatchsFavoris extends StatelessWidget {
         // TextButton(
         //   onPressed: onVoirPlus,
         //   child: Text(
-        //     'Voir plus',
+        //     translate.voirPlus,
         //     style: TextStyle(
         //       color: ColorPalette.textSecondary(context),
         //     ),

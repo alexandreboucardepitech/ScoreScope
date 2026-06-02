@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorescope/services/web/firestore_service.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -45,7 +46,6 @@ class AuthService {
     if (user != null) {
       try {
         await user.sendEmailVerification();
-        print("✅ Email de vérification envoyé");
       } catch (e) {
         print("❌ Erreur envoi email: $e");
       }
@@ -80,7 +80,7 @@ class AuthService {
       await _auth.signOut();
       throw FirebaseAuthException(
         code: "email-not-verified",
-        message: "Veuillez vérifier votre email avant de vous connecter.",
+        message: translate.veuillezVerifierVotreEmailAvantDeVousConnecter,
       );
     }
 
@@ -220,7 +220,7 @@ class AuthService {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null || user.email == null) {
-      throw Exception("Utilisateur non authentifié.");
+      throw Exception(translate.utilisateurNonAuthentifie);
     }
 
     final credential = EmailAuthProvider.credential(
@@ -276,7 +276,7 @@ class AuthService {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: ColorPalette.surface(context),
-          content: Text("Erreur lors de la connexion avec Apple."),
+          content: Text(translate.erreurLorsDeLaConnexionAvecApple),
         ),
       );
       return null;

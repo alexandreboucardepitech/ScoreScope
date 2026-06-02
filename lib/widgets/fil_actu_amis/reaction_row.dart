@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/fil_actu_amis/emojis/emoji_picker.dart';
 import 'package:scorescope/views/profile/profile.dart';
@@ -575,7 +576,7 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
 
   Widget _inlineAvatarEntry(String uid) {
     final user = widget.localUserCache[uid];
-    final displayName = user?.displayName ?? "Utilisateur";
+    final displayName = user?.displayName ?? translate.utilisateur;
     return GestureDetector(
       onTap: () async {
         final currentUser =
@@ -586,7 +587,7 @@ class _EmojiInlineItemState extends State<_EmojiInlineItem> {
           if (mounted) setState(() {});
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Vous avez supprimé la réaction ${widget.emoji}'),
+              content: Text(translate.vousAvezSupprimeLaReactionX(widget.emoji)),
             ),
           );
           return;

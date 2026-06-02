@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 
@@ -94,9 +95,7 @@ class _FeedbacksViewState extends State<FeedbacksView> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                "ScoreScope en est encore à ses débuts 🙌\n\n"
-                "Tous les retours sont les bienvenus : idées, bugs, améliorations UI… "
-                "n'hésite surtout pas !",
+                translate.scorescopeEnEstEncoreASesDebuts,
                 style: TextStyle(
                   color: ColorPalette.textSecondary(context),
                   height: 1.4,
@@ -105,7 +104,7 @@ class _FeedbacksViewState extends State<FeedbacksView> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Titre',
+              translate.titre,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: ColorPalette.textSecondary(context),
@@ -117,7 +116,7 @@ class _FeedbacksViewState extends State<FeedbacksView> {
               maxLength: 80,
               style: TextStyle(color: ColorPalette.textPrimary(context)),
               decoration: InputDecoration(
-                hintText: "Ex : Bug lors du vote pour le MVP",
+                hintText: translate.exBugLorsDuVotePourLeMvp,
                 hintStyle: TextStyle(
                   color: ColorPalette.textSecondary(context).withOpacity(0.6),
                 ),
@@ -143,7 +142,7 @@ class _FeedbacksViewState extends State<FeedbacksView> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Détail',
+              translate.detail,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: ColorPalette.textSecondary(context),
@@ -158,7 +157,7 @@ class _FeedbacksViewState extends State<FeedbacksView> {
               style: TextStyle(color: ColorPalette.textPrimary(context)),
               decoration: InputDecoration(
                 hintText:
-                    "Explique ton retour : ce qui ne marche pas, ce que tu aimerais voir...",
+                    translate.expliqueTonRetourCeQuiNeMarchePasCeQueTuAimeraisVoir,
                 hintStyle: TextStyle(
                   color: ColorPalette.textSecondary(context).withOpacity(0.6),
                 ),
@@ -213,8 +212,8 @@ class _FeedbacksViewState extends State<FeedbacksView> {
                                   color: ColorPalette.textPrimary(context),
                                 ),
                               )
-                            : const Text(
-                                "Envoyer",
+                            : Text(
+                                translate.envoyer,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),

@@ -4,12 +4,12 @@ import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/widgets/notifications/friends_requests_section.dart';
 import 'package:scorescope/widgets/notifications/post_notifications_section.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/post/post_notification.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class NotificationsView extends StatefulWidget {
   const NotificationsView({super.key});
@@ -73,7 +73,7 @@ class _NotificationsViewState extends State<NotificationsView> {
       debugPrint('Erreur fetchAll: $e\n$st');
       if (!mounted) return;
       setState(() {
-        _error = 'Impossible de charger les données.';
+        _error = translate.impossibleDeChargerLesDonnees;
         _loading = false;
       });
     }
@@ -188,7 +188,7 @@ class _NotificationsViewState extends State<NotificationsView> {
             AppLogos.logoTransparent(context, size: 32),
             const SizedBox(width: 8),
             Text(
-              "Notifications",
+              translate.notifications,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
                 fontWeight: FontWeight.w600,

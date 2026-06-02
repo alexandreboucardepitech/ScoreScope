@@ -10,6 +10,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/handle_data/app_cache.dart';
 import 'package:scorescope/utils/search/search_page_state.dart';
 import 'package:scorescope/utils/string/string_helper.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 List<Equipe> _filterEquipes(Iterable<Equipe> source, String q) {
   final seen = <String>{};
@@ -80,8 +81,11 @@ List<Competition> _filterCompetitions(Iterable<Competition> source, String q) {
 
 ResultatsRechercheModel searchCacheOnlyQuery(
   String query, {
-  String filter = "Tous",
+  String? filter,
 }) {
+  if (filter == null) {
+    filter = translate.tous;
+  }
   if (query.length < 3) return const ResultatsRechercheModel();
 
   final q = normalize(query.toLowerCase());
@@ -91,21 +95,24 @@ ResultatsRechercheModel searchCacheOnlyQuery(
   List<Competition> competitions = [];
   List<MatchModel> matchs = [];
 
-  if (filter == "Tous" || filter == "Équipes" || filter == "Matchs") {
+  if (filter == translate.tous ||
+      filter == translate.equipes ||
+      filter == translate.matchs) {
     equipes = _filterEquipes(AppCache.allEquipes, q);
   }
 
-  if (filter == "Tous" || filter == "Compétitions") {
+  if (filter == translate.tous || filter == translate.competitions) {
     competitions = _filterCompetitions(AppCache.allCompetitions, q);
     competitions.sort((a, b) => b.popularite - a.popularite);
   }
 
-  if (filter == "Tous" || filter == "Joueurs") {
+  if (filter == translate.tous || filter == translate.joueurs) {
     joueurs = _filterJoueurs(AppCache.allJoueurs, q);
     joueurs.sort((a, b) => a.fullName.compareTo(b.fullName));
   }
 
-  if ((filter == "Tous" || filter == "Matchs") && equipes.isNotEmpty) {
+  if ((filter == translate.tous || filter == translate.matchs) &&
+      equipes.isNotEmpty) {
     final equipeIds = equipes.map((e) => e.id).toSet();
     matchs = AppCache.allMatches
         .where((m) =>
@@ -114,7 +121,7 @@ ResultatsRechercheModel searchCacheOnlyQuery(
         .toList()
       ..sort((a, b) => b.date.compareTo(a.date));
 
-    if (filter == "Matchs") equipes = [];
+    if (filter == translate.matchs) equipes = [];
   }
 
   return ResultatsRechercheModel(
@@ -314,8 +321,11 @@ String _buildFsQuery(String query) {
 
 Future<(ResultatsRechercheModel, SearchPageState)> searchQuery(
   String query, {
-  String filter = "Tous",
+  String? filter,
 }) async {
+  if (filter == null) {
+    filter = translate.tous;
+  }
   if (query.length < 3) {
     return (const ResultatsRechercheModel(), SearchPageState.empty);
   }
@@ -480,16 +490,20 @@ Future<(ResultatsRechercheModel, SearchPageState)> searchQuery(
   }
 
   await Future.wait([
-    if (filter == "Tous" || filter == "Équipes" || filter == "Matchs")
+    if (filter == translate.tous ||
+        filter == translate.equipes ||
+        filter == translate.matchs)
       fetchEquipes(),
-    if (filter == "Tous" || filter == "Compétitions") fetchCompetitions(),
-    if (filter == "Tous" || filter == "Joueurs") fetchJoueurs(),
+    if (filter == translate.tous || filter == translate.competitions)
+      fetchCompetitions(),
+    if (filter == translate.tous || filter == translate.joueurs) fetchJoueurs(),
   ]);
 
   final List<String> matchEquipeIds =
       equipes.take(15).map((e) => e.id).toList();
 
-  if ((filter == "Tous" || filter == "Matchs") && equipes.isNotEmpty) {
+  if ((filter == translate.tous || filter == translate.matchs) &&
+      equipes.isNotEmpty) {
     try {
       final snaps = await Future.wait([
         db
@@ -530,7 +544,8 @@ Future<(ResultatsRechercheModel, SearchPageState)> searchQuery(
     } catch (_) {}
   }
 
-  if (query.contains(' ') && (filter == "Tous" || filter == "Matchs")) {
+  if (query.contains(' ') &&
+      (filter == translate.tous || filter == translate.matchs)) {
     final pairMatchs = await _searchMatchPair(query, db);
     if (pairMatchs.isNotEmpty) {
       final existingIds = matchs.map((m) => m.id).toSet();
@@ -540,7 +555,7 @@ Future<(ResultatsRechercheModel, SearchPageState)> searchQuery(
     }
   }
 
-  if (filter == "Matchs") equipes = [];
+  if (filter == translate.matchs) equipes = [];
 
   final currentUser = await RepositoryProvider.userRepository.getCurrentUser();
 

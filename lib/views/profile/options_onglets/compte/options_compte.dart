@@ -10,6 +10,7 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/change_email.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/change_password.dart';
 import 'package:scorescope/views/profile/options_onglets/compte/comptes_connectes.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class OptionsCompteView extends StatelessWidget {
   final AppUser currentUser;
@@ -25,7 +26,7 @@ class OptionsCompteView extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Compte',
+          translate.compte,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -39,10 +40,10 @@ class OptionsCompteView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
           /// SECTION SÉCURITÉ
-          _buildSectionHeader(context, "Sécurité"),
+          _buildSectionHeader(context, translate.securite),
 
           _buildOptionTile(context,
-              title: "Email",
+              title: translate.email,
               subtitle: currentUser.email,
               icon: Icons.email_outlined, onTap: () {
             Navigator.push(
@@ -55,7 +56,7 @@ class OptionsCompteView extends StatelessWidget {
 
           _buildOptionTile(
             context,
-            title: "Mot de passe",
+            title: translate.motDePasse,
             icon: Icons.lock_outline,
             onTap: () {
               Navigator.push(
@@ -70,7 +71,7 @@ class OptionsCompteView extends StatelessWidget {
 
           _buildOptionTile(
             context,
-            title: "Comptes connectés",
+            title: translate.comptesConnectes,
             icon: Icons.link_outlined,
             onTap: () {
               Navigator.push(
@@ -85,11 +86,11 @@ class OptionsCompteView extends StatelessWidget {
           const SizedBox(height: 24),
 
           /// SECTION DANGEREUSE
-          _buildSectionHeader(context, "Zone sensible"),
+          _buildSectionHeader(context, translate.zoneSensible),
 
           _buildOptionTile(
             context,
-            title: "Se déconnecter",
+            title: translate.seDeconnecter,
             icon: Icons.logout_outlined,
             onTap: () {
               _showDisconnectDialog(context);
@@ -98,7 +99,7 @@ class OptionsCompteView extends StatelessWidget {
 
           _buildOptionTile(
             context,
-            title: "Supprimer les données",
+            title: translate.supprimerLesDonnees,
             icon: Icons.delete_outline,
             isDestructive: true,
             onTap: () {
@@ -108,7 +109,7 @@ class OptionsCompteView extends StatelessWidget {
 
           _buildOptionTile(
             context,
-            title: "Supprimer le compte",
+            title: translate.supprimerLeCompte,
             icon: Icons.delete_outline,
             isDestructive: true,
             onTap: () {
@@ -190,13 +191,13 @@ class OptionsCompteView extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(
-          "Se déconnecter",
+          translate.seDeconnecter,
           style: TextStyle(
             color: ColorPalette.textAccent(context),
           ),
         ),
         content: Text(
-          "Voulez-vous vraiment vous déconnecter ?",
+          translate.voulezVousVraimentVousDeconnecter,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
           ),
@@ -205,7 +206,7 @@ class OptionsCompteView extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              "Annuler",
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -227,7 +228,7 @@ class OptionsCompteView extends StatelessWidget {
               backgroundColor: ColorPalette.accent(context),
             ),
             child: Text(
-              "Se déconnecter",
+              translate.seDeconnecter,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -250,7 +251,7 @@ class OptionsCompteView extends StatelessWidget {
       builder: (_) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           title: Text(
-            "Vider les données",
+            translate.supprimerLesDonnees,
             style: TextStyle(color: Colors.red),
           ),
           content: SingleChildScrollView(
@@ -266,7 +267,7 @@ class OptionsCompteView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            "Supprimer les matchs regardés",
+                            translate.supprimerLesMatchsRegardes,
                             style: TextStyle(
                               color: ColorPalette.textPrimary(context),
                             ),
@@ -292,7 +293,7 @@ class OptionsCompteView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            "Supprimer les amis",
+                            translate.supprimerLesAmis,
                             style: TextStyle(
                               color: ColorPalette.textPrimary(context),
                             ),
@@ -318,7 +319,7 @@ class OptionsCompteView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            "Supprimer les notifications",
+                            translate.supprimerLesNotifications,
                             style: TextStyle(
                               color: ColorPalette.textPrimary(context),
                             ),
@@ -344,7 +345,7 @@ class OptionsCompteView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            "Réinitialiser les préférences",
+                            translate.reinitialiserLesPreferences,
                             style: TextStyle(
                               color: ColorPalette.textPrimary(context),
                             ),
@@ -372,7 +373,7 @@ class OptionsCompteView extends StatelessWidget {
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              "Supprimer les matchs regardés ensemble",
+                              translate.supprimerLesMatchsRegardesEnsemble,
                               style: TextStyle(
                                 color: ColorPalette.textPrimary(context),
                               ),
@@ -396,7 +397,7 @@ class OptionsCompteView extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Annuler",
+                translate.annuler,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(context),
                 ),
@@ -427,7 +428,7 @@ class OptionsCompteView extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       backgroundColor: ColorPalette.accent(context),
-                      content: Text("Données supprimées avec succès."),
+                      content: Text(translate.donneesSupprimeesAvecSucces),
                     ),
                   );
                 } catch (e) {
@@ -435,13 +436,13 @@ class OptionsCompteView extends StatelessWidget {
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("Erreur : ${e.toString()}"),
+                      content: Text(translate.erreur + " : ${e.toString()}"),
                     ),
                   );
                 }
               },
               child: Text(
-                "Valider",
+                translate.valider,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(context),
                 ),
@@ -457,12 +458,12 @@ class OptionsCompteView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text(
-          "Supprimer le compte",
+        title: Text(
+          translate.supprimerLeCompte,
           style: TextStyle(color: Colors.red),
         ),
         content: Text(
-          "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
+          translate.cetteActionEstIrreversibleToutesVosDonneesSerontDefinitivementSupprimees,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
           ),
@@ -471,7 +472,7 @@ class OptionsCompteView extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              "Annuler",
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -503,7 +504,7 @@ class OptionsCompteView extends StatelessWidget {
                 if (!context.mounted) return;
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Compte supprimé avec succès.")),
+                  SnackBar(content: Text(translate.compteSupprimeAvecSucces)),
                 );
                 await RepositoryProvider.userRepository.signOut();
 
@@ -516,12 +517,12 @@ class OptionsCompteView extends StatelessWidget {
                 if (!context.mounted) return;
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Erreur : ${e.toString()}")),
+                  SnackBar(content: Text(translate.erreur + " : ${e.toString()}")),
                 );
               }
             },
             child: Text(
-              "Supprimer",
+              translate.supprimer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -541,7 +542,7 @@ class OptionsCompteView extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            "Confirmez votre identité",
+            translate.confirmezVotreIdentite,
             style: TextStyle(
               color: ColorPalette.textAccent(context),
             ),
@@ -549,15 +550,15 @@ class OptionsCompteView extends StatelessWidget {
           content: TextField(
             controller: passwordController,
             obscureText: true,
-            decoration: const InputDecoration(
-              labelText: "Mot de passe",
+            decoration: InputDecoration(
+              labelText: translate.motDePasse,
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Annuler",
+                translate.annuler,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(context),
                 ),
@@ -566,7 +567,7 @@ class OptionsCompteView extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.pop(context, passwordController.text),
               child: Text(
-                "Confirmer",
+                translate.confirmer,
                 style: TextStyle(
                   color: ColorPalette.textAccent(context),
                 ),

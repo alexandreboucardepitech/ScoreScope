@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/utils/string/get_reaction_emoji.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/gradient_button.dart';
 import 'package:scorescope/utils/ui/slider_degrade_couleur.dart';
@@ -163,7 +164,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
             Row(
               children: [
                 Text(
-                  'Note du match',
+                  translate.noteDuMatch,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: ColorPalette.textPrimary(context),
@@ -180,7 +181,8 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${widget.noteCount} vote${widget.noteCount! > 1 ? 's' : ''}',
+                      translate.xVoteX(widget.noteCount!.toString(),
+                          (widget.noteCount! > 1) ? 's' : ''),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -284,7 +286,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                 if (_hasStats) ...[
                   _buildStatChip(
                     context,
-                    'Moyenne',
+                    translate.moyenne,
                     widget.noteMoyenne != -1
                         ? widget.noteMoyenne.toStringAsPrecision(3)
                         : '—',
@@ -292,11 +294,11 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                   ),
                   if (widget.noteMin != null) ...[
                     const SizedBox(width: 8),
-                    _buildStatChip(context, 'Min', '${widget.noteMin}'),
+                    _buildStatChip(context, translate.min, '${widget.noteMin}'),
                   ],
                   if (widget.noteMax != null) ...[
                     const SizedBox(width: 8),
-                    _buildStatChip(context, 'Max', '${widget.noteMax}'),
+                    _buildStatChip(context, translate.max, '${widget.noteMax}'),
                   ],
                 ],
                 const Spacer(),
@@ -315,18 +317,16 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                         : ColorPalette.textSecondary(context)
                             .withValues(alpha: 0.3),
                   ),
-                  tooltip: 'Effacer ma note',
+                  tooltip: translate.effacerMaNote,
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
                 ),
-
                 const SizedBox(width: 4),
-
                 if (_isConfirmed)
                   OutlinedButton.icon(
                     onPressed: null,
                     icon: const Icon(Icons.check_circle_outline, size: 15),
-                    label: const Text('Noté'),
+                    label: Text(translate.note2),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: ColorPalette.accent(context),
                       disabledForegroundColor: ColorPalette.accent(context),
@@ -349,7 +349,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                         ? () => widget.onConfirm?.call(_rating)
                         : null,
                     icon: _isAlreadyVoted ? Icons.refresh : Icons.check_rounded,
-                    label: 'Valider',
+                    label: translate.valider,
                   ),
               ],
             ),
@@ -377,7 +377,7 @@ class MatchRatingCardShimmer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Note du match',
+              translate.noteDuMatch,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: ColorPalette.textPrimary(context),
@@ -460,11 +460,12 @@ class MatchRatingCardShimmer extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildStatChip(context, 'Moyenne', '—', placeholder: true),
+                _buildStatChip(context, translate.moyenne, '—',
+                    placeholder: true),
                 const SizedBox(width: 8),
-                _buildStatChip(context, 'Min', '—', placeholder: true),
+                _buildStatChip(context, translate.min, '—', placeholder: true),
                 const SizedBox(width: 8),
-                _buildStatChip(context, 'Max', '—', placeholder: true),
+                _buildStatChip(context, translate.max, '—', placeholder: true),
                 const Spacer(),
                 IconButton(
                   onPressed: null,
@@ -481,7 +482,7 @@ class MatchRatingCardShimmer extends StatelessWidget {
                 GradientButton(
                   onPressed: null,
                   icon: Icons.check_rounded,
-                  label: 'Valider',
+                  label: translate.valider,
                 ),
               ],
             ),

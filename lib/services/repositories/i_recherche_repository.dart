@@ -4,6 +4,6 @@ import 'package:scorescope/utils/search/search_page_state.dart';
 abstract class IRechercheRepository {
   Future<(ResultatsRechercheModel, SearchPageState)> search(
     String query, {
-    String filter = "Tous",
+    String? filter,
   });
 }

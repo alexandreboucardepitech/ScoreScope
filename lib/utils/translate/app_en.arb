@@ -1,0 +1,968 @@
+{
+  "@@locale": "en",
+  "autresMatchs": "Other matches",
+  "matchsDuJour": "Today's matches",
+  "erreurLorsDuChargementDesDemandes": "Error loading requests",
+  "tous": "All",
+  "veuillezVerifierVotreEmailAvantDeVousConnecter": "Please verify your email before logging in",
+  "utilisateurNonAuthentifie": "Unauthenticated user",
+  "erreurLorsDeLaConnexionAvecApple": "Error logging in with Apple",
+  "quelquUn": "Someone",
+  "ceProfilNExistePas": "This profile does not exist",
+  "utilisateurInvalide": "Invalid user",
+  "utilisateurNonConnecte": "User not logged in",
+  "emailIntrouvable": "Email not found",
+  "documentUtilisateurIntrouvable": "User document not found",
+  "compteDejaSupprime": "Account already deleted",
+  "equipes": "Teams",
+  "matchs": "Matches",
+  "competitions": "Competitions",
+  "joueurs": "Players",
+  "domicile": "Home",
+  "nuls": "Draws",
+  "exterieur": "Away",
+  "stade": "Stadium",
+  "tele": "TV",
+  "bar": "Bar",
+  "victoires": "Wins",
+  "defaites": "Losses",
+  "vous": "you",
+  "avec": "with",
+  "et": "and",
+  "autres": "others",
+  "demandeDAmiEnvoyeeAvecSucces": "Friend request sent successfully!",
+  "demandeDAmiAnnuleeAvecSucces": "Friend request canceled successfully!",
+  "demandeAcceptee": "Request accepted!",
+  "amiRetireAvecSucces": "Friend removed successfully!",
+  "utilisateurBloqueAvecSucces": "User blocked successfully!",
+  "utilisateurDebloqueAvecSucces": "User unblocked successfully!",
+  "actionEffectueeAvecSucces": "Action completed successfully!",
+  "csc": "OG",
+  "pen": "Pen",
+  "typeInvalidePourMapStringStringX": "Invalid type for Map<String,String>: {runtimeType}",
+  "@typeInvalidePourMapStringStringX": {
+    "placeholders": {
+      "runtimeType": {
+        "type": "String"
+      }
+    }
+  },
+  "typeInvalidePourMapStringIntX": "Invalid type for Map<String,int>: {runtimeType}",
+  "@typeInvalidePourMapStringIntX": {
+    "placeholders": {
+      "runtimeType": {
+        "type": "String"
+      }
+    }
+  },
+  "aujourdHui": "Today",
+  "hier": "Yesterday",
+  "demain": "Tomorrow",
+  "aucunMatchCeJourLa": "No matches on this day",
+  "chargement": "Loading…",
+  "recuperationDesMatchs": "Fetching matches…",
+  "chargementDesDetailsDesMatchs": "Loading match details…",
+  "calculDesStatistiques": "Calculating statistics",
+  "petiteSemaineFootball": "'👀 Quiet football week'",
+  "footballSpectacleXAvec3Buts": "'🍿 Spectacular football • {value1}% with 3+ goals'",
+  "@footballSpectacleXAvec3Buts": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "defensesAbsentesXButsMatch": "'💥 Missing defenses • {value1} goals/match'",
+  "@defensesAbsentesXButsMatch": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "semaineChaotiqueXMatchsAvec5Buts": "'🔥 Chaotic week • {veryHighScoring} matches with 5+ goals'",
+  "@semaineChaotiqueXMatchsAvec5Buts": {
+    "placeholders": {
+      "veryHighScoring": {
+        "type": "String"
+      }
+    }
+  },
+  "aucun00AuProgramme": "'🎯 No 0-0 on the schedule'",
+  "defensesEnCartonAucunMatchAMoinsDe2Buts": "'🤐 Cardboard defenses • No match under 2 goals'",
+  "suspenseTotalXMatchsAUnButDEcart": "'⚡ Total suspense • {closeGames} matches with a one-goal difference'",
+  "@suspenseTotalXMatchsAUnButDEcart": {
+    "placeholders": {
+      "closeGames": {
+        "type": "String"
+      }
+    }
+  },
+  "attaquantsEnVacancesXButsMatch": "'😴 Strikers on vacation • {value1} goals/match'",
+  "@attaquantsEnVacancesXButsMatch": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "gardiensEnFeuXCleanSheets": "'🧤 Goalkeepers on fire • {cleanSheets} clean sheets'",
+  "@gardiensEnFeuXCleanSheets": {
+    "placeholders": {
+      "cleanSheets": {
+        "type": "String"
+      }
+    }
+  },
+  "impossibleDeSeDepartagerXMatchsNuls": "'🤝 Can't be separated • {draws} draws'",
+  "@impossibleDeSeDepartagerXMatchsNuls": {
+    "placeholders": {
+      "draws": {
+        "type": "String"
+      }
+    }
+  },
+  "semaineDecevanteX10DeMoyenne": "'📉 Disappointing week • {value1}/10 average'",
+  "@semaineDecevanteX10DeMoyenne": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "quelquesPurgesAuProgrammeXMatchsSous510": "'💀 Some dreadful games • {badMatches} matches under 5/10'",
+  "@quelquesPurgesAuProgrammeXMatchsSous510": {
+    "placeholders": {
+      "badMatches": {
+        "type": "String"
+      }
+    }
+  },
+  "semaineMemorableXMatchsNotes8OuPlus": "'🔥 Memorable week • {greatMatches} matches rated 8 or higher'",
+  "@semaineMemorableXMatchsNotes8OuPlus": {
+    "placeholders": {
+      "greatMatches": {
+        "type": "String"
+      }
+    }
+  },
+  "semaineValideeX10DeMoyenne": "'🌟 Successful week • {value1}/10 average'",
+  "@semaineValideeX10DeMoyenne": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus": "'🎬 No flops scheduled • All matches rated 7 or higher'",
+  "modeXActive": "'🏆 {topCompetitionName} mode activated'",
+  "@modeXActive": {
+    "placeholders": {
+      "topCompetitionName": {
+        "type": "String"
+      }
+    }
+  },
+  "marathonFootballXMatchsAuProgramme": "'📺 Football marathon • {n} matches scheduled'",
+  "@marathonFootballXMatchsAuProgramme": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "festivalOffensifXButsCetteSemaine": "'⚽ Scoring festival • {totalGoals} goals this week'",
+  "@festivalOffensifXButsCetteSemaine": {
+    "placeholders": {
+      "totalGoals": {
+        "type": "String"
+      }
+    }
+  },
+  "semaineFootballValideeXMatchsRegardes": "'👀 Football week approved • {n} matches watched'",
+  "@semaineFootballValideeXMatchsRegardes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "recapDeLaSemaine": "Week recap",
+  "impossibleDeChargerLeRecap": "Unable to load the recap",
+  "aucunMatchCetteSemaine": "No matches this week",
+  "ajouteLesMatchsQueTuRegardes": "Add the matches you watch\nto see your stats here!",
+  "partagerMonRecap": "Share my recap",
+  "xMatchs": "{totalNbMatches} matches",
+  "@xMatchs": {
+    "placeholders": {
+      "totalNbMatches": {
+        "type": "String"
+      }
+    }
+  },
+  "xButs": "{totalNbGoalsAllTime} goals",
+  "@xButs": {
+    "placeholders": {
+      "totalNbGoalsAllTime": {
+        "type": "String"
+      }
+    }
+  },
+  "matchXRegardeX": "match{value1} watched",
+  "@matchXRegardeX": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "butXVus": "goal{value1} seen",
+  "@butXVus": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "noteMoyenne": "average rating",
+  "meilleurMatch": "'🏆 Best match'",
+  "mvp": "MVP",
+  "mvpDeLaSemaine": "MVP of the week",
+  "competitionPreferee": "'🏅 Favorite competition'",
+  "xMatchX": "{topCompetitionCount} match{value2}",
+  "@xMatchX": {
+    "placeholders": {
+      "topCompetitionCount": {
+        "type": "String"
+      },
+      "value2": {
+        "type": "String"
+      }
+    }
+  },
+  "serie": "🔥 Streak",
+  "semainesConsecutives": "consecutive\nweeks",
+  "traduction": "'''",
+  "voiciMonRecapFootDeLaSemaine": "Here is my football recap of the week!⚽📊",
+  "decouvrezLeVotreTelechargezScorescopeapp": "Discover yours, download @ScoreScopeApp!",
+  "erreurDeChargement": "Loading error",
+  "details": "Details",
+  "commentaires": "Comments",
+  "pasEncoreDeCommentaires": "No comments yet",
+  "demandesDAmisX": "Friend requests{value1}",
+  "@demandesDAmisX": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "impossibleDeChargerLeFil": "Unable to load feed",
+  "reessayer": "Retry",
+  "aucuneActiviteRecenteDeVosAmis": "No recent activity from your friends",
+  "invitezDesAmisPourVoirLeurActiviteIci": "Invite friends to see their activity here",
+  "filDActuDesAmis": "Friends' feed",
+  "notifications": "Notifications",
+  "impossibleDeChargerLesDonnees": "Unable to load data",
+  "etesVousSurDeVouloirSupprimerCeMatch": "Are you sure you want to delete this match?\nThis will remove your rating and MVP vote, and it will no longer appear on your profile",
+  "miTemps": "Half-time",
+  "infos": "Info",
+  "compositions": "Lineups",
+  "mesAmis": "My Friends",
+  "jAiNoteXXSurScorescopeapp": "I rated {home} - {away} on @ScoreScopeApp!",
+  "@jAiNoteXXSurScorescopeapp": {
+    "placeholders": {
+      "home": {
+        "type": "String"
+      },
+      "away": {
+        "type": "String"
+      }
+    }
+  },
+  "partagerCeMatch": "Share this match",
+  "preparation": "Preparing...",
+  "joueurIntrouvable": "Player not found",
+  "statistiquesDeMesMatchsVus": "Statistics of my watched matches",
+  "statistiquesGlobales": "Overall statistics",
+  "matchsVus": "Matches watched",
+  "matchsJoues": "Matches played",
+  "butsMarquesVus": "Goals scored (watched)",
+  "butsMarques": "Goals scored",
+  "mesVotesMvp": "My MVP votes",
+  "votesMvp": "MVP votes",
+  "eluMvp": "Voted MVP",
+  "xAns": "{value1} years",
+  "@xAns": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "mesStats": "My stats",
+  "global": "Overall",
+  "equipeIntrouvable": "Team not found",
+  "differenceDeButsDesMatchsVus": "Goal difference from watched matches",
+  "differenceDeButs": "Goal difference",
+  "butsEncaissesVus": "Goals conceded (watched)",
+  "butsEncaisses": "Goals conceded",
+  "maNoteMoyenneDesMatchs": "My average match rating",
+  "noteMoyenneDesMatchs": "Average match rating",
+  "monMvpLePlusVote": "My most voted MVP",
+  "mvpLePlusVote": "Most voted MVP",
+  "ratioVictoiresDefaitesMesMatchsVus": "Win/loss ratio (my watched matches)",
+  "ratioVictoiresDefaites": "Win/loss ratio",
+  "scorescopeEnEstEncoreASesDebuts": "ScoreScope is still in its early stages 🙌\n\n",
+  "tousLesRetoursSontLesBienvenusIdeesBugsAmeliorationsUi": "All feedback is welcome: ideas, bugs, UI improvements… ",
+  "nHesiteSurtoutPas": "don't hesitate at all!",
+  "titre": "Title",
+  "exBugLorsDuVotePourLeMvp": "Ex: Bug when voting for MVP",
+  "detail": "Details",
+  "expliqueTonRetourCeQuiNeMarchePasCeQueTuAimeraisVoir": "Explain your feedback: what isn't working, what you would like to see...",
+  "envoyer": "Send",
+  "xRequis": "{label} required",
+  "@xRequis": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "email": "Email",
+  "emailInvalide": "Invalid email",
+  "motDePasse": "Password",
+  "confirmerLeMotDePasse": "Confirm password",
+  "auMoins6Caracteres": "At least 6 characters",
+  "connexion": "Login",
+  "connecteToiPourAccederAScorescope": "Log in to access ScoreScope!",
+  "seConnecter": "Log in",
+  "continuerAvecApple": "Continue with Apple",
+  "continuerAvecGoogle": "Continue with Google",
+  "creerUnCompte": "Create an account",
+  "verifieTonEmail": "Verify your email 📩",
+  "unEmailDeConfirmationAEteEnvoye": "A confirmation email has been sent.\nClick on the link before logging in.\n\nPlease remember to check your spam folder!",
+  "ok": "OK",
+  "impossibleDeCreerLeCompte": "Unable to create account.",
+  "erreurCreationCompte": "Account creation error",
+  "erreurInconnue": "Unknown error",
+  "lesMotsDePasseNeCorrespondentPas": "Passwords do not match",
+  "rejoinsLaCommunauteScorescope": "Join the ScoreScope community!",
+  "creerMonCompte": "Create my account",
+  "dejaUnCompteSeConnecter": "Already have an account? Log in",
+  "utilisateurDebloque": "User unblocked",
+  "erreurLorsDuDeblocage": "Error unblocking user",
+  "utilisateursBloques": "Blocked users",
+  "aucunUtilisateurBloque": "No blocked users",
+  "rechercher": "Search...",
+  "leNomDUtilisateurEstObligatoire": "Username is required",
+  "supprimerX": "Remove {teamName}?",
+  "@supprimerX": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "voulezVousSupprimerXDeVosEquipesPreferees": "Do you want to remove {teamName} from your favorite teams?",
+  "@voulezVousSupprimerXDeVosEquipesPreferees": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "annuler": "Cancel",
+  "supprimer": "Remove",
+  "voulezVousSupprimerXDeVosCompetitionsPreferees": "Do you want to remove {competitionName} from your favorite competitions?",
+  "@voulezVousSupprimerXDeVosCompetitionsPreferees": {
+    "placeholders": {
+      "competitionName": {
+        "type": "String"
+      }
+    }
+  },
+  "nomDUtilisateur": "Username",
+  "continuer": "Continue",
+  "enregistrer": "Save",
+  "amis": "Friends",
+  "demandesRecues": "requests received",
+  "demandesEnvoyees": "requests sent",
+  "amisDeX": "{displayName}'s Friends",
+  "@amisDeX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "amis2": "Friends",
+  "recues": "Received",
+  "envoyees": "Sent",
+  "aucunAmi": "No friends",
+  "aucuneDemandeRecue": "No requests received",
+  "aucuneDemandeEnvoyee": "No requests sent",
+  "erreurLorsDeLActionSurLUtilisateur": "Error while processing user action",
+  "bienvenueSurScorescope": "Welcome to ScoreScope!",
+  "bienvenueSurScorescopeDescription": "1: Log the matches you watched, rate them, and vote for the best player.\n2: Add friends and share the matches you watched.\n3: Discover dozens of stats about your viewing habits.\n\nWith ScoreScope, keep a memory of every match exactly as you experienced it!",
+  "choisisTesEquipesPreferees": "Choose your favorite teams",
+  "ajouterDesEquipes": "Add teams",
+  "choisisTesCompetitionsPreferees": "Choose your favorite competitions",
+  "ajouterDesCompetitions": "Add competitions",
+  "commenceLAventureScorescope": "Start the ScoreScope adventure!",
+  "personnaliseTonProfilPourEntrerDansLApp": "Customize your profile to enter the app",
+  "terminer": "Finish",
+  "passer": "Skip",
+  "bloquerX": "Block {displayName}?",
+  "@bloquerX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "voulezVousBloquerX": "Do you want to block {displayName}?\nThis user will no longer have access to your posts",
+  "@voulezVousBloquerX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "bloquer": "Block",
+  "ceCompteEstPrive": "This account is private",
+  "ajoutezCetAmiPourSuivreSonActualite": "Add this friend to follow their activity!",
+  "unEmailDeConfirmationAEteEnvoyeAVotreNouvelleAdresse": "A confirmation email has been sent to your new address",
+  "unEmailDeConfirmationAEteEnvoye2": "A confirmation email has been sent",
+  "motDePasseIncorrect": "Incorrect password",
+  "confirmezVotreIdentite": "Confirm your identity",
+  "confirmer": "Confirm",
+  "modifierLEmail": "Change email",
+  "emailActuel": "Current email",
+  "nouvelEmail": "New email",
+  "mettreAJour": "Update",
+  "motDePasseMisAJourAvecSucces": "Password updated successfully",
+  "motDePasseActuelIncorrect": "Incorrect current password",
+  "modifierLeMotDePasse": "Change password",
+  "motDePasseActuel": "Current password",
+  "nouveauMotDePasse": "New password",
+  "ceCompteGoogleEstDejaUtiliseParUnAutreUtilisateur": "This Google account is already in use by another user.",
+  "erreurGoogle": "Google error",
+  "erreurLorsDeLaConnexionGoogle": "Error during Google login",
+  "vousDevezAvoirAuMoinsUneMethodeDeConnexionActive": "You must have at least one active login method",
+  "compteGoogleDeconnecte": "Google account disconnected",
+  "erreurLorsDeLaDeconnexion": "Error during logout",
+  "impossibleDeRecupererVotreEmail": "Unable to retrieve your email",
+  "motDePasseAjouteAvecSucces": "Password added successfully",
+  "erreur": "Error",
+  "motDePasseSupprime": "Password removed",
+  "erreurLorsDeLaSuppression": "Error during deletion",
+  "creerUnMotDePasse": "Create a password",
+  "nouveauMotDePasseMin6Caracteres": "New password (min. 6 characters)",
+  "valider": "Confirm",
+  "connecte": "Connected",
+  "nonConnecte": "Not connected",
+  "delier": "Unlink",
+  "connecter": "Connect",
+  "comptesConnectes": "Connected accounts",
+  "emailMotDePasse": "Email / Password",
+  "google": "Google",
+  "compteGoogleConnecte": "Google account connected",
+  "securite": "Security",
+  "zoneSensible": "Danger zone",
+  "seDeconnecter": "Log out",
+  "supprimerLesDonnees": "Delete data",
+  "supprimerLeCompte": "Delete account",
+  "voulezVousVraimentVousDeconnecter": "Are you sure you want to log out?",
+  "supprimerLesMatchsRegardes": "Delete watched matches",
+  "supprimerLesAmis": "Delete friends",
+  "supprimerLesNotifications": "Delete notifications",
+  "reinitialiserLesPreferences": "Reset preferences",
+  "supprimerLesMatchsRegardesEnsemble": "Delete matches watched together",
+  "donneesSupprimeesAvecSucces": "Data deleted successfully",
+  "cetteActionEstIrreversibleToutesVosDonneesSerontDefinitivementSupprimees": "This action is irreversible. All your data will be permanently deleted",
+  "compteSupprimeAvecSucces": "Account deleted successfully",
+  "compte": "Account",
+  "comptePrive": "Private account",
+  "autresUtilisateurs": "Other users",
+  "listeDesUtilisateursBloques": "Blocked users list",
+  "general": "General",
+  "activerLesNotifications": "Enable notifications",
+  "social": "Social",
+  "demandesDAmis": "Friend requests",
+  "demandeDAmiAcceptee": "Friend request accepted",
+  "reactionsSurTesMatchs": "Reactions on your matches",
+  "commentairesSurTesMatchs": "Comments on your matches",
+  "finDeMatchEquipeFavorite": "Favorite team match end",
+  "recapHebdomadaire": "Weekly recap",
+  "theme": "Theme",
+  "langue": "Language",
+  "modeDeVisionnageParDefaut": "Default viewing mode",
+  "utiliserLeCache": "Use cache",
+  "conditionsDUtilisation": "Terms of Service",
+  "enUtilisantScorescopeVousAcceptezDUtiliserLApplicationDeManiereResponsable": "By using ScoreScope, you agree to use the application responsibly.",
+  "vousEtesResponsableDuContenuQueVousPubliezNotesAvisMvpEtc": "You are responsible for the content you publish (ratings, reviews, MVP, etc.).",
+  "scorescopeSeReserveLeDroitDeSupprimerToutContenuInapproprie": "ScoreScope reserves the right to remove any inappropriate content.",
+  "lApplicationEstFournieTelleQuelleSansGarantieDeDisponibilitePermanente": "The application is provided as is, without guarantee of permanent availability.",
+  "politiqueDeConfidentialite": "Privacy Policy",
+  "scorescopeCollecteUniquementLesDonneesNecessairesAuFonctionnementDeLApplicationCompteMatchsInteractionsSociales": "ScoreScope only collects data necessary for the application's operation (account, matches, social interactions).",
+  "vosDonneesNeSontPasRevenduesADesTiers": "Your data is not resold to third parties.",
+  "vousPouvezDemanderLaSuppressionDeVotreCompteAToutMoment": "You can request the deletion of your account at any time.",
+  "nousFaisonsDeNotreMieuxPourProtegerVosDonnees": "We do our best to protect your data.",
+  "supportInformations": "Support & Information",
+  "aPropos": "About",
+  "signalerUnBug": "Report a bug",
+  "cgu": "Terms and Conditions",
+  "version": "Version",
+  "tonCarnetDeMatchsDeFoot": "Your football match logbook ⚽",
+  "noteLesMatchsQueTuRegardesElisLeMvpEtPartageTonExperienceAvecTesAmis": "Rate the matches you watch, elect the MVP, and share your experience with your friends",
+  "fermer": "Close",
+  "saisonXX": "Season {season}/{totalSeasons}",
+  "@saisonXX": {
+    "placeholders": {
+      "season": {
+        "type": "String"
+      },
+      "totalSeasons": {
+        "type": "String"
+      }
+    }
+  },
+  "aucunAmiNAVuCeMatch": "No friends watched this match",
+  "utilisateur": "User",
+  "vousAvezSupprimeLaReactionX": "You removed the reaction {emoji}",
+  "@vousAvezSupprimeLaReactionX": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      }
+    }
+  },
+  "ecrireUnCommentaire": "Write a comment",
+  "ecrisUnCommentaire": "Write a comment...",
+  "ajouteLesAmisAvecQuiTuAsRegardeLeMatch": "Add the friends you watched the match with",
+  "rechercherUnAmi": "Search for a friend...",
+  "aucunAmiTrouve": "No friends found",
+  "enAttente": "Pending",
+  "laCompositionNEstPasEncoreDisponible": "The lineup is not available yet",
+  "remplacants": "Substitutes",
+  "voulezVousSupprimerXDesAmisQuiOntRegardeLeMatchAvecVous": "Do you want to remove {displayName} from the friends who watched the match with you?",
+  "@voulezVousSupprimerXDesAmisQuiOntRegardeLeMatchAvecVous": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "leMatchNAPasEncoreCommence": "The match hasn't started yet!",
+  "activeLesNotifications": "Enable notifications",
+  "impossibleDeChargerLaListeDesAmis": "Unable to load friend list",
+  "impossibleDeRecupererLUtilisateur": "Unable to retrieve user",
+  "echecDeLaSauvegardeReessayePlusTard": "Save failed — try again later",
+  "visionnage": "Viewing",
+  "choisirLeModeDeVisionnage": "Choose viewing mode",
+  "confirme": "Confirmed",
+  "regardeAvec": "Watched with",
+  "tuAsRegardeCeMatchAvecDesAmis": "Did you watch this match with friends?",
+  "ajouteLesAmisAvecQuiTuAsVuCeMatch": "Add the friends you watched this match with",
+  "ajouterUnAmi": "Add a friend",
+  "mt": "HT",
+  "toutMarquerCommeVu": "Mark all as seen",
+  "aucuneNouvelleNotification": "No new notifications",
+  "dejaVues": "Already seen",
+  "invitationARegarderLeMatchEnsemble": "Invitation to watch the match together",
+  "acceptezVousLInvitationARegarderLeMatchAvecX": "Do you accept the invitation to watch the match with {displayName}?",
+  "@acceptezVousLInvitationARegarderLeMatchAvecX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "refuser": "Decline",
+  "accepter": "Accept",
+  "ontCommenteVotreMatch": "commented on your match",
+  "aCommenteVotreMatch": "commented on your match",
+  "ontReagiAVotreMatch": "reacted to your match",
+  "aReagiAVotreMatch": "reacted to your match",
+  "vousInviteARegarderLeMatchEnsemble": "invites you to watch the match together",
+  "aInteragiAvecVotrePost": "interacted with your post",
+  "etXAutres": "and {remaining} others",
+  "@etXAutres": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "aucuneCompetitionPreferee": "No favorite competitions",
+  "xMatchsRegardes": "{nbMatchs} matches watched",
+  "@xMatchsRegardes": {
+    "placeholders": {
+      "nbMatchs": {
+        "type": "String"
+      }
+    }
+  },
+  "aucuneEquipePreferee": "No favorite teams",
+  "aucunMatchFavori": "No favorite matches",
+  "aucunMatchRegarde": "No matches watched",
+  "erreurAucunUtilisateurNEstSpecifie": "Error: no user specified",
+  "modifierLeProfil": "Edit profile",
+  "demandeRecue": "Request received",
+  "bloque": "Blocked",
+  "ajouter": "Add",
+  "retirerLaDemande": "Cancel request",
+  "retirer": "Remove",
+  "debloquer": "Unblock",
+  "amitie": "Friendship",
+  "cetUtilisateur": "this user",
+  "voulezVousRetirerLAmiX": "Do you want to remove the friend {displayName}?",
+  "@voulezVousRetirerLAmiX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "voulezVousRetirerLaDemandeDAmiAX": "Do you want to cancel the friend request to {displayName}?",
+  "@voulezVousRetirerLaDemandeDAmiAX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "accepterLaDemandeDAmiDeX": "Accept the friend request from {displayName}?",
+  "@accepterLaDemandeDAmiDeX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "voulezVousDebloquerX": "Do you want to unblock {displayName}?",
+  "@voulezVousDebloquerX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "voulezVousEnvoyerUneDemandeDAmiAX": "Do you want to send a friend request to {displayName}?",
+  "@voulezVousEnvoyerUneDemandeDAmiAX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "clubs": "Clubs",
+  "international": "International",
+  "selectionDesCompetitions": "Competition selection",
+  "mesCompetitionsFavorites": "My favorite competitions",
+  "toutesLesCompetitions": "All competitions",
+  "validerLaSelection": "Confirm selection",
+  "selectionDesEquipes": "Team selection",
+  "rechercherUneEquipe": "Search for a team…",
+  "rechercheTonEquipePreferee": "🔍 Search for your favorite team",
+  "mesEquipesFavorites": "My favorite teams",
+  "aucuneEquipeTrouvee": "No team found",
+  "resultats": "Results",
+  "tuPeuxSelectionnerJusquA10Equipes": "You can select up to 10 teams",
+  "statistiques": "Statistics",
+  "profil": "Profile",
+  "retours": "Feedback",
+  "inconnu": "Unknown",
+  "unMatch": "one match",
+  "autres2": "Others",
+  "selectionnerUneDate": "Select a date",
+  "appliquer": "Apply",
+  "commenceATaperPourRechercher": "Start typing to search",
+  "encoreXCaractereX": "'{value1} more character{value2}…'",
+  "@encoreXCaractereX": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      },
+      "value2": {
+        "type": "String"
+      }
+    }
+  },
+  "aucunResultat": "No results",
+  "ajouterDesAmis": "Add friends",
+  "rechercherUnUtilisateur": "Search for a user",
+  "tapezAuMoinsXCaracteresPourLancerLaRecherche": "Type at least {minCharsToSearch} characters to start searching",
+  "@tapezAuMoinsXCaracteresPourLancerLaRecherche": {
+    "placeholders": {
+      "minCharsToSearch": {
+        "type": "String"
+      }
+    }
+  },
+  "entrezUneRecherchePourTrouverDesUtilisateurs": "Enter a search to find users",
+  "erreurLorsDeLaRechercheX": "Search error: {error}",
+  "@erreurLorsDeLaRechercheX": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "aucunUtilisateurTrouve": "No user found",
+  "xPostsCharges": "{length} posts loaded",
+  "@xPostsCharges": {
+    "placeholders": {
+      "length": {
+        "type": "String"
+      }
+    }
+  },
+  "erreurLorsDuChargementDesDonneesUtilisateurDuMatchX": "Error loading user data for match: {error}",
+  "@erreurLorsDuChargementDesDonneesUtilisateurDuMatchX": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "matchAjouteAuxFavoris": "Match added to favorites",
+  "matchRetireDesFavoris": "Match removed from favorites",
+  "erreurLorsDeLaMiseAJourDuFavori": "Error updating favorite",
+  "rendreLeMatchPublic": "Make match public",
+  "leMatchSeraRenduPublicEtVisibleParVosAmis": "The match will be made public and visible to your friends",
+  "rendrePublic": "Make public",
+  "rendreLeMatchPrive": "Make match private",
+  "leMatchResteraPriveEtNeSeraPasVisibleParVosAmis": "The match will remain private and won't be visible to your friends.",
+  "rendrePrive": "Make private",
+  "supprimerLeMatch": "Delete match",
+  "matchRenduPrive": "Match made private",
+  "matchRenduPublic": "Match made public",
+  "erreurLorsDeLaMiseAJourDeLaConfidentialite": "Error updating privacy",
+  "matchSupprime": "Match deleted",
+  "erreurLorsDeLaSuppressionDuMatch": "Error deleting match (try again)",
+  "notificationsXPourXX": "'{value1} notifications for {value2} - {value3}'",
+  "@notificationsXPourXX": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      },
+      "value2": {
+        "type": "String"
+      },
+      "value3": {
+        "type": "String"
+      }
+    }
+  },
+  "matchPrive": "Private match",
+  "matchPublic": "Public match",
+  "aRegardeCeMatch": "watched this match",
+  "nonNote": "Unrated",
+  "note": "Rating",
+  "mvpVote": "MVP voted",
+  "bio": "Bio",
+  "equipesPreferees": "Favorite teams",
+  "modifier": "Edit",
+  "competitionsPreferees": "Favorite competitions",
+  "creezVotreProfil": "Create your profile",
+  "parametres": "Settings",
+  "confidentialite": "Privacy",
+  "preferences": "Preferences",
+  "derniersMatchs": "Latest matches",
+  "matchsFavoris": "Favorite matches",
+  "filtrerParPeriode": "Filter by period",
+  "periodePersonnalisee": "Custom period",
+  "saison": "Season",
+  "selectionnerUnePeriode": "Select a period",
+  "selectionnerLaSaison": "Select season",
+  "mesStatistiques": "My statistics",
+  "statistiquesDeX": "{displayName}'s statistics",
+  "@statistiquesDeX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "filtrerParDate": "Filter by date",
+  "afficherEnListe": "Show as list",
+  "afficherEnCards": "Show as cards",
+  "matchsPublicsUniquement": "Public matches only",
+  "saisonXX2": "'Season: {season} / {season2}'",
+  "@saisonXX2": {
+    "placeholders": {
+      "season": {
+        "type": "String"
+      },
+      "season2": {
+        "type": "String"
+      }
+    }
+  },
+  "periodeXX": "Period: {start} → {end}",
+  "@periodeXX": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "habitudes": "Habits",
+  "recapHebdo": "WEEKLY RECAP",
+  "meilleurMatch2": "BEST MATCH",
+  "competition": "COMPETITION",
+  "serie2": "STREAK",
+  "telechargeScorescope": "Download ScoreScope",
+  "xXVsSemainePrecedente": "'{value1}{diff} vs previous week',",
+  "@xXVsSemainePrecedente": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      },
+      "diff": {
+        "type": "String"
+      }
+    }
+  },
+  "votePourMvp": "Vote for MVP",
+  "pasDeVotePourLeMvp": "No MVP vote",
+  "utilisateurIntrouvable": "User not found",
+  "voirTousLesXCommentaires": "View all {length} comments",
+  "@voirTousLesXCommentaires": {
+    "placeholders": {
+      "length": {
+        "type": "String"
+      }
+    }
+  },
+  "voirTousLesCommentaires": "View all comments",
+  "recents": "Recent",
+  "rechercherUnEmojiParNomOuCategorie": "'Search for an emoji by name or category…'",
+  "infosMatch": "Match info",
+  "noteDuMatch": "Match rating",
+  "xVoteX": "'{noteCount} vote{value2}'",
+  "@xVoteX": {
+    "placeholders": {
+      "noteCount": {
+        "type": "String"
+      },
+      "value2": {
+        "type": "String"
+      }
+    }
+  },
+  "moyenne": "Average",
+  "min": "Min",
+  "max": "Max",
+  "effacerMaNote": "Clear my rating",
+  "note2": "Rated",
+  "mvpDuMatch": "Match MVP",
+  "aucunMvpElu": "No MVP elected",
+  "soisLePremierAVoter": "Be the first to vote!",
+  "votreVote": "Your vote",
+  "changer": "Change",
+  "voter": "Vote",
+  "aucunJoueurSelectionne": "No player selected",
+  "selectionnezUnJoueurPourVoter": "Select a player to vote",
+  "vider": "Clear",
+  "vote": "Voted",
+  "aucunMatchEnregistre": "No matches recorded",
+  "aucuneNotification": "No notifications",
+  "buts": "Goals",
+  "voirPlus": "See more",
+  "derniersMatchsAjoutes": "Latest added matches",
+  "matchs2": "matches",
+  "buts2": "goals",
+  "rechercherUnMatchUneEquipeUnJoueur": "Search for a match, team, player…",
+  "aucuneDonneeDisponible": "No data available",
+  "comparerAvecUnAmi": "Compare with a friend",
+  "aucunAmiAAfficher": "No friends to display",
+  "baseSurXMatchsRegardes": "Based on {watchedMatchesCount} watched matches",
+  "@baseSurXMatchsRegardes": {
+    "placeholders": {
+      "watchedMatchesCount": {
+        "type": "String"
+      }
+    }
+  },
+  "comparer": "Compare",
+  "mvps": "MVPs",
+  "appuieSurUnPointPourVoirLeJoueur": "Tap a point to see the player",
+  "matchsRegardes": "watched matches",
+  "janvier": "January",
+  "fevrier": "February",
+  "mars": "March",
+  "avril": "April",
+  "mai": "May",
+  "juin": "June",
+  "juillet": "July",
+  "aout": "August",
+  "septembre": "September",
+  "octobre": "October",
+  "novembre": "November",
+  "decembre": "December",
+  "jan": "Jan",
+  "fev": "Feb",
+  "mar": "Mar",
+  "avr": "Apr",
+  "juil": "Jul",
+  "sep": "Sep",
+  "oct": "Oct",
+  "nov": "Nov",
+  "dec": "Dec",
+  "erreurLorsDuChargementDesStatistiques": "'Error loading statistics.\n{value1}'",
+  "@erreurLorsDuChargementDesStatistiques": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "erreurLorsDuCalculDesStatistiques": "Error calculating statistics",
+  "competitionsLesPlusSuivies": "Most followed competitions",
+  "aucuneCompetition": "No competition",
+  "competitionsDifferentesVues": "Different competitions watched",
+  "butsParCompetition": "Goals per competition",
+  "aucuneDonnee": "No data",
+  "moyButsMatch": "Avg goals / match",
+  "repartitionParCompetition": "Distribution by competition",
+  "typesDeCompetitions": "Competition types",
+  "equipesDifferentesVues": "Different teams watched",
+  "equipesLesPlusVues": "Most watched teams",
+  "aucuneEquipe": "No team",
+  "equipesLesPlusVuesGagner": "Most watched teams winning",
+  "equipesLesPlusVuesPerdre": "Most watched teams losing",
+  "pourcentageDeVictoiresMin3MatchsVus": "Win percentage (min. 3 matches watched)",
+  "pourcentageVictoires": "Win %",
+  "butsVus": "Goals watched",
+  "joueursLesPlusVusMarquer": "Most watched players scoring",
+  "aucunButeur": "No goalscorer",
+  "buteursDifferents": "Different goalscorers",
+  "moyDesNotesDonnees": "Avg rating given",
+  "mvpLesPlusVotes": "Most voted MVPs",
+  "aucunMvp": "No MVP",
+  "matchsLesMieuxNotes": "Best rated matches",
+  "aucunMatch": "No match",
+  "matchsLesCommentes": "Most commented matches",
+  "matchsLesReactions": "Most reacted matches",
+  "joursAvecLePlusDeMatchsVus": "Days with most matches watched",
+  "typesDeVisionnage": "Viewing types",
+  "nombreDeMatchsVusParMois": "Number of matches watched per month",
+  "buteursLesPlusVus": "Most watched goalscorers",
+  "aucunJoueur": "No player",
+  "passesDecisives": "Assists",
+  "gA": "G+A",
+  "titularisations": "Starts",
+  "recordDeButsSurUnMatch": "Record goals in a match",
+  "nombreDeButsVotesMvp": "Number of goals / MVP votes",
+  "plusGrosScore": "Highest score",
+  "plusGrosEcart": "Biggest margin",
+  "moyenneDifferenceButsMatch": "Average goal diff / match",
+  "resultatsDomicileNulExterieur": "Results (home / draw / away)",
+  "clubsVsInternationaux": "Clubs vs Internationals"
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/utils/string/date_format.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class MatchInfosCard extends StatelessWidget {
@@ -21,7 +22,7 @@ class MatchInfosCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Infos match',
+            translate.infosMatch,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: ColorPalette.textPrimary(context),

@@ -1,4 +1,5 @@
 import 'package:scorescope/models/stats/graph/stat_value.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 List<StatValue> aggregateSmallValues(List<StatValue> values) {
   if (values.isEmpty) return [];
@@ -17,7 +18,7 @@ List<StatValue> aggregateSmallValues(List<StatValue> values) {
 
   if (otherSum > 0) {
     topValues.add(StatValue(
-      label: 'Autres',
+      label: translate.autres,
       value: minValue,
     ));
   }
@@ -36,7 +37,7 @@ double getCountSmallValues(
   num? minValue;
   double countMinValue = 0;
   for (StatValue value in aggregaredValues) {
-    if (value.label == 'Autres') {
+    if (value.label == translate.autres) {
       minValue = value.value;
     }
   }

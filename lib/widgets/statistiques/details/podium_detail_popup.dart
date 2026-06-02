@@ -13,6 +13,7 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
 import 'package:scorescope/widgets/statistiques/details/friends_comparison_bottom_sheet.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class PodiumDetailsPopup<T extends PodiumDisplayable> extends StatefulWidget {
   final String title;
@@ -123,7 +124,7 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Basé sur ${widget.watchedMatchesCount} matchs regardés',
+                  translate.baseSurXMatchsRegardes(widget.watchedMatchesCount.toString()),
                   style: TextStyle(
                     color: ColorPalette.textSecondary(context),
                     fontSize: 13,
@@ -133,7 +134,7 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
             ),
           ),
           IconButton(
-            tooltip: 'Comparer',
+            tooltip: translate.comparer,
             onPressed: () async {
               if (_comparisonMode) {
                 setState(() {
@@ -227,7 +228,7 @@ class _PodiumDetailsPopupState<T extends PodiumDisplayable>
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Rechercher…',
+          hintText: translate.rechercher,
           hintStyle: TextStyle(
             color: ColorPalette.textSecondary(context),
           ),

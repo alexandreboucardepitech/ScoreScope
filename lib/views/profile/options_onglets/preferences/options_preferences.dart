@@ -5,6 +5,7 @@ import 'package:scorescope/models/enum/language_options.dart';
 import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/app_theme.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/ui/segmented_options.dart';
@@ -30,10 +31,14 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
   @override
   void initState() {
     super.initState();
-    final options = widget.currentUser.options;
+    final options = RepositoryProvider.userRepository.currentUser?.options ??
+        widget.currentUser.options;
 
     theme = options.theme;
-    language = options.language;
+    language = options.language ??
+        (WidgetsBinding.instance.platformDispatcher.locale.languageCode == 'en'
+            ? LanguageOptions.english
+            : LanguageOptions.french);
     visionnage = options.defaultVisionnageMatch;
     utiliserCache = options.utiliserCache;
   }
@@ -47,7 +52,7 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Préférences',
+          translate.preferences,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -60,7 +65,7 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
-          _buildSectionHeader(context, "Thème"),
+          _buildSectionHeader(context, translate.theme),
           SegmentedOptionRow<ThemeOptions>(
             values: ThemeOptions.values,
             selectedValue: theme,
@@ -93,11 +98,12 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
             },
           ),
           const SizedBox(height: 16),
-          _buildSectionHeader(context, "Langue"),
+          _buildSectionHeader(context, translate.langue),
           SegmentedOptionRow<LanguageOptions>(
             values: LanguageOptions.values,
             selectedValue: language,
             onChanged: (value) {
+              context.read<LanguageController>().setLanguage(value);
               setState(() => language = value);
               RepositoryProvider.userRepository.updateOptions(
                 userId: widget.currentUser.uid,
@@ -122,7 +128,7 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
             },
           ),
           const SizedBox(height: 16),
-          _buildSectionHeader(context, "Mode de visionnage par défaut"),
+          _buildSectionHeader(context, translate.modeDeVisionnageParDefaut),
           SegmentedOptionRow<VisionnageMatch>(
             values: VisionnageMatch.values,
             selectedValue: visionnage,
@@ -184,7 +190,7 @@ class _OptionsPreferencesViewState extends State<OptionsPreferencesView> {
                     );
                   },
                   title: Text(
-                    "Utiliser le cache",
+                    translate.utiliserLeCache,
                     style: TextStyle(
                       color: ColorPalette.textAccent(context),
                       fontWeight: FontWeight.w600,

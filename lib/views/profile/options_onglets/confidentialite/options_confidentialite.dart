@@ -3,6 +3,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/blocked_users_view.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class OptionsConfidentialiteView extends StatefulWidget {
   final AppUser currentUser;
@@ -36,7 +37,7 @@ class _OptionsConfidentialiteViewState
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Confidentialité',
+          translate.confidentialite,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -49,10 +50,10 @@ class _OptionsConfidentialiteViewState
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
-          _buildSectionHeader(context, "Compte"),
+          _buildSectionHeader(context, translate.compte),
           _buildToggleTile(
             context,
-            title: "Compte privé",
+            title: translate.comptePrive,
             value: isPrivate,
             isMain: false,
             onChanged: (value) async {
@@ -67,10 +68,10 @@ class _OptionsConfidentialiteViewState
             },
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader(context, "Autres utilisateurs"),
+          _buildSectionHeader(context, translate.autresUtilisateurs),
           _buildOptionTile(
             context,
-            title: 'Liste des utilisateurs bloqués',
+            title: translate.listeDesUtilisateursBloques,
             icon: Icons.block_outlined,
             onTap: () {
               Navigator.push(

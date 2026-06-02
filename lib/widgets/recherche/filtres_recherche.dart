@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class FiltresRecherche extends StatelessWidget {
   const FiltresRecherche({
@@ -13,7 +14,13 @@ class FiltresRecherche extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const filters = ["Tous", "Équipes", "Matchs", "Compétitions", "Joueurs"];
+    final filters = [
+      translate.tous,
+      translate.equipes,
+      translate.matchs,
+      translate.competitions,
+      translate.joueurs,
+    ];
 
     return SizedBox(
       height: 36,

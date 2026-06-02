@@ -6,6 +6,7 @@ import 'package:scorescope/views/profile/options_onglets/confidentialite/options
 import 'package:scorescope/views/profile/options_onglets/notifications/options_notifications.dart';
 import 'package:scorescope/views/profile/options_onglets/preferences/options_preferences.dart';
 import 'package:scorescope/views/profile/options_onglets/support/options_support.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class OptionsView extends StatelessWidget {
   final AppUser currentUser;
@@ -20,7 +21,7 @@ class OptionsView extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Paramètres',
+          translate.parametres,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -35,7 +36,7 @@ class OptionsView extends StatelessWidget {
         children: [
           _buildOptionTile(
             context,
-            title: 'Compte',
+            title: translate.compte,
             icon: Icons.person_outline,
             onTap: () {
               Navigator.push(
@@ -49,7 +50,7 @@ class OptionsView extends StatelessWidget {
           ),
           _buildOptionTile(
             context,
-            title: 'Notifications',
+            title: translate.notifications,
             icon: Icons.notifications_outlined,
             onTap: () {
               Navigator.push(
@@ -63,7 +64,7 @@ class OptionsView extends StatelessWidget {
           ),
           _buildOptionTile(
             context,
-            title: 'Confidentialité',
+            title: translate.confidentialite,
             icon: Icons.lock_outline,
             onTap: () {
               Navigator.push(
@@ -77,7 +78,7 @@ class OptionsView extends StatelessWidget {
           ),
           _buildOptionTile(
             context,
-            title: 'Préférences',
+            title: translate.preferences,
             icon: Icons.tune_outlined,
             onTap: () {
               Navigator.push(
@@ -91,13 +92,13 @@ class OptionsView extends StatelessWidget {
           ),
           _buildOptionTile(
             context,
-            title: 'Support & Informations',
+            title: translate.supportInformations,
             icon: Icons.info_outline,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const OptionsSupportView(),
+                  builder: (context) => OptionsSupportView(),
                 ),
               );
             },

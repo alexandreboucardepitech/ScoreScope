@@ -7,8 +7,8 @@ import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:share_plus/share_plus.dart';
-
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
@@ -84,7 +84,7 @@ class _MatchShareViewState extends State<MatchShareView> {
 
         await Share.shareXFiles(
           [XFile(file.path)],
-          text: "J'ai noté $home - $away sur @ScoreScopeApp !",
+          text: translate.jAiNoteXXSurScorescopeapp(home, away),
         );
       } catch (e) {
         debugPrint('Erreur partage match : $e');
@@ -109,7 +109,7 @@ class _MatchShareViewState extends State<MatchShareView> {
         ),
         centerTitle: true,
         title: Text(
-          'Partager ce match',
+          translate.partagerCeMatch,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -158,7 +158,7 @@ class _MatchShareViewState extends State<MatchShareView> {
                             )
                           : const Icon(Icons.share_rounded),
                       label: Text(
-                        _isSharing ? 'Préparation...' : 'Partager ce match',
+                        _isSharing ? translate.preparation : translate.partagerCeMatch,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -264,7 +264,7 @@ class _ShareCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'a regardé ce match',
+                translate.aRegardeCeMatch,
                 style: TextStyle(
                   color: ColorPalette.textPrimaryDark.withValues(alpha: 0.7),
                   fontSize: 11,
@@ -392,7 +392,7 @@ class _ShareCard extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      '${match.scoreEquipeDomicile} – ${match.scoreEquipeExterieur}',
+                      '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontSize: 32,
@@ -478,9 +478,9 @@ class _ShareCard extends StatelessWidget {
               context,
               top: note != null ? _noteEmoji(note) : '❓',
               topIsEmoji: true,
-              bottom: note != null ? '$note/10' : 'Non noté',
+              bottom: note != null ? '$note/10' : translate.nonNote,
               bottomAccent: note != null,
-              label: 'Note',
+              label: translate.note,
             ),
           ),
           _buildVerticalSeparator(context),
@@ -491,7 +491,7 @@ class _ShareCard extends StatelessWidget {
               topIsEmoji: true,
               bottom: visionnage?.label ?? '-',
               bottomAccent: visionnage != null,
-              label: 'Visionnage',
+              label: translate.visionnage,
             ),
           ),
           if (mvpJoueur != null) ...[
@@ -577,7 +577,7 @@ class _ShareCard extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          'MVP voté',
+          translate.mvpVote,
           style: TextStyle(
             color: ColorPalette.textSecondary(context),
             fontSize: 10,

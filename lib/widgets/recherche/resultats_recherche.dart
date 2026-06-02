@@ -10,6 +10,7 @@ import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/search/search_page_state.dart';
 import 'package:scorescope/utils/string/build_adaptative_team_name.dart';
 import 'package:scorescope/utils/string/display_score_or_match_date.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
@@ -39,11 +40,11 @@ class ResultatsRecherche extends StatelessWidget {
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       children: [
         ResultatsSection<Equipe>(
-          title: "Équipes",
+          title: translate.equipes,
           items: resultats.equipes,
           hasMore: pageState?.hasMoreEquipes ?? false,
-          isLoadingMore: loadingSection == 'Équipes',
-          onLoadMore: () => onLoadMore?.call('Équipes'),
+          isLoadingMore: loadingSection == translate.equipes,
+          onLoadMore: () => onLoadMore?.call(translate.equipes),
           itemBuilder: (equipe) => ListTile(
             contentPadding: EdgeInsets.zero,
             leading: buildTeamLogo(
@@ -66,19 +67,19 @@ class ResultatsRecherche extends StatelessWidget {
           ),
         ),
         ResultatsSection<MatchModel>(
-          title: "Matchs",
+          title: translate.matchs,
           items: resultats.matchs,
           itemBuilder: (match) => _MatchSearchTile(match: match),
           hasMore: pageState?.hasMoreMatchs ?? false,
-          isLoadingMore: loadingSection == 'Matchs',
-          onLoadMore: () => onLoadMore?.call('Matchs'),
+          isLoadingMore: loadingSection == translate.matchs,
+          onLoadMore: () => onLoadMore?.call(translate.matchs),
         ),
         ResultatsSection<Competition>(
-          title: "Compétitions",
+          title: translate.competitions,
           items: resultats.competitions,
           hasMore: pageState?.hasMoreCompetitions ?? false,
-          isLoadingMore: loadingSection == 'Compétitions',
-          onLoadMore: () => onLoadMore?.call('Compétitions'),
+          isLoadingMore: loadingSection == translate.competitions,
+          onLoadMore: () => onLoadMore?.call(translate.competitions),
           itemBuilder: (competition) => ListTile(
             contentPadding: EdgeInsets.zero,
             leading: competition.logoUrl != null
@@ -99,11 +100,11 @@ class ResultatsRecherche extends StatelessWidget {
           ),
         ),
         ResultatsSection<Joueur>(
-          title: "Joueurs",
+          title: translate.joueurs,
           items: resultats.joueurs,
           hasMore: pageState?.hasMoreJoueurs ?? false,
-          isLoadingMore: loadingSection == 'Joueurs',
-          onLoadMore: () => onLoadMore?.call('Joueurs'),
+          isLoadingMore: loadingSection == translate.joueurs,
+          onLoadMore: () => onLoadMore?.call(translate.joueurs),
           itemBuilder: (joueur) => ListTile(
             contentPadding: EdgeInsets.zero,
             leading: SizedBox(

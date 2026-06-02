@@ -9,6 +9,7 @@ import 'package:scorescope/services/repositories/i_post_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/web_notification_repository.dart';
 import 'package:scorescope/utils/cloud_fonctions/notification_service.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class WebPostRepository implements IPostRepository {
   final CollectionReference usersCollection =
@@ -191,7 +192,7 @@ class WebPostRepository implements IPostRepository {
       toUserId: ownerUserId,
       type: 'comment',
       payload: {
-        'fromUserName': author?.displayName ?? 'Quelqu\'un',
+        'fromUserName': author?.displayName ?? translate.quelquUn,
         'matchName': match != null
             ? '${match.equipeDomicile.nom} ${match.scoreEquipeDomicile}-${match.scoreEquipeExterieur} ${match.equipeExterieur.nom}'
             : '',
@@ -331,7 +332,7 @@ class WebPostRepository implements IPostRepository {
       toUserId: ownerUserId,
       type: 'reaction',
       payload: {
-        'fromUserName': author?.displayName ?? 'Quelqu\'un',
+        'fromUserName': author?.displayName ?? translate.quelquUn,
         'matchName': match != null
             ? '${match.equipeDomicile.nom} ${match.scoreEquipeDomicile}-${match.scoreEquipeExterieur} ${match.equipeExterieur.nom}'
             : '',

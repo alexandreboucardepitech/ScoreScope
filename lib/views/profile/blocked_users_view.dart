@@ -6,6 +6,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'package:scorescope/widgets/profile/profile_action.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class BlockedUsersView extends StatefulWidget {
   final AppUser currentUser;
@@ -85,14 +86,14 @@ class _BlockedUsersViewState extends State<BlockedUsersView> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Utilisateur débloqué"),
+          content: Text(translate.utilisateurDebloque),
         ),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Erreur lors du déblocage"),
+          content: Text(translate.erreurLorsDuDeblocage),
         ),
       );
     } finally {
@@ -111,7 +112,7 @@ class _BlockedUsersViewState extends State<BlockedUsersView> {
       appBar: AppBar(
         backgroundColor: ColorPalette.background(context),
         title: Text(
-          "Utilisateurs bloqués",
+          translate.utilisateursBloques,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.w600,
@@ -127,7 +128,7 @@ class _BlockedUsersViewState extends State<BlockedUsersView> {
                 : filtered.isEmpty
                     ? Center(
                         child: Text(
-                          "Aucun utilisateur bloqué",
+                          translate.aucunUtilisateurBloque,
                           style: TextStyle(
                             color: ColorPalette.textSecondary(context),
                           ),
@@ -157,7 +158,7 @@ class _BlockedUsersViewState extends State<BlockedUsersView> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextField(
         decoration: InputDecoration(
-          hintText: "Rechercher...",
+          hintText: translate.rechercher,
           prefixIcon: const Icon(Icons.search),
           filled: true,
           fillColor: ColorPalette.tileBackground(context),

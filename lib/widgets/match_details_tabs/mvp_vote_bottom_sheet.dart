@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/utils/handle_data/get_joueurs_tries_par_nombre_de_votes.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_details_tabs/player_tile.dart';
 import '../../models/match.dart';
@@ -181,7 +182,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                   color: ColorPalette.textSecondary(context),
                                 ),
                                 label: Text(
-                                  'Valider',
+                                  translate.valider,
                                   style: TextStyle(
                                     color: ColorPalette.textPrimary(context),
                                   ),
@@ -209,7 +210,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Aucun joueur sélectionné',
+                                  translate.aucunJoueurSelectionne,
                                   style: TextStyle(
                                     color: ColorPalette.textSecondary(context),
                                   ),
@@ -225,7 +226,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                                   color: ColorPalette.textSecondary(context),
                                 ),
                                 label: Text(
-                                  'Valider',
+                                  translate.valider,
                                   style: TextStyle(
                                     color: ColorPalette.textPrimary(context),
                                   ),
@@ -252,7 +253,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
               child: Row(children: [
                 Expanded(
                   child: Text(
-                    'Sélectionnez un joueur pour voter',
+                    translate.selectionnezUnJoueurPourVoter,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -375,7 +376,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                         "enleverVote": false,
                       })),
                       child: Text(
-                        'Annuler',
+                        translate.annuler,
                         style: TextStyle(
                           color: ColorPalette.textPrimary(context),
                         ),
@@ -386,7 +387,7 @@ class _VoteBottomSheetContentState extends State<VoteBottomSheetContent> {
                   TextButton(
                     onPressed: _viderVote,
                     child: Text(
-                      'Vider',
+                      translate.vider,
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                       ),

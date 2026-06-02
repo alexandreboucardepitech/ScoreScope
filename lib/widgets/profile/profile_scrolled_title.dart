@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 
 class ProfileScrolledTitle extends StatelessWidget {
@@ -43,7 +44,7 @@ class ProfileScrolledTitle extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              'amis',
+              translate.amis,
               style: TextStyle(
                 fontSize: 14,
                 color: ColorPalette.textSecondary(context),
@@ -63,7 +64,7 @@ class ProfileScrolledTitle extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              'matchs',
+              translate.matchs,
               style: TextStyle(
                 fontSize: 14,
                 color: ColorPalette.textSecondary(context),
@@ -83,7 +84,7 @@ class ProfileScrolledTitle extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              'buts',
+              translate.buts,
               style: TextStyle(
                 fontSize: 14,
                 color: ColorPalette.textSecondary(context),

@@ -5,6 +5,7 @@ import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class CompetitionsPreferees extends StatefulWidget {
   final List<String>? competitionsId;
@@ -147,7 +148,7 @@ class _CompetitionsPrefereesState extends State<CompetitionsPreferees> {
       children: [
         if (widget.displayTitle) ...[
           Text(
-            'Compétitions préférées',
+            translate.competitionsPreferees,
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
               fontWeight: FontWeight.w600,
@@ -200,7 +201,7 @@ class _CompetitionsPrefereesState extends State<CompetitionsPreferees> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Text(
-                "Aucune compétition préférée",
+                translate.aucuneCompetitionPreferee,
                 style: TextStyle(
                   color: ColorPalette.textSecondary(context),
                   fontWeight: FontWeight.w600,
@@ -369,7 +370,7 @@ class CompetitionPrefereeTile extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          '$nbMatchsRegardes matchs regardés',
+                          translate.xMatchsRegardes(nbMatchsRegardes!.toString()),
                           style: TextStyle(
                             fontSize: 12,
                             color: ColorPalette.textSecondary(context),

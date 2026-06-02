@@ -4,6 +4,7 @@ import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/watch_together/friend_item.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
 class AddWatchFriendBottomSheet extends StatefulWidget {
@@ -53,7 +54,7 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
               const SizedBox(height: 16),
 
               Text(
-                "Ajoute les amis avec qui tu as regardé le match",
+                translate.ajouteLesAmisAvecQuiTuAsRegardeLeMatch,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(context),
                   fontSize: 16,
@@ -68,7 +69,7 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
                 child: TextField(
                   style: TextStyle(color: ColorPalette.textPrimary(context)),
                   decoration: InputDecoration(
-                    hintText: "Rechercher un ami...",
+                    hintText: translate.rechercherUnAmi,
                     hintStyle:
                         TextStyle(color: ColorPalette.textSecondary(context)),
                     prefixIcon: Icon(Icons.search,
@@ -92,7 +93,7 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
                 child: filtered.isEmpty
                     ? Center(
                         child: Text(
-                          "Aucun ami trouvé",
+                          translate.aucunAmiTrouve,
                           style: TextStyle(
                             color: ColorPalette.textPrimary(
                               context,
@@ -158,7 +159,7 @@ class AddWatchFriendBottomSheetState extends State<AddWatchFriendBottomSheet> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
-                                      "En attente",
+                                      translate.enAttente,
                                       style: TextStyle(
                                         fontSize: 12,
                                         color:

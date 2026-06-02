@@ -13,6 +13,7 @@ import 'package:scorescope/models/options.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/web_match_repository.dart';
 import 'package:scorescope/utils/handle_data/profile_stats.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 import '../../models/app_user.dart';
 import '../repositories/i_app_user_repository.dart';
@@ -678,7 +679,7 @@ class WebAppUserRepository implements IAppUserRepository {
           'competitionsPrefereesId': newCompetitionsPrefereesId,
       });
     } else {
-      throw Exception("Ce profil n'existe pas");
+      throw Exception(translate.ceProfilNExistePas);
     }
   }
 
@@ -690,7 +691,7 @@ class WebAppUserRepository implements IAppUserRepository {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null || user.uid != userId) {
-      throw Exception("Utilisateur invalide.");
+      throw Exception(translate.utilisateurInvalide);
     }
 
     await user.verifyBeforeUpdateEmail(newEmail);
@@ -710,7 +711,7 @@ class WebAppUserRepository implements IAppUserRepository {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null || user.uid != userId) {
-      throw Exception("Utilisateur invalide.");
+      throw Exception(translate.utilisateurInvalide);
     }
 
     await user.updatePassword(newPassword);
@@ -733,12 +734,12 @@ class WebAppUserRepository implements IAppUserRepository {
     final user = auth.currentUser;
 
     if (user == null) {
-      throw Exception("Utilisateur non connecté");
+      throw Exception(translate.utilisateurNonConnecte);
     }
 
     /// 1️⃣ Reauth obligatoire
     if (email == null) {
-      throw Exception("Email introuvable.");
+      throw Exception(translate.emailIntrouvable);
     }
 
     final credential = EmailAuthProvider.credential(
@@ -753,11 +754,11 @@ class WebAppUserRepository implements IAppUserRepository {
     final userDoc = await userRef.get();
 
     if (!userDoc.exists) {
-      throw Exception("Document utilisateur introuvable.");
+      throw Exception(translate.documentUtilisateurIntrouvable);
     }
 
     if (userDoc.data()?['deleted'] == true) {
-      throw Exception("Compte déjà supprimé.");
+      throw Exception(translate.compteDejaSupprime);
     }
 
     /// 3️⃣ Supprimer amitiés
@@ -874,7 +875,7 @@ class WebAppUserRepository implements IAppUserRepository {
         FirebaseFirestore.instance.collection('users').doc(userId);
     final docSnapshot = await userDocRef.get();
 
-    if (!docSnapshot.exists) throw Exception("Ce profil n'existe pas");
+    if (!docSnapshot.exists) throw Exception(translate.ceProfilNExistePas);
 
     final currentData = docSnapshot.data()!;
     final currentOptions = currentData['options'] != null
@@ -898,6 +899,8 @@ class WebAppUserRepository implements IAppUserRepository {
     );
 
     await userDocRef.update({'options': updatedOptions.toJson()});
+
+    currentUser = await getCurrentUser();
   }
 
   @override
@@ -988,7 +991,7 @@ class WebAppUserRepository implements IAppUserRepository {
         'notificationToken': token,
       });
     } else {
-      throw Exception("Ce profil n'existe pas");
+      throw Exception(translate.ceProfilNExistePas);
     }
   }
 

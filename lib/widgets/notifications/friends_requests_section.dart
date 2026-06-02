@@ -4,6 +4,7 @@ import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class FriendRequestsSection extends StatelessWidget {
   final List<Amitie> requests;
@@ -32,13 +33,13 @@ class FriendRequestsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader(context, "Demandes d'amis"),
+        _sectionHeader(context, translate.demandesDAmis),
         if (requests.isEmpty)
           Center(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Aucune demande reçue',
+                translate.aucuneDemandeRecue,
                 style: TextStyle(
                   color: ColorPalette.textSecondary(context),
                 ),

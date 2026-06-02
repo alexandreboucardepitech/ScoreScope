@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class TeamsBottomSheet extends StatefulWidget {
   final List<String> equipesPreferees;
@@ -110,7 +111,7 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
 
   Widget _buildTitle() {
     return Text(
-      "Sélection des équipes",
+      translate.selectionDesEquipes,
       style: TextStyle(
         color: ColorPalette.textPrimary(context),
         fontSize: 18,
@@ -126,7 +127,7 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
         controller: _searchController,
         style: TextStyle(color: ColorPalette.textPrimary(context)),
         decoration: InputDecoration(
-          hintText: "Rechercher une équipe...",
+          hintText: translate.rechercherUneEquipe,
           hintStyle: TextStyle(color: ColorPalette.textSecondary(context)),
           prefixIcon:
               Icon(Icons.search, color: ColorPalette.textSecondary(context)),
@@ -151,7 +152,7 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
       if (favorites.isEmpty) {
         return Center(
           child: Text(
-            "🔍 Recherche ton équipe préférée",
+            translate.rechercheTonEquipePreferee,
             style: TextStyle(
               color: ColorPalette.textSecondary(context),
             ),
@@ -162,7 +163,7 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
       return ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          _buildSectionHeader("Mes équipes favorites"),
+          _buildSectionHeader(translate.mesEquipesFavorites),
           ...favorites.map(_buildTeamTile),
           const SizedBox(height: 100),
         ],
@@ -172,7 +173,7 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
     if (_filteredTeams.isEmpty) {
       return Center(
         child: Text(
-          "Aucune équipe trouvée",
+          translate.aucuneEquipeTrouvee,
           style: TextStyle(color: ColorPalette.textSecondary(context)),
         ),
       );
@@ -181,7 +182,7 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
-        _buildSectionHeader("Résultats"),
+        _buildSectionHeader(translate.resultats),
         ..._filteredTeams.map(_buildTeamTile),
         const SizedBox(height: 100),
       ],
@@ -246,8 +247,8 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
           if (value == true) {
             if (_selectedIds.length >= 10) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Tu peux sélectionner jusqu'à 10 équipes."),
+                SnackBar(
+                  content: Text(translate.tuPeuxSelectionnerJusquA10Equipes),
                 ),
               );
               return;
@@ -299,7 +300,7 @@ class _TeamsBottomSheetState extends State<TeamsBottomSheet> {
                     ),
                   )
                 : Text(
-                    "Valider la sélection",
+                    translate.validerLaSelection,
                     style: TextStyle(
                       color: ColorPalette.textPrimary(context),
                       fontWeight: FontWeight.bold,

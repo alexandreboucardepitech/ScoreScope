@@ -8,6 +8,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/handle_data/get_joueurs_tries_par_nombre_de_votes.dart';
 import 'package:scorescope/utils/handle_data/open_bottom_sheet_and_vote_mvp.dart';
 import 'package:scorescope/utils/images/getButIcon.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/build_avatar.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
@@ -59,7 +60,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
         localMatch!.joueursEquipeExterieur.isEmpty) {
       return Center(
         child: Text(
-          "La composition n'est pas encore disponible",
+          translate.laCompositionNEstPasEncoreDisponible,
           style: TextStyle(
             fontSize: 16,
             color: ColorPalette.textAccent(context),
@@ -137,7 +138,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Center(
           child: Text(
-            "Remplaçants",
+            translate.remplacants,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

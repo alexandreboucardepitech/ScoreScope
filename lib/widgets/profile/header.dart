@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/utils/users/can_access_private_infos.dart';
 import 'package:scorescope/views/profile/friends_page.dart';
@@ -25,7 +26,6 @@ class Header extends StatefulWidget {
   final void Function(String action)? onActionRequested;
   final void Function(void)? onProfileEdited;
 
-  /// Callback appelé quand le contenu du header est "prêt" (après image / layout)
   final VoidCallback? onContentReady;
 
   const Header({
@@ -188,7 +188,7 @@ class _HeaderState extends State<Header> {
                     }
                   },
                   child: ProfileStatTile(
-                    label: 'Amis',
+                    label: translate.amis,
                     labelHeight: statsLabelHeight,
                     valueWidget: widget.isLoadingNbAmis
                         ? const _ShimmerBox(width: 24, height: 12)
@@ -204,7 +204,7 @@ class _HeaderState extends State<Header> {
               ),
             ),
             ProfileStatTile(
-              label: 'Matchs',
+              label: translate.matchs,
               labelHeight: statsLabelHeight,
               valueWidget: widget.isLoadingNbMatchsRegardes
                   ? const _ShimmerBox(width: 24, height: 12)
@@ -220,7 +220,7 @@ class _HeaderState extends State<Header> {
               child: Align(
                 alignment: Alignment.center,
                 child: ProfileStatTile(
-                  label: 'Buts',
+                  label: translate.buts,
                   labelHeight: statsLabelHeight,
                   valueWidget: widget.isLoadingNbButs
                       ? const _ShimmerBox(width: 24, height: 12)

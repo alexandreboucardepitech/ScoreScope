@@ -4,6 +4,7 @@ import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/util/basic_podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class Joueur extends BasicPodiumDisplayable {
   final String id;
@@ -67,9 +68,9 @@ class Joueur extends BasicPodiumDisplayable {
   }
 
   Joueur.unknown({required this.id})
-      : prenom = 'Inconnu',
+      : prenom = translate.inconnu,
         nom = '',
-        fullName = 'Inconnu',
+        fullName = translate.inconnu,
         equipeId = '',
         equipeNationaleId = null,
         dateNaissance = null,

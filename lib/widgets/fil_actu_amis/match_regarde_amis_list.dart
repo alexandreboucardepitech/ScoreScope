@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/post/match_regarde_ami.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/fil_actu_amis/match_regarde_ami_card.dart';
 
@@ -34,7 +35,7 @@ class MatchRegardeAmiListView extends StatelessWidget {
                     size: 64, color: ColorPalette.pictureBackground(context)),
                 const SizedBox(height: 12),
                 Text(
-                  "Aucun ami n'a vu ce match.",
+                  translate.aucunAmiNAVuCeMatch,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,

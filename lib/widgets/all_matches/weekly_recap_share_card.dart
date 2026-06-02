@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class WeeklyRecapShareCard extends StatelessWidget {
   final dynamic data;
@@ -96,7 +97,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
-            'RECAP HEBDO',
+            translate.recapHebdo,
             style: TextStyle(
               color: ColorPalette.accent(context),
               fontWeight: FontWeight.bold,
@@ -157,7 +158,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: Text(
-                  'match${d.matchCount > 1 ? 's' : ''}\nregardé${d.matchCount > 1 ? 's' : ''}',
+                  translate.matchsRegardes,
                   style: TextStyle(
                     color: ColorPalette.textPrimaryDark.withValues(alpha: 0.9),
                     fontSize: 38,
@@ -180,7 +181,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
-                    '${diff > 0 ? '+' : ''}$diff vs semaine précédente',
+                    translate.xXVsSemainePrecedente(diff > 0 ? '+' : '', diff.toString()),
                     style: TextStyle(
                       color: diffColor,
                       fontWeight: FontWeight.bold,
@@ -211,7 +212,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '🏆 MEILLEUR MATCH',
+            '🏆 ${translate.meilleurMatch}',
             style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.bold,
@@ -263,7 +264,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '🏅 COMPÉTITION',
+            '🏅 ${translate.competition}',
             style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.bold,
@@ -295,7 +296,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${d.topCompetitionCount} matchs',
+                      '${d.topCompetitionCount} ${translate.matchs}',
                       style: TextStyle(
                         color: ColorPalette.textSecondary(context),
                         fontSize: 18,
@@ -323,7 +324,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '🔥 SÉRIE',
+            '🔥 ${translate.serie}',
             style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.bold,
@@ -347,7 +348,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
-                  'semaines\nconsécutives',
+                  translate.semainesConsecutives,
                   style: TextStyle(
                     color: ColorPalette.textSecondary(context),
                     fontSize: 18,
@@ -386,15 +387,7 @@ class WeeklyRecapShareCard extends StatelessWidget {
     return Column(
       children: [
         Text(
-          'coucou je suis laligne de test',
-          style: TextStyle(
-            color: ColorPalette.textSecondary(context),
-            fontSize: 20,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          'Télécharge ScoreScope ⚽',
+          translate.telechargeScorescope,
           style: TextStyle(
             color: ColorPalette.textSecondary(context),
             fontWeight: FontWeight.w600,

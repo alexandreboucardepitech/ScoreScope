@@ -8,6 +8,8 @@ import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/services/cache/local_cache.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/auth_service.dart';
+import 'package:scorescope/utils/translate/app_localizations.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/app_theme.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/amis/comments_page.dart';
@@ -116,6 +118,7 @@ class InitialApp extends StatefulWidget {
 
 class _InitialAppState extends State<InitialApp> {
   final ThemeController _themeController = ThemeController();
+  final LanguageController _languageController = LanguageController();
   AppState _appState = AppState.loading;
   AppUser? _currentUser;
 
@@ -138,6 +141,7 @@ class _InitialAppState extends State<InitialApp> {
 
     if (firebaseUser == null) {
       _themeController.initialize(ThemeOptions.system);
+      _languageController.initialize(null);
       setState(() => _appState = AppState.unauthenticated);
       return;
     }
@@ -160,6 +164,7 @@ class _InitialAppState extends State<InitialApp> {
       );
       _currentUser = user;
       _themeController.initialize(user.options.theme);
+      _languageController.initialize(user.options.language);
       setState(() => _appState = AppState.onboarding);
       return;
     }
@@ -168,13 +173,17 @@ class _InitialAppState extends State<InitialApp> {
     user = AppUser.fromJson(json: rawData, userId: firebaseUser.uid);
     _currentUser = user;
     _themeController.initialize(user.options.theme);
+    _languageController.initialize(user.options.language);
     setState(() => _appState = AppState.authenticated);
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _themeController,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: _themeController),
+        ChangeNotifierProvider.value(value: _languageController),
+      ],
       child: MyApp(
         authService: widget.authService,
         appState: _appState,
@@ -206,6 +215,9 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeController.themeMode,
+      locale: context.watch<LanguageController>().locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: _buildHome(),
     );
   }
@@ -269,7 +281,7 @@ class _HomePageState extends State<HomePage> {
 
       _pendingRequests.value = nbPending + nbNotifs;
     } catch (e, st) {
-      debugPrint("Erreur lors du chargement des demandes : $e\n$st");
+      debugPrint(translate.erreurLorsDuChargementDesDemandes + " : $e\n$st");
     }
   }
 
@@ -445,23 +457,23 @@ class _HomePageState extends State<HomePage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.sports_soccer),
-            label: 'Matchs',
+            label: translate.matchs,
           ),
           BottomNavigationBarItem(
             icon: _amisIconAvecRequests(),
-            label: 'Amis',
+            label: translate.amis,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'Statistiques',
+            label: translate.statistiques,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Profil',
+            label: translate.profil,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.feedback),
-            label: 'Retours',
+            label: translate.retours,
           ),
         ],
       ),

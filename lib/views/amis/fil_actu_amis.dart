@@ -8,6 +8,7 @@ import 'package:scorescope/utils/ui/slow_scroll_physics.dart';
 import 'package:scorescope/views/amis/ajout_amis.dart';
 import 'package:scorescope/views/amis/notifications.dart';
 import 'package:scorescope/widgets/fil_actu_amis/match_regarde_amis_list.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class FilActuAmisView extends StatefulWidget {
   final VoidCallback? onBackPressed;
@@ -148,7 +149,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
         final bool has = count > 0;
         return Semantics(
           button: true,
-          label: 'Demandes d\'amis${has ? ", $count non lues" : ""}',
+          label: translate.demandesDAmis,
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
             onTap: () async {
@@ -220,7 +221,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
         child: ElevatedButton.icon(
           icon: Icon(Icons.person_add, color: ColorPalette.accent(context)),
           label: Text(
-            'Ajouter des amis',
+            translate.ajouterDesAmis,
             style: TextStyle(color: ColorPalette.accent(context)),
           ),
           style: ElevatedButton.styleFrom(
@@ -275,7 +276,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
                   color: ColorPalette.pictureBackground(context)),
               const SizedBox(height: 12),
               Text(
-                "Impossible de charger le fil.",
+                translate.impossibleDeChargerLeFil,
                 style:
                     TextStyle(color: ColorPalette.textSecondary(context)),
               ),
@@ -283,7 +284,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
               ElevatedButton(
                 onPressed: _loadFeed,
                 child: Text(
-                  "Réessayer",
+                  translate.reessayer,
                   style: TextStyle(
                       color: ColorPalette.textPrimary(context)),
                 ),
@@ -305,7 +306,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
                   size: 64, color: ColorPalette.accent(context)),
               const SizedBox(height: 12),
               Text(
-                "Aucune activité récente de vos amis.",
+                translate.aucuneActiviteRecenteDeVosAmis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -314,7 +315,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
               ),
               const SizedBox(height: 10),
               Text(
-                "Invitez des amis pour voir leur activité ici.",
+                translate.invitezDesAmisPourVoirLeurActiviteIci,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
@@ -353,7 +354,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
           Padding(
             padding: const EdgeInsets.only(top: 8, bottom: 24),
             child: Text(
-              '${_allEntries.length} posts chargés',
+              translate.xPostsCharges(_allEntries.length.toString()),
               style: TextStyle(
                 fontSize: 12,
                 color: ColorPalette.textSecondary(context),
@@ -378,7 +379,7 @@ class _FilActuAmisViewState extends State<FilActuAmisView> {
             AppLogos.logoTransparent(context, size: 32),
             const SizedBox(width: 8),
             Text(
-              "Fil d'actu des amis",
+              translate.filDActuDesAmis,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
                 fontWeight: FontWeight.bold,

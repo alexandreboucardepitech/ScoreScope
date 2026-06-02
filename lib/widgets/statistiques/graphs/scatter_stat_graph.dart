@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/stats/graph/stat_value_duo.dart';
 import 'package:scorescope/utils/ui/couleur_from_hexa.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class _Cluster {
   final num valueX;
@@ -32,8 +33,8 @@ class ScatterStatGraph extends StatefulWidget {
   const ScatterStatGraph({
     super.key,
     required this.values,
-    this.labelX = 'Buts',
-    this.labelY = 'MVPs',
+    required this.labelX,
+    required this.labelY,
   });
 
   @override
@@ -396,7 +397,7 @@ class _Hint extends StatelessWidget {
       height: 30,
       child: Center(
         child: Text(
-          'Appuie sur un point pour voir le joueur',
+          translate.appuieSurUnPointPourVoirLeJoueur,
           style: TextStyle(
             fontSize: 11,
             color: ColorPalette.textSecondary(context).withOpacity(0.5),

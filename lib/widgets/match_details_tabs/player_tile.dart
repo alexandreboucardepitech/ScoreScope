@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 int getNbVotesWithUserVote(
     {required MatchModel match,
@@ -76,7 +77,7 @@ Widget playerTile({
                       ),
                       SizedBox(width: 4),
                       Text(
-                        'Voté',
+                        translate.vote,
                         style: TextStyle(
                           fontSize: 11,
                           color: ColorPalette.textAccent(context),

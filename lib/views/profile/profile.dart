@@ -3,6 +3,7 @@ import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/services/repositories/i_amitie_repository.dart';
 import 'package:scorescope/utils/handle_data/profile_stats.dart';
 import 'package:scorescope/utils/string/get_friendship_action_snackbar_message.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/users/can_access_private_infos.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
@@ -320,7 +321,7 @@ class _ProfileViewState extends State<ProfileView> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Erreur lors de l'action sur l'utilisateur."),
+          content: Text(translate.erreurLorsDeLActionSurLUtilisateur),
         ),
       );
     } finally {
@@ -359,14 +360,14 @@ class _ProfileViewState extends State<ProfileView> {
         backgroundColor: ColorPalette.surface(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          "Bloquer ${widget.user.displayName}?",
+          translate.bloquerX(widget.user.displayName),
           style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.bold,
               fontSize: 18),
         ),
         content: Text(
-          "Voulez-vous bloquer ${widget.user.displayName}?\nCet utilisateur ne pourra plus accéder à vos posts",
+          translate.voulezVousBloquerX(widget.user.displayName),
           style:
               TextStyle(color: ColorPalette.textPrimary(context), fontSize: 16),
         ),
@@ -375,7 +376,7 @@ class _ProfileViewState extends State<ProfileView> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              "Annuler",
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -393,7 +394,7 @@ class _ProfileViewState extends State<ProfileView> {
               Navigator.of(context).pop();
             },
             child: Text(
-              'Bloquer',
+              translate.bloquer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -567,7 +568,7 @@ class _ProfileViewState extends State<ProfileView> {
                           onTap: _confirmBlockUser,
                           value: 'bloquer',
                           child: Text(
-                            'Bloquer',
+                            translate.bloquer,
                             style: TextStyle(
                               color: ColorPalette.textPrimary(context),
                             ),
@@ -597,7 +598,7 @@ class _ProfileViewState extends State<ProfileView> {
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              'Équipes préférées',
+                              translate.equipesPreferees,
                               style: TextStyle(
                                 color: ColorPalette.textPrimary(context),
                                 fontWeight: FontWeight.w600,
@@ -612,7 +613,7 @@ class _ProfileViewState extends State<ProfileView> {
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              'Derniers matchs',
+                              translate.derniersMatchs,
                               style: TextStyle(
                                 color: ColorPalette.textPrimary(context),
                               ),
@@ -626,7 +627,7 @@ class _ProfileViewState extends State<ProfileView> {
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              'Matchs favoris',
+                              translate.matchsFavoris,
                               style: TextStyle(
                                 color: ColorPalette.textPrimary(context),
                               ),
@@ -707,14 +708,14 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  "Ce compte est privé.",
+                                  translate.ceCompteEstPrive,
                                   style: TextStyle(
                                     color: ColorPalette.textPrimary(context),
                                     fontSize: 24,
                                   ),
                                 ),
                                 Text(
-                                  "Ajoutez cet ami pour suivre son actualité !",
+                                  translate.ajoutezCetAmiPourSuivreSonActualite,
                                   style: TextStyle(
                                     color: ColorPalette.textSecondary(context),
                                     fontSize: 12,

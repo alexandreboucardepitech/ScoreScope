@@ -6,8 +6,8 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/profile.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
-/// Vue "Ajouter des amis" :
 class AjoutAmisView extends StatefulWidget {
   const AjoutAmisView({super.key});
 
@@ -118,7 +118,7 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Ajouter des amis',
+          translate.ajouterDesAmis,
           style: TextStyle(
             color: ColorPalette.textPrimary(
               context,
@@ -129,7 +129,6 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
       body: SafeArea(
         child: Column(
           children: [
-            // Barre de recherche
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
@@ -137,7 +136,7 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
                 controller: _searchController,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  hintText: 'Rechercher un utilisateur',
+                  hintText: translate.rechercherUnUtilisateur,
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _query.isNotEmpty
                       ? IconButton(
@@ -160,7 +159,8 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   _query.length < _minCharsToSearch
-                      ? 'Tapez au moins $_minCharsToSearch caractères pour lancer la recherche.'
+                      ? translate.tapezAuMoinsXCaracteresPourLancerLaRecherche(
+                          _minCharsToSearch.toString())
                       : '',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
@@ -182,7 +182,7 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
     if (_query.isEmpty || _query.length < _minCharsToSearch) {
       return Center(
         child: Text(
-          'Entrez une recherche pour trouver des utilisateurs.',
+          translate.entrezUneRecherchePourTrouverDesUtilisateurs,
           style: TextStyle(
             color: ColorPalette.textPrimary(
               context,
@@ -206,7 +206,7 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
         if (snapshot.hasError) {
           return Center(
               child: Text(
-            'Erreur lors de la recherche : ${snapshot.error}',
+            translate.erreurLorsDeLaRechercheX(snapshot.error.toString()),
             style: TextStyle(
               color: ColorPalette.error(
                 context,
@@ -222,7 +222,7 @@ class _AjoutAmisViewState extends State<AjoutAmisView> {
         if (users.isEmpty) {
           return Center(
               child: Text(
-            'Aucun utilisateur trouvé.',
+            translate.aucunUtilisateurTrouve,
             style: TextStyle(
               color: ColorPalette.textPrimary(
                 context,

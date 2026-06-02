@@ -6,6 +6,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/stats/stats_loader.dart';
 import 'package:scorescope/utils/string/round_smart.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 import 'package:scorescope/widgets/statistiques/cards/podium_card.dart';
@@ -97,7 +98,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
   Widget _buildError() {
     return Center(
       child: Text(
-        "Equipe introuvable",
+        translate.equipeIntrouvable,
         style: TextStyle(
           color: ColorPalette.textPrimary(context),
           fontSize: 16,
@@ -139,8 +140,8 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
                       _isPersonalMode
-                          ? "Statistiques de mes matchs vus"
-                          : "Statistiques globales",
+                          ? translate.statistiquesDeMesMatchsVus
+                          : translate.statistiquesGlobales,
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontSize: 18,
@@ -158,7 +159,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                     childAspectRatio: 1.2,
                     children: [
                       SimpleStatCard(
-                        title: _isPersonalMode ? "Matchs vus" : "Matchs joués",
+                        title: _isPersonalMode ? translate.matchsVus : translate.matchsJoues,
                         value: _isPersonalMode
                             ? _teamStats!.userMatchsJoues.toString()
                             : _teamStats!.matchsJoues.toString(),
@@ -166,8 +167,8 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                       ),
                       SimpleStatCard(
                         title: _isPersonalMode
-                            ? "Différence de buts des matchs vus"
-                            : "Différence de buts",
+                            ? translate.differenceDeButsDesMatchsVus
+                            : translate.differenceDeButs,
                         value: _isPersonalMode
                             ? _teamStats!.userDifferenceButs.toString()
                             : _teamStats!.differenceButs.toString(),
@@ -175,8 +176,8 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                       ),
                       SimpleStatCard(
                         title: _isPersonalMode
-                            ? "Buts marqués vus"
-                            : "Buts marqués",
+                            ? translate.butsMarquesVus
+                            : translate.butsMarques,
                         value: _isPersonalMode
                             ? _teamStats!.userButsMarques.toString()
                             : _teamStats!.butsMarques.toString(),
@@ -184,8 +185,8 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                       ),
                       SimpleStatCard(
                         title: _isPersonalMode
-                            ? "Buts encaissés vus"
-                            : "Buts encaissés",
+                            ? translate.butsEncaissesVus
+                            : translate.butsEncaisses,
                         value: _isPersonalMode
                             ? _teamStats!.userButsEncaisses.toString()
                             : _teamStats!.butsEncaisses.toString(),
@@ -193,8 +194,8 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                       ),
                       SimpleStatCard(
                         title: _isPersonalMode
-                            ? "Ma note moyenne des matchs"
-                            : "Note moyenne des matchs",
+                            ? translate.maNoteMoyenneDesMatchs
+                            : translate.noteMoyenneDesMatchs,
                         value: _isPersonalMode
                             ? roundSmart(_teamStats!.userNoteMoyenneMatchs)
                             : roundSmart(_teamStats!.noteMoyenneMatchs),
@@ -203,8 +204,8 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                       if (RepositoryProvider.userRepository.currentUser != null)
                         PodiumCard(
                           title: _isPersonalMode
-                              ? "Mon MVP le plus voté"
-                              : "MVP le plus voté",
+                              ? translate.monMvpLePlusVote
+                              : translate.mvpLePlusVote,
                           items: _isPersonalMode
                               ? _teamStats!.userEluMvp
                               : _teamStats!.eluMvp,
@@ -214,8 +215,8 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                   ),
                   GraphCard(
                     title: _isPersonalMode
-                        ? "Ratio victoires/défaites (mes matchs vus)"
-                        : "Ratio victoires/défaites",
+                        ? translate.ratioVictoiresDefaitesMesMatchsVus
+                        : translate.ratioVictoiresDefaites,
                     type: GraphType.splitBar,
                     values: _isPersonalMode
                         ? _teamStats!.userRatioVictoiresDefaites
@@ -292,7 +293,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
           Row(
             children: [
               _buildSwitchSide(
-                title: "Mes stats",
+                title: translate.mesStats,
                 selected: _isPersonalMode,
                 onTap: () {
                   if (!_isPersonalMode) {
@@ -301,7 +302,7 @@ class _TeamDetailsPageState extends State<TeamDetailsPage> {
                 },
               ),
               _buildSwitchSide(
-                title: "Global",
+                title: translate.global,
                 selected: !_isPersonalMode,
                 onTap: () {
                   if (_isPersonalMode) {

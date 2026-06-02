@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class SignUpView extends StatefulWidget {
-  final String? prefilledEmail; // <-- nouvel argument
+  final String? prefilledEmail;
 
   const SignUpView({super.key, this.prefilledEmail});
 
@@ -49,14 +50,14 @@ class _SignUpViewState extends State<SignUpView> {
           borderRadius: BorderRadius.circular(20),
         ),
         title: Text(
-          "Vérifie ton email 📩",
+          translate.verifieTonEmail,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
-          "Un email de confirmation a été envoyé.\nClique sur le lien avant de te connecter.\n\nAttention, pense à vérifier tes spams !",
+          translate.unEmailDeConfirmationAEteEnvoye,
           style: TextStyle(
             color: ColorPalette.textSecondary(context),
           ),
@@ -69,7 +70,7 @@ class _SignUpViewState extends State<SignUpView> {
               if (mounted) Navigator.pop(context);
             },
             child: Text(
-              "OK",
+              translate.ok,
               style: TextStyle(
                 color: ColorPalette.textAccent(context),
               ),
@@ -91,12 +92,12 @@ class _SignUpViewState extends State<SignUpView> {
       if (user != null) {
         _showVerificationDialog();
       } else {
-        _showError('Impossible de créer le compte.');
+        _showError(translate.impossibleDeCreerLeCompte);
       }
     } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Erreur création compte');
+      _showError(e.message ?? translate.erreurCreationCompte);
     } catch (e) {
-      _showError('Erreur inconnue');
+      _showError(translate.erreurInconnue);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -127,19 +128,19 @@ class _SignUpViewState extends State<SignUpView> {
       ),
       validator: (v) {
         if (v == null || v.trim().isEmpty) {
-          return "$label requis";
+          return translate.xRequis(label);
         }
 
-        if (label == "Email" && !v.contains('@')) {
-          return "Email invalide";
+        if (label == translate.email && !v.contains('@')) {
+          return translate.emailInvalide;
         }
 
-        if (label == "Mot de passe" && v.length < 6) {
-          return "Au moins 6 caractères";
+        if (label == translate.motDePasse && v.length < 6) {
+          return translate.auMoins6Caracteres;
         }
 
         if (isConfirmation && v != _passwordController.text) {
-          return "Les mots de passe ne correspondent pas";
+          return translate.lesMotsDePasseNeCorrespondentPas;
         }
 
         return null;
@@ -208,7 +209,7 @@ class _SignUpViewState extends State<SignUpView> {
                     AppLogos.logoAccent(context, size: 72),
                     const SizedBox(width: 16),
                     Text(
-                      "Créer un compte",
+                      translate.creerUnCompte,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 26,
@@ -220,7 +221,7 @@ class _SignUpViewState extends State<SignUpView> {
                     const SizedBox(height: 8),
 
                     Text(
-                      "Rejoins la communauté ScoreScope !",
+                      translate.rejoinsLaCommunauteScorescope,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -234,7 +235,7 @@ class _SignUpViewState extends State<SignUpView> {
                     _buildInputField(
                       context: context,
                       controller: _emailController,
-                      label: "Email",
+                      label: translate.email,
                       keyboardType: TextInputType.emailAddress,
                     ),
 
@@ -244,7 +245,7 @@ class _SignUpViewState extends State<SignUpView> {
                     _buildInputField(
                       context: context,
                       controller: _passwordController,
-                      label: "Mot de passe",
+                      label: translate.motDePasse,
                       obscure: true,
                     ),
 
@@ -254,7 +255,7 @@ class _SignUpViewState extends State<SignUpView> {
                     _buildInputField(
                       context: context,
                       controller: _confirmController,
-                      label: "Confirmer le mot de passe",
+                      label: translate.confirmerLeMotDePasse,
                       obscure: true,
                       isConfirmation: true,
                     ),
@@ -283,8 +284,8 @@ class _SignUpViewState extends State<SignUpView> {
                                 color: ColorPalette.opposite(context),
                               ),
                             )
-                          : const Text(
-                              "Créer mon compte",
+                          : Text(
+                              translate.creerMonCompte,
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -297,7 +298,7 @@ class _SignUpViewState extends State<SignUpView> {
                     TextButton(
                       onPressed: _loading ? null : () => Navigator.pop(context),
                       child: Text(
-                        "Déjà un compte ? Se connecter",
+                        translate.dejaUnCompteSeConnecter,
                         style: TextStyle(
                           color: ColorPalette.textAccent(context),
                           fontWeight: FontWeight.w600,

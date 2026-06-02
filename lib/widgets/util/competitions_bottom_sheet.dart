@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class CompetitionsBottomSheet extends StatefulWidget {
   final List<String> competitionsPreferees;
@@ -90,7 +91,7 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
 
   Widget _buildTitle() {
     return Text(
-      "Sélection des compétitions",
+      translate.selectionDesCompetitions,
       style: TextStyle(
         color: ColorPalette.textPrimary(context),
         fontSize: 18,
@@ -110,11 +111,11 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
         if (favoriteComps.isNotEmpty) ...[
-          _buildSectionHeader("Mes compétitions favorites"),
+          _buildSectionHeader(translate.mesCompetitionsFavorites),
           ...favoriteComps.map(_buildAnimatedTile),
           const SizedBox(height: 24),
         ],
-        _buildSectionHeader("Toutes les compétitions"),
+        _buildSectionHeader(translate.toutesLesCompetitions),
         ...otherComps.map(_buildAnimatedTile),
         const SizedBox(height: 100),
       ],
@@ -229,7 +230,7 @@ class _CompetitionsBottomSheetState extends State<CompetitionsBottomSheet> {
                     ),
                   )
                 : Text(
-                    "Valider la sélection",
+                    translate.validerLaSelection,
                     style: TextStyle(
                       color: ColorPalette.textPrimary(context),
                       fontWeight: FontWeight.bold,

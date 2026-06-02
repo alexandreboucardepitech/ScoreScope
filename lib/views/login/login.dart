@@ -7,6 +7,7 @@ import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/views/login/sign_up.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -120,13 +121,13 @@ class _LoginViewState extends State<LoginView> {
       ),
       validator: (v) {
         if (v == null || v.trim().isEmpty) {
-          return "$label requis";
+          return translate.xRequis(label);
         }
-        if (label == "Email" && !v.contains('@')) {
-          return "Email invalide";
+        if (label == translate.email && !v.contains('@')) {
+          return translate.emailInvalide;
         }
-        if (label == "Mot de passe" && v.length < 6) {
-          return "Au moins 6 caractères";
+        if (label == translate.motDePasse && v.length < 6) {
+          return translate.auMoins6Caracteres;
         }
         return null;
       },
@@ -194,7 +195,7 @@ class _LoginViewState extends State<LoginView> {
                     AppLogos.logoAccent(context, size: 72),
                     const SizedBox(width: 16),
                     Text(
-                      "Connexion",
+                      translate.connexion,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 26,
@@ -206,7 +207,7 @@ class _LoginViewState extends State<LoginView> {
                     const SizedBox(height: 8),
 
                     Text(
-                      "Connecte-toi pour accéder à ScoreScope !",
+                      translate.connecteToiPourAccederAScorescope,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -220,7 +221,7 @@ class _LoginViewState extends State<LoginView> {
                     _buildInputField(
                       context: context,
                       controller: _emailController,
-                      label: "Email",
+                      label: translate.email,
                       keyboardType: TextInputType.emailAddress,
                     ),
 
@@ -230,7 +231,7 @@ class _LoginViewState extends State<LoginView> {
                     _buildInputField(
                       context: context,
                       controller: _passwordController,
-                      label: "Mot de passe",
+                      label: translate.motDePasse,
                       obscure: true,
                     ),
 
@@ -258,8 +259,8 @@ class _LoginViewState extends State<LoginView> {
                                 color: ColorPalette.opposite(context),
                               ),
                             )
-                          : const Text(
-                              "Se connecter",
+                          : Text(
+                              translate.seConnecter,
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -287,7 +288,7 @@ class _LoginViewState extends State<LoginView> {
                           color: ColorPalette.textPrimary(context),
                         ),
                         label: Text(
-                          "Continuer avec Apple",
+                          translate.continuerAvecApple,
                           style: TextStyle(
                             color: ColorPalette.textPrimary(context),
                             fontWeight: FontWeight.w500,
@@ -313,7 +314,7 @@ class _LoginViewState extends State<LoginView> {
                           color: ColorPalette.textPrimary(context),
                         ),
                         label: Text(
-                          "Continuer avec Google",
+                          translate.continuerAvecGoogle,
                           style: TextStyle(
                             color: ColorPalette.textPrimary(context),
                             fontWeight: FontWeight.w500,
@@ -324,7 +325,6 @@ class _LoginViewState extends State<LoginView> {
 
                     const SizedBox(height: 20),
 
-                    /// ---- SIGN UP ----
                     TextButton(
                       onPressed: _loading
                           ? null
@@ -342,7 +342,7 @@ class _LoginViewState extends State<LoginView> {
                               );
                             },
                       child: Text(
-                        "Créer un compte",
+                        translate.creerUnCompte,
                         style: TextStyle(
                           color: ColorPalette.textAccent(context),
                           fontWeight: FontWeight.w600,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/onglets/stats_competitions_data.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
@@ -22,40 +23,40 @@ class StatsCompetitionsOnglet extends StatelessWidget {
     final statsWidgets = <Widget>[
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Compétitions les plus suivies',
+        title: translate.competitionsLesPlusSuivies,
         items: data.competitionsLesPlusSuivies,
-        emptyStateText: 'Aucune compétition',
+        emptyStateText: translate.aucuneCompetition,
         user: user,
       ),
       buildSimpleStatCardOrListTile(
           showCards: showCards,
-          title: 'Compétitions différentes vues',
+          title: translate.competitionsDifferentesVues,
           value: data.nbCompetitionsDifferentes.toString(),
           icon: Icons.emoji_events),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Buts par compétition',
+        title: translate.butsParCompetition,
         items: data.butsParCompetition,
-        emptyStateText: 'Aucune donnée',
+        emptyStateText: translate.aucuneDonnee,
         user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Moy. buts / match',
+        title: translate.moyButsMatch,
         items: data.competitionsMoyButs,
-        emptyStateText: 'Aucune donnée',
+        emptyStateText: translate.aucuneDonnee,
         user: user,
       ),
     ];
     final graphWidgets = <Widget>[
       GraphCard(
-        title: 'Répartition par compétition',
+        title: translate.repartitionParCompetition,
         type: GraphType.pie,
         values: data.pourcentageMatchsCompetitions,
         pourcentage: true,
       ),
       // GraphCard(
-      //   title: 'Types de compétitions',
+      //   title: translate.typesDeCompetitions,
       //   type: GraphType.splitBar,
       //   values: data.typesCompetitions,
       // ),

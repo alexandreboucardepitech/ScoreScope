@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match.dart' as model_match;
@@ -92,7 +93,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
         if (widget.isLoading)
           _buildGlobalShimmer(context)
         else if (ids.isEmpty)
-          _buildEmptyMessage(context, "Aucun match regardé")
+          _buildEmptyMessage(context, translate.aucunMatchRegarde)
         else
           MatchList(
             ids: ids.take(5).toList(),
@@ -108,7 +109,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Derniers matchs ajoutés',
+          translate.derniersMatchsAjoutes,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.w600,
@@ -117,7 +118,7 @@ class _MatchsRegardesState extends State<MatchsRegardes> {
         // TextButton(
         //   onPressed: widget.onVoirPlus,
         //   child: Text(
-        //     'Voir plus',
+        //     translate.voirPlus,
         //     style: TextStyle(
         //       color: ColorPalette.textSecondary(context),
         //     ),

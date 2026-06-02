@@ -10,6 +10,7 @@ import 'package:scorescope/utils/stats/stats_loader.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
 import 'package:scorescope/widgets/statistiques/cards/simple_stat_card.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class PlayerDetailsPage extends StatefulWidget {
   final String playerId;
@@ -175,7 +176,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
   Widget _buildError() {
     return Center(
       child: Text(
-        "Joueur introuvable",
+        translate.joueurIntrouvable,
         style: TextStyle(
           color: ColorPalette.textPrimary(context),
           fontSize: 16,
@@ -217,8 +218,8 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Text(
                       _isPersonalMode
-                          ? "Statistiques de mes matchs vus"
-                          : "Statistiques globales",
+                          ? translate.statistiquesDeMesMatchsVus
+                          : translate.statistiquesGlobales,
                       style: TextStyle(
                         color: ColorPalette.textPrimary(context),
                         fontSize: 18,
@@ -236,28 +237,28 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                     childAspectRatio: 1.2,
                     children: [
                       SimpleStatCard(
-                        title: _isPersonalMode ? "Matchs vus" : "Matchs joués",
+                        title: _isPersonalMode ? translate.matchsVus : translate.matchsJoues,
                         value: _isPersonalMode
                             ? _playerStats!.userMatchsJoues.toString()
                             : _playerStats!.matchsJoues.toString(),
                         icon: Icons.sports,
                       ),
                       SimpleStatCard(
-                        title: _isPersonalMode ? "Buts vus" : "Buts marqués",
+                        title: _isPersonalMode ? translate.butsMarquesVus : translate.butsMarques,
                         value: _isPersonalMode
                             ? _playerStats!.userButsMarques.toString()
                             : _playerStats!.butsMarques.toString(),
                         icon: Icons.sports_soccer,
                       ),
                       SimpleStatCard(
-                        title: _isPersonalMode ? "Mes votes MVP" : "Votes MVP",
+                        title: _isPersonalMode ? translate.mesVotesMvp : translate.votesMvp,
                         value: _isPersonalMode
                             ? _playerStats!.userVotesMvp.toString()
                             : _playerStats!.votesMvp.toString(),
                         icon: Icons.how_to_vote,
                       ),
                       SimpleStatCard(
-                        title: "Élu MVP",
+                        title: translate.eluMvp,
                         value: _isPersonalMode
                             ? _playerStats!.userEluMvp.toString()
                             : _playerStats!.eluMvp.toString(),
@@ -316,7 +317,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                     children: [
                       _isLoadingEquipe && _isLoadingCountry
                           ? Text(
-                              "Chargement...",
+                              translate.chargement,
                               style: TextStyle(
                                 color: ColorPalette.textSecondary(context),
                                 fontSize: 14,
@@ -415,7 +416,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                     Row(
                       children: [
                         Text(
-                          "${calculateAge(_joueur!.dateNaissance!)} ans",
+                          translate.xAns(calculateAge(_joueur!.dateNaissance!).toString()),
                           style: TextStyle(
                             color: ColorPalette.textSecondary(context),
                             fontSize: 14,
@@ -483,7 +484,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
           Row(
             children: [
               _buildSwitchSide(
-                title: "Mes stats",
+                title: translate.mesStats,
                 selected: _isPersonalMode,
                 onTap: () {
                   if (!_isPersonalMode) {
@@ -492,7 +493,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                 },
               ),
               _buildSwitchSide(
-                title: "Global",
+                title: translate.global,
                 selected: !_isPersonalMode,
                 onTap: () {
                   if (_isPersonalMode) {

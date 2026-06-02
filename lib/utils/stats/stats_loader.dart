@@ -16,6 +16,7 @@ import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/utils/string/round_smart.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class StatsLoader {
   const StatsLoader._(); // empêche l'instanciation
@@ -347,18 +348,18 @@ class StatsLoader {
     final totalMatchs = matchsVusModels.length;
     if (totalMatchs == 0) {
       return [
-        StatValue(label: "Domicile", value: 0),
-        StatValue(label: "Nuls", value: 0),
-        StatValue(label: "Extérieur", value: 0),
+        StatValue(label: translate.domicile, value: 0),
+        StatValue(label: translate.nuls, value: 0),
+        StatValue(label: translate.exterieur, value: 0),
       ];
     }
 
     return [
       StatValue(
-          label: "Domicile", value: (victoiresDomicile / totalMatchs) * 100),
-      StatValue(label: "Nuls", value: (nuls / totalMatchs) * 100),
+          label: translate.domicile, value: (victoiresDomicile / totalMatchs) * 100),
+      StatValue(label: translate.nuls, value: (nuls / totalMatchs) * 100),
       StatValue(
-          label: "Extérieur", value: (victoiresExterieur / totalMatchs) * 100),
+          label: translate.exterieur, value: (victoiresExterieur / totalMatchs) * 100),
     ];
   }
 
@@ -772,16 +773,16 @@ class StatsLoader {
     final totalCount = stade + tele + bar;
     if (totalCount == 0) {
       return [
-        StatValue(label: "Stade", value: 0),
-        StatValue(label: "Télé", value: 0),
-        StatValue(label: "Bar", value: 0),
+        StatValue(label: translate.stade, value: 0),
+        StatValue(label: translate.tele, value: 0),
+        StatValue(label: translate.bar, value: 0),
       ];
     }
 
     return [
-      StatValue(label: "Stade", value: (stade / totalCount) * 100),
-      StatValue(label: "Télé", value: (tele / totalCount) * 100),
-      StatValue(label: "Bar", value: (bar / totalCount) * 100),
+      StatValue(label: translate.stade, value: (stade / totalCount) * 100),
+      StatValue(label: translate.tele, value: (tele / totalCount) * 100),
+      StatValue(label: translate.bar, value: (bar / totalCount) * 100),
     ];
   }
 
@@ -879,7 +880,7 @@ class StatsLoader {
 
   static Future<PlayerStats> getPlayerStats(Joueur joueur) async {
     if (RepositoryProvider.userRepository.currentUser == null) {
-      throw Exception("L'utilisateur n'est pas connecté");
+      throw Exception(translate.utilisateurNonConnecte);
     }
     final String userId = RepositoryProvider.userRepository.currentUser!.uid;
     String equipeId = joueur.equipeId;
@@ -957,7 +958,7 @@ class StatsLoader {
 
   static Future<TeamStats> getTeamStats(Equipe equipe) async {
     if (RepositoryProvider.userRepository.currentUser == null) {
-      throw Exception("L'utilisateur n'est pas connecté");
+      throw Exception(translate.utilisateurNonConnecte);
     }
     final String userId = RepositoryProvider.userRepository.currentUser!.uid;
 
@@ -1135,16 +1136,16 @@ class StatsLoader {
     final totalMatchs = matchsVusModels.length;
     if (totalMatchs == 0) {
       return [
-        StatValue(label: "Victoire", value: 0),
-        StatValue(label: "Nuls", value: 0),
-        StatValue(label: "Défaites", value: 0),
+        StatValue(label: translate.victoires, value: 0),
+        StatValue(label: translate.nuls, value: 0),
+        StatValue(label: translate.defaites, value: 0),
       ];
     }
 
     return [
-      StatValue(label: "Victoires", value: (victoires / totalMatchs) * 100),
-      StatValue(label: "Nuls", value: (nuls / totalMatchs) * 100),
-      StatValue(label: "Défaites", value: (defaites / totalMatchs) * 100),
+      StatValue(label: translate.victoires, value: (victoires / totalMatchs) * 100),
+      StatValue(label: translate.nuls, value: (nuls / totalMatchs) * 100),
+      StatValue(label: translate.defaites, value: (defaites / totalMatchs) * 100),
     ];
   }
 

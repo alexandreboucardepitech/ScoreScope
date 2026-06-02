@@ -6,6 +6,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:scorescope/views/profile/profile.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class CommentsPreview extends StatelessWidget {
   final List<Commentaire> comments;
@@ -133,7 +134,7 @@ class CommentsPreview extends StatelessWidget {
                                             .showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              'Utilisateur introuvable',
+                                              translate.utilisateurIntrouvable,
                                             ),
                                           ),
                                         );
@@ -170,7 +171,6 @@ class CommentsPreview extends StatelessWidget {
 
                                 const SizedBox(width: 8),
 
-                                // timestamp collé au nom
                                 Text(
                                   timeago.format(c.createdAt, locale: 'fr'),
                                   style: TextStyle(
@@ -208,8 +208,8 @@ class CommentsPreview extends StatelessWidget {
               onPressed: onSeeAll,
               child: Text(
                 comments.length > 3
-                    ? 'Voir tous les ${comments.length} commentaires'
-                    : 'Voir tous les commentaires',
+                    ? translate.voirTousLesXCommentaires(comments.length.toString())
+                    : translate.voirTousLesCommentaires,
                 style: TextStyle(
                   color: ColorPalette.textSecondary(context),
                   fontSize: 13,

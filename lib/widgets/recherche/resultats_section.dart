@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class ResultatsSection<T> extends StatelessWidget {
   const ResultatsSection({
@@ -94,7 +95,7 @@ class _LoadMoreFooter extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Voir plus',
+                      translate.voirPlus,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,

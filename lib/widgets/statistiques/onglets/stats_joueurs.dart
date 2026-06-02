@@ -3,6 +3,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/stats/onglets/stats_joueurs_data.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
@@ -23,49 +24,49 @@ class StatsJoueursOnglet extends StatelessWidget {
     final widgets = <Widget>[
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
-        title: 'Buteurs les plus vus',
+        title: translate.buteursLesPlusVus,
         items: data.meilleursButeurs,
-        emptyStateText: 'Aucun joueur',
+        emptyStateText: translate.aucunJoueur,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
-        title: 'Passes décisives',
+        title: translate.passesDecisives,
         items: data.meilleursPasseurs,
-        emptyStateText: 'Aucun joueur',
+        emptyStateText: translate.aucunJoueur,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
-        title: 'G+A',
+        title: translate.gA,
         items: data.meilleursGAs,
-        emptyStateText: 'Aucun joueur',
+        emptyStateText: translate.aucunJoueur,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
-        title: 'Titularisations',
+        title: translate.titularisations,
         items: data.titularisations,
-        emptyStateText: 'Aucun joueur',
+        emptyStateText: translate.aucunJoueur,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
-        title: 'MVP les plus votés',
+        title: translate.mvpLesPlusVotes,
         items: data.mvpsLesPlusVotes,
-        emptyStateText: 'Aucun MVP',
+        emptyStateText: translate.aucunMvp,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile<Joueur>(
         showCards: showCards,
-        title: 'Record de buts sur un match',
+        title: translate.recordDeButsSurUnMatch,
         items: data.meilleursButeursUnMatch,
-        emptyStateText: 'Aucun record',
+        emptyStateText: translate.aucuneDonnee,
         user: user,
         logoBackground: false,
       ),
@@ -73,11 +74,11 @@ class StatsJoueursOnglet extends StatelessWidget {
 
     final graphWidgets = <Widget>[
       GraphCard(
-        title: 'Nombre de buts / votes MVP',
+        title: translate.nombreDeButsVotesMvp,
         type: GraphType.scatter,
         values: data.butsMvpParJoueur,
-        labelX: 'Buts',
-        labelY: 'Votes MVP',
+        labelX: translate.buts,
+        labelY: translate.votesMvp,
       ),
     ];
 

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class FriendsComparisonBottomSheet extends StatefulWidget {
   final Map<AppUser, int> friendsMatchesCount;
@@ -71,7 +72,7 @@ class _FriendsComparisonBottomSheetState
           ),
           // Title
           Text(
-            'Comparer avec un ami',
+            translate.comparerAvecUnAmi,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -83,7 +84,7 @@ class _FriendsComparisonBottomSheetState
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Rechercher…',
+              hintText: translate.rechercher,
               hintStyle: TextStyle(color: ColorPalette.textSecondary(context)),
               prefixIcon: Icon(Icons.search,
                   color: ColorPalette.textSecondary(context)),
@@ -101,7 +102,7 @@ class _FriendsComparisonBottomSheetState
             child: _filteredFriends.isEmpty
                 ? Center(
                     child: Text(
-                      'Aucun ami à afficher',
+                      translate.aucunAmiAAfficher,
                       style:
                           TextStyle(color: ColorPalette.textSecondary(context)),
                     ),
@@ -152,7 +153,7 @@ class _FriendsComparisonBottomSheetState
                                 ),
                               ),
                               Text(
-                                '$nbMatchs matchs regardés',
+                                translate.xMatchsRegardes(nbMatchs.toString()),
                                 style: TextStyle(
                                   color: ColorPalette.textSecondary(context),
                                   fontWeight: FontWeight.w500,
@@ -169,7 +170,7 @@ class _FriendsComparisonBottomSheetState
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Annuler',
+              translate.annuler,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: ColorPalette.accent(context),

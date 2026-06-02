@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorescope/services/web/auth_service.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -66,16 +67,17 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
       }
 
       setState(() {});
-      _showMessage("Compte Google connecté.");
+      _showMessage(translate.compteGoogleConnecte);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'credential-already-in-use') {
         _showMessage(
-            "Ce compte Google est déjà utilisé par un autre utilisateur.");
+          translate.ceCompteGoogleEstDejaUtiliseParUnAutreUtilisateur,
+        );
       } else {
-        _showMessage(e.message ?? "Erreur Google.");
+        _showMessage(e.message ?? translate.erreurGoogle);
       }
     } catch (e) {
-      _showMessage("Erreur lors de la connexion Google.");
+      _showMessage(translate.erreurLorsDeLaConnexionGoogle);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -83,8 +85,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
 
   Future<void> _unlinkGoogle() async {
     if (_user!.providerData.length <= 1) {
-      _showMessage(
-          "Vous devez avoir au moins une méthode de connexion active.");
+      _showMessage(translate.vousDevezAvoirAuMoinsUneMethodeDeConnexionActive);
       return;
     }
 
@@ -93,9 +94,9 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
     try {
       await _user!.unlink('google.com');
       setState(() {});
-      _showMessage("Compte Google déconnecté.");
+      _showMessage(translate.compteGoogleDeconnecte);
     } catch (e) {
-      _showMessage("Erreur lors de la déconnexion.");
+      _showMessage(translate.erreurLorsDeLaDeconnexion);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -115,7 +116,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
     if (password == null || password.length < 6) return;
 
     if (email == null) {
-      _showMessage("Impossible de récupérer votre email.");
+      _showMessage(translate.impossibleDeRecupererVotreEmail);
       return;
     }
 
@@ -130,9 +131,9 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
       await user.linkWithCredential(credential);
 
       setState(() {});
-      _showMessage("Mot de passe ajouté avec succès.");
+      _showMessage(translate.motDePasseAjouteAvecSucces);
     } on FirebaseAuthException catch (e) {
-      _showMessage(e.message ?? "Erreur.");
+      _showMessage(e.message ?? translate.erreur);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -143,8 +144,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
     if (user == null) return;
 
     if (user.providerData.length <= 1) {
-      _showMessage(
-          "Vous devez avoir au moins une méthode de connexion active.");
+      _showMessage(translate.vousDevezAvoirAuMoinsUneMethodeDeConnexionActive);
       return;
     }
 
@@ -153,9 +153,9 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
     try {
       await user.unlink('password');
       setState(() {});
-      _showMessage("Mot de passe supprimé.");
+      _showMessage(translate.motDePasseSupprime);
     } catch (e) {
-      _showMessage("Erreur lors de la suppression.");
+      _showMessage(translate.erreurLorsDeLaSuppression);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -169,7 +169,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            "Créer un mot de passe",
+            translate.creerUnMotDePasse,
             style: TextStyle(
               color: ColorPalette.textPrimary(
                 context,
@@ -179,15 +179,15 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
           content: TextField(
             controller: controller,
             obscureText: true,
-            decoration: const InputDecoration(
-              labelText: "Nouveau mot de passe (min. 6 caractères)",
+            decoration: InputDecoration(
+              labelText: translate.nouveauMotDePasse,
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Annuler",
+                translate.annuler,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(
                     context,
@@ -198,7 +198,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
             TextButton(
               onPressed: () => Navigator.pop(context, controller.text),
               child: Text(
-                "Valider",
+                translate.valider,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(
                     context,
@@ -247,7 +247,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
                   ),
                 ),
                 Text(
-                  isConnected ? "Connecté" : "Non connecté",
+                  isConnected ? translate.connecte : translate.nonConnecte,
                   style: TextStyle(
                     color: isConnected
                         ? ColorPalette.success(context)
@@ -266,7 +266,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
               overlayColor: MaterialStateProperty.all(Colors.transparent),
             ),
             child: Text(
-              isConnected ? "Délier" : "Connecter",
+              isConnected ? translate.delier : translate.connecter,
               style: TextStyle(
                 color: ColorPalette.accent(context),
               ),
@@ -283,7 +283,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
       return Scaffold(
         body: Center(
           child: Text(
-            "Utilisateur non connecté",
+            translate.utilisateurNonConnecte,
             style: TextStyle(
               color: ColorPalette.textPrimary(
                 context,
@@ -301,7 +301,7 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Comptes connectés',
+          translate.comptesConnectes,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -316,12 +316,12 @@ class _ConnectedAccountsViewState extends State<ConnectedAccountsView> {
         child: Column(
           children: [
             _buildTile(
-              title: "Email / Mot de passe",
+              title: translate.emailMotDePasse,
               isConnected: _hasPassword,
               onPressed: _hasPassword ? _unlinkPassword : _linkPassword,
             ),
             _buildTile(
-              title: "Google",
+              title: translate.google,
               isConnected: _hasGoogle,
               onPressed: _hasGoogle ? _unlinkGoogle : _linkGoogle,
             ),

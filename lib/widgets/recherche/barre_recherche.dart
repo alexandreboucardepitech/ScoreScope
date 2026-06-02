@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class BarreRecherche extends StatelessWidget {
   final ValueChanged<String> onChanged;
@@ -20,7 +21,7 @@ class BarreRecherche extends StatelessWidget {
         autofocus: true,
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: 'Rechercher un match, une équipe, un joueur...',
+          hintText: translate.rechercherUnMatchUneEquipeUnJoueur,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: controller.text.isNotEmpty
               ? IconButton(

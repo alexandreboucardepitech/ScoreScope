@@ -12,6 +12,7 @@ import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/get_lignes_buteurs.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class MatchTile extends StatefulWidget {
   final MatchModel match;
@@ -121,7 +122,12 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Notifications ${value ? 'activées' : 'désactivées'} pour ${widget.match.equipeDomicile.nomCourt ?? widget.match.equipeDomicile.nom} - ${widget.match.equipeExterieur.nomCourt ?? widget.match.equipeExterieur.nom}',
+          translate.notificationsXPourXX(
+              value ? 'activées' : 'désactivées',
+              widget.match.equipeDomicile.nomCourt ??
+                  widget.match.equipeDomicile.nom,
+              widget.match.equipeExterieur.nomCourt ??
+                  widget.match.equipeExterieur.nom),
         ),
         duration: const Duration(seconds: 1),
       ),
@@ -262,7 +268,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
         onTap: _navigateToDetails,
         child: Text(
           match.isHalftime
-              ? "MT"
+              ? translate.mt
               : match.extraTime != null
                   ? "${match.liveMinute!}+${match.extraTime!}'"
                   : "${match.liveMinute}'",

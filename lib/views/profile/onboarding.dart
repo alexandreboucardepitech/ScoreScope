@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'dart:ui';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 /// Onboarding Welcome Card
 class WelcomeCard extends StatelessWidget {
@@ -16,7 +17,7 @@ class WelcomeCard extends StatelessWidget {
         AppLogos.logoAccent(context, size: 100),
         const SizedBox(height: 36),
         Text(
-          "Bienvenue sur ScoreScope !",
+          translate.bienvenueSurScorescope,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 20,
@@ -26,14 +27,7 @@ class WelcomeCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          """1: Répertorie les matchs que tu as regardé, donne leur une note, et vote pour le meilleur joueur.
-
-2: Ajoute des amis et partage les matchs que tu as regardé.
-
-3: Découvrez des dizaines de statistiques sur tes habitudes de visionnage.
-
-
-Avec ScoreScope, garde un souvenir de chaque match, tel qu'il a été vécu !""",
+          translate.bienvenueSurScorescopeDescription,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12,
@@ -52,7 +46,7 @@ Avec ScoreScope, garde un souvenir de chaque match, tel qu'il a été vécu !"""
               ),
             ),
             child: Text(
-              "Continuer",
+              translate.continuer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -86,7 +80,7 @@ class TeamsCard extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          "Choisis tes équipes préférées",
+          translate.choisisTesEquipesPreferees,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 18,
@@ -103,7 +97,7 @@ class TeamsCard extends StatelessWidget {
         TextButton(
           onPressed: onAddTeams,
           child: Text(
-            "Ajouter des équipes",
+            translate.ajouterDesEquipes,
             style: TextStyle(color: ColorPalette.accent(context)),
           ),
         ),
@@ -115,7 +109,7 @@ class TeamsCard extends StatelessWidget {
               backgroundColor: ColorPalette.accent(context),
             ),
             child: Text(
-              "Continuer",
+              translate.continuer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -150,7 +144,7 @@ class CompetitionsCard extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          "Choisis tes compétitions préférées",
+          translate.choisisTesCompetitionsPreferees,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 18,
@@ -167,7 +161,7 @@ class CompetitionsCard extends StatelessWidget {
         TextButton(
           onPressed: onAddCompetitions,
           child: Text(
-            "Ajouter des compétitions",
+            translate.ajouterDesCompetitions,
             style: TextStyle(color: ColorPalette.accent(context)),
           ),
         ),
@@ -179,7 +173,7 @@ class CompetitionsCard extends StatelessWidget {
               backgroundColor: ColorPalette.accent(context),
             ),
             child: Text(
-              "Continuer",
+              translate.continuer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -207,7 +201,7 @@ class StartCard extends StatelessWidget {
         ),
         const SizedBox(height: 52),
         Text(
-          "Commence l'aventure ScoreScope !",
+          translate.commenceLAventureScorescope,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 18,
@@ -217,7 +211,7 @@ class StartCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          "Personnalise ton profil pour entrer dans l'app.",
+          translate.personnaliseTonProfilPourEntrerDansLApp,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -233,7 +227,7 @@ class StartCard extends StatelessWidget {
               backgroundColor: ColorPalette.accent(context),
             ),
             child: Text(
-              "Terminer",
+              translate.terminer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(
                   context,
@@ -289,7 +283,7 @@ class OnboardingOverlay extends StatelessWidget {
                     child: TextButton(
                       onPressed: onSkip,
                       child: Text(
-                        "Passer",
+                        translate.passer,
                         style: TextStyle(
                           color: ColorPalette.textAccent(context),
                           fontSize: 16,

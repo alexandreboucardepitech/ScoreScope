@@ -3,11 +3,9 @@ import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/post/match_regarde_ami.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/widgets/fil_actu_amis/match_regarde_amis_list.dart';
 
-/// Onglet "Mes amis" dans MatchDetailsPage
-/// Requete le repository pour récupérer la liste des MatchRegardeAmi pour ce matchId,
-/// puis affiche MatchRegardeAmiListView(entries: ...).
 class MesAmisTab extends StatefulWidget {
   final String matchId;
   final Future<void> Function()? onRefresh;
@@ -118,14 +116,14 @@ class _MesAmisTabState extends State<MesAmisTab> {
                 size: 48, color: ColorPalette.pictureBackground(context)),
             const SizedBox(height: 12),
             Text(
-              "Impossible de charger la liste des amis.",
+              translate.impossibleDeChargerLaListeDesAmis,
               style: TextStyle(color: ColorPalette.textSecondary(context)),
             ),
             const SizedBox(height: 8),
             ElevatedButton(
                 onPressed: _load,
                 child: Text(
-                  'Réessayer',
+                  translate.reessayer,
                   style: TextStyle(
                     color: ColorPalette.textPrimary(
                       context,

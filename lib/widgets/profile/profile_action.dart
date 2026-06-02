@@ -3,6 +3,7 @@ import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/edit_profile_view.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class ProfileAction extends StatelessWidget {
   final AppUser? user;
@@ -40,9 +41,9 @@ class ProfileAction extends StatelessWidget {
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Text(
-                  "Erreur : aucun utilisateur n'est spécifié",
+                  translate.erreurAucunUtilisateurNEstSpecifie,
                 ),
               ),
             );
@@ -50,7 +51,7 @@ class ProfileAction extends StatelessWidget {
         },
         icon: Icon(Icons.edit, size: 16, color: ColorPalette.accent(context)),
         label: Text(
-          'Modifier le profil',
+          translate.modifierLeProfil,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
           ),
@@ -78,19 +79,19 @@ class ProfileAction extends StatelessWidget {
 
     switch (status) {
       case 'accepted':
-        label = "Amis";
+        label = translate.amis;
         icon = Icons.check;
         break;
       case 'pending':
-        label = isSentByMe ? "En attente" : "Demande reçue";
+        label = isSentByMe ? translate.enAttente : translate.demandeRecue;
         icon = Icons.hourglass_top;
         break;
       case 'blocked':
-        label = "Bloqué";
+        label = translate.bloque;
         icon = Icons.block;
         break;
       default:
-        label = "Ajouter";
+        label = translate.ajouter;
         icon = Icons.add;
     }
 
@@ -121,7 +122,7 @@ class ProfileAction extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(
-            "Annuler",
+            translate.annuler,
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
             ),
@@ -133,7 +134,7 @@ class ProfileAction extends StatelessWidget {
             onActionRequested?.call('send');
           },
           child: Text(
-            "Envoyer",
+            translate.envoyer,
             style: TextStyle(
               color: ColorPalette.textAccent(context),
             ),
@@ -146,7 +147,7 @@ class ProfileAction extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              "Annuler",
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -158,7 +159,7 @@ class ProfileAction extends StatelessWidget {
               onActionRequested?.call('cancel');
             },
             child: Text(
-              "Retirer la demande",
+              translate.retirerLaDemande,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -170,7 +171,7 @@ class ProfileAction extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              "Annuler",
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -182,7 +183,7 @@ class ProfileAction extends StatelessWidget {
               onActionRequested?.call('remove');
             },
             child: Text(
-              "Refuser",
+              translate.refuser,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -194,7 +195,7 @@ class ProfileAction extends StatelessWidget {
               onActionRequested?.call('accept');
             },
             child: Text(
-              "Accepter",
+              translate.accepter,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -207,7 +208,7 @@ class ProfileAction extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(
-            "Annuler",
+            translate.annuler,
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
             ),
@@ -219,7 +220,7 @@ class ProfileAction extends StatelessWidget {
             onActionRequested?.call('remove');
           },
           child: Text(
-            "Retirer",
+            translate.retirer,
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
             ),
@@ -231,7 +232,7 @@ class ProfileAction extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(
-            "Annuler",
+            translate.annuler,
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
             ),
@@ -243,7 +244,7 @@ class ProfileAction extends StatelessWidget {
             onActionRequested?.call('unblock');
           },
           child: Text(
-            "Débloquer",
+            translate.debloquer,
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
             ),
@@ -258,7 +259,7 @@ class ProfileAction extends StatelessWidget {
         backgroundColor: ColorPalette.surface(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          "Amitié",
+          translate.amitie,
           style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.bold,
@@ -276,20 +277,20 @@ class ProfileAction extends StatelessWidget {
   }
 
   String _getDialogString(bool isSentByMe) {
-    final displayName = user?.displayName ?? "cet utilisateur";
+    final displayName = user?.displayName ?? translate.cetUtilisateur;
     switch (amitie?.status ?? 'none') {
       case 'accepted':
-        return "Voulez-vous retirer l'ami $displayName ?";
+        return translate.voulezVousRetirerLAmiX(displayName);
       case 'pending':
         if (isSentByMe) {
-          return "Voulez-vous retirer la demande d'ami à $displayName ?";
+          return translate.voulezVousRetirerLaDemandeDAmiAX(displayName);
         } else {
-          return "Accepter la demande d'ami de $displayName ?";
+          return translate.accepterLaDemandeDAmiDeX(displayName);
         }
       case 'blocked':
-        return "Voulez-vous débloquer $displayName ?";
+        return translate.voulezVousDebloquerX(displayName);
       default:
-        return "Voulez-vous envoyer une demande d'ami à $displayName ?";
+        return translate.voulezVousEnvoyerUneDemandeDAmiAX(displayName);
     }
   }
 }

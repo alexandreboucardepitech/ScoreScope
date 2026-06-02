@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class MatchNotStarted extends StatefulWidget {
   final ValueChanged<bool> onNotificationsChanged;
@@ -85,7 +86,7 @@ class _MatchNotStartedState extends State<MatchNotStarted> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Le match n'a pas encore commencé !",
+                      translate.leMatchNAPasEncoreCommence,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -94,7 +95,7 @@ class _MatchNotStartedState extends State<MatchNotStarted> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      "Active les notifications",
+                      translate.activeLesNotifications,
                       style: TextStyle(
                         fontSize: 12,
                         color: ColorPalette.textSecondary(context),

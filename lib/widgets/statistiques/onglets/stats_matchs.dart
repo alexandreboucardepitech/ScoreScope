@@ -3,6 +3,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/onglets/stats_matchs_data.dart';
 import 'package:scorescope/utils/string/round_smart.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
@@ -23,33 +24,33 @@ class StatsMatchsOnglet extends StatelessWidget {
     final statsWidgets = <Widget>[
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Matchs vus',
+        title: translate.matchsVus,
         value: data.matchsVus.toString(),
         icon: Icons.sports,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Moy. buts / match',
+        title: translate.moyButsMatch,
         value: roundSmart(data.moyenneButsParMatch),
         icon: Icons.show_chart,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Plus gros score',
+        title: translate.plusGrosScore,
         items: data.biggestScores,
-        emptyStateText: 'Aucun match',
+        emptyStateText: translate.aucunMatch,
         user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Plus gros écart',
+        title: translate.plusGrosEcart,
         items: data.biggestScoresDifference,
-        emptyStateText: 'Aucun match',
+        emptyStateText: translate.aucunMatch,
         user: user,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Moyenne différence buts / match',
+        title: translate.moyenneDifferenceButsMatch,
         value: roundSmart(data.moyenneDiffButsParMatch),
         icon: Icons.balance,
       ),
@@ -57,13 +58,13 @@ class StatsMatchsOnglet extends StatelessWidget {
 
     final graphWidgets = <Widget>[
       GraphCard(
-        title: 'Résultats (domicile / nul / extérieur)',
+        title: translate.resultatsDomicileNulExterieur,
         type: GraphType.splitBar,
         values: data.pourcentageVictoireDomExt,
       ),
       // caché en attendant que ce soit vraiment implémenté
       // GraphCard(
-      //   title: 'Clubs vs Internationaux',
+      //   title: translate.clubsVsInternationaux,
       //   type: GraphType.splitBar,
       //   values: data.pourcentageClubsInternationaux,
       // ),

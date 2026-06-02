@@ -15,6 +15,7 @@ import 'package:scorescope/widgets/match_details_tabs/match_rating_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/visionnage_match_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/watch_with_friends_card.dart';
 import '../../../models/match.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class InfosTab extends StatefulWidget {
   final MatchModel match;
@@ -261,7 +262,7 @@ class _InfosTabState extends State<InfosTab> {
         backgroundColor: ColorPalette.surface(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          "Supprimer ${friend.displayName} ?",
+          translate.supprimerX(friend.displayName),
           style: TextStyle(
             color: ColorPalette.textAccent(context),
             fontWeight: FontWeight.bold,
@@ -269,7 +270,8 @@ class _InfosTabState extends State<InfosTab> {
           ),
         ),
         content: Text(
-          "Voulez-vous supprimer ${friend.displayName} des amis qui ont regardé le match avec vous ?",
+          translate.voulezVousSupprimerXDesAmisQuiOntRegardeLeMatchAvecVous(
+              friend.displayName),
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontSize: 16,
@@ -278,13 +280,17 @@ class _InfosTabState extends State<InfosTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('Annuler',
-                style: TextStyle(color: ColorPalette.textPrimary(context))),
+            child: Text(
+              translate.annuler,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
-              'Confirmer',
+              translate.confirmer,
               style: TextStyle(
                 color: ColorPalette.textAccent(context),
                 fontWeight: FontWeight.bold,
@@ -327,21 +333,27 @@ class _InfosTabState extends State<InfosTab> {
   }
 
   int? get _noteCount {
-    final valid =
-        widget.match.notes.values.whereType<int>().where((n) => n >= 0).toList();
+    final valid = widget.match.notes.values
+        .whereType<int>()
+        .where((n) => n >= 0)
+        .toList();
     return valid.isEmpty ? null : valid.length;
   }
 
   int? get _noteMin {
-    final valid =
-        widget.match.notes.values.whereType<int>().where((n) => n >= 0).toList();
+    final valid = widget.match.notes.values
+        .whereType<int>()
+        .where((n) => n >= 0)
+        .toList();
     if (valid.isEmpty) return null;
     return valid.reduce((a, b) => a < b ? a : b);
   }
 
   int? get _noteMax {
-    final valid =
-        widget.match.notes.values.whereType<int>().where((n) => n >= 0).toList();
+    final valid = widget.match.notes.values
+        .whereType<int>()
+        .where((n) => n >= 0)
+        .toList();
     if (valid.isEmpty) return null;
     return valid.reduce((a, b) => a > b ? a : b);
   }

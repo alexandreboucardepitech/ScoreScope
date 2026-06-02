@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class CommentInputField extends StatefulWidget {
   final String ownerUserId;
@@ -72,7 +73,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Text(
-          "Écrire un commentaire",
+          translate.ecrireUnCommentaire,
           style: TextStyle(
             color: ColorPalette.textSecondary(context),
             fontStyle: FontStyle.italic,
@@ -96,7 +97,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _sendComment(),
               decoration: InputDecoration(
-                hintText: "Écrire un commentaire...",
+                hintText: translate.ecrisUnCommentaire,
                 border: InputBorder.none,
                 hintStyle: TextStyle(
                   color: ColorPalette.textSecondary(context),

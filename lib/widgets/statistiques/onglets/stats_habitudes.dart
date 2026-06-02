@@ -3,6 +3,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/onglets/stats_habitudes_data.dart';
 import 'package:scorescope/utils/string/round_smart.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
@@ -23,63 +24,63 @@ class StatsHabitudesOnglet extends StatelessWidget {
     final statsWidgets = <Widget>[
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'MVP les plus votés',
+        title: translate.mvpLesPlusVotes,
         items: data.mvpsLesPlusVotes,
-        emptyStateText: 'Aucun MVP',
+        emptyStateText: translate.aucunMvp,
         user: user,
         logoBackground: false,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Moy. des notes données',
+        title: translate.moyDesNotesDonnees,
         value: roundSmart(data.moyenneNotes),
         icon: Icons.star,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Matchs les mieux notés',
+        title: translate.matchsLesMieuxNotes,
         items: data.matchsMieuxNotes,
-        emptyStateText: 'Aucun match',
+        emptyStateText: translate.aucunMatch,
         user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Matchs les + commentés',
+        title: translate.matchsLesCommentes,
         items: data.matchsPlusCommentes.isNotEmpty &&
                 data.matchsPlusCommentes[0].value != 0
             ? data.matchsPlusCommentes
             : [],
-        emptyStateText: 'Aucun match',
+        emptyStateText: translate.aucunMatch,
         user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Matchs les + réactions',
+        title: translate.matchsLesReactions,
         items: data.matchsPlusReactions.isNotEmpty &&
                 data.matchsPlusReactions[0].value != 0
             ? data.matchsPlusReactions
             : [],
-        emptyStateText: 'Aucun match',
+        emptyStateText: translate.aucunMatch,
         user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Jours avec le plus de matchs vus',
+        title: translate.joursAvecLePlusDeMatchsVus,
         items: data.joursLePlusDeMatchs,
-        emptyStateText: 'Aucune donnée',
+        emptyStateText: translate.aucuneDonnee,
         user: user,
       ),
     ];
 
     final graphWidgets = <Widget>[
       GraphCard(
-        title: 'Types de visionnage',
+        title: translate.typesDeVisionnage,
         type: GraphType.pie,
         values: data.typeVisionnage,
         pourcentage: true,
       ),
       GraphCard(
-        title: 'Nombre de matchs vus par mois',
+        title: translate.nombreDeMatchsVusParMois,
         type: GraphType.timeLine,
         values: data.matchsVusParMois,
       ),

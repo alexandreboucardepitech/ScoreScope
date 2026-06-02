@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/util/emoji.dart';
 import 'package:scorescope/utils/emoji/emojis_loader.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
 class EmojiPickerSheet extends StatefulWidget {
@@ -222,7 +223,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
               Padding(
                 padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
                 child: Text(
-                  'Récents',
+                  translate.recents,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: ColorPalette.textPrimary(context),
@@ -385,7 +386,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                 const SizedBox(height: 8),
                 TextField(
                   decoration: InputDecoration(
-                    hintText: 'Rechercher un emoji par nom ou catégorie…',
+                    hintText: translate.rechercherUnEmojiParNomOuCategorie,
                     hintStyle:
                         TextStyle(color: ColorPalette.textPrimary(context)),
                     prefixIcon: Icon(Icons.search,

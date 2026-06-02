@@ -9,6 +9,7 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/amis/comments_page.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class PostNotificationsSection extends StatefulWidget {
   final List<PostNotification> notifications;
@@ -70,11 +71,11 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader(context, 'Notifications'),
+        _sectionHeader(context, translate.notifications),
         if (newTiles.isEmpty && oldTiles.isEmpty)
           Center(
             child: Text(
-              'Aucune notification',
+              translate.aucuneNotification,
               style: TextStyle(
                 color: ColorPalette.textSecondary(context),
               ),
@@ -93,7 +94,9 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
                       if (_currentUserId == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Erreur : utilisateur non connecté'),
+                            content: Text(translate.erreur +
+                                ': ' +
+                                translate.utilisateurNonConnecte),
                             duration: const Duration(seconds: 1),
                           ),
                         );
@@ -105,7 +108,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
                           .onNotificationOpened(); // re fetch les notifications pour mettre à jour l'affichage
                     },
                     child: Text(
-                      "Tout marquer comme vu",
+                      translate.toutMarquerCommeVu,
                       style: TextStyle(
                         color: ColorPalette.textAccent(context),
                       ),
@@ -116,7 +119,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
             : Center(
                 child: newTiles.isNotEmpty
                     ? Text(
-                        'Aucune nouvelle notification',
+                        translate.aucuneNouvelleNotification,
                         style: TextStyle(
                           color: ColorPalette.textSecondary(context),
                         ),
@@ -124,7 +127,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
                     : null,
               ),
         if (oldTiles.isNotEmpty) ...[
-          _sectionHeader(context, 'Déjà vues'),
+          _sectionHeader(context, translate.dejaVues),
           ..._buildTiles(context, oldTiles),
         ],
       ],
@@ -209,13 +212,15 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
       builder: (context) => AlertDialog(
         backgroundColor: ColorPalette.surface(context),
         title: Text(
-          'Invitation à regarder le match ensemble',
+          translate.invitationARegarderLeMatchEnsemble,
           style: TextStyle(
             color: ColorPalette.textAccent(context),
           ),
         ),
         content: Text(
-          "Acceptez-vous l'invitation à regarder le match avec ${owner.displayName} ?",
+          translate.acceptezVousLInvitationARegarderLeMatchAvecX(
+            owner.displayName,
+          ),
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
           ),
@@ -224,14 +229,14 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
           TextButton(
             onPressed: () => Navigator.pop(context, 'cancel'),
             child: Text(
-              'Annuler',
+              translate.annuler,
               style: TextStyle(color: ColorPalette.textSecondary(context)),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, 'refuse'),
             child: Text(
-              'Refuser',
+              translate.refuser,
               style: TextStyle(color: ColorPalette.textSecondary(context)),
             ),
           ),
@@ -241,7 +246,7 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
               ),
               onPressed: () => Navigator.pop(context, 'accept'),
               child: Text(
-                'Accepter',
+                translate.accepter,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(context),
                   fontWeight: FontWeight.bold,
@@ -514,16 +519,16 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
     switch (type) {
       case 'comments':
         action = displayed.length > 1
-            ? 'ont commenté votre match'
-            : 'a commenté votre match';
+            ? translate.ontCommenteVotreMatch
+            : translate.aCommenteVotreMatch;
       case 'reactions':
         action = displayed.length > 1
-            ? 'ont réagi à votre match'
-            : 'a réagi à votre match';
+            ? translate.ontReagiAVotreMatch
+            : translate.aReagiAVotreMatch;
       case 'watchTogether':
-        action = 'vous invite à regarder le match ensemble';
+        action = translate.vousInviteARegarderLeMatchEnsemble;
       default:
-        action = 'a interagi avec votre post';
+        action = translate.aInteragiAvecVotrePost;
     }
 
     return TextSpan(
@@ -549,9 +554,11 @@ class _PostNotificationsSectionState extends State<PostNotificationsSection> {
                 );
               },
           ),
-          if (i < displayed.length - 1) const TextSpan(text: ' et '),
+          if (i < displayed.length - 1)
+            TextSpan(text: ' ' + translate.et + ' '),
         ],
-        if (remaining > 0) TextSpan(text: ' et $remaining autres'),
+        if (remaining > 0)
+          TextSpan(text: translate.etXAutres(remaining.toString())),
         TextSpan(text: ' $action'),
       ],
     );

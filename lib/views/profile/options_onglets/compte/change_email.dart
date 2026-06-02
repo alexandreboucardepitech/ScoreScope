@@ -4,6 +4,7 @@ import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/auth_service.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class ChangeEmailView extends StatefulWidget {
   final AppUser currentUser;
@@ -53,9 +54,9 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            "Un email de confirmation a été envoyé à votre nouvelle adresse.",
+            translate.unEmailDeConfirmationAEteEnvoyeAVotreNouvelleAdresse,
           ),
         ),
       );
@@ -75,9 +76,9 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
           );
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(
-                "Un email de confirmation a été envoyé.",
+                translate.unEmailDeConfirmationAEteEnvoye,
               ),
             ),
           );
@@ -86,14 +87,14 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
         } catch (reauthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Mot de passe incorrect."),
+              content: Text(translate.motDePasseIncorrect),
             ),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.message ?? "Erreur inconnue"),
+            content: Text(e.message ?? translate.erreurInconnue),
           ),
         );
       }
@@ -108,7 +109,7 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            "Confirmez votre identité",
+            translate.confirmezVotreIdentite,
             style: TextStyle(
               color: ColorPalette.textPrimary(
                 context,
@@ -118,15 +119,15 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
           content: TextField(
             controller: passwordController,
             obscureText: true,
-            decoration: const InputDecoration(
-              labelText: "Mot de passe",
+            decoration: InputDecoration(
+              labelText: translate.motDePasse,
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Annuler",
+                translate.annuler,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(
                     context,
@@ -137,7 +138,7 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
             TextButton(
               onPressed: () => Navigator.pop(context, passwordController.text),
               child: Text(
-                "Confirmer",
+                translate.confirmer,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(
                     context,
@@ -160,7 +161,7 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Modifier l’email',
+          translate.modifierLEmail,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -178,7 +179,7 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
             if (widget.currentUser.email != null) ...[
               /// Email actuel
               Text(
-                "Email actuel",
+                translate.emailActuel,
                 style: TextStyle(
                   color: ColorPalette.textSecondary(context),
                   fontSize: 13,
@@ -198,7 +199,7 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
 
             /// Nouveau email
             Text(
-              "Nouvel email",
+              translate.nouvelEmail,
               style: TextStyle(
                 color: ColorPalette.textSecondary(context),
                 fontSize: 13,
@@ -249,8 +250,8 @@ class _ChangeEmailViewState extends State<ChangeEmailView> {
                 ).copyWith(
                   splashFactory: NoSplash.splashFactory,
                 ),
-                child: const Text(
-                  "Mettre à jour",
+                child: Text(
+                  translate.mettreAJour,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

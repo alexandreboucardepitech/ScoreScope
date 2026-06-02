@@ -14,6 +14,7 @@ import 'package:scorescope/widgets/match_details_tabs/infos.dart';
 import 'package:scorescope/widgets/match_details_tabs/mes_amis.dart';
 import '../../models/match.dart';
 import '../../utils/string/get_lignes_buteurs.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class MatchDetailsPage extends StatefulWidget {
   final MatchModel match;
@@ -133,7 +134,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       }
     } catch (e) {
       debugPrint(
-        'Erreur lors du chargement des données utilisateur du match: $e',
+        translate
+            .erreurLorsDuChargementDesDonneesUtilisateurDuMatchX(e.toString()),
       );
     }
   }
@@ -163,7 +165,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            newFavori ? 'Match ajouté aux favoris' : 'Match retiré des favoris',
+            newFavori
+                ? translate.matchAjouteAuxFavoris
+                : translate.matchRetireDesFavoris,
           ),
           duration: const Duration(seconds: 1),
         ),
@@ -172,7 +176,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur lors de la mise à jour du favori'),
+          content: Text(translate.erreurLorsDeLaMiseAJourDuFavori),
           duration: const Duration(seconds: 1),
         ),
       );
@@ -206,13 +210,13 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       builder: (context) => AlertDialog(
         backgroundColor: ColorPalette.surface(context),
         title: Text(
-          'Rendre le match public',
+          translate.rendreLeMatchPublic,
           style: TextStyle(
             color: ColorPalette.textAccent(context),
           ),
         ),
         content: Text(
-          'Le match sera rendu public et visible par vos amis.',
+          translate.leMatchSeraRenduPublicEtVisibleParVosAmis,
           style: TextStyle(
             color: ColorPalette.textPrimary(
               context,
@@ -223,7 +227,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Annuler',
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -238,7 +242,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
               await _setPrivacy(false); // false => rendu public
             },
             child: Text(
-              'Rendre public',
+              translate.rendrePublic,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -256,18 +260,22 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       builder: (context) => AlertDialog(
         backgroundColor: ColorPalette.surface(context),
         title: Text(
-          'Rendre le match privé',
+          translate.rendreLeMatchPrive,
           style: TextStyle(
             color: ColorPalette.textAccent(context),
           ),
         ),
-        content: const Text(
-            'Le match restera en brouillon (privé) et ne sera pas visible par vos amis.'),
+        content: Text(
+          translate.leMatchResteraPriveEtNeSeraPasVisibleParVosAmis,
+          style: TextStyle(
+            color: ColorPalette.textPrimary(context),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Annuler',
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -282,7 +290,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
               await _setPrivacy(true); // true => privé
             },
             child: Text(
-              'Rendre privé',
+              translate.rendrePrive,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -300,18 +308,19 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       builder: (context) => AlertDialog(
         backgroundColor: ColorPalette.surface(context),
         title: Text(
-          'Supprimer le match',
+          translate.supprimerLeMatch,
           style: TextStyle(
             color: ColorPalette.textAccent(context),
           ),
         ),
-        content: const Text(
-            "Êtes-vous sûr de vouloir supprimer ce match ?\nCela retirera votre note et votre vote MVP et il n'apparaîtra plus sur votre profil."),
+        content: Text(
+          translate.etesVousSurDeVouloirSupprimerCeMatch,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Annuler',
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -328,7 +337,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
               await _fetchMatch();
             },
             child: Text(
-              'Supprimer',
+              translate.supprimer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -347,7 +356,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     try {
       final currentUser =
           await RepositoryProvider.userRepository.getCurrentUser();
-      if (currentUser == null) throw Exception('Utilisateur non connecté');
+      if (currentUser == null)
+        throw Exception(translate.utilisateurNonConnecte);
 
       await RepositoryProvider.userRepository.setMatchPrivacy(
         _currentMatch.id,
@@ -363,8 +373,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text(makePrivate ? 'Match rendu privé' : 'Match rendu public'),
+          content: Text(makePrivate
+              ? translate.matchRenduPrive
+              : translate.matchRenduPublic),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -372,7 +383,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur lors de la mise à jour de la confidentialité'),
+          content: Text(translate.erreurLorsDeLaMiseAJourDeLaConfidentialite),
           duration: Duration(seconds: 2),
         ),
       );
@@ -391,7 +402,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     try {
       final currentUser =
           await RepositoryProvider.userRepository.getCurrentUser();
-      if (currentUser == null) throw Exception('Utilisateur non connecté');
+      if (currentUser == null)
+        throw Exception(translate.utilisateurNonConnecte);
 
       _currentMatch.mvpVotes
           .removeWhere((userId, voteId) => userId == currentUser.uid);
@@ -414,14 +426,14 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: ColorPalette.accent(context),
-          content: Text('Match supprimé'),
+          content: Text(translate.matchSupprime),
         ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur lors de la suppression du match (réessayez)'),
+          content: Text(translate.erreurLorsDeLaSuppressionDuMatch),
         ),
       );
     } finally {
@@ -461,7 +473,12 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Notifications ${value ? 'activées' : 'désactivées'} pour ${widget.match.equipeDomicile.nomCourt ?? widget.match.equipeDomicile.nom} - ${widget.match.equipeExterieur.nomCourt ?? widget.match.equipeExterieur.nom}',
+          translate.notificationsXPourXX(
+              value ? 'activées' : 'désactivées',
+              widget.match.equipeDomicile.nomCourt ??
+                  widget.match.equipeDomicile.nom,
+              widget.match.equipeExterieur.nomCourt ??
+                  widget.match.equipeExterieur.nom),
         ),
         duration: const Duration(seconds: 1),
       ),
@@ -538,7 +555,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                     ),
                   )
                 : PopupMenuButton<String>(
-                    tooltip: _isPrivate ? 'Match privé' : 'Match public',
+                    tooltip: _isPrivate
+                        ? translate.matchPrive
+                        : translate.matchPublic,
                     icon: Icon(
                       _isPrivate ? Icons.lock : Icons.public,
                       color: ColorPalette.accent(context),
@@ -554,7 +573,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 const Icon(Icons.public, size: 18),
                                 const SizedBox(width: 10),
                                 Text(
-                                  'Rendre le match public',
+                                  translate.rendreLeMatchPublic,
                                   style: TextStyle(
                                     color: ColorPalette.textPrimary(context),
                                   ),
@@ -569,7 +588,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 const Icon(Icons.delete, size: 18),
                                 const SizedBox(width: 10),
                                 Text(
-                                  'Supprimer le match',
+                                  translate.supprimerLeMatch,
                                   style: TextStyle(
                                     color: ColorPalette.textPrimary(context),
                                   ),
@@ -587,7 +606,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 const Icon(Icons.lock, size: 18),
                                 const SizedBox(width: 10),
                                 Text(
-                                  'Rendre le match privé',
+                                  translate.rendreLeMatchPrive,
                                   style: TextStyle(
                                     color: ColorPalette.textPrimary(context),
                                   ),
@@ -602,7 +621,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 const Icon(Icons.delete, size: 18),
                                 const SizedBox(width: 10),
                                 Text(
-                                  'Supprimer le match',
+                                  translate.supprimerLeMatch,
                                   style: TextStyle(
                                     color: ColorPalette.textPrimary(context),
                                   ),
@@ -727,7 +746,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                     _currentMatch.liveMinute != null)
                                   Text(
                                     _currentMatch.isHalftime
-                                        ? "Mi-Temps"
+                                        ? translate.miTemps
                                         : _currentMatch.extraTime != null
                                             ? "${_currentMatch.liveMinute!}+${_currentMatch.extraTime!}'"
                                             : "${_currentMatch.liveMinute}'",
@@ -888,10 +907,10 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                   indicatorColor: ColorPalette.accent(context),
                   labelColor: ColorPalette.textAccent(context),
                   unselectedLabelColor: ColorPalette.textPrimary(context),
-                  tabs: const [
-                    Tab(text: "Infos"),
-                    Tab(text: "Compositions"),
-                    Tab(text: "Mes Amis"),
+                  tabs: [
+                    Tab(text: translate.infos),
+                    Tab(text: translate.compositions),
+                    Tab(text: translate.mesAmis),
                   ],
                 ),
               ],

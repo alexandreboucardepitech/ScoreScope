@@ -1,18 +1,20 @@
+import 'package:scorescope/utils/translate/language_controller.dart';
+
 String getFriendshipActionSnackbarMessage(String action) {
   switch (action) {
     case 'send':
-      return "Demande d'ami envoyée avec succès!";
+      return translate.demandeDAmiEnvoyeeAvecSucces;
     case 'cancel':
-      return "Demande d'ami annulée avec succès!";
+      return translate.demandeDAmiAnnuleeAvecSucces;
     case 'accept':
-      return "Demande acceptée !";
+      return translate.demandeAcceptee;
     case 'remove':
-      return "Ami retiré avec succès!";
+      return translate.amiRetireAvecSucces;
     case 'block':
-      return "Utilisateur bloqué avec succès!";
+      return translate.utilisateurBloqueAvecSucces;
     case 'unblock':
-      return "Utilisateur débloqué avec succès!";
+      return translate.utilisateurDebloqueAvecSucces;
     default:
-      return "Action effectuée avec succès!";
+      return translate.actionEffectueeAvecSucces;
   }
 }

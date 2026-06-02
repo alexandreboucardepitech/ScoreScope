@@ -13,6 +13,7 @@ import 'package:scorescope/models/stats/graph/stat_value.dart';
 import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/utils/stats/stats_loader.dart';
 import 'package:scorescope/utils/stats/stats_loading_state.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_competitions.dart';
 import 'package:scorescope/widgets/statistiques/onglets/stats_equipes.dart';
@@ -149,8 +150,8 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
       pourcentageVictoireDomExt:
           StatsLoader.getPourcentageVictoireDomExt(matchModels),
       pourcentageClubsInternationaux: [
-        StatValue(label: "Clubs", value: 50),
-        StatValue(label: "International", value: 50),
+        StatValue(label: translate.clubs, value: 50),
+        StatValue(label: translate.international, value: 50),
       ],
     );
   }
@@ -244,8 +245,8 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
       pourcentageMatchsCompetitions:
           StatsLoader.getPourcentageMatchsCompetitions(matchModels),
       typesCompetitions: [
-        StatValue(label: "Clubs", value: 50),
-        StatValue(label: "International", value: 50),
+        StatValue(label: translate.clubs, value: 50),
+        StatValue(label: translate.international, value: 50),
       ],
     );
   }
@@ -294,7 +295,8 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'Erreur lors du chargement des statistiques.\n${state.errorMessage ?? ''}',
+            translate.erreurLorsDuChargementDesStatistiques(
+                state.errorMessage ?? ''),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -316,7 +318,7 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
         if (snapshot.hasError) {
           return Center(
             child: Text(
-              'Erreur lors du calcul des statistiques.',
+              translate.erreurLorsDuCalculDesStatistiques,
               style: TextStyle(
                 fontSize: 16,
                 color: ColorPalette.textPrimary(context),
@@ -393,7 +395,7 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
             ),
             const SizedBox(height: 20),
             Text(
-              state?.loadingLabel ?? 'Chargement…',
+              state?.loadingLabel ?? translate.chargement,
               style: TextStyle(
                 fontSize: 16,
                 color: ColorPalette.textPrimary(context),
@@ -414,7 +416,7 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
               ),
               const SizedBox(height: 8),
               Text(
-                '$loaded / $total matchs',
+                '$loaded / $total ${translate.matchs}',
                 style: TextStyle(
                   fontSize: 14,
                   color: ColorPalette.textPrimary(context),

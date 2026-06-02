@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 enum WatchStatus { accepted, pending }
 
@@ -95,7 +96,7 @@ class WatchWithFriendsCard extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            isAccepted ? "Confirmé" : "En attente",
+            isAccepted ? translate.confirme : translate.enAttente,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -125,8 +126,8 @@ class WatchWithFriendsCard extends StatelessWidget {
             Center(
               child: Text(
                 hasFriends
-                    ? "Regardé avec"
-                    : "Tu as regardé ce match avec des amis ?",
+                    ? translate.regardeAvec
+                    : translate.tuAsRegardeCeMatchAvecDesAmis,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: ColorPalette.textAccent(context),
@@ -137,7 +138,7 @@ class WatchWithFriendsCard extends StatelessWidget {
             if (!hasFriends) ...[
               Center(
                 child: Text(
-                  "Ajoute les amis avec qui tu as vu ce match.",
+                  translate.ajouteLesAmisAvecQuiTuAsVuCeMatch,
                   style: TextStyle(
                     fontSize: 13,
                     color: ColorPalette.textPrimary(context),
@@ -150,7 +151,7 @@ class WatchWithFriendsCard extends StatelessWidget {
                   onPressed: onAddFriend,
                   icon: const Icon(Icons.person_add, size: 18),
                   label: Text(
-                    "Ajouter un ami",
+                    translate.ajouterUnAmi,
                     style: TextStyle(
                       color: ColorPalette.textPrimary(
                         context,
@@ -210,7 +211,7 @@ class WatchWithFriendsCard extends StatelessWidget {
                     color: ColorPalette.accent(context),
                   ),
                   label: Text(
-                    "Ajouter un ami",
+                    translate.ajouterUnAmi,
                     style: TextStyle(
                       color: ColorPalette.accent(context),
                       fontWeight: FontWeight.w600,

@@ -9,6 +9,7 @@ import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/round_smart.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'dart:io';
@@ -86,7 +87,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
   final GlobalKey _shareKey = GlobalKey();
 
   bool _isSharing = false;
-  String _loadingLabel = 'Chargement…';
+  String _loadingLabel = translate.chargement;
 
   late final DateTime _lastMonday;
   late final DateTime _lastSunday;
@@ -118,9 +119,9 @@ class _RecapWeekViewState extends State<RecapWeekView> {
   Future<void> _loadData() async {
     try {
       final uid = RepositoryProvider.userRepository.currentUser?.uid;
-      if (uid == null) throw Exception('Utilisateur non connecté');
+      if (uid == null) throw Exception(translate.utilisateurNonConnecte);
 
-      setState(() => _loadingLabel = 'Récupération des matchs…');
+      setState(() => _loadingLabel = translate.recuperationDesMatchs);
       final results = await Future.wait([
         RepositoryProvider.userRepository.fetchUserAllMatchUserData(
           userId: uid,
@@ -138,7 +139,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
       final prevWeek = results[1];
       final allMuds = results[2];
 
-      setState(() => _loadingLabel = 'Chargement des détails des matchs…');
+      setState(() => _loadingLabel = translate.chargementDesDetailsDesMatchs);
       final matchDetails = await Future.wait(
         thisWeek.map((m) =>
             RepositoryProvider.matchRepository.fetchMatchById(m.matchId)),
@@ -159,7 +160,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
           matchMap[prevWeek[i].matchId] = matchLastWeekDetails[i]!;
       }
 
-      setState(() => _loadingLabel = 'Calcul des statistiques…');
+      setState(() => _loadingLabel = translate.calculDesStatistiques);
       final totalNbGoalsAllTime =
           await RepositoryProvider.userRepository.getUserNbButs(uid, true);
 
@@ -397,7 +398,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
     final n = matches.length;
 
     if (n == 0) {
-      return ['👀 Petite semaine football'];
+      return [translate.petiteSemaineFootball];
     }
 
     final totalGoals = matches.fold<int>(
@@ -456,37 +457,37 @@ class _RecapWeekViewState extends State<RecapWeekView> {
 
     if (highScoring >= n * 0.8 && n >= 3) {
       stats.add(
-        '🍿 Football spectacle • ${(highScoring / n * 100).round()}% avec 3+ buts',
+        translate.footballSpectacleXAvec3Buts((highScoring / n * 100).round().toString()),
       );
     }
 
     if (avgGoals >= 4 && n >= 3) {
       stats.add(
-        '💥 Défenses absentes • ${avgGoals.toStringAsFixed(1)} buts/match',
+        translate.defensesAbsentesXButsMatch(avgGoals.toStringAsFixed(1)),
       );
     }
 
     if (veryHighScoring >= 2) {
       stats.add(
-        '🔥 Semaine chaotique • $veryHighScoring matchs avec 5+ buts',
+        translate.semaineChaotiqueXMatchsAvec5Buts(veryHighScoring.toString()),
       );
     }
 
     if (zeroZero == 0 && n >= 3) {
       stats.add(
-        '🎯 Aucun 0-0 au programme',
+        translate.aucun00AuProgramme,
       );
     }
 
     if (noTwoGoalGames == 0 && n >= 3) {
       stats.add(
-        '🤐 Défenses en carton • Aucun match à moins de 2 buts',
+        translate.defensesEnCartonAucunMatchAMoinsDe2Buts,
       );
     }
 
     if (closeGames >= n * 0.7 && n >= 3) {
       stats.add(
-        "⚡ Suspense total • $closeGames matchs à un but d'écart",
+        translate.suspenseTotalXMatchsAUnButDEcart(closeGames.toString()),
       );
     }
 
@@ -496,31 +497,31 @@ class _RecapWeekViewState extends State<RecapWeekView> {
 
     if (avgGoals <= 2 && n >= 3) {
       stats.add(
-        '😴 Attaquants en vacances • ${avgGoals.toStringAsFixed(1)} buts/match',
+        translate.attaquantsEnVacancesXButsMatch(avgGoals.toStringAsFixed(1)),
       );
     }
 
     if (cleanSheets >= n * 0.7 && n >= 3) {
       stats.add(
-        '🧤 Gardiens en feu • $cleanSheets clean sheets',
+        translate.gardiensEnFeuXCleanSheets(cleanSheets.toString()),
       );
     }
 
     if (draws >= n * 0.6 && n >= 3) {
       stats.add(
-        '🤝 Impossible de se départager • $draws matchs nuls',
+        translate.impossibleDeSeDepartagerXMatchsNuls(draws.toString()),
       );
     }
 
     if (avg != null && avg <= 5.0 && n >= 3) {
       stats.add(
-        '📉 Semaine décevante • ${avg.toStringAsFixed(1)}/10 de moyenne',
+        translate.semaineDecevanteX10DeMoyenne(avg.toStringAsFixed(1)),
       );
     }
 
     if (badMatches >= 2) {
       stats.add(
-        '💀 Quelques purges au programme • $badMatches matchs sous 5/10',
+        translate.quelquesPurgesAuProgrammeXMatchsSous510(badMatches.toString()),
       );
     }
 
@@ -530,19 +531,19 @@ class _RecapWeekViewState extends State<RecapWeekView> {
 
     if (greatMatches >= 3) {
       stats.add(
-        '🔥 Semaine mémorable • $greatMatches matchs notés 8 ou plus',
+        translate.semaineMemorableXMatchsNotes8OuPlus(greatMatches.toString()),
       );
     }
 
     if (avg != null && avg >= 7.5 && n >= 3) {
       stats.add(
-        '🌟 Semaine validée • ${avg.toStringAsFixed(1)}/10 de moyenne',
+        translate.semaineValideeX10DeMoyenne(avg.toStringAsFixed(1)),
       );
     }
 
     if (noBadMatches == n && n >= 3) {
       stats.add(
-        '🎬 Aucun flop au programme • Tous les matchs notés 7 ou plus',
+        translate.aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus,
       );
     }
 
@@ -555,7 +556,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
         topCompetitionCount >= n * 0.8 &&
         n >= 3) {
       stats.add(
-        '🏆 Mode $topCompetitionName activé',
+        translate.modeXActive(topCompetitionName),
       );
     }
 
@@ -566,15 +567,15 @@ class _RecapWeekViewState extends State<RecapWeekView> {
     if (stats.isEmpty) {
       if (n >= 6) {
         stats.add(
-          '📺 Marathon football • $n matchs au programme',
+          translate.marathonFootballXMatchsAuProgramme(n.toString()),
         );
       } else if (totalGoals >= 20) {
         stats.add(
-          '⚽ Festival offensif • $totalGoals buts cette semaine',
+          translate.festivalOffensifXButsCetteSemaine(totalGoals.toString()),
         );
       } else {
         stats.add(
-          '👀 Semaine football validée • $n matchs regardés',
+          translate.semaineFootballValideeXMatchsRegardes(n.toString()),
         );
       }
     }
@@ -604,7 +605,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
             AppLogos.logoPrimary(context, size: 32),
             const SizedBox(width: 8),
             Text(
-              'Récap de la semaine',
+              translate.recapDeLaSemaine,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
                 fontWeight: FontWeight.bold,
@@ -641,7 +642,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Récap de la semaine',
+              translate.recapDeLaSemaine,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
                 fontWeight: FontWeight.bold,
@@ -672,7 +673,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               color: ColorPalette.error(context), size: 48),
           const SizedBox(height: 12),
           Text(
-            'Impossible de charger le récap',
+            translate.impossibleDeChargerLeRecap,
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
             ),
@@ -683,7 +684,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               _loadData();
             },
             child: Text(
-              'Réessayer',
+              translate.reessayer,
               style: TextStyle(
                 color: ColorPalette.accent(context),
               ),
@@ -703,7 +704,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               color: ColorPalette.textSecondary(context), size: 64),
           const SizedBox(height: 16),
           Text(
-            'Aucun match cette semaine',
+            translate.aucunMatchCetteSemaine,
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
               fontWeight: FontWeight.bold,
@@ -712,7 +713,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ajoute les matchs que tu regardes\npour voir tes stats ici !',
+            translate.ajouteLesMatchsQueTuRegardes,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: ColorPalette.textSecondary(context),
@@ -802,8 +803,8 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 ),
               ),
               icon: const Icon(Icons.share_rounded),
-              label: const Text(
-                'Partager mon récap',
+              label: Text(
+                translate.partagerMonRecap,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
@@ -847,7 +848,6 @@ class _RecapWeekViewState extends State<RecapWeekView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Ligne 1 : logo app + dates ──
           Row(
             children: [
               Container(
@@ -871,7 +871,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'Récap de la semaine : $_weekLabel',
+                  translate.recapDeLaSemaine + " : ($_weekLabel)",
                   style: TextStyle(
                     color: ColorPalette.textPrimaryDark,
                     fontSize: 12,
@@ -905,7 +905,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 ),
               ),
               Text(
-                '${d.totalNbMatches} matchs | ${d.totalNbGoalsAllTime} buts',
+                '${translate.xMatchs(d.totalNbMatches.toString())} | ${translate.xButs(d.totalNbGoalsAllTime.toString())}',
                 style: TextStyle(
                   color: ColorPalette.textPrimaryDark,
                   fontSize: 15,
@@ -923,7 +923,6 @@ class _RecapWeekViewState extends State<RecapWeekView> {
             ),
           ),
 
-          // ── Ligne 3 : stats de la semaine ──
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -932,7 +931,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 child: _buildHeaderStat(
                   value: '${d.matchCount}',
                   label:
-                      'match${d.matchCount > 1 ? 's' : ''} regardé${d.matchCount > 1 ? 's' : ''}',
+                      '${translate.matchXRegardeX(d.matchCount > 1 ? 's' : '')}',
                   badge: diff != 0
                       ? _DiffBadge(diff: diff.toDouble(), color: diffColor)
                       : null,
@@ -942,7 +941,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 Expanded(
                   child: _buildHeaderStat(
                     value: '${d.totalGoals}',
-                    label: 'but${d.totalGoals > 1 ? 's' : ''} vus',
+                    label: translate.butXVus(d.totalGoals > 1 ? 's' : ''),
                     badge: diffGoals != 0
                         ? _DiffBadge(
                             diff: diffGoals.toDouble(), color: diffGoalsColor)
@@ -953,7 +952,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 Expanded(
                   child: _buildHeaderStat(
                     value: roundSmart(d.avgRating!, decimals: 1),
-                    label: 'note moyenne',
+                    label: translate.noteMoyenne,
                     badge: diffRating != null &&
                             diffRatingColor != null &&
                             diffRating != 0
@@ -1019,7 +1018,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
           Row(
             children: [
               Text(
-                '🏆 Meilleur match',
+                translate.meilleurMatch,
                 style: TextStyle(
                   color: ColorPalette.textAccent(context),
                   fontWeight: FontWeight.w600,
@@ -1056,7 +1055,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 child: Column(
                   children: [
                     Text(
-                      '${match.scoreEquipeDomicile} – ${match.scoreEquipeExterieur}',
+                      '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: ColorPalette.textPrimary(context),
@@ -1111,7 +1110,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                       d.bestMatchesMvpName![_bestMatchIndex], 28),
                   const SizedBox(width: 8),
                   Text(
-                    'MVP : ',
+                    translate.mvp + ' : ',
                     style: TextStyle(
                       color: ColorPalette.textSecondary(context),
                       fontSize: 12,
@@ -1197,7 +1196,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'MVP de la semaine',
+                  translate.mvpDeLaSemaine,
                   style: TextStyle(
                     color: ColorPalette.textAccent(context),
                     fontWeight: FontWeight.w600,
@@ -1271,7 +1270,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '🏅 Compétition préférée',
+            translate.competitionPreferee,
             style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.w600,
@@ -1318,7 +1317,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                       ),
                     ),
                     Text(
-                      '${d.topCompetitionCount} match${(d.topCompetitionCount ?? 0) > 1 ? 's' : ''}',
+                      translate.xMatchs(d.topCompetitionCount.toString()),
                       style: TextStyle(
                         color: ColorPalette.textSecondary(context),
                         fontSize: 11,
@@ -1350,7 +1349,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '🔥 Série',
+            translate.serie,
             style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.w600,
@@ -1374,7 +1373,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
-                  'semaines\nconsécutives',
+                  translate.semainesConsecutives,
                   style: TextStyle(
                     color: ColorPalette.textSecondary(context),
                     fontSize: 11,

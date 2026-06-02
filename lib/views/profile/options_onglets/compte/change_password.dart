@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/auth_service.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
 class ChangePasswordView extends StatefulWidget {
@@ -59,7 +60,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Mot de passe mis à jour avec succès."),
+          content: Text(translate.motDePasseMisAJourAvecSucces),
         ),
       );
 
@@ -67,13 +68,13 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.message ?? "Erreur inconnue"),
+          content: Text(e.message ?? translate.erreurInconnue),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Mot de passe actuel incorrect."),
+          content: Text(translate.motDePasseActuelIncorrect),
         ),
       );
     }
@@ -88,7 +89,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Modifier le mot de passe',
+          translate.modifierLeMotDePasse,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -103,9 +104,8 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Mot de passe actuel
             Text(
-              "Mot de passe actuel",
+              translate.motDePasseActuel,
               style: TextStyle(
                 color: ColorPalette.textSecondary(context),
                 fontSize: 13,
@@ -130,9 +130,8 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
             const SizedBox(height: 32),
 
-            /// Nouveau mot de passe
             Text(
-              "Nouveau mot de passe",
+              translate.nouveauMotDePasse,
               style: TextStyle(
                 color: ColorPalette.textSecondary(context),
                 fontSize: 13,
@@ -157,7 +156,6 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
             const Spacer(),
 
-            /// Bouton
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -173,8 +171,8 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                 ).copyWith(
                   splashFactory: NoSplash.splashFactory,
                 ),
-                child: const Text(
-                  "Mettre à jour",
+                child: Text(
+                  translate.mettreAJour,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

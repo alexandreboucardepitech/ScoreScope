@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
 class OptionsNotificationsView extends StatefulWidget {
@@ -43,7 +44,7 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Notifications',
+          translate.notifications,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -54,10 +55,10 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
-          _buildSectionHeader(context, "Général"),
+          _buildSectionHeader(context, translate.general),
           _buildToggleTile(
             context,
-            title: "Activer les notifications",
+            title: translate.activerLesNotifications,
             value: globalEnabled,
             isMain: true,
             onChanged: (value) {
@@ -69,10 +70,10 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
             },
           ),
           const SizedBox(height: 16),
-          _buildSectionHeader(context, "Social"),
+          _buildSectionHeader(context, translate.social),
           _buildToggleTile(
             context,
-            title: "Demandes d'amis",
+            title: translate.demandesDAmis,
             value: friendRequest,
             enabled: globalEnabled,
             onChanged: (value) {
@@ -85,7 +86,7 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
           ),
           _buildToggleTile(
             context,
-            title: "Demande d'ami acceptée",
+            title: translate.demandeDAmiAcceptee,
             value: friendRequestAccepted,
             enabled: globalEnabled,
             onChanged: (value) {
@@ -98,7 +99,7 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
           ),
           _buildToggleTile(
             context,
-            title: "Réactions sur tes matchs",
+            title: translate.reactionsSurTesMatchs,
             value: reaction,
             enabled: globalEnabled,
             onChanged: (value) {
@@ -111,7 +112,7 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
           ),
           _buildToggleTile(
             context,
-            title: "Commentaires sur tes matchs",
+            title: translate.commentairesSurTesMatchs,
             value: comment,
             enabled: globalEnabled,
             onChanged: (value) {
@@ -123,10 +124,10 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
             },
           ),
           const SizedBox(height: 16),
-          _buildSectionHeader(context, "Matchs"),
+          _buildSectionHeader(context, translate.matchs),
           _buildToggleTile(
             context,
-            title: "Fin de match équipe favorite",
+            title: translate.finDeMatchEquipeFavorite,
             value: favoriteTeamMatch,
             enabled: globalEnabled,
             onChanged: (value) {
@@ -139,7 +140,7 @@ class _OptionsNotificationsViewState extends State<OptionsNotificationsView> {
           ),
           _buildToggleTile(
             context,
-            title: "Récap hebdomadaire",
+            title: translate.recapHebdomadaire,
             value: weeklyRecap,
             enabled: globalEnabled,
             onChanged: (value) {

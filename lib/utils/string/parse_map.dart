@@ -1,3 +1,5 @@
+import 'package:scorescope/utils/translate/language_controller.dart';
+
 Map<String, String> parseStringMap(dynamic value) {
   if (value == null) return {};
 
@@ -14,7 +16,8 @@ Map<String, String> parseStringMap(dynamic value) {
   }
 
   throw Exception(
-      "Type invalide pour Map<String,String>: ${value.runtimeType}");
+    translate.typeInvalidePourMapStringStringX(value.runtimeType.toString()),
+  );
 }
 
 Map<String, int> parseIntMap(dynamic value) {
@@ -32,5 +35,5 @@ Map<String, int> parseIntMap(dynamic value) {
     }
   }
 
-  throw Exception("Type invalide pour Map<String,int>: ${value.runtimeType}");
+  throw Exception(translate.typeInvalidePourMapStringIntX(value.runtimeType.toString()));
 }

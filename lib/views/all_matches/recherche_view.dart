@@ -8,6 +8,7 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/recherche/barre_recherche.dart';
 import 'package:scorescope/widgets/recherche/filtres_recherche.dart';
 import 'package:scorescope/widgets/recherche/resultats_recherche.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class RechercheView extends StatefulWidget {
   const RechercheView({super.key});
@@ -192,8 +193,8 @@ class _RechercheViewState extends State<RechercheView> {
       return Center(
         child: Text(
           _query.isEmpty
-              ? 'Commence à taper pour rechercher'
-              : 'Encore ${_minQueryLength - _query.length} caractère${_minQueryLength - _query.length > 1 ? 's' : ''}…',
+              ? translate.commenceATaperPourRechercher
+              : translate.encoreXCaractereX((_minQueryLength - _query.length).toString(), _minQueryLength - _query.length == 1 ? '' : 's'),
           style: TextStyle(color: ColorPalette.textSecondary(context)),
         ),
       );
@@ -212,7 +213,7 @@ class _RechercheViewState extends State<RechercheView> {
     if (!_isSearching && displayData == null) {
       return Center(
         child: Text(
-          'Aucun résultat',
+          translate.aucunResultat,
           style: TextStyle(color: ColorPalette.textPrimary(context)),
         ),
       );

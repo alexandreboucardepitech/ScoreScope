@@ -48,7 +48,8 @@ class WebJoueurRepository implements IJoueurRepository {
     if (!doc.exists) {
       await docRef.set(joueur.toJson());
       print(
-          "Joueur ajouté : ${joueur.fullName} (${joueur.id}) -> équipe ${joueur.equipeId} | equipe nationale : ${joueur.equipeNationaleId}");
+        "Joueur ajouté : ${joueur.fullName} (${joueur.id}) -> équipe ${joueur.equipeId} | equipe nationale : ${joueur.equipeNationaleId}",
+      );
     } else {
       print("Joueur déjà existant : ${joueur.fullName} (${joueur.id})");
       final data = doc.data();
@@ -61,7 +62,8 @@ class WebJoueurRepository implements IJoueurRepository {
           joueur.equipeNationaleId != null &&
           joueur.equipeNationaleId != data["equipeNationaleId"]) {
         print(
-            "Le joueur ${joueur.fullName} a une nouvelle équipe nationale ! : ${joueur.equipeNationaleId}");
+          "Le joueur ${joueur.fullName} a une nouvelle équipe nationale ! : ${joueur.equipeNationaleId}",
+        );
         _collection.doc(joueur.id).update({
           'equipeNationaleId': joueur.equipeNationaleId,
         });

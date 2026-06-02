@@ -2,12 +2,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/profile.dart';
 
 String _userDisplayName(AppUser user) {
   if (user.uid == RepositoryProvider.userRepository.currentUser?.uid) {
-    return "vous";
+    return translate.vous;
   }
   return user.displayName;
 }
@@ -64,7 +65,7 @@ Widget buildDisplayNameText(
 
   spans.add(
     TextSpan(
-      text: " avec ",
+      text: " " + translate.avec + " ",
       style: baseStyle,
     ),
   );
@@ -76,7 +77,7 @@ Widget buildDisplayNameText(
 
     spans.add(
       TextSpan(
-        text: " et ",
+        text: " " + translate.et + " ",
         style: baseStyle,
       ),
     );
@@ -99,14 +100,14 @@ Widget buildDisplayNameText(
 
     spans.add(
       TextSpan(
-        text: " et ",
+        text: " " + translate.et + " ",
         style: baseStyle,
       ),
     );
 
     spans.add(
       TextSpan(
-        text: "$remaining autres",
+        text: "$remaining " + translate.autres,
         style: baseStyle,
       ),
     );

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/cloud_fonctions/notification_service.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import '../../models/amitie.dart';
 import '../repositories/i_amitie_repository.dart';
 
@@ -203,7 +204,7 @@ class WebAmitieRepository implements IAmitieRepository {
       toUserId: toUserId,
       type: 'friendRequest',
       payload: {
-        'fromUserName': fromUser?.displayName ?? "Quelqu'un",
+        'fromUserName': fromUser?.displayName ?? translate.quelquUn,
         'fromUserId': fromUserId,
       },
     );
@@ -230,7 +231,7 @@ class WebAmitieRepository implements IAmitieRepository {
       toUserId: userId1,
       type: 'friendRequestAccepted',
       payload: {
-        'fromUserName': toUser?.displayName ?? "Quelqu'un",
+        'fromUserName': toUser?.displayName ?? translate.quelquUn,
         'fromUserId': userId2,
       },
     );

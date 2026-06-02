@@ -4,6 +4,7 @@ import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class VisionnageMatchCard extends StatefulWidget {
   final MatchModel match;
@@ -115,7 +116,7 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Impossible de récupérer l'utilisateur."),
+            content: Text(translate.impossibleDeRecupererLUtilisateur),
           ),
         );
         return;
@@ -143,7 +144,7 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Échec de la sauvegarde — réessaye plus tard."),
+          content: Text(translate.echecDeLaSauvegardeReessayePlusTard),
         ),
       );
     }
@@ -162,7 +163,7 @@ class _VisionnageMatchCardState extends State<VisionnageMatchCard>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Visionnage',
+            translate.visionnage,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: ColorPalette.textPrimary(context),
@@ -304,7 +305,7 @@ Future<VisionnageMatch?> showVisionnageSelectionDialog(BuildContext context,
                   children: [
                     Expanded(
                       child: Text(
-                        'Choisir le mode de visionnage',
+                        translate.choisirLeModeDeVisionnage,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -422,7 +423,7 @@ Future<VisionnageMatch?> showVisionnageSelectionDialog(BuildContext context,
                       ),
                       onPressed: () => Navigator.of(context).pop(null),
                       child: Text(
-                        'Annuler',
+                        translate.annuler,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: ColorPalette.textSecondary(context),

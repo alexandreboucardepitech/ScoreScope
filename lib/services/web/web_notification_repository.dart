@@ -5,6 +5,7 @@ import 'package:scorescope/models/post/post_notification.dart';
 import 'package:scorescope/services/repositories/i_notification_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/cloud_fonctions/notification_service.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class WebNotificationRepository implements INotificationRepository {
   final CollectionReference usersCollection =
@@ -254,10 +255,10 @@ class WebNotificationRepository implements INotificationRepository {
       toUserId: ownerUserId,
       type: 'watchTogetherInvited',
       payload: {
-        'fromUserName': author?.displayName ?? 'Quelqu\'un',
+        'fromUserName': author?.displayName ?? translate.quelquUn,
         'matchName': match != null
             ? '${match.equipeDomicile.nom} ${match.scoreEquipeDomicile}-${match.scoreEquipeExterieur} ${match.equipeExterieur.nom}'
-            : 'un match',
+            : translate.unMatch,
         'matchId': matchId,
         'ownerUserId': ownerUserId,
       },

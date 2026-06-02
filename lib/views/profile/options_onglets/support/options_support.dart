@@ -1,35 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/feedback/feedbacks_view.dart';
 import 'package:scorescope/views/profile/options_onglets/support/info_page.dart';
 
 class OptionsSupportView extends StatelessWidget {
-  const OptionsSupportView({super.key});
+  OptionsSupportView({super.key});
 
-  final String _cguText = """
-Conditions d'utilisation
+  final String _cguText = translate.conditionsDUtilisation;
 
-En utilisant ScoreScope, vous acceptez d'utiliser l'application de manière responsable.
-
-Vous êtes responsable du contenu que vous publiez (notes, avis, MVP, etc.).
-
-ScoreScope se réserve le droit de supprimer tout contenu inapproprié.
-
-L'application est fournie telle quelle, sans garantie de disponibilité permanente.
-""";
-
-  final String _privacyText = """
-Politique de confidentialité
-
-ScoreScope collecte uniquement les données nécessaires au fonctionnement de l'application (compte, matchs, interactions sociales).
-
-Vos données ne sont pas revendues à des tiers.
-
-Vous pouvez demander la suppression de votre compte à tout moment.
-
-Nous faisons de notre mieux pour protéger vos données.
-""";
+  final String _privacyText = translate.politiqueDeConfidentialite;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +21,7 @@ Nous faisons de notre mieux pour protéger vos données.
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Support & Informations',
+          translate.supportInformations,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -53,10 +34,10 @@ Nous faisons de notre mieux pour protéger vos données.
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
-          _buildTile(context, "À propos", () {
+          _buildTile(context, translate.aPropos, () {
             _showAboutDialog(context);
           }),
-          _buildTile(context, "Signaler un bug", () {
+          _buildTile(context, translate.signalerUnBug, () {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -64,34 +45,34 @@ Nous faisons de notre mieux pour protéger vos données.
               ),
             );
           }),
-          _buildTile(context, "CGU", () {
+          _buildTile(context, translate.cgu, () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => InfoPage(
-                  title: "Conditions d'utilisation",
+                  title: translate.conditionsDUtilisation,
                   content: _cguText,
                 ),
               ),
             );
           }),
-          _buildTile(context, "Politique de confidentialité", () {
+          _buildTile(context, translate.politiqueDeConfidentialite, () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => InfoPage(
-                  title: "Politique de confidentialité",
+                  title: translate.politiqueDeConfidentialite,
                   content: _privacyText,
                 ),
               ),
             );
           }),
-          _buildTile(context, "Version", () {
+          _buildTile(context, translate.version, () {
             showDialog(
               context: context,
               builder: (_) => AlertDialog(
                 title: Text(
-                  "Version",
+                  translate.version,
                   style: TextStyle(
                     color: ColorPalette.textPrimary(
                       context,
@@ -110,7 +91,7 @@ Nous faisons de notre mieux pour protéger vos données.
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
-                      "OK",
+                      translate.ok,
                       style: TextStyle(
                         color: ColorPalette.textPrimary(
                           context,
@@ -152,7 +133,7 @@ Nous faisons de notre mieux pour protéger vos données.
               ),
               const SizedBox(height: 8),
               Text(
-                "Ton carnet de matchs de foot ⚽",
+                translate.tonCarnetDeMatchsDeFoot,
                 style: TextStyle(
                   color: ColorPalette.textSecondary(context),
                 ),
@@ -160,7 +141,8 @@ Nous faisons de notre mieux pour protéger vos données.
               ),
               const SizedBox(height: 16),
               Text(
-                "Note les matchs que tu regardes, élis le MVP et partage ton expérience avec tes amis.",
+                translate
+                    .noteLesMatchsQueTuRegardesElisLeMvpEtPartageTonExperienceAvecTesAmis,
                 style: TextStyle(
                   color: ColorPalette.textPrimary(context),
                   height: 1.4,
@@ -179,7 +161,7 @@ Nous faisons de notre mieux pour protéger vos données.
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  "Fermer",
+                  translate.fermer,
                   style: TextStyle(
                     color: ColorPalette.textPrimary(
                       context,
@@ -195,20 +177,18 @@ Nous faisons de notre mieux pour protéger vos données.
   }
 
   IconData _getIcon(String title) {
-    switch (title) {
-      case "À propos":
-        return Icons.info_outline;
-      case "Signaler un bug":
-        return Icons.bug_report_outlined;
-      case "CGU":
-        return Icons.description_outlined;
-      case "Politique de confidentialité":
-        return Icons.lock_outline;
-      case "Version":
-        return Icons.numbers;
-      default:
-        return Icons.info_outline;
+    if (title == translate.aPropos) {
+      return Icons.info_outline;
+    } else if (title == translate.signalerUnBug) {
+      return Icons.bug_report_outlined;
+    } else if (title == translate.cgu) {
+      return Icons.description_outlined;
+    } else if (title == translate.politiqueDeConfidentialite) {
+      return Icons.lock_outline;
+    } else if (title == translate.version) {
+      return Icons.numbers;
     }
+    return Icons.info_outline;
   }
 
   Widget _buildTile(BuildContext context, String title, VoidCallback onTap) {

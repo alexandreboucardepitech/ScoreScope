@@ -5,6 +5,7 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/utils/string/get_pos_from_string.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class TeamsList extends StatefulWidget {
   final MatchModel match;
@@ -89,7 +90,7 @@ class _TeamsListState extends State<TeamsList> {
                         ),
                         SizedBox(width: 4),
                         Text(
-                          'Voté',
+                          translate.vote,
                           style: TextStyle(
                             fontSize: 11,
                             color: ColorPalette.textAccent(context),

@@ -11,6 +11,7 @@ import 'package:scorescope/widgets/fil_actu_amis/comments/comment_input_field.da
 import 'package:scorescope/widgets/fil_actu_amis/reaction_row.dart';
 import 'package:scorescope/widgets/fil_actu_amis/match_regarde_ami_card.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class CommentsPage extends StatefulWidget {
   /// Mode A : données complètes déjà chargées
@@ -314,7 +315,7 @@ class _CommentsPageState extends State<CommentsPage> {
       return Scaffold(
         body: Center(
             child: Text(
-          "Erreur de chargement",
+              translate.erreurDeChargement,
           style: TextStyle(
             color: ColorPalette.error(
               context,
@@ -337,7 +338,7 @@ class _CommentsPageState extends State<CommentsPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Détails",
+            translate.details,
             style: TextStyle(
               color: ColorPalette.textPrimary(
                 context,
@@ -391,7 +392,7 @@ class _CommentsPageState extends State<CommentsPage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
                           child: Text(
-                            "Commentaires",
+                            translate.commentaires,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -419,7 +420,7 @@ class _CommentsPageState extends State<CommentsPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                             child: Text(
-                              "Pas encore de commentaires",
+                              translate.pasEncoreDeCommentaires,
                               style: TextStyle(
                                 color: ColorPalette.textSecondary(context),
                               ),

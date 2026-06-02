@@ -4,6 +4,7 @@ import 'package:scorescope/models/stats/podium_entry.dart';
 import 'package:scorescope/models/util/podium_context.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/show_podium_details_popup.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class PodiumListItem<T> extends StatelessWidget {
   final String title;
@@ -15,15 +16,15 @@ class PodiumListItem<T> extends StatelessWidget {
 
   final bool logoBackground;
 
-  const PodiumListItem({
+  PodiumListItem({
     super.key,
     required this.title,
     required this.items,
     required this.user,
     this.accentColor,
-    this.emptyStateText = 'Aucune donnée disponible',
+    String? emptyStateText,
     this.logoBackground = true,
-  });
+  }) : emptyStateText = emptyStateText ?? translate.aucuneDonneeDisponible;
 
   @override
   Widget build(BuildContext context) {

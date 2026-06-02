@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 
 class RecapBanner extends StatelessWidget {
@@ -65,8 +66,8 @@ class RecapBanner extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Récap de la semaine',
+                        Text(
+                          translate.recapDeLaSemaine,
                           style: TextStyle(
                             color: ColorPalette.textPrimaryDark,
                             fontWeight: FontWeight.bold,

@@ -10,7 +10,7 @@ class Options {
   final bool comment;
   final bool favoriteTeamMatch;
   final bool weeklyRecap;
-  final LanguageOptions language;
+  final LanguageOptions? language;
   final ThemeOptions theme;
   final VisionnageMatch defaultVisionnageMatch;
   final bool utiliserCache;
@@ -23,7 +23,7 @@ class Options {
     this.comment = true,
     this.favoriteTeamMatch = true,
     this.weeklyRecap = true,
-    this.language = LanguageOptions.french,
+    this.language,
     this.theme = ThemeOptions.system,
     this.defaultVisionnageMatch = VisionnageMatch.tele,
     this.utiliserCache = true,
@@ -37,20 +37,19 @@ class Options {
         'comment': comment,
         'favoriteTeamMatch': favoriteTeamMatch,
         'weeklyRecap': weeklyRecap,
-        'language': language.name,
+        if (language != null) 'language': language!.code,
         'theme': theme.name,
-        'defaultVisionnageMatch': defaultVisionnageMatch.label,
+        'defaultVisionnageMatch': defaultVisionnageMatch.labelFR,
         'utiliserCache': utiliserCache,
       };
 
   factory Options.fromJson(Map<String, dynamic> json) {
-    final language = LanguageOptions.fromString(json['language'] as String?) ??
-        LanguageOptions.french;
+    final language = LanguageOptions.fromString(json['language'] as String?);
     final theme = ThemeOptions.fromString(json['theme'] as String?) ??
         ThemeOptions.system;
     final defaultVisionnageMatch = VisionnageMatchExt.fromString(
             json['defaultVisionnageMatch'] as String? ??
-                VisionnageMatch.tele.label) ??
+                VisionnageMatch.tele.labelFR) ??
         VisionnageMatch.tele;
 
     return Options(

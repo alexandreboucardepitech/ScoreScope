@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/graph_type.dart';
 import 'package:scorescope/models/stats/onglets/stats_equipes_data.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 import 'package:scorescope/widgets/statistiques/cards/graph_card.dart';
 
@@ -22,47 +23,47 @@ class StatsEquipesOnglet extends StatelessWidget {
     final statsWidgets = <Widget>[
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Équipes différentes vues',
+        title: translate.equipesDifferentesVues,
         value: data.nbEquipesDifferentes.toString(),
         icon: Icons.shield,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Équipes les plus vues',
+        title: translate.equipesLesPlusVues,
         items: data.equipesLesPlusVues,
-        emptyStateText: 'Aucune équipe',
+        emptyStateText: translate.aucuneEquipe,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Équipes les plus vues gagner',
+        title: translate.equipesLesPlusVuesGagner,
         items: data.equipesLesPlusVuesGagner,
-        emptyStateText: 'Aucune donnée',
+        emptyStateText: translate.aucuneDonnee,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Équipes les plus vues perdre',
+        title: translate.equipesLesPlusVuesPerdre,
         items: data.equipesLesPlusVuesPerdre,
-        emptyStateText: 'Aucune donnée',
+        emptyStateText: translate.aucuneDonnee,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Buts marqués',
+        title: translate.butsMarques,
         items: data.equipesPlusDeButsMarques,
-        emptyStateText: 'Aucune donnée',
+        emptyStateText: translate.aucuneDonnee,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Buts encaissés',
+        title: translate.butsEncaisses,
         items: data.equipesPlusDeButsEncaisses,
-        emptyStateText: 'Aucune donnée',
+        emptyStateText: translate.aucuneDonnee,
         user: user,
         logoBackground: false,
       ),
@@ -70,11 +71,11 @@ class StatsEquipesOnglet extends StatelessWidget {
 
     final graphWidgets = <Widget>[
       GraphCard(
-        title: 'Pourcentage de victoires (min. 3 matchs vus)',
+        title: translate.pourcentageDeVictoiresMin3MatchsVus,
         type: GraphType.scatter,
         values: data.pourcentageVictoiresParEquipe,
-        labelX: 'Matchs',
-        labelY: '% Victoires',
+        labelX: translate.matchs,
+        labelY: translate.pourcentageVictoires,
       ),
     ];
 

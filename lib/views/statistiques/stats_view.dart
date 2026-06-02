@@ -7,6 +7,7 @@ import 'package:scorescope/utils/stats/stats_loading_state.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/widgets/statistiques/loader/stats_loader_widget.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class StatsView extends StatefulWidget {
   final AppUser user;
@@ -101,21 +102,21 @@ class _StatsViewState extends State<StatsView> {
       builder: (context) {
         return SimpleDialog(
           title: Text(
-            'Filtrer par période',
+            translate.filtrerParPeriode,
             style: TextStyle(color: ColorPalette.textPrimary(context)),
           ),
           children: [
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, 'range'),
               child: Text(
-                'Période personnalisée',
+                translate.periodePersonnalisee,
                 style: TextStyle(color: ColorPalette.textPrimary(context)),
               ),
             ),
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, 'season'),
               child: Text(
-                'Saison',
+                translate.saison,
                 style: TextStyle(color: ColorPalette.textPrimary(context)),
               ),
             ),
@@ -132,10 +133,10 @@ class _StatsViewState extends State<StatsView> {
         context: context,
         firstDate: DateTime(2000),
         lastDate: DateTime(2100),
-        helpText: 'Sélectionner une période',
-        cancelText: 'Annuler',
-        confirmText: 'Appliquer',
-        saveText: 'Appliquer',
+        helpText: translate.selectionnerUnePeriode,
+        cancelText: translate.annuler,
+        confirmText: translate.appliquer,
+        saveText: translate.appliquer,
         builder: (context, child) {
           final baseTheme = Theme.of(context);
           return Theme(
@@ -224,7 +225,7 @@ class _StatsViewState extends State<StatsView> {
                 constraints: const BoxConstraints(maxHeight: 400),
                 alignment: Alignment.center,
                 title: Text(
-                  'Sélectionner la saison',
+                  translate.selectionnerLaSaison,
                   style: TextStyle(color: ColorPalette.textPrimary(context)),
                 ),
                 content: SizedBox(
@@ -240,7 +241,8 @@ class _StatsViewState extends State<StatsView> {
                                   groupValue: selectedYear,
                                   activeColor: ColorPalette.accent(context),
                                   title: Text(
-                                    "Saison $saison/${saison + 1}",
+                                    translate.saisonXX(saison.toString(),
+                                        (saison + 1).toString()),
                                     style: TextStyle(
                                         color:
                                             ColorPalette.textPrimary(context)),
@@ -260,7 +262,8 @@ class _StatsViewState extends State<StatsView> {
                                 groupValue: selectedYear,
                                 activeColor: ColorPalette.accent(context),
                                 title: Text(
-                                  "Saison $saison/${saison + 1}",
+                                  translate.saisonXX(saison.toString(),
+                                      (saison + 1).toString()),
                                   style: TextStyle(
                                       color: ColorPalette.textPrimary(context)),
                                 ),
@@ -274,7 +277,7 @@ class _StatsViewState extends State<StatsView> {
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
-                      'Annuler',
+                      translate.annuler,
                       style:
                           TextStyle(color: ColorPalette.textSecondary(context)),
                     ),
@@ -284,7 +287,7 @@ class _StatsViewState extends State<StatsView> {
                         ? () => Navigator.pop(context, selectedYear)
                         : null,
                     child: Text(
-                      'Appliquer',
+                      translate.appliquer,
                       style: TextStyle(color: ColorPalette.accent(context)),
                     ),
                   ),
@@ -338,8 +341,8 @@ class _StatsViewState extends State<StatsView> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     isCurrentUser()
-                        ? 'Mes statistiques'
-                        : 'Statistiques de ${widget.user.displayName}',
+                        ? translate.mesStatistiques
+                        : translate.statistiquesDeX(widget.user.displayName),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -354,7 +357,7 @@ class _StatsViewState extends State<StatsView> {
           iconTheme: IconThemeData(color: ColorPalette.textPrimary(context)),
           actions: [
             IconButton(
-              tooltip: 'Filtrer par date',
+              tooltip: translate.filtrerParDate,
               splashRadius: 22,
               icon: Icon(
                 Icons.calendar_today_outlined,
@@ -365,7 +368,9 @@ class _StatsViewState extends State<StatsView> {
             IconButton(
               icon: Icon(_showCards ? Icons.view_module : Icons.view_list),
               onPressed: _toggleView,
-              tooltip: _showCards ? 'Afficher en liste' : 'Afficher en cards',
+              tooltip: _showCards
+                  ? translate.afficherEnListe
+                  : translate.afficherEnCards,
             ),
             if (isCurrentUser())
               PopupMenuButton(
@@ -379,7 +384,7 @@ class _StatsViewState extends State<StatsView> {
                         return CheckboxListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text(
-                            'Matchs publics uniquement',
+                            translate.matchsPublicsUniquement,
                             style: TextStyle(
                                 color: ColorPalette.textPrimary(context)),
                           ),
@@ -417,9 +422,10 @@ class _StatsViewState extends State<StatsView> {
                       Expanded(
                         child: Text(
                           _saison != null
-                              ? 'Saison : $_saison / ${_saison! + 1}'
-                              : 'Période : ${_dateRange!.start.day}/${_dateRange!.start.month}/${_dateRange!.start.year} → '
-                                  '${_dateRange!.end.day}/${_dateRange!.end.month}/${_dateRange!.end.year}',
+                              ? translate.saisonXX(_saison.toString(), (_saison! + 1).toString())
+                              : translate.periodeXX(
+                                  "${_dateRange!.start.day}/${_dateRange!.start.month}/${_dateRange!.start.year}",
+                                  "${_dateRange!.end.day}/${_dateRange!.end.month}/${_dateRange!.end.year}"),
                           style: TextStyle(
                             color: ColorPalette.textPrimary(context),
                             fontWeight: FontWeight.w600,
@@ -443,13 +449,13 @@ class _StatsViewState extends State<StatsView> {
               unselectedLabelColor: ColorPalette.textPrimary(context),
               labelPadding: const EdgeInsets.symmetric(horizontal: 12),
               tabAlignment: TabAlignment.start,
-              tabs: const [
-                Tab(text: 'Global'),
-                Tab(text: 'Matchs'),
-                Tab(text: 'Équipes'),
-                Tab(text: 'Joueurs'),
-                Tab(text: 'Compétitions'),
-                Tab(text: 'Habitudes'),
+              tabs: [
+                Tab(text: translate.global),
+                Tab(text: translate.matchs),
+                Tab(text: translate.equipes),
+                Tab(text: translate.joueurs),
+                Tab(text: translate.competitions),
+                Tab(text: translate.habitudes),
               ],
             ),
             Expanded(

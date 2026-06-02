@@ -6,6 +6,7 @@ import 'package:scorescope/utils/ui/build_avatar.dart';
 import 'package:scorescope/utils/ui/gradient_button.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
 import '../../models/joueur.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 class MvpVoteEntry {
   final Joueur joueur;
@@ -57,7 +58,7 @@ class MvpCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'MVP du match',
+                    translate.mvpDuMatch,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: ColorPalette.textPrimary(context),
@@ -77,7 +78,7 @@ class MvpCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Aucun MVP élu',
+                          translate.aucunMvpElu,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -86,7 +87,7 @@ class MvpCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Sois le premier à voter !',
+                          translate.soisLePremierAVoter,
                           style: TextStyle(
                             fontSize: 13,
                             color: ColorPalette.textSecondary(context),
@@ -140,7 +141,7 @@ class MvpCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        'Votre vote : ${userVote!.fullName}',
+                        '${translate.votreVote} : ${userVote!.fullName}',
                         style: TextStyle(
                           fontSize: 12,
                           color: ColorPalette.textSecondary(context),
@@ -168,7 +169,7 @@ class _TopPlayerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final voteLabel =
-        '${entry.percentage.toStringAsFixed(0)}% · ${entry.voteCount} vote${entry.voteCount > 1 ? 's' : ''}';
+        '${entry.percentage.toStringAsFixed(0)}% · ${translate.xVoteX(entry.voteCount.toString(), entry.voteCount > 1 ? 's' : '')}';
 
     return GestureDetector(
       onTap: () => Navigator.push(
@@ -264,7 +265,7 @@ class _PodiumRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final medal = rank == 2 ? '🥈' : '🥉';
     final voteLabel =
-        '${entry.percentage.toStringAsFixed(0)}% · ${entry.voteCount} vote${entry.voteCount > 1 ? 's' : ''}';
+        '${entry.percentage.toStringAsFixed(0)}% · ${translate.xVoteX(entry.voteCount.toString(), entry.voteCount > 1 ? 's' : '')}';
 
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
@@ -328,7 +329,7 @@ class _VoteButton extends StatelessWidget {
       return OutlinedButton.icon(
         onPressed: onPressed,
         icon: const Icon(Icons.refresh, size: 16),
-        label: const Text('Changer'),
+        label: Text(translate.changer),
         style: OutlinedButton.styleFrom(
           foregroundColor: accent,
           side: BorderSide(color: accent, width: 1.5),
@@ -348,7 +349,7 @@ class _VoteButton extends StatelessWidget {
     return GradientButton(
       onPressed: onPressed,
       icon: Icons.how_to_vote,
-      label: 'Voter',
+      label: translate.voter,
     );
   }
 }

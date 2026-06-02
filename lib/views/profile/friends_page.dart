@@ -4,6 +4,7 @@ import 'package:scorescope/models/amitie.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/get_friendship_action_snackbar_message.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'package:scorescope/widgets/profile/profile_action.dart';
@@ -167,20 +168,20 @@ class _FriendsPageState extends State<FriendsPage>
 
     if (!widget.isMe) {
       count = _friends.length;
-      label = "amis";
+      label = translate.amis;
     } else {
       switch (_currentTabIndex) {
         case 0:
           count = _friends.length;
-          label = "amis";
+          label = translate.amis;
           break;
         case 1:
           count = _receivedRequests.length;
-          label = "demandes reçues";
+          label = translate.demandesRecues;
           break;
         case 2:
           count = _sentRequests.length;
-          label = "demandes envoyées";
+          label = translate.demandesEnvoyees;
           break;
         default:
           count = 0;
@@ -199,8 +200,8 @@ class _FriendsPageState extends State<FriendsPage>
           fit: BoxFit.scaleDown,
           child: Text(
             widget.isMe
-                ? "Mes amis"
-                : "Amis de ${widget.displayedUser.displayName}",
+                ? translate.mesAmis
+                : translate.amisDeX(widget.displayedUser.displayName),
             style: TextStyle(
               color: ColorPalette.textPrimary(context),
               fontWeight: FontWeight.w600,
@@ -232,10 +233,10 @@ class _FriendsPageState extends State<FriendsPage>
         bottom: widget.isMe
             ? TabBar(
                 controller: _tabController,
-                tabs: const [
-                  Tab(text: "Amis"),
-                  Tab(text: "Reçues"),
-                  Tab(text: "Envoyées"),
+                tabs: [
+                  Tab(text: translate.amis),
+                  Tab(text: translate.recues),
+                  Tab(text: translate.envoyees),
                 ],
               )
             : null,
@@ -250,12 +251,12 @@ class _FriendsPageState extends State<FriendsPage>
                     ? TabBarView(
                         controller: _tabController,
                         children: [
-                          _buildList(_friends, "Aucun ami"),
-                          _buildList(_receivedRequests, "Aucune demande reçue"),
-                          _buildList(_sentRequests, "Aucune demande envoyée"),
+                          _buildList(_friends, translate.aucunAmi),
+                          _buildList(_receivedRequests, translate.aucuneDemandeRecue),
+                          _buildList(_sentRequests, translate.aucuneDemandeEnvoyee),
                         ],
                       )
-                    : _buildList(_friends, "Aucun ami"),
+                    : _buildList(_friends, translate.aucunAmi),
           ),
         ],
       ),
@@ -267,7 +268,7 @@ class _FriendsPageState extends State<FriendsPage>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextField(
         decoration: InputDecoration(
-          hintText: "Rechercher...",
+          hintText: translate.rechercher,
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -318,7 +319,7 @@ class _FriendsPageState extends State<FriendsPage>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Erreur lors de l'action sur l'utilisateur."),
+          content: Text(translate.erreurLorsDeLActionSurLUtilisateur),
         ),
       );
     } finally {

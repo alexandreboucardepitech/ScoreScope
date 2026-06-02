@@ -12,6 +12,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/handle_data/app_cache.dart';
 import 'package:scorescope/utils/string/build_post_display_name.dart';
 import 'package:scorescope/utils/string/get_reaction_emoji.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/views/profile/profile.dart';
@@ -693,7 +694,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                     Text(
                                       matchData.note != null
                                           ? '${matchData.note}/10'
-                                          : 'Pas noté/10',
+                                          : '${translate.nonNote}/10',
                                       style: TextStyle(
                                           color: ColorPalette.accent(context),
                                           fontWeight: FontWeight.bold),
@@ -738,7 +739,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                   size: 18,
                                   color: ColorPalette.accentVariant(context)),
                               const SizedBox(width: 8),
-                              Text('Vote pour MVP : ',
+                              Text(translate.votePourMvp + ' :',
                                   style: TextStyle(
                                       color: ColorPalette.textPrimary(context),
                                       fontWeight: FontWeight.bold)),
@@ -747,7 +748,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                   entry.mvpName != null &&
                                           entry.mvpName!.isNotEmpty
                                       ? entry.mvpName!
-                                      : 'Pas de vote pour le MVP',
+                                      : translate.pasDeVotePourLeMvp,
                                   style: TextStyle(
                                     color: entry.mvpName != null &&
                                             entry.mvpName!.isNotEmpty
@@ -814,7 +815,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                   Text(
                                     matchData.note != null
                                         ? '${matchData.note}/10'
-                                        : 'Pas noté/10',
+                                        : '${translate.nonNote}/10',
                                     style: TextStyle(
                                         color: ColorPalette.accent(context),
                                         fontWeight: FontWeight.bold),
@@ -858,7 +859,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                 size: 18,
                                 color: ColorPalette.accentVariant(context)),
                             const SizedBox(width: 8),
-                            Text('Vote pour MVP : ',
+                            Text(translate.votePourMvp + ' :',
                                 style: TextStyle(
                                     color: ColorPalette.textPrimary(context),
                                     fontWeight: FontWeight.bold)),
@@ -867,7 +868,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                 entry.mvpName != null &&
                                         entry.mvpName!.isNotEmpty
                                     ? entry.mvpName!
-                                    : 'Pas de vote pour le MVP',
+                                    : translate.pasDeVotePourLeMvp,
                                 style: TextStyle(
                                   color: entry.mvpName != null &&
                                           entry.mvpName!.isNotEmpty

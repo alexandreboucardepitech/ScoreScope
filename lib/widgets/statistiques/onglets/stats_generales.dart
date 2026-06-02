@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/stats/onglets/stats_generales_data.dart';
 import 'package:scorescope/utils/string/round_smart.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/build_card_or_list_tile.dart';
 
 class StatsGeneralesOnglet extends StatelessWidget {
@@ -21,74 +22,74 @@ class StatsGeneralesOnglet extends StatelessWidget {
     final statsWidgets = <Widget>[
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Matchs vus',
+        title: translate.matchsVus,
         value: data.matchsVus.toString(),
         icon: Icons.sports,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Buts vus',
+        title: translate.butsVus,
         value: data.butsVus.toString(),
         icon: Icons.sports_soccer,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Équipes les plus vues',
+        title: translate.equipesLesPlusVues,
         items: data.equipesLesPlusVues,
-        emptyStateText: 'Aucune équipe',
+        emptyStateText: translate.aucuneEquipe,
         user: user,
         logoBackground: false,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Compétitions les plus suivies',
+        title: translate.competitionsLesPlusSuivies,
         items: data.competitionsLesPlusSuivies,
-        emptyStateText: 'Aucune compétition',
+        emptyStateText: translate.aucuneCompetition,
         user: user,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'Joueurs les plus vus marquer',
+        title: translate.joueursLesPlusVusMarquer,
         items: data.meilleursButeurs,
-        emptyStateText: 'Aucun buteur',
+        emptyStateText: translate.aucunButeur,
         user: user,
         logoBackground: false,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Buteurs différents',
+        title: translate.buteursDifferents,
         value: data.nbButeursDifferents.toString(),
         icon: Icons.person,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Équipes différentes vues',
+        title: translate.equipesDifferentesVues,
         value: data.nbEquipesDifferentes.toString(),
         icon: Icons.shield,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Compétitions différentes vues',
+        title: translate.competitionsDifferentesVues,
         value: data.nbCompetitionsDifferentes.toString(),
         icon: Icons.emoji_events,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Moy. buts / match',
+        title: translate.moyButsMatch,
         value: roundSmart(data.moyenneButsParMatch),
         icon: Icons.show_chart,
       ),
       buildSimpleStatCardOrListTile(
         showCards: showCards,
-        title: 'Moy. des notes données',
+        title: translate.moyDesNotesDonnees,
         value: roundSmart(data.moyenneNotes),
         icon: Icons.star,
       ),
       buildPodiumCardOrListTile(
         showCards: showCards,
-        title: 'MVP les plus votés',
+        title: translate.mvpLesPlusVotes,
         items: data.mvpsLesPlusVotes,
-        emptyStateText: 'Aucun MVP',
+        emptyStateText: translate.aucunMvp,
         user: user,
         logoBackground: false,
       ),

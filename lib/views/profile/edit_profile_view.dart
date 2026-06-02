@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'onboarding.dart';
 import 'package:image_picker/image_picker.dart';
@@ -130,7 +131,7 @@ class _EditProfileViewState extends State<EditProfileView> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: ColorPalette.buttonPrimary(context),
-          content: Text("Le nom d'utilisateur est obligatoire"),
+          content: Text(translate.leNomDUtilisateurEstObligatoire),
         ),
       );
       return;
@@ -190,14 +191,14 @@ class _EditProfileViewState extends State<EditProfileView> {
         backgroundColor: ColorPalette.surface(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          "Supprimer $teamName ?",
+          translate.supprimerX(teamName),
           style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.bold,
               fontSize: 18),
         ),
         content: Text(
-          "Voulez-vous supprimer $teamName de vos équipes préférées ?",
+          translate.voulezVousSupprimerXDeVosEquipesPreferees(teamName),
           style:
               TextStyle(color: ColorPalette.textPrimary(context), fontSize: 16),
         ),
@@ -206,7 +207,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Annuler',
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -226,7 +227,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               Navigator.of(context).pop();
             },
             child: Text(
-              'Supprimer',
+              translate.supprimer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -244,14 +245,15 @@ class _EditProfileViewState extends State<EditProfileView> {
         backgroundColor: ColorPalette.surface(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          "Supprimer $competitionName ?",
+          translate.supprimerX(competitionName),
           style: TextStyle(
               color: ColorPalette.textAccent(context),
               fontWeight: FontWeight.bold,
               fontSize: 18),
         ),
         content: Text(
-          "Voulez-vous supprimer $competitionName de vos compétitions préférées ?",
+          translate
+              .voulezVousSupprimerXDeVosCompetitionsPreferees(competitionName),
           style:
               TextStyle(color: ColorPalette.textPrimary(context), fontSize: 16),
         ),
@@ -260,7 +262,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Annuler',
+              translate.annuler,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -280,7 +282,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               Navigator.of(context).pop();
             },
             child: Text(
-              'Supprimer',
+              translate.supprimer,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
               ),
@@ -447,7 +449,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           ),
           const SizedBox(height: 24),
           Text(
-            "Nom d'utilisateur",
+            translate.nomDUtilisateur,
             style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: ColorPalette.textSecondary(context)),
@@ -476,7 +478,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Bio',
+            translate.bio,
             style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: ColorPalette.textSecondary(context)),
@@ -514,7 +516,7 @@ class _EditProfileViewState extends State<EditProfileView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Équipes préférées',
+                translate.equipesPreferees,
                 style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: ColorPalette.textSecondary(context)),
@@ -522,7 +524,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               TextButton(
                 onPressed: _openTeamsBottomSheet,
                 child: Text(
-                  'Modifier',
+                  translate.modifier,
                   style: TextStyle(color: ColorPalette.accent(context)),
                 ),
               ),
@@ -542,7 +544,7 @@ class _EditProfileViewState extends State<EditProfileView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Compétitions préférées',
+                translate.competitionsPreferees,
                 style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: ColorPalette.textSecondary(context)),
@@ -550,7 +552,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               TextButton(
                 onPressed: _openCompetitionsBottomSheet,
                 child: Text(
-                  'Modifier',
+                  translate.modifier,
                   style: TextStyle(color: ColorPalette.accent(context)),
                 ),
               ),
@@ -590,7 +592,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                         ),
                       )
                     : Text(
-                        "Continuer",
+                        translate.continuer,
                         style: TextStyle(
                           color: ColorPalette.textPrimary(context),
                           fontWeight: FontWeight.bold,
@@ -622,7 +624,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                 : AppLogos.logoTransparent(context, size: 32),
             const SizedBox(width: 8),
             Text(
-              widget.isOnboarding ? 'Créez votre profil' : 'Modifier le profil',
+              widget.isOnboarding
+                  ? translate.creezVotreProfil
+                  : translate.modifierLeProfil,
               style: TextStyle(
                 color: ColorPalette.textPrimary(context),
                 fontWeight: FontWeight.bold,
@@ -648,7 +652,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                           ),
                         )
                       : Text(
-                          "Enregistrer",
+                          translate.enregistrer,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: _hasChanges

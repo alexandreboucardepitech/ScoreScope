@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/widgets/match_list/match_tile.dart';
 
@@ -147,7 +148,7 @@ class _MatchListState extends State<MatchList> {
     } else if (_error != null) {
       content = Center(
           child: Text(
-        'Erreur: $_error',
+        '${translate.erreur}: $_error',
         style: TextStyle(
           color: ColorPalette.textPrimary(
             context,
@@ -157,7 +158,7 @@ class _MatchListState extends State<MatchList> {
     } else if (items == null || items.isEmpty) {
       content = Center(
         child: Text(
-          'Aucun match enregistré',
+          translate.aucunMatchEnregistre,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
           ),
