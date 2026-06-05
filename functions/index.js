@@ -90,7 +90,7 @@ async function getDataFromApi(endpoint, params = {}) {
   return jsonData.response || [];
 }
 
-function getMatchStatusFromCode(code) {
+function getStatusFromCode(code) {
   switch (code) {
     case "FT":
     case "AET":
@@ -159,75 +159,79 @@ exports.fetchNextTwoWeeksMatches = onSchedule(
         const competitionsSnap = await db.collection("competitions").get();
         const competitions = competitionsSnap.docs.map((doc) => doc.id);
 
+        const seasons = [2025, 2026];
+
         const today = Math.floor(Date.now() / 1000);
         const twoWeeksLater = today + 14 * 24 * 60 * 60;
         for (const comp of competitions) {
           console.log(comp);
         }
 
-        for (const leagueId of competitions) {
-          const data = await getDataFromApi("fixtures", {
-            league: leagueId,
-            from: new Date(today * 1000).toISOString().split("T")[0],
-            to: new Date(twoWeeksLater * 1000).toISOString().split("T")[0],
-            season: 2025,
-          });
+        for (const season of seasons) {
+          for (const leagueId of competitions) {
+            const data = await getDataFromApi("fixtures", {
+              league: leagueId,
+              from: new Date(today * 1000).toISOString().split("T")[0],
+              to: new Date(twoWeeksLater * 1000).toISOString().split("T")[0],
+              season: season,
+            });
 
-          console.log(
-              data.length + " matchs récupérés pour compétition " + leagueId,
-          );
+            console.log(
+                data.length + " matchs récupérés pour compétition " + leagueId,
+            );
 
-          for (const matchData of data) {
-            const id = matchData.fixture.id.toString();
-            const matchDocRef = db.collection("matchs").doc(id);
+            for (const matchData of data) {
+              const id = matchData.fixture.id.toString();
+              const matchDocRef = db.collection("matchs").doc(id);
 
-            const matchDoc = await matchDocRef.get();
+              const matchDoc = await matchDocRef.get();
 
-            const apiDate = new Date(matchData.fixture.timestamp * 1000);
+              const apiDate = new Date(matchData.fixture.timestamp * 1000);
 
-            let shouldUpdate = !matchDoc.exists;
+              let shouldUpdate = !matchDoc.exists;
 
-            if (matchDoc.exists) {
-              const dbDate = matchDoc.data().date.toDate();
+              if (matchDoc.exists) {
+                const dbDate = matchDoc.data().date.toDate();
 
-              shouldUpdate = apiDate.getTime() !== dbDate.getTime();
-            }
+                shouldUpdate = apiDate.getTime() !== dbDate.getTime();
+              }
 
-            if (shouldUpdate) {
-            // On récupère toutes les infos disponibles
+              if (shouldUpdate) {
+              // On récupère toutes les infos disponibles
 
-              const matchObj = {
+                const matchObj = {
+                  id,
+                  status: getStatusFromCode(matchData.fixture.status.short),
+                  liveMinute: matchData.fixture.status.elapsed || null,
+                  extraTime: matchData.fixture.status.extra || null,
+                  saison: matchData.league?.season || null,
+                  competitionId: leagueId,
+                  equipeDomicileId: matchData.teams.home.id.toString(),
+                  equipeExterieurId: matchData.teams.away.id.toString(),
+                  date: apiDate,
+                  refereeName: matchData.fixture.referee || null,
+                  stadiumName: matchData.fixture.venue?.name || null,
+                  scoreEquipeDomicile: matchData.goals.home ?? 0,
+                  scoreEquipeExterieur: matchData.goals.away ?? 0,
+                  butsEquipeDomicile: [],
+                  butsEquipeExterieur: [],
+                  joueursEquipeDomicile: [],
+                  joueursEquipeExterieur: [],
+                  mvpVotes: {},
+                  notes: {},
+                };
+
+                await matchDocRef.set(matchObj);
+
+                console.log(
+                shouldUpdate && matchDoc.exists ?
+                  "Match mis à jour :" :
+                  "Match ajouté :",
                 id,
-                status: getMatchStatusFromCode(matchData.fixture.status.short),
-                liveMinute: matchData.fixture.status.elapsed || null,
-                extraTime: matchData.fixture.status.extra || null,
-                saison: matchData.league?.season || null,
-                competitionId: leagueId,
-                equipeDomicileId: matchData.teams.home.id.toString(),
-                equipeExterieurId: matchData.teams.away.id.toString(),
-                date: apiDate,
-                refereeName: matchData.fixture.referee || null,
-                stadiumName: matchData.fixture.venue?.name || null,
-                scoreEquipeDomicile: matchData.goals.home ?? 0,
-                scoreEquipeExterieur: matchData.goals.away ?? 0,
-                butsEquipeDomicile: [],
-                butsEquipeExterieur: [],
-                joueursEquipeDomicile: [],
-                joueursEquipeExterieur: [],
-                mvpVotes: {},
-                notes: {},
-              };
-
-              await matchDocRef.set(matchObj);
-
-              console.log(
-              shouldUpdate && matchDoc.exists ?
-                "Match mis à jour :" :
-                "Match ajouté :",
-              id,
-              " compétition : ",
-              leagueId,
-              );
+                " compétition : ",
+                leagueId,
+                );
+              }
             }
           }
         }
@@ -423,7 +427,7 @@ exports.updateLiveMatches = onSchedule(
         if (mustCallApi == true) {
           console.log("Il faut appeler l'API");
           const live = await getDataFromApi("fixtures",
-              {live: "1-135-137-140-143-2-3-39-4-45-48-" +
+              {live: "1-10-135-137-140-143-2-3-39-4-45-48-" +
               "526-528-529-547-556-61-62-66-78-81-848"});
 
           const liveIds = live.map((m) => m.fixture.id.toString());
@@ -443,7 +447,7 @@ exports.updateLiveMatches = onSchedule(
 
               const newScoreHome = matchData.goals.home ?? 0;
               const newScoreAway = matchData.goals.away ?? 0;
-              const newStatus = getMatchStatusFromCode(
+              const newStatus = getStatusFromCode(
                   matchData.fixture.status.short,
               );
               const newMinute = matchData.fixture.status.elapsed ?? null;
@@ -640,7 +644,7 @@ exports.updateLiveMatches = onSchedule(
 
               const matchData = result[0];
 
-              const finalStatus = getMatchStatusFromCode(
+              const finalStatus = getStatusFromCode(
                   matchData.fixture.status.short,
               );
 

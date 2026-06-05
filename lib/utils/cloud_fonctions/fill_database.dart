@@ -298,7 +298,10 @@ class FillDatabase {
   }
 
   static Future<List<Equipe>> getEquipes(
-      String competitionId, String season) async {
+    String competitionId,
+    String season,
+    bool creerEnDirect,
+  ) async {
     List<Equipe> equipes = [];
 
     List<dynamic> data = await getDataFromApi(
@@ -338,7 +341,11 @@ class FillDatabase {
             couleurSecondaire: couleurs["secondaire"],
             national: national,
           );
+          print("add equipe : $nom");
           equipes.add(newEquipe);
+          if (creerEnDirect) {
+            await RepositoryProvider.equipeRepository.addEquipe(newEquipe);
+          }
         }
       }
     }
@@ -348,8 +355,8 @@ class FillDatabase {
   static Future<MatchModelId> getMatchFromData(
       Map<String, dynamic> matchData) async {
     final String id = matchData['fixture']['id'].toString();
-    final MatchStatus status = getMatchStatusFromCode(
-        matchData['fixture']['status']['short'].toString());
+    final MatchStatus status =
+        getStatusFromCode(matchData['fixture']['status']['short'].toString());
     final String equipeDomicileId = matchData['teams']['home']['id'].toString();
     final String equipeExterieurId =
         matchData['teams']['away']['id'].toString();
@@ -430,6 +437,7 @@ class FillDatabase {
     String season,
     DateTime? from,
     DateTime? to,
+    bool creerEnDirect,
   ) async {
     List<MatchModelId> matchs = [];
 
@@ -451,9 +459,20 @@ class FillDatabase {
       print("ERREUR DATA EMPTY: pour $competitionId, $season");
     } else {
       print("data bien récupérée pour $competitionId, $season : $data");
+      int i = 0;
       for (Map<String, dynamic> matchData in data) {
-        MatchModelId newMatch = await FillDatabase.getMatchFromData(matchData);
-        matchs.add(newMatch);
+        print("match $i sur ${data.length}");
+        if (await RepositoryProvider.matchRepository
+                .fetchMatchModelIdById(matchData['fixture']['id'].toString()) ==
+            null) {
+          MatchModelId newMatch =
+              await FillDatabase.getMatchFromData(matchData);
+          matchs.add(newMatch);
+          if (creerEnDirect) {
+            await RepositoryProvider.matchRepository.addMatchModelId(newMatch);
+          }
+        }
+        i++;
       }
     }
     return matchs;

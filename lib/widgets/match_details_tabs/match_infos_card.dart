@@ -104,6 +104,7 @@ class MatchInfosCard extends StatelessWidget {
                 Expanded(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       match.refereeName!,
                       style: TextStyle(

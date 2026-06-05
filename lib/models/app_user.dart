@@ -16,6 +16,7 @@ class AppUser {
   final List<MatchUserData> matchsUserData;
   final Options options;
   final String? lastRecapSeenWeek;
+  final bool deleted;
 
   AppUser({
     required this.uid,
@@ -30,6 +31,7 @@ class AppUser {
     this.matchsUserData = const [],
     Options? options,
     this.lastRecapSeenWeek,
+    this.deleted = false,
   }) : options = options ?? Options();
 
   MatchUserData? getMatchUserDataByMatch({MatchModel? match, String? matchId}) {
@@ -75,6 +77,7 @@ class AppUser {
           ? Options.fromJson(json['options'] as Map<String, dynamic>)
           : Options(),
       lastRecapSeenWeek: json['lastRecapSeenWeek'] as String?,
+      deleted: json['deleted'] as bool? ?? false,
     );
   }
 
@@ -92,6 +95,7 @@ class AppUser {
       'matchsUserData': matchsUserData,
       'options': options.toJson(),
       'lastRecapSeenWeek': lastRecapSeenWeek,
+      'deleted': deleted,
     };
   }
 }

@@ -63,8 +63,8 @@
   "recuperationDesMatchs": "Fetching matches…",
   "chargementDesDetailsDesMatchs": "Loading match details…",
   "calculDesStatistiques": "Calculating statistics",
-  "petiteSemaineFootball": "'👀 Quiet football week'",
-  "footballSpectacleXAvec3Buts": "'🍿 Spectacular football • {value1}% with 3+ goals'",
+  "petiteSemaineFootball": "👀 Quiet football week",
+  "footballSpectacleXAvec3Buts": "🍿 Spectacular football • {value1}% with 3+ goals",
   "@footballSpectacleXAvec3Buts": {
     "placeholders": {
       "value1": {
@@ -72,7 +72,7 @@
       }
     }
   },
-  "defensesAbsentesXButsMatch": "'💥 Missing defenses • {value1} goals/match'",
+  "defensesAbsentesXButsMatch": "💥 Missing defenses • {value1} goals/match",
   "@defensesAbsentesXButsMatch": {
     "placeholders": {
       "value1": {
@@ -80,7 +80,7 @@
       }
     }
   },
-  "semaineChaotiqueXMatchsAvec5Buts": "'🔥 Chaotic week • {veryHighScoring} matches with 5+ goals'",
+  "semaineChaotiqueXMatchsAvec5Buts": "🔥 Chaotic week • {veryHighScoring} matches with 5+ goals",
   "@semaineChaotiqueXMatchsAvec5Buts": {
     "placeholders": {
       "veryHighScoring": {
@@ -88,9 +88,9 @@
       }
     }
   },
-  "aucun00AuProgramme": "'🎯 No 0-0 on the schedule'",
-  "defensesEnCartonAucunMatchAMoinsDe2Buts": "'🤐 Cardboard defenses • No match under 2 goals'",
-  "suspenseTotalXMatchsAUnButDEcart": "'⚡ Total suspense • {closeGames} matches with a one-goal difference'",
+  "aucun00AuProgramme": "🎯 No 0-0 on the schedule",
+  "defensesEnCartonAucunMatchAMoinsDe2Buts": "🤐 Cardboard defenses • No match under 2 goals",
+  "suspenseTotalXMatchsAUnButDEcart": "⚡ Total suspense • {closeGames} matches with a one-goal difference",
   "@suspenseTotalXMatchsAUnButDEcart": {
     "placeholders": {
       "closeGames": {
@@ -98,7 +98,7 @@
       }
     }
   },
-  "attaquantsEnVacancesXButsMatch": "'😴 Strikers on vacation • {value1} goals/match'",
+  "attaquantsEnVacancesXButsMatch": "😴 Strikers on vacation • {value1} goals/match",
   "@attaquantsEnVacancesXButsMatch": {
     "placeholders": {
       "value1": {
@@ -106,7 +106,7 @@
       }
     }
   },
-  "gardiensEnFeuXCleanSheets": "'🧤 Goalkeepers on fire • {cleanSheets} clean sheets'",
+  "gardiensEnFeuXCleanSheets": "🧤 Goalkeepers on fire • {cleanSheets} clean sheets",
   "@gardiensEnFeuXCleanSheets": {
     "placeholders": {
       "cleanSheets": {
@@ -114,7 +114,7 @@
       }
     }
   },
-  "impossibleDeSeDepartagerXMatchsNuls": "'🤝 Can't be separated • {draws} draws'",
+  "impossibleDeSeDepartagerXMatchsNuls": "🤝 Can't be separated • {draws} draws",
   "@impossibleDeSeDepartagerXMatchsNuls": {
     "placeholders": {
       "draws": {
@@ -122,7 +122,7 @@
       }
     }
   },
-  "semaineDecevanteX10DeMoyenne": "'📉 Disappointing week • {value1}/10 average'",
+  "semaineDecevanteX10DeMoyenne": "📉 Disappointing week • {value1}/10 average",
   "@semaineDecevanteX10DeMoyenne": {
     "placeholders": {
       "value1": {
@@ -130,7 +130,7 @@
       }
     }
   },
-  "quelquesPurgesAuProgrammeXMatchsSous510": "'💀 Some dreadful games • {badMatches} matches under 5/10'",
+  "quelquesPurgesAuProgrammeXMatchsSous510": "💀 Some dreadful games • {badMatches} matches under 5/10",
   "@quelquesPurgesAuProgrammeXMatchsSous510": {
     "placeholders": {
       "badMatches": {
@@ -138,7 +138,7 @@
       }
     }
   },
-  "semaineMemorableXMatchsNotes8OuPlus": "'🔥 Memorable week • {greatMatches} matches rated 8 or higher'",
+  "semaineMemorableXMatchsNotes8OuPlus": "🔥 Memorable week • {greatMatches} matches rated 8 or higher",
   "@semaineMemorableXMatchsNotes8OuPlus": {
     "placeholders": {
       "greatMatches": {
@@ -146,7 +146,7 @@
       }
     }
   },
-  "semaineValideeX10DeMoyenne": "'🌟 Successful week • {value1}/10 average'",
+  "semaineValideeX10DeMoyenne": "🌟 Successful week • {value1}/10 average",
   "@semaineValideeX10DeMoyenne": {
     "placeholders": {
       "value1": {
@@ -154,8 +154,8 @@
       }
     }
   },
-  "aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus": "'🎬 No flops scheduled • All matches rated 7 or higher'",
-  "modeXActive": "'🏆 {topCompetitionName} mode activated'",
+  "aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus": "🎬 No flops scheduled • All matches rated 7 or higher",
+  "modeXActive": "🏆 {topCompetitionName} mode activated",
   "@modeXActive": {
     "placeholders": {
       "topCompetitionName": {
@@ -163,7 +163,7 @@
       }
     }
   },
-  "marathonFootballXMatchsAuProgramme": "'📺 Football marathon • {n} matches scheduled'",
+  "marathonFootballXMatchsAuProgramme": "📺 Football marathon • {n} matches scheduled",
   "@marathonFootballXMatchsAuProgramme": {
     "placeholders": {
       "n": {
@@ -171,7 +171,7 @@
       }
     }
   },
-  "festivalOffensifXButsCetteSemaine": "'⚽ Scoring festival • {totalGoals} goals this week'",
+  "festivalOffensifXButsCetteSemaine": "⚽ Scoring festival • {totalGoals} goals this week",
   "@festivalOffensifXButsCetteSemaine": {
     "placeholders": {
       "totalGoals": {
@@ -179,7 +179,7 @@
       }
     }
   },
-  "semaineFootballValideeXMatchsRegardes": "'👀 Football week approved • {n} matches watched'",
+  "semaineFootballValideeXMatchsRegardes": "👀 Football week approved • {n} matches watched",
   "@semaineFootballValideeXMatchsRegardes": {
     "placeholders": {
       "n": {
@@ -225,10 +225,10 @@
     }
   },
   "noteMoyenne": "average rating",
-  "meilleurMatch": "'🏆 Best match'",
+  "meilleurMatch": "🏆 Best match",
   "mvp": "MVP",
   "mvpDeLaSemaine": "MVP of the week",
-  "competitionPreferee": "'🏅 Favorite competition'",
+  "competitionPreferee": "🏅 Favorite competition",
   "xMatchX": "{topCompetitionCount} match{value2}",
   "@xMatchX": {
     "placeholders": {
@@ -242,7 +242,6 @@
   },
   "serie": "🔥 Streak",
   "semainesConsecutives": "consecutive\nweeks",
-  "traduction": "'''",
   "voiciMonRecapFootDeLaSemaine": "Here is my football recap of the week!⚽📊",
   "decouvrezLeVotreTelechargezScorescopeapp": "Discover yours, download @ScoreScopeApp!",
   "erreurDeChargement": "Loading error",
@@ -679,7 +678,7 @@
   "selectionnerUneDate": "Select a date",
   "appliquer": "Apply",
   "commenceATaperPourRechercher": "Start typing to search",
-  "encoreXCaractereX": "'{value1} more character{value2}…'",
+  "encoreXCaractereX": "{value1} more character{value2}…",
   "@encoreXCaractereX": {
     "placeholders": {
       "value1": {
@@ -742,7 +741,7 @@
   "erreurLorsDeLaMiseAJourDeLaConfidentialite": "Error updating privacy",
   "matchSupprime": "Match deleted",
   "erreurLorsDeLaSuppressionDuMatch": "Error deleting match (try again)",
-  "notificationsXPourXX": "'{value1} notifications for {value2} - {value3}'",
+  "notificationsXPourXX": "{value1} notifications for {value2} - {value3}",
   "@notificationsXPourXX": {
     "placeholders": {
       "value1": {
@@ -790,7 +789,7 @@
   "afficherEnListe": "Show as list",
   "afficherEnCards": "Show as cards",
   "matchsPublicsUniquement": "Public matches only",
-  "saisonXX2": "'Season: {season} / {season2}'",
+  "saisonXX2": "Season: {season} / {season2}",
   "@saisonXX2": {
     "placeholders": {
       "season": {
@@ -818,7 +817,7 @@
   "competition": "COMPETITION",
   "serie2": "STREAK",
   "telechargeScorescope": "Download ScoreScope",
-  "xXVsSemainePrecedente": "'{value1}{diff} vs previous week',",
+  "xXVsSemainePrecedente": "{value1}{diff} vs previous week,",
   "@xXVsSemainePrecedente": {
     "placeholders": {
       "value1": {
@@ -842,10 +841,10 @@
   },
   "voirTousLesCommentaires": "View all comments",
   "recents": "Recent",
-  "rechercherUnEmojiParNomOuCategorie": "'Search for an emoji by name or category…'",
+  "rechercherUnEmojiParNomOuCategorie": "Search for an emoji by name or category…",
   "infosMatch": "Match info",
   "noteDuMatch": "Match rating",
-  "xVoteX": "'{noteCount} vote{value2}'",
+  "xVoteX": "{noteCount} vote{value2}",
   "@xVoteX": {
     "placeholders": {
       "noteCount": {
@@ -915,7 +914,7 @@
   "oct": "Oct",
   "nov": "Nov",
   "dec": "Dec",
-  "erreurLorsDuChargementDesStatistiques": "'Error loading statistics.\n{value1}'",
+  "erreurLorsDuChargementDesStatistiques": "Error loading statistics.\n{value1}",
   "@erreurLorsDuChargementDesStatistiques": {
     "placeholders": {
       "value1": {

@@ -395,115 +395,115 @@ abstract class AppLocalizations {
   /// No description provided for @petiteSemaineFootball.
   ///
   /// In fr, this message translates to:
-  /// **'\'👀 Petite semaine football\''**
+  /// **'👀 Petite semaine football'**
   String get petiteSemaineFootball;
 
   /// No description provided for @footballSpectacleXAvec3Buts.
   ///
   /// In fr, this message translates to:
-  /// **'\'🍿 Football spectacle • {value1}% avec 3+ buts\''**
+  /// **'🍿 Football spectacle • {value1}% avec 3+ buts'**
   String footballSpectacleXAvec3Buts(String value1);
 
   /// No description provided for @defensesAbsentesXButsMatch.
   ///
   /// In fr, this message translates to:
-  /// **'\'💥 Défenses absentes • {value1} buts/match\''**
+  /// **'💥 Défenses absentes • {value1} buts/match'**
   String defensesAbsentesXButsMatch(String value1);
 
   /// No description provided for @semaineChaotiqueXMatchsAvec5Buts.
   ///
   /// In fr, this message translates to:
-  /// **'\'🔥 Semaine chaotique • {veryHighScoring} matchs avec 5+ buts\''**
+  /// **'🔥 Semaine chaotique • {veryHighScoring} matchs avec 5+ buts'**
   String semaineChaotiqueXMatchsAvec5Buts(String veryHighScoring);
 
   /// No description provided for @aucun00AuProgramme.
   ///
   /// In fr, this message translates to:
-  /// **'\'🎯 Aucun 0-0 au programme\''**
+  /// **'🎯 Aucun 0-0 au programme'**
   String get aucun00AuProgramme;
 
   /// No description provided for @defensesEnCartonAucunMatchAMoinsDe2Buts.
   ///
   /// In fr, this message translates to:
-  /// **'\'🤐 Défenses en carton • Aucun match à moins de 2 buts\''**
+  /// **'🤐 Défenses en carton • Aucun match à moins de 2 buts'**
   String get defensesEnCartonAucunMatchAMoinsDe2Buts;
 
   /// No description provided for @suspenseTotalXMatchsAUnButDEcart.
   ///
   /// In fr, this message translates to:
-  /// **'\'⚡ Suspense total • {closeGames} matchs à un but d\'écart\''**
+  /// **'⚡ Suspense total • {closeGames} matchs à un but d\'écart'**
   String suspenseTotalXMatchsAUnButDEcart(String closeGames);
 
   /// No description provided for @attaquantsEnVacancesXButsMatch.
   ///
   /// In fr, this message translates to:
-  /// **'\'😴 Attaquants en vacances • {value1} buts/match\''**
+  /// **'😴 Attaquants en vacances • {value1} buts/match'**
   String attaquantsEnVacancesXButsMatch(String value1);
 
   /// No description provided for @gardiensEnFeuXCleanSheets.
   ///
   /// In fr, this message translates to:
-  /// **'\'🧤 Gardiens en feu • {cleanSheets} clean sheets\''**
+  /// **'🧤 Gardiens en feu • {cleanSheets} clean sheets'**
   String gardiensEnFeuXCleanSheets(String cleanSheets);
 
   /// No description provided for @impossibleDeSeDepartagerXMatchsNuls.
   ///
   /// In fr, this message translates to:
-  /// **'\'🤝 Impossible de se départager • {draws} matchs nuls\''**
+  /// **'🤝 Impossible de se départager • {draws} matchs nuls'**
   String impossibleDeSeDepartagerXMatchsNuls(String draws);
 
   /// No description provided for @semaineDecevanteX10DeMoyenne.
   ///
   /// In fr, this message translates to:
-  /// **'\'📉 Semaine décevante • {value1}/10 de moyenne\''**
+  /// **'📉 Semaine décevante • {value1}/10 de moyenne'**
   String semaineDecevanteX10DeMoyenne(String value1);
 
   /// No description provided for @quelquesPurgesAuProgrammeXMatchsSous510.
   ///
   /// In fr, this message translates to:
-  /// **'\'💀 Quelques purges au programme • {badMatches} matchs sous 5/10\''**
+  /// **'💀 Quelques purges au programme • {badMatches} matchs sous 5/10'**
   String quelquesPurgesAuProgrammeXMatchsSous510(String badMatches);
 
   /// No description provided for @semaineMemorableXMatchsNotes8OuPlus.
   ///
   /// In fr, this message translates to:
-  /// **'\'🔥 Semaine mémorable • {greatMatches} matchs notés 8 ou plus\''**
+  /// **'🔥 Semaine mémorable • {greatMatches} matchs notés 8 ou plus'**
   String semaineMemorableXMatchsNotes8OuPlus(String greatMatches);
 
   /// No description provided for @semaineValideeX10DeMoyenne.
   ///
   /// In fr, this message translates to:
-  /// **'\'🌟 Semaine validée • {value1}/10 de moyenne\''**
+  /// **'🌟 Semaine validée • {value1}/10 de moyenne'**
   String semaineValideeX10DeMoyenne(String value1);
 
   /// No description provided for @aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus.
   ///
   /// In fr, this message translates to:
-  /// **'\'🎬 Aucun flop au programme • Tous les matchs notés 7 ou plus\''**
+  /// **'🎬 Aucun flop au programme • Tous les matchs notés 7 ou plus'**
   String get aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus;
 
   /// No description provided for @modeXActive.
   ///
   /// In fr, this message translates to:
-  /// **'\'🏆 Mode {topCompetitionName} activé\''**
+  /// **'🏆 Mode {topCompetitionName} activé'**
   String modeXActive(String topCompetitionName);
 
   /// No description provided for @marathonFootballXMatchsAuProgramme.
   ///
   /// In fr, this message translates to:
-  /// **'\'📺 Marathon football • {n} matchs au programme\''**
+  /// **'📺 Marathon football • {n} matchs au programme'**
   String marathonFootballXMatchsAuProgramme(String n);
 
   /// No description provided for @festivalOffensifXButsCetteSemaine.
   ///
   /// In fr, this message translates to:
-  /// **'\'⚽ Festival offensif • {totalGoals} buts cette semaine\''**
+  /// **'⚽ Festival offensif • {totalGoals} buts cette semaine'**
   String festivalOffensifXButsCetteSemaine(String totalGoals);
 
   /// No description provided for @semaineFootballValideeXMatchsRegardes.
   ///
   /// In fr, this message translates to:
-  /// **'\'👀 Semaine football validée • {n} matchs regardés\''**
+  /// **'👀 Semaine football validée • {n} matchs regardés'**
   String semaineFootballValideeXMatchsRegardes(String n);
 
   /// No description provided for @recapDeLaSemaine.
@@ -607,12 +607,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'semaines\nconsécutives'**
   String get semainesConsecutives;
-
-  /// No description provided for @traduction.
-  ///
-  /// In fr, this message translates to:
-  /// **'\'\'\''**
-  String get traduction;
 
   /// No description provided for @voiciMonRecapFootDeLaSemaine.
   ///
@@ -2321,7 +2315,7 @@ abstract class AppLocalizations {
   /// No description provided for @encoreXCaractereX.
   ///
   /// In fr, this message translates to:
-  /// **'\'Encore {value1} caractère{value2}…\''**
+  /// **'Encore {value1} caractère{value2}…'**
   String encoreXCaractereX(String value1, String value2);
 
   /// No description provided for @aucunResultat.
@@ -2471,7 +2465,7 @@ abstract class AppLocalizations {
   /// No description provided for @notificationsXPourXX.
   ///
   /// In fr, this message translates to:
-  /// **'\'Notifications {value1} pour {value2} - {value3}\''**
+  /// **'Notifications {value1} pour {value2} - {value3}'**
   String notificationsXPourXX(String value1, String value2, String value3);
 
   /// No description provided for @matchPrive.
@@ -2639,7 +2633,7 @@ abstract class AppLocalizations {
   /// No description provided for @saisonXX2.
   ///
   /// In fr, this message translates to:
-  /// **'\'Saison : {season} / {season2}\''**
+  /// **'Saison : {season} / {season2}'**
   String saisonXX2(String season, String season2);
 
   /// No description provided for @periodeXX.
@@ -2687,7 +2681,7 @@ abstract class AppLocalizations {
   /// No description provided for @xXVsSemainePrecedente.
   ///
   /// In fr, this message translates to:
-  /// **'\'{value1}{diff} vs semaine précédente\','**
+  /// **'{value1}{diff} vs semaine précédente,'**
   String xXVsSemainePrecedente(String value1, String diff);
 
   /// No description provided for @votePourMvp.
@@ -2729,7 +2723,7 @@ abstract class AppLocalizations {
   /// No description provided for @rechercherUnEmojiParNomOuCategorie.
   ///
   /// In fr, this message translates to:
-  /// **'\'Rechercher un emoji par nom ou catégorie…\''**
+  /// **'Rechercher un emoji par nom ou catégorie…'**
   String get rechercherUnEmojiParNomOuCategorie;
 
   /// No description provided for @infosMatch.
@@ -2747,7 +2741,7 @@ abstract class AppLocalizations {
   /// No description provided for @xVoteX.
   ///
   /// In fr, this message translates to:
-  /// **'\'{noteCount} vote{value2}\''**
+  /// **'{noteCount} vote{value2}'**
   String xVoteX(String noteCount, String value2);
 
   /// No description provided for @moyenne.
@@ -3065,7 +3059,7 @@ abstract class AppLocalizations {
   /// No description provided for @erreurLorsDuChargementDesStatistiques.
   ///
   /// In fr, this message translates to:
-  /// **'\'Erreur lors du chargement des statistiques.\n{value1}\''**
+  /// **'Erreur lors du chargement des statistiques.\n{value1}'**
   String erreurLorsDuChargementDesStatistiques(String value1);
 
   /// No description provided for @erreurLorsDuCalculDesStatistiques.

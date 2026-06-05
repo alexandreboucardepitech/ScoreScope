@@ -63,8 +63,8 @@
   "recuperationDesMatchs": "Récupération des matchs…",
   "chargementDesDetailsDesMatchs": "Chargement des détails des matchs…",
   "calculDesStatistiques": "Calcul des statistiques",
-  "petiteSemaineFootball": "'👀 Petite semaine football'",
-  "footballSpectacleXAvec3Buts": "'🍿 Football spectacle • {value1}% avec 3+ buts'",
+  "petiteSemaineFootball": "👀 Petite semaine football",
+  "footballSpectacleXAvec3Buts": "🍿 Football spectacle • {value1}% avec 3+ buts",
   "@footballSpectacleXAvec3Buts": {
     "placeholders": {
       "value1": {
@@ -72,7 +72,7 @@
       }
     }
   },
-  "defensesAbsentesXButsMatch": "'💥 Défenses absentes • {value1} buts/match'",
+  "defensesAbsentesXButsMatch": "💥 Défenses absentes • {value1} buts/match",
   "@defensesAbsentesXButsMatch": {
     "placeholders": {
       "value1": {
@@ -80,7 +80,7 @@
       }
     }
   },
-  "semaineChaotiqueXMatchsAvec5Buts": "'🔥 Semaine chaotique • {veryHighScoring} matchs avec 5+ buts'",
+  "semaineChaotiqueXMatchsAvec5Buts": "🔥 Semaine chaotique • {veryHighScoring} matchs avec 5+ buts",
   "@semaineChaotiqueXMatchsAvec5Buts": {
     "placeholders": {
       "veryHighScoring": {
@@ -88,9 +88,9 @@
       }
     }
   },
-  "aucun00AuProgramme": "'🎯 Aucun 0-0 au programme'",
-  "defensesEnCartonAucunMatchAMoinsDe2Buts": "'🤐 Défenses en carton • Aucun match à moins de 2 buts'",
-  "suspenseTotalXMatchsAUnButDEcart": "'⚡ Suspense total • {closeGames} matchs à un but d'écart'",
+  "aucun00AuProgramme": "🎯 Aucun 0-0 au programme",
+  "defensesEnCartonAucunMatchAMoinsDe2Buts": "🤐 Défenses en carton • Aucun match à moins de 2 buts",
+  "suspenseTotalXMatchsAUnButDEcart": "⚡ Suspense total • {closeGames} matchs à un but d'écart",
   "@suspenseTotalXMatchsAUnButDEcart": {
     "placeholders": {
       "closeGames": {
@@ -98,7 +98,7 @@
       }
     }
   },
-  "attaquantsEnVacancesXButsMatch": "'😴 Attaquants en vacances • {value1} buts/match'",
+  "attaquantsEnVacancesXButsMatch": "😴 Attaquants en vacances • {value1} buts/match",
   "@attaquantsEnVacancesXButsMatch": {
     "placeholders": {
       "value1": {
@@ -106,7 +106,7 @@
       }
     }
   },
-  "gardiensEnFeuXCleanSheets": "'🧤 Gardiens en feu • {cleanSheets} clean sheets'",
+  "gardiensEnFeuXCleanSheets": "🧤 Gardiens en feu • {cleanSheets} clean sheets",
   "@gardiensEnFeuXCleanSheets": {
     "placeholders": {
       "cleanSheets": {
@@ -114,7 +114,7 @@
       }
     }
   },
-  "impossibleDeSeDepartagerXMatchsNuls": "'🤝 Impossible de se départager • {draws} matchs nuls'",
+  "impossibleDeSeDepartagerXMatchsNuls": "🤝 Impossible de se départager • {draws} matchs nuls",
   "@impossibleDeSeDepartagerXMatchsNuls": {
     "placeholders": {
       "draws": {
@@ -122,7 +122,7 @@
       }
     }
   },
-  "semaineDecevanteX10DeMoyenne": "'📉 Semaine décevante • {value1}/10 de moyenne'",
+  "semaineDecevanteX10DeMoyenne": "📉 Semaine décevante • {value1}/10 de moyenne",
   "@semaineDecevanteX10DeMoyenne": {
     "placeholders": {
       "value1": {
@@ -130,7 +130,7 @@
       }
     }
   },
-  "quelquesPurgesAuProgrammeXMatchsSous510": "'💀 Quelques purges au programme • {badMatches} matchs sous 5/10'",
+  "quelquesPurgesAuProgrammeXMatchsSous510": "💀 Quelques purges au programme • {badMatches} matchs sous 5/10",
   "@quelquesPurgesAuProgrammeXMatchsSous510": {
     "placeholders": {
       "badMatches": {
@@ -138,7 +138,7 @@
       }
     }
   },
-  "semaineMemorableXMatchsNotes8OuPlus": "'🔥 Semaine mémorable • {greatMatches} matchs notés 8 ou plus'",
+  "semaineMemorableXMatchsNotes8OuPlus": "🔥 Semaine mémorable • {greatMatches} matchs notés 8 ou plus",
   "@semaineMemorableXMatchsNotes8OuPlus": {
     "placeholders": {
       "greatMatches": {
@@ -146,7 +146,7 @@
       }
     }
   },
-  "semaineValideeX10DeMoyenne": "'🌟 Semaine validée • {value1}/10 de moyenne'",
+  "semaineValideeX10DeMoyenne": "🌟 Semaine validée • {value1}/10 de moyenne",
   "@semaineValideeX10DeMoyenne": {
     "placeholders": {
       "value1": {
@@ -154,8 +154,8 @@
       }
     }
   },
-  "aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus": "'🎬 Aucun flop au programme • Tous les matchs notés 7 ou plus'",
-  "modeXActive": "'🏆 Mode {topCompetitionName} activé'",
+  "aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus": "🎬 Aucun flop au programme • Tous les matchs notés 7 ou plus",
+  "modeXActive": "🏆 Mode {topCompetitionName} activé",
   "@modeXActive": {
     "placeholders": {
       "topCompetitionName": {
@@ -163,7 +163,7 @@
       }
     }
   },
-  "marathonFootballXMatchsAuProgramme": "'📺 Marathon football • {n} matchs au programme'",
+  "marathonFootballXMatchsAuProgramme": "📺 Marathon football • {n} matchs au programme",
   "@marathonFootballXMatchsAuProgramme": {
     "placeholders": {
       "n": {
@@ -171,7 +171,7 @@
       }
     }
   },
-  "festivalOffensifXButsCetteSemaine": "'⚽ Festival offensif • {totalGoals} buts cette semaine'",
+  "festivalOffensifXButsCetteSemaine": "⚽ Festival offensif • {totalGoals} buts cette semaine",
   "@festivalOffensifXButsCetteSemaine": {
     "placeholders": {
       "totalGoals": {
@@ -179,7 +179,7 @@
       }
     }
   },
-  "semaineFootballValideeXMatchsRegardes": "'👀 Semaine football validée • {n} matchs regardés'",
+  "semaineFootballValideeXMatchsRegardes": "👀 Semaine football validée • {n} matchs regardés",
   "@semaineFootballValideeXMatchsRegardes": {
     "placeholders": {
       "n": {
@@ -242,7 +242,6 @@
   },
   "serie": "🔥 Série",
   "semainesConsecutives": "semaines\nconsécutives",
-  "traduction": "'''",
   "voiciMonRecapFootDeLaSemaine": "Voici mon récap foot de la semaine !⚽📊",
   "decouvrezLeVotreTelechargezScorescopeapp": "Découvrez le votre, téléchargez @ScoreScopeApp !",
   "erreurDeChargement": "Erreur de chargement",
@@ -679,7 +678,7 @@
   "selectionnerUneDate": "Sélectionner une date",
   "appliquer": "Appliquer",
   "commenceATaperPourRechercher": "Commence à taper pour rechercher",
-  "encoreXCaractereX": "'Encore {value1} caractère{value2}…'",
+  "encoreXCaractereX": "Encore {value1} caractère{value2}…",
   "@encoreXCaractereX": {
     "placeholders": {
       "value1": {
@@ -742,7 +741,7 @@
   "erreurLorsDeLaMiseAJourDeLaConfidentialite": "Erreur lors de la mise à jour de la confidentialité",
   "matchSupprime": "Match supprimé",
   "erreurLorsDeLaSuppressionDuMatch": "Erreur lors de la suppression du match (réessayez)",
-  "notificationsXPourXX": "'Notifications {value1} pour {value2} - {value3}'",
+  "notificationsXPourXX": "Notifications {value1} pour {value2} - {value3}",
   "@notificationsXPourXX": {
     "placeholders": {
       "value1": {
@@ -790,7 +789,7 @@
   "afficherEnListe": "Afficher en liste",
   "afficherEnCards": "Afficher en cards",
   "matchsPublicsUniquement": "Matchs publics uniquement",
-  "saisonXX2": "'Saison : {season} / {season2}'",
+  "saisonXX2": "Saison : {season} / {season2}",
   "@saisonXX2": {
     "placeholders": {
       "season": {
@@ -818,7 +817,7 @@
   "competition": "COMPÉTITION",
   "serie2": "SÉRIE",
   "telechargeScorescope": "Télécharge ScoreScope",
-  "xXVsSemainePrecedente": "'{value1}{diff} vs semaine précédente',",
+  "xXVsSemainePrecedente": "{value1}{diff} vs semaine précédente,",
   "@xXVsSemainePrecedente": {
     "placeholders": {
       "value1": {
@@ -842,10 +841,10 @@
   },
   "voirTousLesCommentaires": "Voir tous les commentaires",
   "recents": "Récents",
-  "rechercherUnEmojiParNomOuCategorie": "'Rechercher un emoji par nom ou catégorie…'",
+  "rechercherUnEmojiParNomOuCategorie": "Rechercher un emoji par nom ou catégorie…",
   "infosMatch": "Infos match",
   "noteDuMatch": "Note du match",
-  "xVoteX": "'{noteCount} vote{value2}'",
+  "xVoteX": "{noteCount} vote{value2}",
   "@xVoteX": {
     "placeholders": {
       "noteCount": {
@@ -915,7 +914,7 @@
   "oct": "Oct",
   "nov": "Nov",
   "dec": "Déc",
-  "erreurLorsDuChargementDesStatistiques": "'Erreur lors du chargement des statistiques.\n{value1}'",
+  "erreurLorsDuChargementDesStatistiques": "Erreur lors du chargement des statistiques.\n{value1}",
   "@erreurLorsDuChargementDesStatistiques": {
     "placeholders": {
       "value1": {

@@ -168,92 +168,92 @@ class AppLocalizationsFr extends AppLocalizations {
   String get calculDesStatistiques => 'Calcul des statistiques';
 
   @override
-  String get petiteSemaineFootball => '\'👀 Petite semaine football\'';
+  String get petiteSemaineFootball => '👀 Petite semaine football';
 
   @override
   String footballSpectacleXAvec3Buts(String value1) {
-    return '\'🍿 Football spectacle • $value1% avec 3+ buts\'';
+    return '🍿 Football spectacle • $value1% avec 3+ buts';
   }
 
   @override
   String defensesAbsentesXButsMatch(String value1) {
-    return '\'💥 Défenses absentes • $value1 buts/match\'';
+    return '💥 Défenses absentes • $value1 buts/match';
   }
 
   @override
   String semaineChaotiqueXMatchsAvec5Buts(String veryHighScoring) {
-    return '\'🔥 Semaine chaotique • $veryHighScoring matchs avec 5+ buts\'';
+    return '🔥 Semaine chaotique • $veryHighScoring matchs avec 5+ buts';
   }
 
   @override
-  String get aucun00AuProgramme => '\'🎯 Aucun 0-0 au programme\'';
+  String get aucun00AuProgramme => '🎯 Aucun 0-0 au programme';
 
   @override
   String get defensesEnCartonAucunMatchAMoinsDe2Buts =>
-      '\'🤐 Défenses en carton • Aucun match à moins de 2 buts\'';
+      '🤐 Défenses en carton • Aucun match à moins de 2 buts';
 
   @override
   String suspenseTotalXMatchsAUnButDEcart(String closeGames) {
-    return '\'⚡ Suspense total • $closeGames matchs à un but d\'écart\'';
+    return '⚡ Suspense total • $closeGames matchs à un but d\'écart';
   }
 
   @override
   String attaquantsEnVacancesXButsMatch(String value1) {
-    return '\'😴 Attaquants en vacances • $value1 buts/match\'';
+    return '😴 Attaquants en vacances • $value1 buts/match';
   }
 
   @override
   String gardiensEnFeuXCleanSheets(String cleanSheets) {
-    return '\'🧤 Gardiens en feu • $cleanSheets clean sheets\'';
+    return '🧤 Gardiens en feu • $cleanSheets clean sheets';
   }
 
   @override
   String impossibleDeSeDepartagerXMatchsNuls(String draws) {
-    return '\'🤝 Impossible de se départager • $draws matchs nuls\'';
+    return '🤝 Impossible de se départager • $draws matchs nuls';
   }
 
   @override
   String semaineDecevanteX10DeMoyenne(String value1) {
-    return '\'📉 Semaine décevante • $value1/10 de moyenne\'';
+    return '📉 Semaine décevante • $value1/10 de moyenne';
   }
 
   @override
   String quelquesPurgesAuProgrammeXMatchsSous510(String badMatches) {
-    return '\'💀 Quelques purges au programme • $badMatches matchs sous 5/10\'';
+    return '💀 Quelques purges au programme • $badMatches matchs sous 5/10';
   }
 
   @override
   String semaineMemorableXMatchsNotes8OuPlus(String greatMatches) {
-    return '\'🔥 Semaine mémorable • $greatMatches matchs notés 8 ou plus\'';
+    return '🔥 Semaine mémorable • $greatMatches matchs notés 8 ou plus';
   }
 
   @override
   String semaineValideeX10DeMoyenne(String value1) {
-    return '\'🌟 Semaine validée • $value1/10 de moyenne\'';
+    return '🌟 Semaine validée • $value1/10 de moyenne';
   }
 
   @override
   String get aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus =>
-      '\'🎬 Aucun flop au programme • Tous les matchs notés 7 ou plus\'';
+      '🎬 Aucun flop au programme • Tous les matchs notés 7 ou plus';
 
   @override
   String modeXActive(String topCompetitionName) {
-    return '\'🏆 Mode $topCompetitionName activé\'';
+    return '🏆 Mode $topCompetitionName activé';
   }
 
   @override
   String marathonFootballXMatchsAuProgramme(String n) {
-    return '\'📺 Marathon football • $n matchs au programme\'';
+    return '📺 Marathon football • $n matchs au programme';
   }
 
   @override
   String festivalOffensifXButsCetteSemaine(String totalGoals) {
-    return '\'⚽ Festival offensif • $totalGoals buts cette semaine\'';
+    return '⚽ Festival offensif • $totalGoals buts cette semaine';
   }
 
   @override
   String semaineFootballValideeXMatchsRegardes(String n) {
-    return '\'👀 Semaine football validée • $n matchs regardés\'';
+    return '👀 Semaine football validée • $n matchs regardés';
   }
 
   @override
@@ -317,9 +317,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get semainesConsecutives => 'semaines\nconsécutives';
-
-  @override
-  String get traduction => '\'\'\'';
 
   @override
   String get voiciMonRecapFootDeLaSemaine =>
@@ -1269,7 +1266,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String encoreXCaractereX(String value1, String value2) {
-    return '\'Encore $value1 caractère$value2…\'';
+    return 'Encore $value1 caractère$value2…';
   }
 
   @override
@@ -1360,7 +1357,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String notificationsXPourXX(String value1, String value2, String value3) {
-    return '\'Notifications $value1 pour $value2 - $value3\'';
+    return 'Notifications $value1 pour $value2 - $value3';
   }
 
   @override
@@ -1448,7 +1445,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String saisonXX2(String season, String season2) {
-    return '\'Saison : $season / $season2\'';
+    return 'Saison : $season / $season2';
   }
 
   @override
@@ -1476,7 +1473,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String xXVsSemainePrecedente(String value1, String diff) {
-    return '\'$value1$diff vs semaine précédente\',';
+    return '$value1$diff vs semaine précédente,';
   }
 
   @override
@@ -1501,7 +1498,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get rechercherUnEmojiParNomOuCategorie =>
-      '\'Rechercher un emoji par nom ou catégorie…\'';
+      'Rechercher un emoji par nom ou catégorie…';
 
   @override
   String get infosMatch => 'Infos match';
@@ -1511,7 +1508,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String xVoteX(String noteCount, String value2) {
-    return '\'$noteCount vote$value2\'';
+    return '$noteCount vote$value2';
   }
 
   @override
@@ -1677,7 +1674,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String erreurLorsDuChargementDesStatistiques(String value1) {
-    return '\'Erreur lors du chargement des statistiques.\n$value1\'';
+    return 'Erreur lors du chargement des statistiques.\n$value1';
   }
 
   @override

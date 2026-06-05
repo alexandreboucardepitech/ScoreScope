@@ -33,7 +33,7 @@ class WebAppUserRepository implements IAppUserRepository {
     final snapshot = await _usersCollection.get();
     return snapshot.docs
         .where((doc) =>
-            (doc.data()['deleted'] == null || doc.data()['deleted'] == true) &&
+            (doc.data()['deleted'] == null || doc.data()['deleted'] == false) &&
             doc.data()['displayName'] != null)
         .map((doc) => AppUser.fromJson(json: doc.data(), userId: doc.id))
         .toList();

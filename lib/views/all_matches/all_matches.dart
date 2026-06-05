@@ -434,13 +434,25 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
             //   ElevatedButton(
             //     onPressed: () async {
-            //       ScaffoldMessenger.of(context).showSnackBar(
-            //         SnackBar(
-            //           content: Text(
-            //             'test coucou',
-            //           ),
-            //         ),
-            //       );
+            //       List<MatchModelId> allMatches = await RepositoryProvider.matchRepository.fetchAllMatchesId(loadVotesAndNotes: false);
+            //       List<String> idEquipesACreer = [];
+            //       int i = 0;
+            //       for (MatchModelId match in allMatches) {
+            //         print("Match ${i+1}/${allMatches.length} - id: ${match.id}");
+            //         Equipe? equipeDom = await RepositoryProvider.equipeRepository.fetchEquipeById(match.equipeDomicileId);
+            //         if (equipeDom == null) {
+            //           idEquipesACreer.add(match.equipeDomicileId);
+            //         }
+                    
+            //         Equipe? equipeExt = await RepositoryProvider.equipeRepository.fetchEquipeById(match.equipeExterieurId);
+            //         if (equipeExt == null) {
+            //           idEquipesACreer.add(match.equipeExterieurId);
+            //         }
+            //         i++;
+            //       }
+            //       for (String id in idEquipesACreer) {
+            //         await FillDatabase.createEquipeFromApiId(teamApiId: id, season: "2026");
+            //       }
             //     },
             //     child: Text("test pour développeur"),
             //   ),

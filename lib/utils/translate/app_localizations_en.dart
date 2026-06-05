@@ -163,92 +163,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calculDesStatistiques => 'Calculating statistics';
 
   @override
-  String get petiteSemaineFootball => '\'👀 Quiet football week\'';
+  String get petiteSemaineFootball => '👀 Quiet football week';
 
   @override
   String footballSpectacleXAvec3Buts(String value1) {
-    return '\'🍿 Spectacular football • $value1% with 3+ goals\'';
+    return '🍿 Spectacular football • $value1% with 3+ goals';
   }
 
   @override
   String defensesAbsentesXButsMatch(String value1) {
-    return '\'💥 Missing defenses • $value1 goals/match\'';
+    return '💥 Missing defenses • $value1 goals/match';
   }
 
   @override
   String semaineChaotiqueXMatchsAvec5Buts(String veryHighScoring) {
-    return '\'🔥 Chaotic week • $veryHighScoring matches with 5+ goals\'';
+    return '🔥 Chaotic week • $veryHighScoring matches with 5+ goals';
   }
 
   @override
-  String get aucun00AuProgramme => '\'🎯 No 0-0 on the schedule\'';
+  String get aucun00AuProgramme => '🎯 No 0-0 on the schedule';
 
   @override
   String get defensesEnCartonAucunMatchAMoinsDe2Buts =>
-      '\'🤐 Cardboard defenses • No match under 2 goals\'';
+      '🤐 Cardboard defenses • No match under 2 goals';
 
   @override
   String suspenseTotalXMatchsAUnButDEcart(String closeGames) {
-    return '\'⚡ Total suspense • $closeGames matches with a one-goal difference\'';
+    return '⚡ Total suspense • $closeGames matches with a one-goal difference';
   }
 
   @override
   String attaquantsEnVacancesXButsMatch(String value1) {
-    return '\'😴 Strikers on vacation • $value1 goals/match\'';
+    return '😴 Strikers on vacation • $value1 goals/match';
   }
 
   @override
   String gardiensEnFeuXCleanSheets(String cleanSheets) {
-    return '\'🧤 Goalkeepers on fire • $cleanSheets clean sheets\'';
+    return '🧤 Goalkeepers on fire • $cleanSheets clean sheets';
   }
 
   @override
   String impossibleDeSeDepartagerXMatchsNuls(String draws) {
-    return '\'🤝 Can\'t be separated • $draws draws\'';
+    return '🤝 Can\'t be separated • $draws draws';
   }
 
   @override
   String semaineDecevanteX10DeMoyenne(String value1) {
-    return '\'📉 Disappointing week • $value1/10 average\'';
+    return '📉 Disappointing week • $value1/10 average';
   }
 
   @override
   String quelquesPurgesAuProgrammeXMatchsSous510(String badMatches) {
-    return '\'💀 Some dreadful games • $badMatches matches under 5/10\'';
+    return '💀 Some dreadful games • $badMatches matches under 5/10';
   }
 
   @override
   String semaineMemorableXMatchsNotes8OuPlus(String greatMatches) {
-    return '\'🔥 Memorable week • $greatMatches matches rated 8 or higher\'';
+    return '🔥 Memorable week • $greatMatches matches rated 8 or higher';
   }
 
   @override
   String semaineValideeX10DeMoyenne(String value1) {
-    return '\'🌟 Successful week • $value1/10 average\'';
+    return '🌟 Successful week • $value1/10 average';
   }
 
   @override
   String get aucunFlopAuProgrammeTousLesMatchsNotes7OuPlus =>
-      '\'🎬 No flops scheduled • All matches rated 7 or higher\'';
+      '🎬 No flops scheduled • All matches rated 7 or higher';
 
   @override
   String modeXActive(String topCompetitionName) {
-    return '\'🏆 $topCompetitionName mode activated\'';
+    return '🏆 $topCompetitionName mode activated';
   }
 
   @override
   String marathonFootballXMatchsAuProgramme(String n) {
-    return '\'📺 Football marathon • $n matches scheduled\'';
+    return '📺 Football marathon • $n matches scheduled';
   }
 
   @override
   String festivalOffensifXButsCetteSemaine(String totalGoals) {
-    return '\'⚽ Scoring festival • $totalGoals goals this week\'';
+    return '⚽ Scoring festival • $totalGoals goals this week';
   }
 
   @override
   String semaineFootballValideeXMatchsRegardes(String n) {
-    return '\'👀 Football week approved • $n matches watched\'';
+    return '👀 Football week approved • $n matches watched';
   }
 
   @override
@@ -291,7 +291,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteMoyenne => 'average rating';
 
   @override
-  String get meilleurMatch => '\'🏆 Best match\'';
+  String get meilleurMatch => '🏆 Best match';
 
   @override
   String get mvp => 'MVP';
@@ -300,7 +300,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mvpDeLaSemaine => 'MVP of the week';
 
   @override
-  String get competitionPreferee => '\'🏅 Favorite competition\'';
+  String get competitionPreferee => '🏅 Favorite competition';
 
   @override
   String xMatchX(String topCompetitionCount, String value2) {
@@ -312,9 +312,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get semainesConsecutives => 'consecutive\nweeks';
-
-  @override
-  String get traduction => '\'\'\'';
 
   @override
   String get voiciMonRecapFootDeLaSemaine =>
@@ -1254,7 +1251,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String encoreXCaractereX(String value1, String value2) {
-    return '\'$value1 more character$value2…\'';
+    return '$value1 more character$value2…';
   }
 
   @override
@@ -1344,7 +1341,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String notificationsXPourXX(String value1, String value2, String value3) {
-    return '\'$value1 notifications for $value2 - $value3\'';
+    return '$value1 notifications for $value2 - $value3';
   }
 
   @override
@@ -1432,7 +1429,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String saisonXX2(String season, String season2) {
-    return '\'Season: $season / $season2\'';
+    return 'Season: $season / $season2';
   }
 
   @override
@@ -1460,7 +1457,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String xXVsSemainePrecedente(String value1, String diff) {
-    return '\'$value1$diff vs previous week\',';
+    return '$value1$diff vs previous week,';
   }
 
   @override
@@ -1485,7 +1482,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rechercherUnEmojiParNomOuCategorie =>
-      '\'Search for an emoji by name or category…\'';
+      'Search for an emoji by name or category…';
 
   @override
   String get infosMatch => 'Match info';
@@ -1495,7 +1492,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String xVoteX(String noteCount, String value2) {
-    return '\'$noteCount vote$value2\'';
+    return '$noteCount vote$value2';
   }
 
   @override
@@ -1660,7 +1657,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String erreurLorsDuChargementDesStatistiques(String value1) {
-    return '\'Error loading statistics.\n$value1\'';
+    return 'Error loading statistics.\n$value1';
   }
 
   @override

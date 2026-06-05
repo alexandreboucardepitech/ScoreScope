@@ -284,12 +284,18 @@ class _CompositionsTabState extends State<CompositionsTab> {
                   height: 32,
                 ),
               const SizedBox(width: 10),
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: ColorPalette.textAccent(context),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalette.textAccent(context),
+                    ),
+                  ),
                 ),
               ),
             ],

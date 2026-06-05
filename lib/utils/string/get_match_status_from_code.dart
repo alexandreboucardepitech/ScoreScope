@@ -1,6 +1,6 @@
 import 'package:scorescope/models/match.dart';
 
-MatchStatus getMatchStatusFromCode(String code) {
+MatchStatus getStatusFromCode(String code) {
   switch (code) {
     case "FT":
     case "AET":
