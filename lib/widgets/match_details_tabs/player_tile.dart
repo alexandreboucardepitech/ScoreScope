@@ -24,9 +24,11 @@ Widget playerTile({
   required MatchModel match,
   Joueur? initialUserVote,
   Joueur? currentUserVote,
+  bool afficherPos = false,
 }) {
   int nbButs = match.getPlayerNbButs(joueur.id);
   int nbPassesDe = match.getPlayerNbPassesDe(joueur.id);
+  String? pos = match.getPlayerPos(joueur.id);
   return InkWell(
     onTap: onTap,
     borderRadius: BorderRadius.circular(8),
@@ -156,6 +158,15 @@ Widget playerTile({
               ],
             ),
           ),
+          if (afficherPos && pos != null && pos.isNotEmpty)
+            Text(
+              pos,
+              style: TextStyle(
+                fontSize: 14,
+                color: ColorPalette.textAccent(context),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
         ],
       ),
     ),

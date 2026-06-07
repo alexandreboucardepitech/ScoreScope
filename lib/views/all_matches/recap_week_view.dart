@@ -28,6 +28,7 @@ class _RecapData {
   final List<String>? bestMatchesMvpName;
   final List<String>? bestMatchesMvpPhoto;
   final List<VisionnageMatch>? bestMatchesVisionnage;
+  final List<String?>? bestMatchesCommentaire;
   final String? topCompetitionName;
   final String? topCompetitionLogo;
   final int? topCompetitionCount;
@@ -53,6 +54,7 @@ class _RecapData {
     this.bestMatchesMvpName,
     this.bestMatchesMvpPhoto,
     this.bestMatchesVisionnage,
+    this.bestMatchesCommentaire,
     this.topCompetitionName,
     this.topCompetitionLogo,
     this.topCompetitionCount,
@@ -252,6 +254,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
     final bestMatchesMvpPhotos = <String>[];
     final bestMatchModels = <MatchModel>[];
     final bestMatchesVisionnage = <VisionnageMatch>[];
+    final bestMatchesCommentaires = <String?>[];
 
     for (final bestMud in bestMuds) {
       final bestMatch = matchMap[bestMud.matchId];
@@ -275,6 +278,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
           bestMatchesMvpNames.add('');
           bestMatchesMvpPhotos.add('');
         }
+        bestMatchesCommentaires.add(bestMud.commentaire);
       }
     }
 
@@ -342,6 +346,8 @@ class _RecapWeekViewState extends State<RecapWeekView> {
           bestMatchesMvpPhotos.isNotEmpty ? bestMatchesMvpPhotos : null,
       bestMatchesVisionnage:
           bestMatchesVisionnage.isNotEmpty ? bestMatchesVisionnage : null,
+      bestMatchesCommentaire:
+          bestMatchesCommentaires.isNotEmpty ? bestMatchesCommentaires : null,
       topCompetitionName: topName,
       topCompetitionLogo: topLogo,
       topCompetitionCount: topCount,
@@ -361,11 +367,12 @@ class _RecapWeekViewState extends State<RecapWeekView> {
   }
 
   MatchJoueur? _findPlayer(String id, List<MatchJoueur> players) {
-    try {
-      return players.firstWhere((p) => p.joueur?.id == id);
-    } catch (_) {
-      return null;
+    for (final player in players) {
+      if (player.joueur?.id == id) {
+        return player;
+      }
     }
+    return null;
   }
 
   int _computeStreak(List<MatchUserData> allMuds) {
@@ -457,7 +464,8 @@ class _RecapWeekViewState extends State<RecapWeekView> {
 
     if (highScoring >= n * 0.8 && n >= 3) {
       stats.add(
-        translate.footballSpectacleXAvec3Buts((highScoring / n * 100).round().toString()),
+        translate.footballSpectacleXAvec3Buts(
+            (highScoring / n * 100).round().toString()),
       );
     }
 
@@ -521,7 +529,8 @@ class _RecapWeekViewState extends State<RecapWeekView> {
 
     if (badMatches >= 2) {
       stats.add(
-        translate.quelquesPurgesAuProgrammeXMatchsSous510(badMatches.toString()),
+        translate
+            .quelquesPurgesAuProgrammeXMatchsSous510(badMatches.toString()),
       );
     }
 
@@ -880,9 +889,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               ),
             ],
           ),
-
           const SizedBox(height: 10),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -914,7 +921,6 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               ),
             ],
           ),
-
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Divider(
@@ -922,7 +928,6 @@ class _RecapWeekViewState extends State<RecapWeekView> {
               height: 1,
             ),
           ),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1129,6 +1134,36 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 Text(
                   d.bestMatchesVisionnage?[_bestMatchIndex].emoji ?? '',
                   style: const TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
+          ],
+          if (d.bestMatchesCommentaire?[_bestMatchIndex] != null &&
+              d.bestMatchesCommentaire![_bestMatchIndex]!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            const Divider(height: 1),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    size: 13,
+                    color: ColorPalette.textSecondary(context),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    d.bestMatchesCommentaire![_bestMatchIndex]!,
+                    style: TextStyle(
+                      color: ColorPalette.textPrimary(context),
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
                 ),
               ],
             ),

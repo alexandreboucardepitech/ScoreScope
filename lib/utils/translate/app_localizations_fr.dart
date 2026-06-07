@@ -296,7 +296,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noteMoyenne => 'note moyenne';
 
   @override
-  String get meilleurMatch => '\'🏆 Meilleur match\'';
+  String get meilleurMatch => '🏆 Meilleur match';
 
   @override
   String get mvp => 'MVP';
@@ -305,7 +305,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mvpDeLaSemaine => 'MVP de la semaine';
 
   @override
-  String get competitionPreferee => '\'🏅 Compétition préférée\'';
+  String get competitionPreferee => '🏅 Compétition préférée';
 
   @override
   String xMatchX(String topCompetitionCount, String value2) {
@@ -1805,4 +1805,26 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get clubsVsInternationaux => 'Clubs vs Internationaux';
+
+  @override
+  String get supprimerLeCommentaire => 'Supprimer le commentaire';
+
+  @override
+  String get voulezVousSupprimerVotreCommentaire =>
+      'Voulez-vous supprimer votre commentaire ?';
+
+  @override
+  String get monCommentaire => 'Mon commentaire';
+
+  @override
+  String get ajouterUnCommentaire => 'Ajouter un commentaire';
+
+  @override
+  String get publier => 'Publier';
+
+  @override
+  String get commenter => 'Commenter';
+
+  @override
+  String get quAstuPenseDeCeMatch => 'Qu\'as-tu pensé de ce match ?';
 }

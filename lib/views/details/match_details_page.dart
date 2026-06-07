@@ -501,6 +501,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     const double toolbarHeight = 50;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,

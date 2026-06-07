@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
@@ -428,41 +427,60 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                 },
               ),
             ),
-            if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
-                RepositoryProvider.userRepository.currentUser?.uid ==
-                    "UwigeExwFMfDrCk4x8AbODha3il1" ||
-                RepositoryProvider.userRepository.currentUser?.uid ==
-                    "Elv7ujUkfRYKfrIJsDySorXRYuh1")
-              ElevatedButton(
-                onPressed: () async {
-                  List<MatchModelId> matches = await RepositoryProvider
-                      .matchRepository
-                      .fetchAllMatchesId(loadVotesAndNotes: true);
+            // if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+            //     RepositoryProvider.userRepository.currentUser?.uid ==
+            //         "UwigeExwFMfDrCk4x8AbODha3il1" ||
+            //     RepositoryProvider.userRepository.currentUser?.uid ==
+            //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
+            //   ElevatedButton(
+            //     onPressed: () async {
+            //       List<DateTime> datesToFix = [
+            //         DateTime(2026, 6, 5),
+            //         DateTime(2026, 6, 6),
+            //         DateTime(2026, 6, 7),
+            //       ];
+            //       for (DateTime date in datesToFix) {
+            //         List<MatchModel> matches = await RepositoryProvider
+            //             .matchRepository
+            //             .fetchMatchesByDate(date);
 
-                  int i = 0;
+            //         int i = 0;
 
-                  for (MatchModelId match in matches) {
-                    print("$i / ${matches.length}");
-                    i++;
-                    final int nbGridDomicile = match.joueursEquipeDomicileId
-                        .where((j) => j.grid != null || j.isStarter == true)
-                        .length;
-                    final int nbGridExterieur = match.joueursEquipeExterieurId
-                        .where((j) => j.grid != null || j.isStarter == true)
-                        .length;
-                    final bool hasGrid =
-                        nbGridDomicile == 11 && nbGridExterieur == 11;
+            //         final collection =
+            //             FirebaseFirestore.instance.collection('matchs');
 
-                    if (hasGrid == false &&
-                        (match.joueursEquipeDomicileId.isNotEmpty ||
-                            match.joueursEquipeExterieurId.isNotEmpty)) {
-                      print(
-                          "match pourri : ${match.id} - ${match.competitionId} - ${match.equipeDomicileId} vs ${match.equipeExterieurId}");
-                    }
-                  }
-                },
-                child: Text("test pour développeur"),
-              ),
+            //         for (final match in matches) {
+            //           print("$i / $matches.length");
+            //           final doc = await collection.doc(match.id).get();
+            //           if (!doc.exists) continue;
+
+            //           final data = doc.data()!;
+
+            //           List<dynamic> fixList(List<dynamic> joueurs) {
+            //             return joueurs.map((j) {
+            //               final map = Map<String, dynamic>.from(j as Map);
+            //               if (map.containsKey('isStarer')) {
+            //                 map['isStarter'] = map['isStarer'];
+            //                 map.remove('isStarer');
+            //               }
+            //               return map;
+            //             }).toList();
+            //           }
+
+            //           await collection.doc(match.id).update({
+            //             'joueursEquipeDomicile':
+            //                 fixList(data['joueursEquipeDomicile'] ?? []),
+            //             'joueursEquipeExterieur':
+            //                 fixList(data['joueursEquipeExterieur'] ?? []),
+            //           });
+
+            //           print('Fixed: ${match.id}');
+            //           i++;
+            //         }
+            //       }
+            //     },
+            //     child: Text("test pour développeur"),
+            //   ),
           ],
         ),
       ),

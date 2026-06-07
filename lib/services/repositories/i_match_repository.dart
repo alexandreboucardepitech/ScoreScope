@@ -55,5 +55,12 @@ abstract class IMatchRepository {
     String? joueurId,
   );
   Future<void> enleverVote(String matchId, String userId);
+  Future<void> commenterMatch(
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    String? commentaire,
+  );
+  Future<void> enleverCommentaire(String matchId, String userId);
   Future<List<MatchModel>> fetchTeamAllMatches(String teamId);
 }

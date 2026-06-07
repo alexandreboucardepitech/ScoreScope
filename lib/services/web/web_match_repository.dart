@@ -176,6 +176,7 @@ class WebMatchRepository implements IMatchRepository {
         'matchId': matchId,
         'note': note,
         'mvpVoteId': null,
+        'commentaire': null,
         'favourite': false,
         'private': false,
         'watchedAt': DateTime.now().toUtc(),
@@ -219,6 +220,7 @@ class WebMatchRepository implements IMatchRepository {
         'matchId': matchId,
         'note': null,
         'mvpVoteId': null,
+        'commentaire': null,
         'favourite': false,
         'private': false,
         'watchedAt': DateTime.now().toUtc(),
@@ -268,6 +270,7 @@ class WebMatchRepository implements IMatchRepository {
         'matchId': matchId,
         'note': null,
         'mvpVoteId': joueurId,
+        'commentaire': null,
         'favourite': false,
         'private': false,
         'watchedAt': DateTime.now().toUtc(),
@@ -295,6 +298,59 @@ class WebMatchRepository implements IMatchRepository {
     final docSnapshot = await userMatchDocRef.get();
     if (docSnapshot.exists) {
       await userMatchDocRef.update({'mvpVoteId': FieldValue.delete()});
+    }
+
+    _invalidateMatch(matchId);
+  }
+
+  @override
+  Future<void> commenterMatch(
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    String? commentaire,
+  ) async {
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+
+    final docSnapshot = await userMatchDocRef.get();
+    if (docSnapshot.exists) {
+      final userMatchData = docSnapshot.data()!;
+      if (userMatchData['watchedAt'] == null) {
+        await userMatchDocRef.update(
+            {'commentaire': commentaire, 'watchedAt': DateTime.now().toUtc()});
+      } else {
+        await userMatchDocRef.update({'commentaire': commentaire});
+      }
+    } else {
+      await userMatchDocRef.set({
+        'matchId': matchId,
+        'note': null,
+        'mvpVoteId': null,
+        'commentaire': commentaire,
+        'favourite': false,
+        'private': false,
+        'watchedAt': DateTime.now().toUtc(),
+        'matchDate': matchDate,
+      });
+    }
+
+    _invalidateMatch(matchId);
+  }
+
+  @override
+  Future<void> enleverCommentaire(String matchId, String userId) async {
+    final userMatchDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('matchUserData')
+        .doc(matchId);
+    final docSnapshot = await userMatchDocRef.get();
+    if (docSnapshot.exists) {
+      await userMatchDocRef.update({'commentaire': FieldValue.delete()});
     }
 
     _invalidateMatch(matchId);

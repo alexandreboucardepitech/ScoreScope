@@ -1787,4 +1787,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clubsVsInternationaux => 'Clubs vs Internationals';
+
+  @override
+  String get supprimerLeCommentaire => 'Remove comment';
+
+  @override
+  String get voulezVousSupprimerVotreCommentaire =>
+      'Do you want to delete your comment?';
+
+  @override
+  String get monCommentaire => 'My comment';
+
+  @override
+  String get ajouterUnCommentaire => 'Add a comment';
+
+  @override
+  String get publier => 'Publish';
+
+  @override
+  String get commenter => 'Comment';
+
+  @override
+  String get quAstuPenseDeCeMatch => 'What did you think of this match?';
 }

@@ -8,6 +8,7 @@ import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/handle_data/open_bottom_sheet_and_vote_mvp.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/widgets/match_details_tabs/add_watch_friend_bottom_sheet.dart';
+import 'package:scorescope/widgets/match_details_tabs/commentaire_match_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/match_infos_card.dart';
 import 'package:scorescope/widgets/match_details_tabs/match_not_started.dart';
 import 'package:scorescope/widgets/match_details_tabs/mvp_card.dart';
@@ -38,6 +39,10 @@ class _InfosTabState extends State<InfosTab> {
 
   int? userVoteNoteMatch;
 
+  String? _userCommentaire;
+
+  bool _commentaireInitialLoadDone = false;
+
   bool _noteInitialLoadDone = false;
 
   bool loadingNote = false;
@@ -61,6 +66,8 @@ class _InfosTabState extends State<InfosTab> {
         userVoteNoteMatch = null;
         _mvpTopPlayers = [];
         _noteInitialLoadDone = false;
+        _userCommentaire = null;
+        _commentaireInitialLoadDone = false;
       });
       _loadMvpEtNote();
     }
@@ -77,6 +84,7 @@ class _InfosTabState extends State<InfosTab> {
 
     Joueur? loadedUserVoteMVP;
     int? loadedUserNote;
+    String? loadedUserCommentaire;
     List<MvpVoteEntry> loadedTopPlayers = [];
 
     try {
@@ -94,6 +102,10 @@ class _InfosTabState extends State<InfosTab> {
 
           if (isInitialLoad) {
             loadedUserNote = match.notes[firebaseUser.uid];
+
+            final matchUserData = await RepositoryProvider.userRepository
+                .fetchUserMatchUserData(firebaseUser.uid, widget.match.id);
+            loadedUserCommentaire = matchUserData?.commentaire;
           }
 
           final voteCountMap = <String, int>{};
@@ -135,7 +147,9 @@ class _InfosTabState extends State<InfosTab> {
         userVoteMVP = loadedUserVoteMVP;
         if (isInitialLoad) {
           userVoteNoteMatch = loadedUserNote;
+          _userCommentaire = loadedUserCommentaire;
           _noteInitialLoadDone = true;
+          _commentaireInitialLoadDone = true;
         }
         _mvpTopPlayers = loadedTopPlayers;
         loadingNote = false;
@@ -147,7 +161,9 @@ class _InfosTabState extends State<InfosTab> {
         userVoteMVP = null;
         if (isInitialLoad) {
           userVoteNoteMatch = null;
+          _userCommentaire = null;
           _noteInitialLoadDone = true;
+          _commentaireInitialLoadDone = true;
         }
         _mvpTopPlayers = [];
         loadingNote = false;
@@ -429,6 +445,28 @@ class _InfosTabState extends State<InfosTab> {
                         userVote: userVoteMVP,
                         onVotePressed: voteMVP,
                       ),
+                      const SizedBox(height: 12),
+                      if (_commentaireInitialLoadDone)
+                        CommentaireMatchCard(
+                          commentaireInitial: _userCommentaire,
+                          onSave: (commentaire) async {
+                            final uid = FirebaseAuth.instance.currentUser!.uid;
+                            await RepositoryProvider.matchRepository
+                                .commenterMatch(
+                              widget.match.id,
+                              uid,
+                              widget.match.date,
+                              commentaire,
+                            );
+                            setState(() => _userCommentaire = commentaire);
+                          },
+                          onDelete: () async {
+                            final uid = FirebaseAuth.instance.currentUser!.uid;
+                            await RepositoryProvider.matchRepository
+                                .enleverCommentaire(widget.match.id, uid);
+                            setState(() => _userCommentaire = null);
+                          },
+                        ),
                       const SizedBox(height: 12),
                       IntrinsicHeight(
                         child: Row(

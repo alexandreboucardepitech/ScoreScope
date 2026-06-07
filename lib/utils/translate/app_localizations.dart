@@ -569,7 +569,7 @@ abstract class AppLocalizations {
   /// No description provided for @meilleurMatch.
   ///
   /// In fr, this message translates to:
-  /// **'\'🏆 Meilleur match\''**
+  /// **'🏆 Meilleur match'**
   String get meilleurMatch;
 
   /// No description provided for @mvp.
@@ -587,7 +587,7 @@ abstract class AppLocalizations {
   /// No description provided for @competitionPreferee.
   ///
   /// In fr, this message translates to:
-  /// **'\'🏅 Compétition préférée\''**
+  /// **'🏅 Compétition préférée'**
   String get competitionPreferee;
 
   /// No description provided for @xMatchX.
@@ -3313,6 +3313,48 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Clubs vs Internationaux'**
   String get clubsVsInternationaux;
+
+  /// No description provided for @supprimerLeCommentaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le commentaire'**
+  String get supprimerLeCommentaire;
+
+  /// No description provided for @voulezVousSupprimerVotreCommentaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous supprimer votre commentaire ?'**
+  String get voulezVousSupprimerVotreCommentaire;
+
+  /// No description provided for @monCommentaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon commentaire'**
+  String get monCommentaire;
+
+  /// No description provided for @ajouterUnCommentaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un commentaire'**
+  String get ajouterUnCommentaire;
+
+  /// No description provided for @publier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier'**
+  String get publier;
+
+  /// No description provided for @commenter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commenter'**
+  String get commenter;
+
+  /// No description provided for @quAstuPenseDeCeMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qu\'as-tu pensé de ce match ?'**
+  String get quAstuPenseDeCeMatch;
 }
 
 class _AppLocalizationsDelegate

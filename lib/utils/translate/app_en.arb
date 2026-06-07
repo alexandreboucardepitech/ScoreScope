@@ -963,5 +963,12 @@
   "plusGrosEcart": "Biggest margin",
   "moyenneDifferenceButsMatch": "Average goal diff / match",
   "resultatsDomicileNulExterieur": "Results (home / draw / away)",
-  "clubsVsInternationaux": "Clubs vs Internationals"
+  "clubsVsInternationaux": "Clubs vs Internationals",
+  "supprimerLeCommentaire": "Remove comment",
+  "voulezVousSupprimerVotreCommentaire": "Do you want to delete your comment?",
+  "monCommentaire": "My comment",
+  "ajouterUnCommentaire": "Add a comment",
+  "publier": "Publish",
+  "commenter": "Comment",
+  "quAstuPenseDeCeMatch": "What did you think of this match?"
 }

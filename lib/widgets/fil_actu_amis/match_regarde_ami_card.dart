@@ -739,7 +739,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                   size: 18,
                                   color: ColorPalette.accentVariant(context)),
                               const SizedBox(width: 8),
-                              Text(translate.votePourMvp + ' :',
+                              Text(translate.votePourMvp + ' : ',
                                   style: TextStyle(
                                       color: ColorPalette.textPrimary(context),
                                       fontWeight: FontWeight.bold)),
@@ -761,6 +761,38 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                               ),
                             ],
                           ),
+                          if (matchData.commentaire != null &&
+                              matchData.commentaire!.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Divider(
+                                color: ColorPalette.border(context), height: 1),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Icon(
+                                    Icons.chat_bubble_outline_rounded,
+                                    size: 14,
+                                    color: ColorPalette.textSecondary(context),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    matchData.commentaire!,
+                                    style: TextStyle(
+                                      color: ColorPalette.textSecondary(context),
+                                      fontSize: 14,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),

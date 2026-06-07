@@ -158,7 +158,9 @@ class _MatchShareViewState extends State<MatchShareView> {
                             )
                           : const Icon(Icons.share_rounded),
                       label: Text(
-                        _isSharing ? translate.preparation : translate.partagerCeMatch,
+                        _isSharing
+                            ? translate.preparation
+                            : translate.partagerCeMatch,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -212,6 +214,11 @@ class _ShareCard extends StatelessWidget {
           _buildMatchBlock(context),
           _buildDivider(context),
           _buildUserBlock(context),
+          if (matchUserData?.commentaire != null &&
+              matchUserData!.commentaire!.isNotEmpty) ...[
+            _buildDivider(context),
+            _buildCommentaireBlock(context),
+          ],
           _buildSocialFooter(context),
         ],
       ),
@@ -618,6 +625,36 @@ class _ShareCard extends StatelessWidget {
       height: 60,
       color: ColorPalette.border(context),
       margin: const EdgeInsets.symmetric(horizontal: 4),
+    );
+  }
+
+  Widget _buildCommentaireBlock(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Icon(
+              Icons.chat_bubble_outline_rounded,
+              size: 13,
+              color: ColorPalette.textSecondary(context),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              matchUserData!.commentaire!,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

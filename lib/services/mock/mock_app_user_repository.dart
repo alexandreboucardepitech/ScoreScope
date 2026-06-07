@@ -55,6 +55,7 @@ class MockAppUserRepository implements IAppUserRepository {
             favourite: true,
             notifications: false,
             mvpVoteId: "1",
+            commentaire: "Match de ouf, j'ai kiffé !",
             note: 8,
             visionnageMatch: VisionnageMatch.stade,
             private: false,
@@ -376,6 +377,7 @@ class MockAppUserRepository implements IAppUserRepository {
         note: note,
         visionnageMatch: old.visionnageMatch,
         private: old.private,
+        commentaire: old.commentaire,
       );
     } else {
       updated.add(
@@ -435,6 +437,7 @@ class MockAppUserRepository implements IAppUserRepository {
         note: old.note,
         visionnageMatch: old.visionnageMatch,
         private: old.private,
+        commentaire: old.commentaire,
       );
     } else {
       updated.add(
@@ -447,6 +450,67 @@ class MockAppUserRepository implements IAppUserRepository {
           private: false,
           matchDate: matchDate,
           watchedAt: DateTime.now(),
+        ),
+      );
+    }
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      private: user.private,
+      matchsUserData: updated,
+    );
+
+    _users[userIdx] = newUser;
+
+    await Future.delayed(const Duration(milliseconds: 30));
+  }
+
+  Future<void> setCommentaireForMatch(
+    String userId,
+    String matchId,
+    DateTime matchDate,
+    String? commentaire,
+  ) async {
+    await _seedingFuture;
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final List<MatchUserData> updated = List.from(user.matchsUserData);
+
+    final muIdx = updated.indexWhere((m) => m.matchId == matchId);
+
+    if (muIdx >= 0) {
+      final old = updated[muIdx];
+      updated[muIdx] = MatchUserData(
+        matchId: old.matchId,
+        favourite: old.favourite,
+        mvpVoteId: old.mvpVoteId,
+        note: old.note,
+        visionnageMatch: old.visionnageMatch,
+        private: old.private,
+        commentaire: commentaire,
+      );
+    } else {
+      updated.add(
+        MatchUserData(
+          matchId: matchId,
+          favourite: false,
+          mvpVoteId: null,
+          note: null,
+          visionnageMatch: VisionnageMatch.tele,
+          private: false,
+          matchDate: matchDate,
+          watchedAt: DateTime.now(),
+          commentaire: commentaire,
         ),
       );
     }
@@ -499,6 +563,7 @@ class MockAppUserRepository implements IAppUserRepository {
         reactions: old.reactions,
         matchDate: old.matchDate,
         watchedAt: old.watchedAt,
+        commentaire: old.commentaire,
       );
     } else {
       updated.add(
@@ -588,6 +653,7 @@ class MockAppUserRepository implements IAppUserRepository {
         reactions: old.reactions,
         matchDate: old.matchDate,
         watchedAt: old.watchedAt,
+        commentaire: old.commentaire,
       );
     } else {
       updated.add(
@@ -671,6 +737,7 @@ class MockAppUserRepository implements IAppUserRepository {
         reactions: old.reactions,
         matchDate: old.matchDate,
         watchedAt: old.watchedAt,
+        commentaire: old.commentaire,
       );
     } else {
       updated.add(
@@ -1078,6 +1145,7 @@ class MockAppUserRepository implements IAppUserRepository {
         reactions: old.reactions,
         matchDate: old.matchDate,
         watchedAt: old.watchedAt,
+        commentaire: old.commentaire,
       );
     } else {
       updated.add(

@@ -9,6 +9,7 @@ class MatchUserData {
   final bool favourite;
   final int? note;
   final String? mvpVoteId;
+  final String? commentaire;
   final VisionnageMatch visionnageMatch;
   final bool private;
   final bool notifications;
@@ -22,6 +23,7 @@ class MatchUserData {
     this.favourite = false,
     this.note,
     this.mvpVoteId,
+    this.commentaire,
     this.visionnageMatch = VisionnageMatch.tele,
     this.private = false,
     this.notifications = false,
@@ -56,6 +58,7 @@ class MatchUserData {
       'favourite': favourite,
       if (note != null) 'note': note,
       if (mvpVoteId != null) 'mvpVoteId': mvpVoteId,
+      if (commentaire != null) 'commentaire': commentaire,
       'visionnageMatch': visionnageMatch,
       'private': private,
       'notifications': notifications,
@@ -116,6 +119,7 @@ class MatchUserData {
       favourite: json['favourite'] as bool? ?? false,
       note: json['note'] as int?,
       mvpVoteId: json['mvpVoteId'] as String?,
+      commentaire: json['commentaire'] as String?,
       visionnageMatch: json['visionnageMatch'] == null
           ? RepositoryProvider
                   .userRepository.currentUser?.options.defaultVisionnageMatch ??

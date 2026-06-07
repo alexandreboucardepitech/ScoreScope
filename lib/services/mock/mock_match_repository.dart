@@ -439,6 +439,32 @@ class MockMatchRepository implements IMatchRepository {
     await Future.delayed(const Duration(milliseconds: 50));
   }
 
+  @override
+  Future<void> commenterMatch(
+    String matchId,
+    String userId,
+    DateTime matchDate,
+    String? commentaire,
+  ) async {
+    await MockAppUserRepository()
+        .setCommentaireForMatch(userId, matchId, matchDate, commentaire);
+
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  @override
+  Future<void> enleverCommentaire(String matchId, String userId) async {
+    final idx = _matches.indexWhere((match) => match.id == matchId);
+    if (idx < 0) return;
+
+    final match = _matches[idx];
+
+    await MockAppUserRepository()
+        .setCommentaireForMatch(userId, matchId, match.date, null);
+
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
   Future<void> removeUserDataFromMatch(String matchId, String userId) async {
     await Future.delayed(const Duration(milliseconds: 100));
     final idx = _matches.indexWhere((match) => match.id == matchId);

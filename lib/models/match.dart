@@ -657,6 +657,18 @@ class MatchModel implements PodiumDisplayable {
     return count;
   }
 
+  String? getPlayerPos(String playerId) {
+    for (final joueur in [
+      ...joueursEquipeDomicile,
+      ...joueursEquipeExterieur
+    ]) {
+      if (joueur.joueur?.id == playerId) {
+        return joueur.pos;
+      }
+    }
+    return null;
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'status': status.name,

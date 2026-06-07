@@ -225,10 +225,10 @@
     }
   },
   "noteMoyenne": "note moyenne",
-  "meilleurMatch": "'🏆 Meilleur match'",
+  "meilleurMatch": "🏆 Meilleur match",
   "mvp": "MVP",
   "mvpDeLaSemaine": "MVP de la semaine",
-  "competitionPreferee": "'🏅 Compétition préférée'",
+  "competitionPreferee": "🏅 Compétition préférée",
   "xMatchX": "{topCompetitionCount} match{value2}",
   "@xMatchX": {
     "placeholders": {
@@ -963,5 +963,12 @@
   "plusGrosEcart": "Plus gros écart",
   "moyenneDifferenceButsMatch": "Moyenne différence buts / match",
   "resultatsDomicileNulExterieur": "Résultats (domicile / nul / extérieur)",
-  "clubsVsInternationaux": "Clubs vs Internationaux"
+  "clubsVsInternationaux": "Clubs vs Internationaux",
+  "supprimerLeCommentaire": "Supprimer le commentaire",
+  "voulezVousSupprimerVotreCommentaire": "Voulez-vous supprimer votre commentaire ?",
+  "monCommentaire": "Mon commentaire",
+  "ajouterUnCommentaire": "Ajouter un commentaire",
+  "publier": "Publier",
+  "commenter": "Commenter",
+  "quAstuPenseDeCeMatch": "Qu'as-tu pensé de ce match ?"
 }

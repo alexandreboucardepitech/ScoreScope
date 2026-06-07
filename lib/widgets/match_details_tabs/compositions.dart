@@ -335,7 +335,13 @@ class FormationView extends StatelessWidget {
   });
 
   _FormationMode _detectMode() {
-    if (joueurs.any((j) => j.grid != null)) return _FormationMode.grid;
+    if (joueurs.any((j) => j.grid != null)) {
+      // Mode A seulement si les 11 sont là
+      if (joueurs.where((j) => j.grid != null).length == 11) {
+        return _FormationMode.grid;
+      }
+      return _FormationMode.flat;
+    }
     if (joueurs.any((j) => j.pos != null)) return _FormationMode.pos;
     return _FormationMode.flat;
   }
@@ -398,8 +404,10 @@ class FormationView extends StatelessWidget {
   }
 
   Widget _buildFlatList(BuildContext context) {
+    List<MatchJoueur> joueursTries =
+        getJoueursTriesParNombreDeVotes(joueurs, match);
     return Column(
-      children: joueurs.map((j) {
+      children: joueursTries.map((j) {
         if (j.joueur == null) return const SizedBox.shrink();
         return playerTile(
           joueur: j.joueur!,
@@ -407,6 +415,7 @@ class FormationView extends StatelessWidget {
           context: context,
           match: match,
           isUserVote: false,
+          afficherPos: true,
         );
       }).toList(),
     );
