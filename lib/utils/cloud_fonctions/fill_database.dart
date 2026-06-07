@@ -117,11 +117,13 @@ class FillDatabase {
       Map<String, dynamic>? playerInfos = player['player'];
       if (playerInfos != null) {
         MatchJoueurId matchJoueurId = MatchJoueurId(
-            joueurId: playerInfos['id'].toString(),
-            number: playerInfos['number'],
-            pos: playerInfos['pos'],
-            grid: playerInfos['grid'],
-            hasPlayed: isFromStartXI);
+          joueurId: playerInfos['id'].toString(),
+          number: playerInfos['number'],
+          pos: playerInfos['pos'],
+          grid: playerInfos['grid'],
+          hasPlayed: isFromStartXI,
+          isStarter: isFromStartXI,
+        );
         joueurs[matchJoueurId.joueurId] = matchJoueurId;
       }
     }
@@ -139,6 +141,11 @@ class FillDatabase {
     List<ButId> equipeDomicileButs = [];
     List<ButId> equipeExterieurButs = [];
 
+    List<dynamic>? startXIDomicile;
+    List<dynamic>? startXIExterieur;
+    List<dynamic>? substitutesDomicile;
+    List<dynamic>? substitutesExterieur;
+
     // RÉCUPERER LES JOUEURS
     List<dynamic> lineup = await getDataFromApi(
       "fixtures/lineups",
@@ -154,10 +161,20 @@ class FillDatabase {
       };
     } else {
       if (lineup.length > 1) {
-        final List<dynamic>? startXIDomicile = lineup[0]?['startXI'];
-        final List<dynamic>? startXIExterieur = lineup[1]?['startXI'];
-        final List<dynamic>? substitutesDomicile = lineup[0]?['substitutes'];
-        final List<dynamic>? substitutesExterieur = lineup[1]?['substitutes'];
+        for (Map<String, dynamic> teamLineup in lineup) {
+          if (teamLineup['team']?['id'].toString() == equipeDomicileId) {
+            startXIDomicile = teamLineup['startXI'];
+            substitutesDomicile = teamLineup['substitutes'];
+          }
+          if (teamLineup['team']?['id'].toString() == equipeExterieurId) {
+            startXIExterieur = teamLineup['startXI'];
+            substitutesExterieur = teamLineup['substitutes'];
+          }
+        }
+        // startXIDomicile = lineup[0]?['startXI'];
+        // startXIExterieur = lineup[1]?['startXI'];
+        // substitutesDomicile = lineup[0]?['substitutes'];
+        // substitutesExterieur = lineup[1]?['substitutes'];
         equipeDomicilePlayers.addAll(createMatchJoueursFromJson(
           startXIDomicile,
           isFromStartXI: true,
@@ -924,8 +941,8 @@ class FillDatabase {
     return createEquipeFromApiId(teamApiId: teamApiId, season: season);
   }
 
-  static Future<MatchModelId?> createMatchFromFixtureId(
-      String fixtureId) async {
+  static Future<MatchModelId?> createMatchFromFixtureId(String fixtureId,
+      {bool seulementUpdateCompos = false}) async {
     List<dynamic> data = await getDataFromApi(
       "fixtures",
       params: {"id": fixtureId},
@@ -937,6 +954,13 @@ class FillDatabase {
     }
 
     final MatchModelId newMatch = await getMatchFromData(data[0]);
+    if (seulementUpdateCompos) {
+      await RepositoryProvider.matchRepository.updateField(
+          matchId: newMatch.id,
+          joueursEquipeDomicileId: newMatch.joueursEquipeDomicileId,
+          joueursEquipeExterieurId: newMatch.joueursEquipeExterieurId);
+      return newMatch;
+    }
     await RepositoryProvider.matchRepository.addMatchModelId(newMatch);
     print("Match créé depuis fixture $fixtureId : "
         "${newMatch.equipeDomicileId} vs ${newMatch.equipeExterieurId}");

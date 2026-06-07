@@ -156,6 +156,7 @@ class MockMatchRepository implements IMatchRepository {
                     joueurId: joueur.joueur?.id ?? '',
                     grid: joueur.grid,
                     hasPlayed: joueur.hasPlayed,
+                    isStarter: joueur.isStarter,
                     number: joueur.number,
                     pos: joueur.pos),
               )
@@ -166,6 +167,7 @@ class MockMatchRepository implements IMatchRepository {
                     joueurId: joueur.joueur?.id ?? '',
                     grid: joueur.grid,
                     hasPlayed: joueur.hasPlayed,
+                    isStarter: joueur.isStarter,
                     number: joueur.number,
                     pos: joueur.pos),
               )
@@ -212,6 +214,7 @@ class MockMatchRepository implements IMatchRepository {
                   joueurId: joueur.joueur?.id ?? '',
                   grid: joueur.grid,
                   hasPlayed: joueur.hasPlayed,
+                  isStarter: joueur.isStarter,
                   number: joueur.number,
                   pos: joueur.pos),
             )
@@ -222,6 +225,7 @@ class MockMatchRepository implements IMatchRepository {
                   joueurId: joueur.joueur?.id ?? '',
                   grid: joueur.grid,
                   hasPlayed: joueur.hasPlayed,
+                  isStarter: joueur.isStarter,
                   number: joueur.number,
                   pos: joueur.pos),
             )
@@ -320,6 +324,7 @@ class MockMatchRepository implements IMatchRepository {
                     joueurId: joueur.joueur?.id ?? '',
                     grid: joueur.grid,
                     hasPlayed: joueur.hasPlayed,
+                    isStarter: joueur.isStarter,
                     number: joueur.number,
                     pos: joueur.pos),
               )
@@ -331,6 +336,7 @@ class MockMatchRepository implements IMatchRepository {
                     joueurId: joueur.joueur?.id ?? '',
                     grid: joueur.grid,
                     hasPlayed: joueur.hasPlayed,
+                    isStarter: joueur.isStarter,
                     number: joueur.number,
                     pos: joueur.pos),
               )

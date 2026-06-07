@@ -14,6 +14,8 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
 import 'package:scorescope/widgets/match_details_tabs/player_tile.dart';
 
+enum _FormationMode { grid, pos, flat }
+
 class CompositionsTab extends StatefulWidget {
   final MatchModel match;
   final Future<void> Function()? onRefresh;
@@ -50,14 +52,21 @@ class _CompositionsTabState extends State<CompositionsTab> {
     }
   }
 
+  ({List<MatchJoueur> titulaires, List<MatchJoueur> remplacants})
+      _separerJoueurs(List<MatchJoueur> joueurs) {
+    return (
+      titulaires: joueurs.where((j) => j.isStarter == true).toList(),
+      remplacants: joueurs.where((j) => j.isStarter == false).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Map<String, int> votesCount =
-        localMatch?.getAllVoteCounts() ?? widget.match.getAllVoteCounts();
+    final MatchModel match = localMatch ?? widget.match;
+    final Map<String, int> votesCount = match.getAllVoteCounts();
 
-    if (localMatch == null ||
-        localMatch!.joueursEquipeDomicile.isEmpty ||
-        localMatch!.joueursEquipeExterieur.isEmpty) {
+    if (match.joueursEquipeDomicile.isEmpty ||
+        match.joueursEquipeExterieur.isEmpty) {
       return Center(
         child: Text(
           translate.laCompositionNEstPasEncoreDisponible,
@@ -68,6 +77,12 @@ class _CompositionsTabState extends State<CompositionsTab> {
         ),
       );
     }
+
+    final domicile = _separerJoueurs(match.joueursEquipeDomicile);
+    final exterieur = _separerJoueurs(match.joueursEquipeExterieur);
+
+    final bool hasRemplacants =
+        domicile.remplacants.isNotEmpty || exterieur.remplacants.isNotEmpty;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -85,29 +100,26 @@ class _CompositionsTabState extends State<CompositionsTab> {
                     context,
                     teamName: widget.match.equipeDomicile.nom,
                     logoUrl: widget.match.equipeDomicile.logoPath,
-                    joueurs: widget.match.joueursEquipeDomicile,
+                    titulaires: domicile.titulaires,
                     votesCount: votesCount,
                     isReversed: false,
                   ),
                   const SizedBox(height: 12),
-                  Container(
-                    height: 1,
-                    color: ColorPalette.divider(context),
-                  ),
+                  Container(height: 1, color: ColorPalette.divider(context)),
                   const SizedBox(height: 4),
                   _buildTeamSection(
                     context,
                     teamName: widget.match.equipeExterieur.nom,
                     logoUrl: widget.match.equipeExterieur.logoPath,
-                    joueurs: widget.match.joueursEquipeExterieur,
+                    titulaires: exterieur.titulaires,
                     votesCount: votesCount,
                     isReversed: true,
                   ),
-                  // Container(
-                  //   height: 1,
-                  //   color: ColorPalette.divider(context),
-                  // ),
-                  ..._buildTeamsLists(),
+                  if (hasRemplacants)
+                    ..._buildTeamsLists(
+                      domicileRemplacants: domicile.remplacants,
+                      exterieurRemplacants: exterieur.remplacants,
+                    ),
                   const SizedBox(height: 26),
                 ],
               ),
@@ -118,19 +130,49 @@ class _CompositionsTabState extends State<CompositionsTab> {
     );
   }
 
-  List<Widget> _buildTeamsLists() {
-    List<MatchJoueur> joueursDomicileTries = getJoueursTriesParNombreDeVotes(
-            widget.match.joueursEquipeDomicile, widget.match)
-        .where((j) => j.joueur != null && j.grid == null)
-        .toList();
+  Widget _buildTeamSection(
+    BuildContext context, {
+    required String teamName,
+    String? logoUrl,
+    required List<MatchJoueur> titulaires,
+    required Map<String, int> votesCount,
+    required bool isReversed,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!isReversed) _buildTeamHeader(context, teamName, logoUrl, true),
+        const SizedBox(height: 16),
+        FormationView(
+          joueurs: titulaires,
+          isReversed: isReversed,
+          votesCount: votesCount,
+          match: localMatch ?? widget.match,
+          onLocalUpdate: _updateVotes,
+        ),
+        if (isReversed) _buildTeamHeader(context, teamName, logoUrl, false),
+      ],
+    );
+  }
 
-    List<MatchJoueur> joueursExterieurTries = getJoueursTriesParNombreDeVotes(
-            widget.match.joueursEquipeExterieur, widget.match)
-        .where((j) => j.joueur != null && j.grid == null)
-        .toList();
+  List<Widget> _buildTeamsLists({
+    required List<MatchJoueur> domicileRemplacants,
+    required List<MatchJoueur> exterieurRemplacants,
+  }) {
+    final List<MatchJoueur> joueursDomicileTries =
+        getJoueursTriesParNombreDeVotes(
+      domicileRemplacants,
+      widget.match,
+    ).where((j) => j.joueur != null).toList();
+
+    final List<MatchJoueur> joueursExterieurTries =
+        getJoueursTriesParNombreDeVotes(
+      exterieurRemplacants,
+      widget.match,
+    ).where((j) => j.joueur != null).toList();
 
     if (joueursDomicileTries.isEmpty && joueursExterieurTries.isEmpty) {
-      return [SizedBox.shrink()];
+      return [const SizedBox.shrink()];
     }
 
     return [
@@ -169,7 +211,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
                               RepositoryProvider.userRepository.currentUser;
                           if (user != null &&
                               widget.match.isScheduled == false) {
-                            Map<String, dynamic> result =
+                            final Map<String, dynamic> result =
                                 await openBottomSheetAndVoteMVP(
                               context: context,
                               match: widget.match,
@@ -204,7 +246,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
                               RepositoryProvider.userRepository.currentUser;
                           if (user != null &&
                               widget.match.isScheduled == false) {
-                            Map<String, dynamic> result =
+                            final Map<String, dynamic> result =
                                 await openBottomSheetAndVoteMVP(
                               context: context,
                               match: widget.match,
@@ -231,33 +273,8 @@ class _CompositionsTabState extends State<CompositionsTab> {
             ),
           ],
         ),
-      )
+      ),
     ];
-  }
-
-  Widget _buildTeamSection(
-    BuildContext context, {
-    required String teamName,
-    String? logoUrl,
-    required List<MatchJoueur> joueurs,
-    required Map<String, int> votesCount,
-    required bool isReversed,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!isReversed) _buildTeamHeader(context, teamName, logoUrl, true),
-        const SizedBox(height: 16),
-        FormationView(
-          joueurs: joueurs,
-          isReversed: isReversed,
-          votesCount: votesCount,
-          match: localMatch ?? widget.match,
-          onLocalUpdate: _updateVotes,
-        ),
-        if (isReversed) _buildTeamHeader(context, teamName, logoUrl, false),
-      ],
-    );
   }
 
   Widget _buildTeamHeader(
@@ -269,20 +286,13 @@ class _CompositionsTabState extends State<CompositionsTab> {
     return Column(
       children: [
         if (!lineUnder)
-          Container(
-            height: 1,
-            color: ColorPalette.divider(context),
-          ),
+          Container(height: 1, color: ColorPalette.divider(context)),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
               if (logoUrl != null)
-                CachedNetworkImage(
-                  imageUrl: logoUrl,
-                  width: 32,
-                  height: 32,
-                ),
+                CachedNetworkImage(imageUrl: logoUrl, width: 32, height: 32),
               const SizedBox(width: 10),
               Expanded(
                 child: FittedBox(
@@ -302,10 +312,7 @@ class _CompositionsTabState extends State<CompositionsTab> {
           ),
         ),
         if (lineUnder)
-          Container(
-            height: 1,
-            color: ColorPalette.divider(context),
-          ),
+          Container(height: 1, color: ColorPalette.divider(context)),
       ],
     );
   }
@@ -327,38 +334,54 @@ class FormationView extends StatelessWidget {
     required this.onLocalUpdate,
   });
 
+  _FormationMode _detectMode() {
+    if (joueurs.any((j) => j.grid != null)) return _FormationMode.grid;
+    if (joueurs.any((j) => j.pos != null)) return _FormationMode.pos;
+    return _FormationMode.flat;
+  }
+
   Map<int, List<MatchJoueur>> _groupByRow() {
     final Map<int, List<MatchJoueur>> rows = {};
-
     for (var j in joueurs) {
       if (j.grid == null) continue;
-
       final parts = j.grid!.split(":");
       final row = int.tryParse(parts[0]) ?? 0;
-
       rows.putIfAbsent(row, () => []).add(j);
     }
+    return rows;
+  }
 
+  Map<int, List<MatchJoueur>> _groupByPos() {
+    const posOrder = {'G': 0, 'D': 1, 'M': 2, 'A': 3, 'F': 3};
+    final Map<int, List<MatchJoueur>> rows = {};
+    for (var j in joueurs) {
+      final rowIndex = posOrder[j.pos] ?? 4;
+      rows.putIfAbsent(rowIndex, () => []).add(j);
+    }
     return rows;
   }
 
   @override
   Widget build(BuildContext context) {
-    final rows = _groupByRow();
-    final sortedKeys = rows.keys.toList()..sort();
+    final mode = _detectMode();
 
+    if (mode == _FormationMode.flat) {
+      return _buildFlatList(context);
+    }
+
+    final rows = mode == _FormationMode.grid ? _groupByRow() : _groupByPos();
+    final sortedKeys = rows.keys.toList()..sort();
     final displayKeys = isReversed ? sortedKeys.reversed.toList() : sortedKeys;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: displayKeys.map((rowKey) {
         final rowPlayers = rows[rowKey]!;
-
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: rowPlayers.map((j) {
+            children: rowPlayers.reversed.map((j) {
               return Expanded(
                 child: PlayerWidget(
                   matchJoueur: j,
@@ -369,6 +392,21 @@ class FormationView extends StatelessWidget {
               );
             }).toList(),
           ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildFlatList(BuildContext context) {
+    return Column(
+      children: joueurs.map((j) {
+        if (j.joueur == null) return const SizedBox.shrink();
+        return playerTile(
+          joueur: j.joueur!,
+          onTap: () {},
+          context: context,
+          match: match,
+          isUserVote: false,
         );
       }).toList(),
     );
@@ -404,7 +442,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   Future<void> _loadJoueur() async {
-    if (widget.matchJoueur.joueur?.id == null) return;
+    if (widget.matchJoueur.joueur?.id == null) {
+      if (mounted) setState(() => isLoading = false);
+      return;
+    }
 
     final result = await RepositoryProvider.joueurRepository
         .fetchJoueurById(widget.matchJoueur.joueur!.id);
@@ -464,7 +505,36 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       );
     }
 
-    final shortName = joueur?.fullName ?? "?";
+    if (joueur == null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            height: 50,
+            child: buildAvatar(player: null, context: context),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 75,
+            child: Text(
+              widget.matchJoueur.number != null
+                  ? "#${widget.matchJoueur.number}"
+                  : "?",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                color: ColorPalette.textSecondary(context),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final shortName = joueur!.fullName;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -473,7 +543,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           splashColor: Colors.transparent,
           onTap: () async {
             if (user != null && widget.match.isScheduled == false) {
-              Map<String, dynamic> result = await openBottomSheetAndVoteMVP(
+              final Map<String, dynamic> result =
+                  await openBottomSheetAndVoteMVP(
                 context: context,
                 match: widget.match,
                 preselectedPlayer: joueur,
@@ -490,14 +561,12 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             }
           },
           onLongPress: () {
-            if (joueur != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PlayerDetailsPage(playerId: joueur!.id),
-                ),
-              );
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PlayerDetailsPage(playerId: joueur!.id),
+              ),
+            );
           },
           child: Stack(
             clipBehavior: Clip.none,
@@ -507,8 +576,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                 height: 50,
                 child: buildAvatar(player: joueur, context: context),
               ),
-              if (joueur != null &&
-                  widget.match.getPlayerNbButs(joueur!.id) > 0)
+              if (widget.match.getPlayerNbButs(joueur!.id) > 0)
                 Positioned(
                   bottom: 0,
                   right: -10,
@@ -519,8 +587,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                     isHighlighted: true,
                   ),
                 ),
-              if (joueur != null &&
-                  widget.match.getPlayerNbPassesDe(joueur!.id) > 0)
+              if (widget.match.getPlayerNbPassesDe(joueur!.id) > 0)
                 Positioned(
                   bottom: 0,
                   left: -10,
@@ -543,13 +610,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   icon: Icon(
                     Icons.star,
                     size: 10,
-                    color: (widget.match.getMvpId() == joueur?.id)
+                    color: (widget.match.getMvpId() == joueur!.id)
                         ? Colors.black
                         : ColorPalette.textPrimary(context),
                   ),
                   value: widget.nbVotes,
-                  isHighlighted: widget.match.mvpVotes[user?.uid] == joueur?.id,
-                  isGold: widget.match.getMvpId() == joueur?.id,
+                  isHighlighted: widget.match.mvpVotes[user?.uid] == joueur!.id,
+                  isGold: widget.match.getMvpId() == joueur!.id,
                 ),
               ),
             ],
@@ -568,7 +635,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               color: ColorPalette.textPrimary(context),
             ),
           ),
-        )
+        ),
       ],
     );
   }

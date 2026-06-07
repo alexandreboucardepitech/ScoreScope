@@ -7,6 +7,7 @@ class MatchJoueur {
   final String? pos;
   final String? grid;
   final bool hasPlayed;
+  final bool isStarter;
 
   MatchJoueur({
     this.joueur,
@@ -14,6 +15,7 @@ class MatchJoueur {
     this.pos,
     this.grid,
     this.hasPlayed = false,
+    this.isStarter = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -22,6 +24,7 @@ class MatchJoueur {
         if (pos != null) 'pos': pos,
         if (grid != null) 'grid': grid,
         'hasPlayed': hasPlayed,
+        'isStarter': isStarter,
       };
 
   factory MatchJoueur.fromJson(Map<String, dynamic> json) {
@@ -33,6 +36,7 @@ class MatchJoueur {
       pos: json['pos'] as String?,
       grid: json['grid'] as String?,
       hasPlayed: json['hasPlayed'] as bool? ?? false,
+      isStarter: json['isStarter'] as bool? ?? false,
     );
   }
 
@@ -48,6 +52,7 @@ class MatchJoueur {
       pos: data.pos,
       grid: data.grid,
       hasPlayed: data.hasPlayed,
+      isStarter: data.isStarter,
     );
   }
 
@@ -74,6 +79,7 @@ class MatchJoueurId {
   final String? pos;
   final String? grid;
   final bool hasPlayed;
+  final bool isStarter;
 
   MatchJoueurId({
     required this.joueurId,
@@ -81,6 +87,7 @@ class MatchJoueurId {
     this.pos,
     this.grid,
     this.hasPlayed = false,
+    this.isStarter = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -89,6 +96,7 @@ class MatchJoueurId {
         if (pos != null) 'pos': pos,
         if (grid != null) 'grid': grid,
         'hasPlayed': hasPlayed,
+        'isStarter': isStarter,
       };
 
   factory MatchJoueurId.fromJson(Map<String, dynamic> json) {
@@ -98,6 +106,7 @@ class MatchJoueurId {
       pos: json['pos'],
       grid: json['grid'],
       hasPlayed: json['hasPlayed'],
+      isStarter: json['isStarter'] ?? false,
     );
   }
 
@@ -107,6 +116,7 @@ class MatchJoueurId {
     String? pos,
     String? grid,
     bool? hasPlayed,
+    bool? isStarter,
   }) {
     return MatchJoueurId(
       joueurId: joueurId ?? this.joueurId,
@@ -114,6 +124,7 @@ class MatchJoueurId {
       pos: pos ?? this.pos,
       grid: grid ?? this.grid,
       hasPlayed: hasPlayed ?? this.hasPlayed,
+      isStarter: isStarter ?? this.isStarter,
     );
   }
 }

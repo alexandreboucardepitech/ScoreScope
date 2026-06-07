@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
@@ -427,35 +428,41 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                 },
               ),
             ),
-            // if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
-            //     RepositoryProvider.userRepository.currentUser?.uid ==
-            //         "UwigeExwFMfDrCk4x8AbODha3il1" ||
-            //     RepositoryProvider.userRepository.currentUser?.uid ==
-            //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
-            //   ElevatedButton(
-            //     onPressed: () async {
-            //       List<MatchModelId> allMatches = await RepositoryProvider.matchRepository.fetchAllMatchesId(loadVotesAndNotes: false);
-            //       List<String> idEquipesACreer = [];
-            //       int i = 0;
-            //       for (MatchModelId match in allMatches) {
-            //         print("Match ${i+1}/${allMatches.length} - id: ${match.id}");
-            //         Equipe? equipeDom = await RepositoryProvider.equipeRepository.fetchEquipeById(match.equipeDomicileId);
-            //         if (equipeDom == null) {
-            //           idEquipesACreer.add(match.equipeDomicileId);
-            //         }
-                    
-            //         Equipe? equipeExt = await RepositoryProvider.equipeRepository.fetchEquipeById(match.equipeExterieurId);
-            //         if (equipeExt == null) {
-            //           idEquipesACreer.add(match.equipeExterieurId);
-            //         }
-            //         i++;
-            //       }
-            //       for (String id in idEquipesACreer) {
-            //         await FillDatabase.createEquipeFromApiId(teamApiId: id, season: "2026");
-            //       }
-            //     },
-            //     child: Text("test pour développeur"),
-            //   ),
+            if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+                RepositoryProvider.userRepository.currentUser?.uid ==
+                    "UwigeExwFMfDrCk4x8AbODha3il1" ||
+                RepositoryProvider.userRepository.currentUser?.uid ==
+                    "Elv7ujUkfRYKfrIJsDySorXRYuh1")
+              ElevatedButton(
+                onPressed: () async {
+                  List<MatchModelId> matches = await RepositoryProvider
+                      .matchRepository
+                      .fetchAllMatchesId(loadVotesAndNotes: true);
+
+                  int i = 0;
+
+                  for (MatchModelId match in matches) {
+                    print("$i / ${matches.length}");
+                    i++;
+                    final int nbGridDomicile = match.joueursEquipeDomicileId
+                        .where((j) => j.grid != null || j.isStarter == true)
+                        .length;
+                    final int nbGridExterieur = match.joueursEquipeExterieurId
+                        .where((j) => j.grid != null || j.isStarter == true)
+                        .length;
+                    final bool hasGrid =
+                        nbGridDomicile == 11 && nbGridExterieur == 11;
+
+                    if (hasGrid == false &&
+                        (match.joueursEquipeDomicileId.isNotEmpty ||
+                            match.joueursEquipeExterieurId.isNotEmpty)) {
+                      print(
+                          "match pourri : ${match.id} - ${match.competitionId} - ${match.equipeDomicileId} vs ${match.equipeExterieurId}");
+                    }
+                  }
+                },
+                child: Text("test pour développeur"),
+              ),
           ],
         ),
       ),

@@ -357,13 +357,17 @@ class WebMatchRepository implements IMatchRepository {
       if (scoreEquipeExterieur != null)
         'scoreEquipeExterieur': scoreEquipeExterieur,
       if (butsEquipeDomicileId != null)
-        'butsEquipeDomicileId': butsEquipeDomicileId,
+        'butsEquipeDomicile':
+            butsEquipeDomicileId.map((b) => b.toJson()).toList(),
       if (butsEquipeExterieurId != null)
-        'butsEquipeExterieurId': butsEquipeExterieurId,
+        'butsEquipeExterieur':
+            butsEquipeExterieurId.map((b) => b.toJson()).toList(),
       if (joueursEquipeDomicileId != null)
-        'joueursEquipeDomicileId': joueursEquipeDomicileId,
+        'joueursEquipeDomicile':
+            joueursEquipeDomicileId.map((j) => j.toJson()).toList(),
       if (joueursEquipeExterieurId != null)
-        'joueursEquipeExterieurId': joueursEquipeExterieurId,
+        'joueursEquipeExterieur':
+            joueursEquipeExterieurId.map((j) => j.toJson()).toList(),
       if (mvpVotes != null) 'mvpVotes': mvpVotes,
       if (notes != null) 'notes': notes,
     });

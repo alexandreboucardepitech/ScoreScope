@@ -311,6 +311,7 @@ exports.fetchLineups = onSchedule(
                 pos: playerObj.player.pos || null,
                 grid: playerObj.player.grid || null,
                 hasPlayed: isFromStartXI,
+                isStarer: isFromStartXI,
               };
             };
 

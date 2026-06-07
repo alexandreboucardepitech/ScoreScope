@@ -28,6 +28,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+VoidCallback? onLogout;
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -125,7 +126,20 @@ class _InitialAppState extends State<InitialApp> {
   @override
   void initState() {
     super.initState();
+    onLogout = () async {
+      setState(() {
+        _appState = AppState.loading;
+        _currentUser = null;
+      });
+      await _initializeApp();
+    };
     _initializeApp();
+  }
+
+  @override
+  void dispose() {
+    onLogout = null;
+    super.dispose();
   }
 
   Future<void> restartApp() async {

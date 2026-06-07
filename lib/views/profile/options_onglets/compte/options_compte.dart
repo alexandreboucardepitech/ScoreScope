@@ -218,11 +218,11 @@ class OptionsCompteView extends StatelessWidget {
               await LocalCache.clearAll();
               await RepositoryProvider.userRepository.signOut();
 
-              RootAppState? root =
-                  context.findAncestorStateOfType<RootAppState>();
-              root?.restartApp();
+              if (context.mounted) {
+                Navigator.popUntil(context, (route) => route.isFirst);
+              }
 
-              InitialApp.of(context)?.restartApp();
+              onLogout?.call();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorPalette.accent(context),
@@ -463,7 +463,8 @@ class OptionsCompteView extends StatelessWidget {
           style: TextStyle(color: Colors.red),
         ),
         content: Text(
-          translate.cetteActionEstIrreversibleToutesVosDonneesSerontDefinitivementSupprimees,
+          translate
+              .cetteActionEstIrreversibleToutesVosDonneesSerontDefinitivementSupprimees,
           style: TextStyle(
             color: ColorPalette.textPrimary(context),
           ),
@@ -517,7 +518,8 @@ class OptionsCompteView extends StatelessWidget {
                 if (!context.mounted) return;
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(translate.erreur + " : ${e.toString()}")),
+                  SnackBar(
+                      content: Text(translate.erreur + " : ${e.toString()}")),
                 );
               }
             },
