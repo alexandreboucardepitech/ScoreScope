@@ -354,6 +354,16 @@ class FormationView extends StatelessWidget {
       final row = int.tryParse(parts[0]) ?? 0;
       rows.putIfAbsent(row, () => []).add(j);
     }
+
+    // Trier chaque ligne par colonne croissante (gauche → droite)
+    for (final row in rows.values) {
+      row.sort((a, b) {
+        final colA = int.tryParse(a.grid!.split(":")[1]) ?? 0;
+        final colB = int.tryParse(b.grid!.split(":")[1]) ?? 0;
+        return colA.compareTo(colB);
+      });
+    }
+
     return rows;
   }
 
@@ -387,7 +397,8 @@ class FormationView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: rowPlayers.reversed.map((j) {
+            children: (isReversed ? rowPlayers : rowPlayers.reversed.toList())
+                .map((j) {
               return Expanded(
                 child: PlayerWidget(
                   matchJoueur: j,

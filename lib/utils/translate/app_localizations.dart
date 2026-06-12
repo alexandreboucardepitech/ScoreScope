@@ -3355,6 +3355,37 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Qu\'as-tu pensé de ce match ?'**
   String get quAstuPenseDeCeMatch;
+
+  /// No description provided for @favoris.
+  ///
+  /// In fr, this message translates to:
+  /// **'Favoris'**
+  String get favoris;
+
+  /// No description provided for @chargementDesMatchsXSurX.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des matchs ({matchModelIdsLoaded} / {matchIdsTotal})...'**
+  String chargementDesMatchsXSurX(
+      String matchModelIdsLoaded, String matchIdsTotal);
+
+  /// No description provided for @chargementDesEquipesEtDesJoueurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des équipes et joueurs...'**
+  String get chargementDesEquipesEtDesJoueurs;
+
+  /// No description provided for @preparationDesStatistiques.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation des statistiques...'**
+  String get preparationDesStatistiques;
+
+  /// No description provided for @pret.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prêt'**
+  String get pret;
 }
 
 class _AppLocalizationsDelegate

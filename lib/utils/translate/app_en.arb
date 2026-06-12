@@ -970,5 +970,20 @@
   "ajouterUnCommentaire": "Add a comment",
   "publier": "Publish",
   "commenter": "Comment",
-  "quAstuPenseDeCeMatch": "What did you think of this match?"
+  "quAstuPenseDeCeMatch": "What did you think of this match?",
+  "favoris": "Favorites",
+  "chargementDesMatchsXSurX": "Loading matches ({matchModelIdsLoaded} / {matchIdsTotal})...",
+  "@chargementDesMatchsXSurX": {
+    "placeholders": {
+      "matchModelIdsLoaded": {
+        "type": "String"
+      },
+      "matchIdsTotal": {
+        "type": "String"
+      }
+    }
+  },
+  "chargementDesEquipesEtDesJoueurs": "Loading teams and players...",
+  "preparationDesStatistiques": "Preparing statistics...",
+  "pret": "Ready"
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/enum/language_options.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
@@ -163,7 +165,11 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     )) {
       return translate.demain;
     }
-    return DateFormat('EEE', 'fr_FR')
+    String dateLanguage = 'fr_FR';
+    AppUser? currentUser = RepositoryProvider.userRepository.currentUser;
+    if (currentUser != null && currentUser.options.language == LanguageOptions.english)
+      dateLanguage = 'en_US';
+    return DateFormat('EEE', dateLanguage)
         .format(date)
         .toUpperCase()
         .replaceAll('.', '');
@@ -402,7 +408,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                             MatchList(
                               matches: followedMatches,
                               header: _buildSectionHeader(
-                                "Favoris",
+                                translate.favoris,
                                 Icons.star_rounded,
                               ),
                               user: currentUser,
@@ -427,60 +433,24 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                 },
               ),
             ),
-            // if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
-            //     RepositoryProvider.userRepository.currentUser?.uid ==
-            //         "UwigeExwFMfDrCk4x8AbODha3il1" ||
-            //     RepositoryProvider.userRepository.currentUser?.uid ==
-            //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
-            //   ElevatedButton(
-            //     onPressed: () async {
-            //       List<DateTime> datesToFix = [
-            //         DateTime(2026, 6, 5),
-            //         DateTime(2026, 6, 6),
-            //         DateTime(2026, 6, 7),
-            //       ];
-            //       for (DateTime date in datesToFix) {
-            //         List<MatchModel> matches = await RepositoryProvider
-            //             .matchRepository
-            //             .fetchMatchesByDate(date);
-
-            //         int i = 0;
-
-            //         final collection =
-            //             FirebaseFirestore.instance.collection('matchs');
-
-            //         for (final match in matches) {
-            //           print("$i / $matches.length");
-            //           final doc = await collection.doc(match.id).get();
-            //           if (!doc.exists) continue;
-
-            //           final data = doc.data()!;
-
-            //           List<dynamic> fixList(List<dynamic> joueurs) {
-            //             return joueurs.map((j) {
-            //               final map = Map<String, dynamic>.from(j as Map);
-            //               if (map.containsKey('isStarer')) {
-            //                 map['isStarter'] = map['isStarer'];
-            //                 map.remove('isStarer');
-            //               }
-            //               return map;
-            //             }).toList();
-            //           }
-
-            //           await collection.doc(match.id).update({
-            //             'joueursEquipeDomicile':
-            //                 fixList(data['joueursEquipeDomicile'] ?? []),
-            //             'joueursEquipeExterieur':
-            //                 fixList(data['joueursEquipeExterieur'] ?? []),
-            //           });
-
-            //           print('Fixed: ${match.id}');
-            //           i++;
-            //         }
-            //       }
-            //     },
-            //     child: Text("test pour développeur"),
-            //   ),
+            if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+                RepositoryProvider.userRepository.currentUser?.uid ==
+                    "UwigeExwFMfDrCk4x8AbODha3il1" ||
+                RepositoryProvider.userRepository.currentUser?.uid ==
+                    "Elv7ujUkfRYKfrIJsDySorXRYuh1")
+              ElevatedButton(
+                onPressed: () async {
+                  await FillDatabase.createEquipeFromApiId(
+                      teamApiId: "10380", season: "2026");
+                  await FillDatabase.createEquipeFromApiId(
+                      teamApiId: "5166", season: "2026");
+                  await FillDatabase.createEquipeFromApiId(
+                      teamApiId: "17936", season: "2026");
+                  await FillDatabase.createEquipeFromApiId(
+                      teamApiId: "17944", season: "2026");
+                },
+                child: Text("test pour développeur"),
+              ),
           ],
         ),
       ),
@@ -619,8 +589,20 @@ Future<DateTime?> _openDatePicker(
   BuildContext context,
   DateTime selectedDate,
 ) async {
+  Locale locale;
+
+  AppUser? currentUser = RepositoryProvider.userRepository.currentUser;
+
+  if (currentUser == null || currentUser.options.language == null)
+    locale = Locale('fr', 'FR');
+  else {
+    locale = currentUser.options.language == LanguageOptions.english
+        ? Locale('en')
+        : Locale('fr', 'FR');
+  }
+
   final pickedDate = await showDatePicker(
-    locale: const Locale('fr', 'FR'),
+    locale: locale,
     context: context,
     initialDate: selectedDate,
     firstDate: DateTime(2000),

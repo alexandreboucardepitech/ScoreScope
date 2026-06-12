@@ -78,19 +78,33 @@ async function sendNotificationToUser(toUserId, type, payload) {
   const content = buildNotificationContent(type, payload);
   if (!content) return;
 
-  await admin.messaging().send({
-    token: notificationToken,
-    notification: {
-      title: content.title,
-      body: content.body,
-    },
-    data: {
-      type: type,
-      ...Object.fromEntries(
-          Object.entries(payload).map(([k, v]) => [k, String(v)]),
-      ),
-    },
-  });
+  try {
+    await admin.messaging().send({
+      token: notificationToken,
+      notification: {
+        title: content.title,
+        body: content.body,
+      },
+      data: {
+        type: type,
+        ...Object.fromEntries(
+            Object.entries(payload).map(([k, v]) => [k, String(v)]),
+        ),
+      },
+    });
+  } catch (error) {
+    if (
+      error.errorInfo?.code === "messaging/registration-token-not-registered" ||
+      error.errorInfo?.code === "messaging/invalid-registration-token"
+    ) {
+      console.warn(`🧹 Token invalide pour ${toUserId}, suppression...`);
+      await admin.firestore().collection("users").doc(toUserId).update({
+        notificationToken: admin.firestore.FieldValue.delete(),
+      });
+    } else {
+      throw error;
+    }
+  }
 }
 
 exports.sendNotification = functions.https.onCall(async (request) => {

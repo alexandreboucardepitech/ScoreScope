@@ -19,7 +19,7 @@ class RechercheView extends StatefulWidget {
 
 class _RechercheViewState extends State<RechercheView> {
   String _query = '';
-  String _filter = 'Tous';
+  String _filter = translate.tous;
   final TextEditingController _searchController = TextEditingController();
 
   ResultatsRechercheModel? _cacheResults;

@@ -3,7 +3,8 @@ const {onSchedule} = require("firebase-functions/v2/scheduler");
 const admin = require("firebase-admin");
 const fetch = require("node-fetch");
 const {onRequest} = require("firebase-functions/v2/https");
-const {sendNotification,
+const {
+  sendNotification,
   sendNotificationToUser,
   NOTIF_TYPES,
 } = require("./notifications");
@@ -53,6 +54,90 @@ exports.getFootballData = onRequest(async (req, res) => {
 
 //       return null;
 //     });
+
+async function getTeamColors(teamId, season) {
+  const cinqDerniersMatchs = await getDataFromApi("fixtures", {
+    team: teamId,
+    season: season,
+    last: "5",
+  });
+
+  if (!cinqDerniersMatchs || cinqDerniersMatchs.length === 0) {
+    console.log(`⚠️ Pas de matchs pour les couleurs de l'équipe ${teamId}`);
+    return {principale: null, secondaire: null};
+  }
+
+  const couleursPrincipale = {};
+  const couleursSecondaire = {};
+
+  for (const match of cinqDerniersMatchs) {
+    const matchId = match.fixture.id.toString();
+    const lineup = await getDataFromApi("fixtures/lineups", {
+      team: teamId,
+      fixture: matchId,
+    });
+
+    if (!lineup || lineup.length === 0) continue;
+
+    const primary = lineup[0]?.team?.colors?.player?.primary || null;
+    const secondary = lineup[0]?.team?.colors?.player?.number || null;
+
+    if (primary) {
+      couleursPrincipale[primary] = (couleursPrincipale[primary] || 0) + 1;
+    }
+    if (secondary) {
+      couleursSecondaire[secondary] = (couleursSecondaire[secondary] || 0) + 1;
+    }
+  }
+
+  const principale =
+    Object.keys(couleursPrincipale).length > 0 ?
+      Object.entries(couleursPrincipale).reduce((a, b) =>
+          a[1] > b[1] ? a : b,
+      )[0] :
+      null;
+
+  const secondaire =
+    Object.keys(couleursSecondaire).length > 0 ?
+      Object.entries(couleursSecondaire).reduce((a, b) =>
+          a[1] > b[1] ? a : b,
+      )[0] :
+      null;
+
+  return {principale, secondaire};
+}
+
+async function ensureEquipeExists(teamId, season) {
+  const doc = await db.collection("equipes").doc(teamId).get();
+  if (doc.exists) return true;
+
+  console.log(`🔍 Équipe ${teamId} absente, création en cours...`);
+
+  const apiData = await getDataFromApi("teams", {id: teamId});
+  if (!apiData || apiData.length === 0) {
+    console.log(`❌ Équipe ${teamId} introuvable via l'API, match ignoré`);
+    return false;
+  }
+
+  const team = apiData[0].team;
+  const couleurs = await getTeamColors(teamId, season.toString());
+
+  await db
+      .collection("equipes")
+      .doc(teamId)
+      .set({
+        id: teamId,
+        nom: team.name || "",
+        code: team.code || "",
+        logoPath: team.logo || "",
+        couleurPrincipale: couleurs.principale,
+        couleurSecondaire: couleurs.secondaire,
+        national: team.national ?? false,
+      });
+
+  console.log(`✅ Équipe créée : ${team.name} (${teamId})`);
+  return true;
+}
 
 // Fonction pour appeler l'API football
 async function getDataFromApi(endpoint, params = {}) {
@@ -187,6 +272,20 @@ exports.fetchNextTwoWeeksMatches = onSchedule(
               const matchDoc = await matchDocRef.get();
 
               const apiDate = new Date(matchData.fixture.timestamp * 1000);
+
+              const homeId = matchData.teams.home.id.toString();
+              const awayId = matchData.teams.away.id.toString();
+
+              // On s'assure que les deux équipes existent (les crée si besoin)
+              const [homeOk, awayOk] = await Promise.all([
+                ensureEquipeExists(homeId, matchData.league.season),
+                ensureEquipeExists(awayId, matchData.league.season),
+              ]);
+
+              if (!homeOk || !awayOk) {
+                console.log(`⚠️ Match ${id} ignoré (équipe manquante)`);
+                continue;
+              }
 
               let shouldUpdate = !matchDoc.exists;
 
@@ -427,9 +526,11 @@ exports.updateLiveMatches = onSchedule(
         const mustCallApi = await checkMustCallApi();
         if (mustCallApi == true) {
           console.log("Il faut appeler l'API");
-          const live = await getDataFromApi("fixtures",
-              {live: "1-10-135-137-140-143-2-3-39-4-45-48-" +
-              "526-528-529-547-556-61-62-66-78-81-848"});
+          const live = await getDataFromApi("fixtures", {
+            live:
+            "1-10-135-137-140-143-2-3-39-4-45-48-" +
+            "526-528-529-547-556-61-62-66-78-81-848",
+          });
 
           const liveIds = live.map((m) => m.fixture.id.toString());
 
@@ -463,9 +564,12 @@ exports.updateLiveMatches = onSchedule(
 
               nbMatchsUpdated++;
 
-              if (hasScoreChanged || hasStatusChanged ||
-                data.butsEquipeDomicile.length != data.scoreEquipeDomicile ||
-                data.butsEquipeExterieur.length != data.scoreEquipeExterieur) {
+              if (
+                hasScoreChanged ||
+              hasStatusChanged ||
+              data.butsEquipeDomicile.length != data.scoreEquipeDomicile ||
+              data.butsEquipeExterieur.length != data.scoreEquipeExterieur
+              ) {
                 console.log("🔄 Update match :", matchId);
 
                 let butsEquipeDomicile = data.butsEquipeDomicile || [];
@@ -590,8 +694,8 @@ exports.updateLiveMatches = onSchedule(
                 }
 
                 const newDate = matchData.fixture?.timestamp ?
-                  new Date(matchData.fixture.timestamp * 1000) :
-                  data.date;
+                new Date(matchData.fixture.timestamp * 1000) :
+                data.date;
 
                 await docRef.update({
                   date: newDate,
@@ -753,56 +857,100 @@ exports.updateLiveMatches = onSchedule(
                     joueursEquipeExterieur: Object.values(mapExterieur),
                   });
 
-              const usersSnapshot = await db.collection("users")
-                  .where("equipesPrefereesId", "array-contains-any",
-                      [data.equipeDomicileId, data.equipeExterieurId]).get();
+              let allUsersToNotify;
 
-              const usersToNotify = usersSnapshot.docs
-                  .map((doc) => ({...doc.data(), uid: doc.id}))
-                  .filter((user) => user.notificationToken != null &&
-                    (user.options?.favoriteTeamMatch === true &&
-                      user.options?.allNotifications !== false));
+              if (data.competitionId === "1") {
+                // Coupe du Monde — notifier tout le monde
+                const allUsersSnapshot = await db
+                    .collection("users")
+                    .where("notificationToken", "!=", null)
+                    .get();
 
-              const now = new Date();
-              const yesterday = new Date(now);
-              yesterday.setDate(yesterday.getDate() - 1);
-              yesterday.setHours(0, 0, 0, 0); // minuit hier
+                allUsersToNotify = allUsersSnapshot.docs
+                    .map((doc) => ({...doc.data(), uid: doc.id}))
+                    .filter(
+                        (user) =>
+                          user.notificationToken != null &&
+        user.options?.allNotifications !== false,
+                    );
+              } else {
+                const usersSnapshot = await db
+                    .collection("users")
+                    .where("equipesPrefereesId", "array-contains-any", [
+                      data.equipeDomicileId,
+                      data.equipeExterieurId,
+                    ])
+                    .get();
 
-              const matchNotifsSnapshot =
-              await db.collectionGroup("matchUserData")
-                  .where("notifications", "==", true)
-                  .where("matchId", "==", matchId)
-                  .get();
+                const usersToNotify = usersSnapshot.docs
+                    .map((doc) => ({...doc.data(), uid: doc.id}))
+                    .filter(
+                        (user) =>
+                          user.notificationToken != null &&
+                  user.options?.favoriteTeamMatch === true &&
+                  user.options?.allNotifications !== false,
+                    );
 
-              const matchNotifUserIds = matchNotifsSnapshot.docs
-                  .map((doc) => doc.ref.parent.parent.id);
+                const now = new Date();
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                yesterday.setHours(0, 0, 0, 0); // minuit hier
 
-              const existingUids = new Set(usersToNotify.map((u) => u.uid));
-              const extraUids =
-                matchNotifUserIds.filter((uid) => !existingUids.has(uid));
+                const matchNotifsSnapshot = await db
+                    .collectionGroup("matchUserData")
+                    .where("notifications", "==", true)
+                    .where("matchId", "==", matchId)
+                    .get();
 
-              const extraUsersSnapshots = await Promise.all(
-                  extraUids.map((uid) =>
-                    db.collection("users").doc(uid).get()),
-              );
+                const matchNotifUserIds = matchNotifsSnapshot.docs.map(
+                    (doc) => doc.ref.parent.parent.id,
+                );
 
-              const extraUsers = extraUsersSnapshots
-                  .filter((doc) => doc.exists)
-                  .map((doc) => ({...doc.data(), uid: doc.id}))
-                  .filter((user) => user.notificationToken != null &&
-                    user.options?.allNotifications !== false);
+                const existingUids = new Set(usersToNotify.map((u) => u.uid));
+                const extraUids = matchNotifUserIds.filter(
+                    (uid) => !existingUids.has(uid),
+                );
 
-              const allUsersToNotify = [...usersToNotify, ...extraUsers];
+                const extraUsersSnapshots = await Promise.all(
+                    extraUids.map((uid) => db.collection("users").
+                        doc(uid).get()),
+                );
+
+                const extraUsers = extraUsersSnapshots
+                    .filter((doc) => doc.exists)
+                    .map((doc) => ({...doc.data(), uid: doc.id}))
+                    .filter(
+                        (user) =>
+                          user.notificationToken != null &&
+                  user.options?.allNotifications !== false,
+                    );
+
+                allUsersToNotify = [...usersToNotify, ...extraUsers];
+              }
               console.log(allUsersToNotify.length, "utilisateurs à notifier");
 
+              let successCount = 0;
+              let errorCount = 0;
+
               for (const user of allUsersToNotify) {
-                await sendNotificationToUser(user.uid,
-                    NOTIF_TYPES.FAVORITE_TEAM_MATCH_END, {
-                      matchName:
+                try {
+                  await sendNotificationToUser(user.uid,
+                      NOTIF_TYPES.FAVORITE_TEAM_MATCH_END, {
+                        matchName:
                   `${matchData.teams.home.name} - ${matchData.teams.away.name}`,
-                      matchId: matchId,
-                    });
+                        matchId: matchId,
+                      },
+                  );
+                  successCount++;
+                } catch (error) {
+                  errorCount++;
+                  console.error(`🔥 Erreur notif user ${user.uid}:`,
+                      error.errorInfo?.code ?? error.message);
+                }
               }
+
+              console.log(`📊 Notifs — ✅ ${successCount} envoyées | ` +
+                `🧹 tokens invalides auto-nettoyés | ❌ ${errorCount} erreurs`);
             } catch (error) {
               console.error("🔥 Erreur finalisation : ", matchId, error);
             }
@@ -835,10 +983,11 @@ exports.sendWeeklyRecapNotifications = onSchedule(
 
         const usersToNotify = usersSnapshot.docs
             .map((doc) => ({...doc.data(), uid: doc.id}))
-            .filter((user) =>
-              user.notificationToken != null &&
-              user.options?.allNotifications !== false &&
-              user.options?.weeklyRecap !== false,
+            .filter(
+                (user) =>
+                  user.notificationToken != null &&
+            user.options?.allNotifications !== false &&
+            user.options?.weeklyRecap !== false,
             );
 
         console.log(
@@ -856,11 +1005,7 @@ exports.sendWeeklyRecapNotifications = onSchedule(
 
             console.log("✅ Weekly recap envoyée à :", user.uid);
           } catch (error) {
-            console.error(
-                "🔥 Erreur notif weekly recap :",
-                user.uid,
-                error,
-            );
+            console.error("🔥 Erreur notif weekly recap :", user.uid, error);
           }
         }
 
@@ -896,17 +1041,14 @@ exports.updatePopulariteCompetitions = onSchedule(
           }
         });
 
-        const competitionsSnapshot = await db
-            .collection("competitions")
-            .get();
+        const competitionsSnapshot = await db.collection("competitions").get();
 
         const batch = db.batch();
 
         competitionsSnapshot.forEach((doc) => {
           const competitionData = doc.data();
 
-          const newPopularite =
-          competitionIdToCount[doc.id] || 0;
+          const newPopularite = competitionIdToCount[doc.id] || 0;
 
           const oldPopularite = competitionData.popularite;
 
@@ -916,8 +1058,8 @@ exports.updatePopulariteCompetitions = onSchedule(
 
           console.log(
               `popularité mise à jour pour ` +
-              `${competitionData.nom} : ${newPopularite} ` +
-              `(ancienne : ${oldPopularite})`,
+            `${competitionData.nom} : ${newPopularite} ` +
+            `(ancienne : ${oldPopularite})`,
           );
         });
 
@@ -925,10 +1067,7 @@ exports.updatePopulariteCompetitions = onSchedule(
 
         console.log("Toutes les popularités ont été mises à jour.");
       } catch (error) {
-        console.error(
-            "Erreur updatePopulariteCompetitions :",
-            error,
-        );
+        console.error("Erreur updatePopulariteCompetitions :", error);
       }
     },
 );

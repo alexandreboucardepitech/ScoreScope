@@ -1809,4 +1809,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quAstuPenseDeCeMatch => 'What did you think of this match?';
+
+  @override
+  String get favoris => 'Favorites';
+
+  @override
+  String chargementDesMatchsXSurX(
+      String matchModelIdsLoaded, String matchIdsTotal) {
+    return 'Loading matches ($matchModelIdsLoaded / $matchIdsTotal)...';
+  }
+
+  @override
+  String get chargementDesEquipesEtDesJoueurs => 'Loading teams and players...';
+
+  @override
+  String get preparationDesStatistiques => 'Preparing statistics...';
+
+  @override
+  String get pret => 'Ready';
 }

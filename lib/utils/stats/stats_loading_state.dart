@@ -4,6 +4,7 @@ import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 enum StatsLoadingPhase {
   idle,
@@ -71,19 +72,19 @@ class StatsLoadingState {
   String get loadingLabel {
     switch (phase) {
       case StatsLoadingPhase.idle:
-        return 'En attente...';
+        return translate.enAttente;
       case StatsLoadingPhase.fetchingMatchIds:
-        return 'Récupération des matchs...';
+        return translate.recuperationDesMatchs;
       case StatsLoadingPhase.fetchingMatchData:
-        return 'Chargement des matchs ($matchModelIdsLoaded / $matchIdsTotal)...';
+        return translate.chargementDesMatchsXSurX(matchModelIdsLoaded.toString(), matchIdsTotal.toString());
       case StatsLoadingPhase.fetchingEntities:
-        return 'Chargement des équipes et joueurs...';
+        return translate.chargementDesEquipesEtDesJoueurs;
       case StatsLoadingPhase.assemblingModels:
-        return 'Préparation des statistiques...';
+        return translate.preparationDesStatistiques;
       case StatsLoadingPhase.ready:
-        return 'Prêt';
+        return translate.pret;
       case StatsLoadingPhase.error:
-        return 'Erreur de chargement : ' +
+        return translate.erreur + " : " +
             (errorMessage ?? 'Une erreur inconnue est survenue');
     }
   }

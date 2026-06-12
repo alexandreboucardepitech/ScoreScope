@@ -7,6 +7,7 @@ import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 
 Future<List<PodiumEntry<T>>> loadOneStatForOneUser<T extends PodiumDisplayable>(
   String userId,
@@ -22,134 +23,76 @@ Future<List<PodiumEntry<T>>> loadOneStatForOneUser<T extends PodiumDisplayable>(
       .userRepository
       .fetchUserAllMatchUserData(userId: userId, onlyPublic: true);
 
-  switch (statToLoad) {
-    case 'Équipes les plus vues':
-      {
-        final map = await StatsLoader.getEquipesLesPlusVues(matchsVusModels);
-        final result = await StatsLoader.getPodiumFromMap<Equipe>(map);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Compétitions les plus suivies':
-      {
-        final map =
-            await StatsLoader.getCompetitionsLesPlusVues(matchsVusModels);
-        final result = await StatsLoader.getPodiumFromMap<Competition>(map);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Joueurs les plus vus marquer':
-      {
-        final map = await StatsLoader.getMeilleursButeurs(matchsVusModels);
-        final result = await StatsLoader.getPodiumFromMap<Joueur>(map);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'MVP les plus votés':
-      {
-        final result =
-            await StatsLoader.getMvpsLesPlusVotes(matchsVusUser: matchsVusUser);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Plus gros score':
-      {
-        final result = StatsLoader.getBiggestScoresMatch(matchsVusModels);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Plus gros écart':
-      {
-        final result =
-            StatsLoader.getBiggestScoreDifferenceMatch(matchsVusModels);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Équipes les plus vues gagner':
-      {
-        final result =
-            await StatsLoader.getEquipesLesPlusVuesGagner(matchsVusModels);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Équipes les plus vues perdre':
-      {
-        final result =
-            await StatsLoader.getEquipesLesPlusVuesPerdre(matchsVusModels);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Buts marqués':
-      {
-        final result =
-            await StatsLoader.getEquipesLesPlusVuesMarquer(matchsVusModels);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Buts encaissés':
-      {
-        final result =
-            await StatsLoader.getEquipesLesPlusVuesEncaisser(matchsVusModels);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Titularisations':
-      {
-        final map = await StatsLoader.getTitularisations(matchsVusModels);
-        final result = await StatsLoader.getPodiumFromMap<Joueur>(map);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Record de buts sur un match':
-      {
-        final map =
-            await StatsLoader.getMeilleursButeursUnMatch(matchsVusModels);
-        final result = await StatsLoader.getPodiumFromMap<Joueur>(map);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Buts par compétition':
-      {
-        final result = await StatsLoader.getButsParCompetition(matchsVusModels);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Moy. buts / match':
-      {
-        final result = await StatsLoader.getMoyenneButsParMatchParCompetition(
-            matchsVusModels);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Matchs les mieux notés':
-      {
-        final result =
-            await StatsLoader.getMatchsMieuxNotes(matchsVusUser: matchsVusUser);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Matchs les + commentés':
-      {
-        final result = await StatsLoader.getMatchsPlusCommentes(
-            matchsVusUser: matchsVusUser);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Matchs les + réactions':
-      {
-        final result = await StatsLoader.getMatchsPlusReactions(
-            matchsVusUser: matchsVusUser);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    case 'Jours avec le plus de matchs vus':
-      {
-        final result = await StatsLoader.getJoursAvecLePlusDeMatchs(
-            matchsVusUser: matchsVusUser);
-        return result.map((e) => e as PodiumEntry<T>).toList();
-      }
-
-    default:
-      return [];
+  if (statToLoad == translate.equipesLesPlusVues) {
+    final map = await StatsLoader.getEquipesLesPlusVues(matchsVusModels);
+    final result = await StatsLoader.getPodiumFromMap<Equipe>(map);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.competitionsLesPlusSuivies) {
+    final map = await StatsLoader.getCompetitionsLesPlusVues(matchsVusModels);
+    final result = await StatsLoader.getPodiumFromMap<Competition>(map);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.joueursLesPlusVusMarquer) {
+    final map = await StatsLoader.getMeilleursButeurs(matchsVusModels);
+    final result = await StatsLoader.getPodiumFromMap<Joueur>(map);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.mvpLesPlusVotes) {
+    final result =
+        await StatsLoader.getMvpsLesPlusVotes(matchsVusUser: matchsVusUser);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.plusGrosScore) {
+    final result = StatsLoader.getBiggestScoresMatch(matchsVusModels);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.plusGrosEcart) {
+    final result = StatsLoader.getBiggestScoreDifferenceMatch(matchsVusModels);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.equipesLesPlusVuesGagner) {
+    final result =
+        await StatsLoader.getEquipesLesPlusVuesGagner(matchsVusModels);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.equipesLesPlusVuesPerdre) {
+    final result =
+        await StatsLoader.getEquipesLesPlusVuesPerdre(matchsVusModels);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.butsMarques) {
+    final result =
+        await StatsLoader.getEquipesLesPlusVuesMarquer(matchsVusModels);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.butsEncaisses) {
+    final result =
+        await StatsLoader.getEquipesLesPlusVuesEncaisser(matchsVusModels);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.titularisations) {
+    final map = await StatsLoader.getTitularisations(matchsVusModels);
+    final result = await StatsLoader.getPodiumFromMap<Joueur>(map);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.recordDeButsSurUnMatch) {
+    final map = await StatsLoader.getMeilleursButeursUnMatch(matchsVusModels);
+    final result = await StatsLoader.getPodiumFromMap<Joueur>(map);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.butsParCompetition) {
+    final result = await StatsLoader.getButsParCompetition(matchsVusModels);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.moyButsMatch) {
+    final result =
+        await StatsLoader.getMoyenneButsParMatchParCompetition(matchsVusModels);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.matchsLesMieuxNotes) {
+    final result =
+        await StatsLoader.getMatchsMieuxNotes(matchsVusUser: matchsVusUser);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.matchsLesCommentes) {
+    final result =
+        await StatsLoader.getMatchsPlusCommentes(matchsVusUser: matchsVusUser);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.matchsLesReactions) {
+    final result =
+        await StatsLoader.getMatchsPlusReactions(matchsVusUser: matchsVusUser);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else if (statToLoad == translate.joursAvecLePlusDeMatchsVus) {
+    final result = await StatsLoader.getJoursAvecLePlusDeMatchs(
+        matchsVusUser: matchsVusUser);
+    return result.map((e) => e as PodiumEntry<T>).toList();
+  } else {
+    return [];
   }
 }

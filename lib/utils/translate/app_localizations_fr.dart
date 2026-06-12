@@ -1827,4 +1827,23 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quAstuPenseDeCeMatch => 'Qu\'as-tu pensé de ce match ?';
+
+  @override
+  String get favoris => 'Favoris';
+
+  @override
+  String chargementDesMatchsXSurX(
+      String matchModelIdsLoaded, String matchIdsTotal) {
+    return 'Chargement des matchs ($matchModelIdsLoaded / $matchIdsTotal)...';
+  }
+
+  @override
+  String get chargementDesEquipesEtDesJoueurs =>
+      'Chargement des équipes et joueurs...';
+
+  @override
+  String get preparationDesStatistiques => 'Préparation des statistiques...';
+
+  @override
+  String get pret => 'Prêt';
 }

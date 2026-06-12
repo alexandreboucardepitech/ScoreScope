@@ -970,5 +970,20 @@
   "ajouterUnCommentaire": "Ajouter un commentaire",
   "publier": "Publier",
   "commenter": "Commenter",
-  "quAstuPenseDeCeMatch": "Qu'as-tu pensé de ce match ?"
+  "quAstuPenseDeCeMatch": "Qu'as-tu pensé de ce match ?",
+  "favoris": "Favoris",
+  "chargementDesMatchsXSurX": "Chargement des matchs ({matchModelIdsLoaded} / {matchIdsTotal})...",
+  "@chargementDesMatchsXSurX": {
+    "placeholders": {
+      "matchModelIdsLoaded": {
+        "type": "String"
+      },
+      "matchIdsTotal": {
+        "type": "String"
+      }
+    }
+  },
+  "chargementDesEquipesEtDesJoueurs": "Chargement des équipes et joueurs...",
+  "preparationDesStatistiques": "Préparation des statistiques...",
+  "pret": "Prêt"
 }
