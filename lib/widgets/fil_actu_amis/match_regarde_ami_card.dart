@@ -14,6 +14,7 @@ import 'package:scorescope/utils/string/build_post_display_name.dart';
 import 'package:scorescope/utils/string/get_reaction_emoji.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/views/profile/profile.dart';
 import 'package:scorescope/widgets/fil_actu_amis/comments/comment_input_field.dart';
@@ -180,6 +181,7 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
   }
 
   Future<void> _refreshCommentsAndReactions({int? commentsLimit}) async {
+    if (!mounted) return;
     setState(() {});
     final ownerId = entry.friend.uid;
     final matchId = matchData.matchId;
@@ -451,6 +453,39 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
     );
   }
 
+  List<Widget> afficherCommentaire() {
+    return [
+      const SizedBox(height: 12),
+      Divider(color: ColorPalette.border(context), height: 1),
+      const SizedBox(height: 12),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Icon(
+              Icons.chat_bubble_outline_rounded,
+              size: 14,
+              color: ColorPalette.textSecondary(context),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              matchData.commentaire!,
+              style: TextStyle(
+                color: ColorPalette.textSecondary(context),
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final friend = entry.friend;
@@ -631,6 +666,10 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                                               ColorPalette.textPrimary(context),
                                         ),
                                       ),
+                                      ...displayProlongationsPenaltys(
+                                        match: match,
+                                        context: context,
+                                      ),
                                       const SizedBox(height: 4),
                                       Text(
                                         _formatMatchDate(match.date),
@@ -762,37 +801,8 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                             ],
                           ),
                           if (matchData.commentaire != null &&
-                              matchData.commentaire!.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            Divider(
-                                color: ColorPalette.border(context), height: 1),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Icon(
-                                    Icons.chat_bubble_outline_rounded,
-                                    size: 14,
-                                    color: ColorPalette.textSecondary(context),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    matchData.commentaire!,
-                                    style: TextStyle(
-                                      color: ColorPalette.textSecondary(context),
-                                      fontSize: 14,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                              matchData.commentaire!.isNotEmpty)
+                            ...afficherCommentaire(),
                         ],
                       ),
                     ),
@@ -913,6 +923,9 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
                             ),
                           ],
                         ),
+                        if (matchData.commentaire != null &&
+                            matchData.commentaire!.isNotEmpty)
+                          ...afficherCommentaire(),
                       ],
                     ),
                   ),

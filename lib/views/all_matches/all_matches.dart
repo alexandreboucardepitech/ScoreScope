@@ -167,7 +167,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     }
     String dateLanguage = 'fr_FR';
     AppUser? currentUser = RepositoryProvider.userRepository.currentUser;
-    if (currentUser != null && currentUser.options.language == LanguageOptions.english)
+    if (currentUser != null &&
+        currentUser.options.language == LanguageOptions.english)
       dateLanguage = 'en_US';
     return DateFormat('EEE', dateLanguage)
         .format(date)
@@ -440,14 +441,41 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                     "Elv7ujUkfRYKfrIJsDySorXRYuh1")
               ElevatedButton(
                 onPressed: () async {
-                  await FillDatabase.createEquipeFromApiId(
-                      teamApiId: "10380", season: "2026");
-                  await FillDatabase.createEquipeFromApiId(
-                      teamApiId: "5166", season: "2026");
-                  await FillDatabase.createEquipeFromApiId(
-                      teamApiId: "17936", season: "2026");
-                  await FillDatabase.createEquipeFromApiId(
-                      teamApiId: "17944", season: "2026");
+                  // List<MatchModelId> allMatches = await RepositoryProvider
+                  //     .matchRepository
+                  //     .fetchAllMatchesId(loadVotesAndNotes: false);
+                  // List<String> competitionsIdACheck = [
+                  //   "10",
+                  //   "137",
+                  //   "143",
+                  //   "2",
+                  //   "3",
+                  //   "45",
+                  //   "48",
+                  //   "526",
+                  //   "528",
+                  //   "529",
+                  //   "547",
+                  //   "556",
+                  //   "66",
+                  //   "81",
+                  //   "848",
+                  // ];
+                  // int count = 0;
+                  // for (MatchModelId match in allMatches) {
+                  //   print("match $count / ${allMatches.length}");
+                  //   if (competitionsIdACheck.contains(match.competitionId) && count >= 4750) {
+                  //     print("mise à jour du match ${match.id}");
+                  //     await FillDatabase.createMatchFromFixtureId(match.id,
+                  //         seulementUpdateCompos: true);
+                  //   }
+                  //   count++;
+                  // }
+                  FillDatabase.manualUpdateMatchInfo(
+                    "1489373",
+                    stadiumName: "San Francisco Bay Area Stadium",
+                    refereeName: "Héctor Saíd Martínez Sorto",
+                  );
                 },
                 child: Text("test pour développeur"),
               ),

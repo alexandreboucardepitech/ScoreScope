@@ -70,6 +70,8 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     try {
       Equipe? equipe = await RepositoryProvider.equipeRepository
           .fetchEquipeById(_joueur!.equipeId);
+        
+      if (!mounted) return;
 
       setState(() {
         _equipe = equipe;

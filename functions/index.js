@@ -298,6 +298,12 @@ exports.fetchNextTwoWeeksMatches = onSchedule(
               if (shouldUpdate) {
               // On récupère toutes les infos disponibles
 
+                let prolongations = false;
+
+                if (matchData.fixture?.status?.short == "AET") {
+                  prolongations = true;
+                }
+
                 const matchObj = {
                   id,
                   status: getStatusFromCode(matchData.fixture.status.short),
@@ -312,6 +318,9 @@ exports.fetchNextTwoWeeksMatches = onSchedule(
                   stadiumName: matchData.fixture.venue?.name || null,
                   scoreEquipeDomicile: matchData.goals.home ?? 0,
                   scoreEquipeExterieur: matchData.goals.away ?? 0,
+                  penaltyEquipeDomicile: matchData.score?.penalty?.home ?? 0,
+                  penaltyEquipeExterieur: matchData.score?.penalty?.away ?? 0,
+                  prolongations: prolongations,
                   butsEquipeDomicile: [],
                   butsEquipeExterieur: [],
                   joueursEquipeDomicile: [],
@@ -549,6 +558,14 @@ exports.updateLiveMatches = onSchedule(
 
               const newScoreHome = matchData.goals.home ?? 0;
               const newScoreAway = matchData.goals.away ?? 0;
+
+              const newPenaltyHome = matchData.score?.penalty?.home ?? 0;
+              const newPenaltyAway = matchData.score?.penalty?.away ?? 0;
+
+              const newProlongations =
+                matchData.fixture?.status?.short == "AET" ||
+                data.liveMinute > 90;
+
               const newStatus = getStatusFromCode(
                   matchData.fixture.status.short,
               );
@@ -557,7 +574,9 @@ exports.updateLiveMatches = onSchedule(
 
               const hasScoreChanged =
               data.scoreEquipeDomicile !== newScoreHome ||
-              data.scoreEquipeExterieur !== newScoreAway;
+              data.scoreEquipeExterieur !== newScoreAway ||
+              data.penaltyEquipeDomicile !== newPenaltyHome ||
+              data.penaltyEquipeExterieur !== newPenaltyAway;
 
               const hasStatusChanged = data.status !== newStatus;
               const hasMinuteChanged = data.liveMinute !== newMinute;
@@ -701,6 +720,9 @@ exports.updateLiveMatches = onSchedule(
                   date: newDate,
                   scoreEquipeDomicile: newScoreHome,
                   scoreEquipeExterieur: newScoreAway,
+                  penaltyEquipeDomicile: newPenaltyHome,
+                  penaltyEquipeExterieur: newPenaltyAway,
+                  prolongations: newProlongations,
                   status: newStatus,
                   liveMinute: newMinute,
                   extraTime: newExtra,
@@ -841,6 +863,8 @@ exports.updateLiveMatches = onSchedule(
                 }
               }
 
+              const prolongations = matchData.fixture?.status?.short == "AET";
+
               // 🔹 Update final COMPLET
               await db
                   .collection("matchs")
@@ -851,6 +875,9 @@ exports.updateLiveMatches = onSchedule(
                     extraTime: matchData.fixture.status.extra ?? null,
                     scoreEquipeDomicile: matchData.goals.home ?? 0,
                     scoreEquipeExterieur: matchData.goals.away ?? 0,
+                    penaltyEquipeDomicile: matchData.score?.penalty?.home ?? 0,
+                    penaltyEquipeExterieur: matchData.score?.penalty?.away ?? 0,
+                    prolongations: prolongations,
                     butsEquipeDomicile,
                     butsEquipeExterieur,
                     joueursEquipeDomicile: Object.values(mapDomicile),
@@ -950,7 +977,7 @@ exports.updateLiveMatches = onSchedule(
               }
 
               console.log(`📊 Notifs — ✅ ${successCount} envoyées | ` +
-                `🧹 tokens invalides auto-nettoyés | ❌ ${errorCount} erreurs`);
+                `❌ ${errorCount} erreurs`);
             } catch (error) {
               console.error("🔥 Erreur finalisation : ", matchId, error);
             }

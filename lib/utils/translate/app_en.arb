@@ -985,5 +985,7 @@
   },
   "chargementDesEquipesEtDesJoueurs": "Loading teams and players...",
   "preparationDesStatistiques": "Preparing statistics...",
-  "pret": "Ready"
+  "pret": "Ready",
+  "tab": "PSO",
+  "ap": "AET"
 }

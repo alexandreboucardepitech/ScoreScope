@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
+import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/joueur.dart';
@@ -331,8 +332,6 @@ class _ShareCard extends StatelessWidget {
   Widget _buildMatchBlock(BuildContext context) {
     final home = match.equipeDomicile;
     final away = match.equipeExterieur;
-    final homeWins = match.scoreEquipeDomicile > match.scoreEquipeExterieur;
-    final awayWins = match.scoreEquipeExterieur > match.scoreEquipeDomicile;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
@@ -382,11 +381,12 @@ class _ShareCard extends StatelessWidget {
                         home.nomCourt ?? home.nom,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: homeWins
+                          color: match.domicileWinner
                               ? ColorPalette.accent(context)
                               : ColorPalette.textPrimary(context),
-                          fontWeight:
-                              homeWins ? FontWeight.bold : FontWeight.w500,
+                          fontWeight: match.domicileWinner
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                           fontSize: 14,
                         ),
                       ),
@@ -406,6 +406,11 @@ class _ShareCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         height: 1,
                       ),
+                    ),
+                    ...displayProlongationsPenaltys(
+                      match: match,
+                      context: context,
+                      fontSize: 16,
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -429,11 +434,12 @@ class _ShareCard extends StatelessWidget {
                         away.nomCourt ?? away.nom,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: awayWins
+                          color: match.exterieurWinner
                               ? ColorPalette.accent(context)
                               : ColorPalette.textPrimary(context),
-                          fontWeight:
-                              awayWins ? FontWeight.bold : FontWeight.w500,
+                          fontWeight: match.exterieurWinner
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                           fontSize: 14,
                         ),
                       ),

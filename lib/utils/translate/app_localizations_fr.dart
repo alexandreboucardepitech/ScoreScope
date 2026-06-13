@@ -1846,4 +1846,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pret => 'Prêt';
+
+  @override
+  String get tab => 'TAB';
+
+  @override
+  String get ap => 'AP';
 }

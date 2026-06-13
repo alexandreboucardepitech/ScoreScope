@@ -5,6 +5,7 @@ import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/string/build_adaptative_team_name.dart';
 import 'package:scorescope/utils/string/display_score_or_match_date.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_user_data.dart';
@@ -354,8 +355,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                     context,
                                     nomComplet: match.equipeDomicile.nom,
                                     nomCourt: match.equipeDomicile.nomCourt,
-                                    isWinner: match.scoreEquipeDomicile >
-                                        match.scoreEquipeExterieur,
+                                    isWinner: match.domicileWinner,
                                     isLive: match.isLive,
                                     align: TextAlign.end,
                                   ),
@@ -380,13 +380,23 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                               alignment: Alignment.center,
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
-                                child: Text(
-                                  displayScoreOrMatchDate(match),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w900,
-                                    color: ColorPalette.textPrimary(context),
-                                  ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      displayScoreOrMatchDate(match),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w900,
+                                        color:
+                                            ColorPalette.textPrimary(context),
+                                      ),
+                                    ),
+                                    ...displayProlongationsPenaltys(
+                                      match: match,
+                                      context: context,
+                                      fontSize: 12,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -408,8 +418,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                                     context,
                                     nomComplet: match.equipeExterieur.nom,
                                     nomCourt: match.equipeExterieur.nomCourt,
-                                    isWinner: match.scoreEquipeExterieur >
-                                        match.scoreEquipeDomicile,
+                                    isWinner: match.exterieurWinner,
                                     isLive: match.isLive,
                                     align: TextAlign.start,
                                   ),

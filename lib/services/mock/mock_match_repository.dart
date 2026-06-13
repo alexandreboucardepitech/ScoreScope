@@ -297,6 +297,9 @@ class MockMatchRepository implements IMatchRepository {
     String? stadiumName,
     int? scoreEquipeDomicile,
     int? scoreEquipeExterieur,
+    int? penaltyEquipeDomicile,
+    int? penaltyEquipeExterieur,
+    bool? prolongations,
     List<ButId>? butsEquipeDomicileId,
     List<ButId>? butsEquipeExterieurId,
     List<MatchJoueurId>? joueursEquipeDomicileId,
@@ -317,6 +320,11 @@ class MockMatchRepository implements IMatchRepository {
       scoreEquipeDomicile: scoreEquipeDomicile ?? baseMatch.scoreEquipeDomicile,
       scoreEquipeExterieur:
           scoreEquipeExterieur ?? baseMatch.scoreEquipeExterieur,
+      penaltyEquipeDomicile:
+          penaltyEquipeDomicile ?? baseMatch.penaltyEquipeDomicile,
+      penaltyEquipeExterieur:
+          penaltyEquipeExterieur ?? baseMatch.penaltyEquipeExterieur,
+      prolongations: prolongations ?? baseMatch.prolongations,
       joueursEquipeDomicileId: joueursEquipeDomicileId ??
           baseMatch.joueursEquipeDomicile
               .map(

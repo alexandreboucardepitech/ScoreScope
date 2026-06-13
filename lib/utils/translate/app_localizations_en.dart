@@ -1827,4 +1827,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pret => 'Ready';
+
+  @override
+  String get tab => 'PSO';
+
+  @override
+  String get ap => 'AET';
 }

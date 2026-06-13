@@ -15,6 +15,7 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
+import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:share_plus/share_plus.dart';
 
 class _RecapData {
@@ -106,7 +107,8 @@ class _RecapWeekViewState extends State<RecapWeekView> {
   void _initDates() {
     final now = DateTime.now();
     final thisMonday = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+        .subtract(Duration(days: now.weekday - 1))
+        .subtract(Duration(days: 6));
     _lastMonday = thisMonday.subtract(const Duration(days: 7));
     _lastSunday = thisMonday.subtract(const Duration(seconds: 1));
     _prevMonday = _lastMonday.subtract(const Duration(days: 7));
@@ -1054,7 +1056,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 match.equipeDomicile.code ??
                     match.equipeDomicile.nomCourt ??
                     match.equipeDomicile.nom,
-                match.scoreEquipeDomicile > match.scoreEquipeExterieur,
+                match.domicileWinner,
               ),
               Expanded(
                 child: Column(
@@ -1067,6 +1069,8 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                           fontSize: 22,
                           fontWeight: FontWeight.bold),
                     ),
+                    ...displayProlongationsPenaltys(
+                        match: match, context: context),
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -1097,7 +1101,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                 match.equipeExterieur.code ??
                     match.equipeExterieur.nomCourt ??
                     match.equipeExterieur.nom,
-                match.scoreEquipeExterieur > match.scoreEquipeDomicile,
+                match.exterieurWinner,
                 rightAlign: true,
               ),
             ],

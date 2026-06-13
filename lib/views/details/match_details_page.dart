@@ -6,6 +6,7 @@ import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/string/display_score_or_match_date.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:scorescope/views/details/match_share_view.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
@@ -758,6 +759,11 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                       color: ColorPalette.textAccent(context),
                                     ),
                                   ),
+                                ...displayProlongationsPenaltys(
+                                  match: _currentMatch,
+                                  context: context,
+                                  fontSize: 16,
+                                ),
                               ],
                             ),
                           ),

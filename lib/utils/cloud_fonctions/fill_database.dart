@@ -383,10 +383,17 @@ class FillDatabase {
     final String? stadiumName = matchData['fixture']?['venue']?['name'];
     final int scoreEquipeDomicile = matchData['goals']['home'] ?? 0;
     final int scoreEquipeExterieur = matchData['goals']['away'] ?? 0;
+    final int penaltyEquipeDomicile =
+        matchData['score']?['penalty']?['home'] ?? 0;
+    final int penaltyEquipeExterieur =
+        matchData['score']?['penalty']?['away'] ?? 0;
     final int? liveMinute = matchData['fixture']['status']['elapsed'];
     final int? extraTime = matchData['fixture']['status']['extra'];
     final int leagueId = matchData['league']['id'];
     final int season = matchData['league']['season'];
+    bool prolongations = false;
+    if (matchData['fixture']['status']['short'].toString() == "AET")
+      prolongations = true;
 
     Map<String, List<dynamic>> matchPlayers = await getMatchPlayers(id,
         equipeDomicileId: equipeDomicileId,
@@ -433,6 +440,9 @@ class FillDatabase {
       stadiumName: stadiumName,
       scoreEquipeDomicile: scoreEquipeDomicile,
       scoreEquipeExterieur: scoreEquipeExterieur,
+      penaltyEquipeDomicile: penaltyEquipeDomicile,
+      penaltyEquipeExterieur: penaltyEquipeExterieur,
+      prolongations: prolongations,
       joueursEquipeDomicileId: equipeDomicilePlayers,
       joueursEquipeExterieurId: equipeExterieurPlayers,
       butsEquipeDomicileId:
@@ -956,9 +966,15 @@ class FillDatabase {
     final MatchModelId newMatch = await getMatchFromData(data[0]);
     if (seulementUpdateCompos) {
       await RepositoryProvider.matchRepository.updateField(
-          matchId: newMatch.id,
-          joueursEquipeDomicileId: newMatch.joueursEquipeDomicileId,
-          joueursEquipeExterieurId: newMatch.joueursEquipeExterieurId);
+        matchId: newMatch.id,
+        // joueursEquipeDomicileId: newMatch.joueursEquipeDomicileId,
+        // joueursEquipeExterieurId: newMatch.joueursEquipeExterieurId,
+        penaltyEquipeDomicile: newMatch.penaltyEquipeDomicile,
+        penaltyEquipeExterieur: newMatch.penaltyEquipeExterieur,
+        prolongations: newMatch.prolongations,
+        refereeName: newMatch.refereeName,
+        stadiumName: newMatch.stadiumName,
+      );
       return newMatch;
     }
     await RepositoryProvider.matchRepository.addMatchModelId(newMatch);
@@ -1047,5 +1063,113 @@ class FillDatabase {
     }
     print("=== Infos API pour le fixture $fixtureId ===");
     print(const JsonEncoder.withIndent('  ').convert(data[0]));
+  }
+
+  // ─────────────────────────────────────────────
+  // SECTION MANUEL / DEBUG
+  // Fonctions de mise à jour sans appel API.
+  // À utiliser uniquement en mode debug (kDebugMode).
+  // ─────────────────────────────────────────────
+
+  static Future<void> manualUpdateScore(
+    String matchId, {
+    required int scoreD,
+    required int scoreE,
+    required MatchStatus status,
+    int? liveMinute,
+  }) async {
+    await RepositoryProvider.matchRepository.updateField(
+      matchId: matchId,
+      scoreEquipeDomicile: scoreD,
+      scoreEquipeExterieur: scoreE,
+      status: status,
+      liveMinute: liveMinute,
+    );
+    print('✅ Score mis à jour : $scoreD - $scoreE ($status)');
+  }
+
+  static Future<void> manualUpdateMatchInfo(
+    String matchId, {
+    String? stadiumName,
+    String? refereeName,
+  }) async {
+    await RepositoryProvider.matchRepository.updateField(
+      matchId: matchId,
+      stadiumName: stadiumName,
+      refereeName: refereeName,
+    );
+    print(
+        '✅ Infos match mises à jour : stade=$stadiumName, arbitre=$refereeName');
+  }
+
+  static Future<void> manualUpdateLineup(
+    String matchId, {
+    required List<MatchJoueurId> domicile,
+    required List<MatchJoueurId> exterieur,
+  }) async {
+    await RepositoryProvider.matchRepository.updateField(
+      matchId: matchId,
+      joueursEquipeDomicileId: domicile,
+      joueursEquipeExterieurId: exterieur,
+    );
+    print('✅ Compo mise à jour : ${domicile.length} joueurs domicile, '
+        '${exterieur.length} joueurs extérieur');
+  }
+
+  static Future<void> manualUpdateGoals(
+    String matchId, {
+    required List<ButId> butsD,
+    required List<ButId> butsE,
+  }) async {
+    await RepositoryProvider.matchRepository.updateField(
+      matchId: matchId,
+      butsEquipeDomicileId: butsD,
+      butsEquipeExterieurId: butsE,
+    );
+    print(
+        '✅ Buts mis à jour : ${butsD.length} domicile, ${butsE.length} extérieur');
+  }
+
+  static Future<void> manualUpdateSubstitution(
+    String matchId, {
+    required String joueurEntrantId,
+  }) async {
+    MatchModelId? match =
+        await RepositoryProvider.matchRepository.fetchMatchModelIdById(matchId);
+    if (match == null) {
+      print('❌ Match $matchId introuvable');
+      return;
+    }
+
+    bool found = false;
+
+    final domicile = match.joueursEquipeDomicileId.map((j) {
+      if (j.joueurId == joueurEntrantId) {
+        found = true;
+        return j.copyWith(hasPlayed: true);
+      }
+      return j;
+    }).toList();
+
+    final exterieur = match.joueursEquipeExterieurId.map((j) {
+      if (j.joueurId == joueurEntrantId) {
+        found = true;
+        return j.copyWith(hasPlayed: true);
+      }
+      return j;
+    }).toList();
+
+    if (!found) {
+      print(
+          '❌ Joueur $joueurEntrantId introuvable dans la compo du match $matchId');
+      return;
+    }
+
+    await RepositoryProvider.matchRepository.updateField(
+      matchId: matchId,
+      joueursEquipeDomicileId: domicile,
+      joueursEquipeExterieurId: exterieur,
+    );
+    print('✅ Joueur $joueurEntrantId marqué comme entré en jeu');
   }
 }

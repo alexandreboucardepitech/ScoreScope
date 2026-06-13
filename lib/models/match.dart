@@ -10,7 +10,9 @@ import 'package:scorescope/models/util/podium_displayable.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/string/parse_map.dart';
+import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
+import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 
 import 'equipe.dart';
@@ -38,6 +40,9 @@ class MatchModel implements PodiumDisplayable {
   String? stadiumName;
   final int scoreEquipeDomicile;
   final int scoreEquipeExterieur;
+  final int? penaltyEquipeDomicile;
+  final int? penaltyEquipeExterieur;
+  final bool prolongations;
   final List<But> butsEquipeDomicile;
   final List<But> butsEquipeExterieur;
   final List<MatchJoueur> joueursEquipeDomicile;
@@ -59,6 +64,9 @@ class MatchModel implements PodiumDisplayable {
       this.stadiumName,
       required this.scoreEquipeDomicile,
       required this.scoreEquipeExterieur,
+      this.penaltyEquipeDomicile,
+      this.penaltyEquipeExterieur,
+      this.prolongations = false,
       required this.joueursEquipeDomicile,
       required this.joueursEquipeExterieur,
       List<But>? butsEquipeDomicile,
@@ -76,6 +84,23 @@ class MatchModel implements PodiumDisplayable {
   bool get isScheduled => status == MatchStatus.scheduled;
   bool get isHalftime => status == MatchStatus.halftime;
 
+  bool get hasPenaltys =>
+      penaltyEquipeDomicile != null &&
+      penaltyEquipeExterieur != null &&
+      (penaltyEquipeDomicile != 0 || penaltyEquipeExterieur != 0);
+
+  bool get domicileWinner =>
+      (scoreEquipeDomicile > scoreEquipeExterieur) ||
+      (scoreEquipeDomicile == scoreEquipeExterieur &&
+          hasPenaltys &&
+          penaltyEquipeDomicile! > penaltyEquipeExterieur!);
+
+  bool get exterieurWinner =>
+      (scoreEquipeExterieur > scoreEquipeDomicile) ||
+      (scoreEquipeDomicile == scoreEquipeExterieur &&
+          hasPenaltys &&
+          penaltyEquipeExterieur! > penaltyEquipeDomicile!);
+
   MatchModel copyWith({
     String? id,
     MatchStatus? status,
@@ -90,6 +115,9 @@ class MatchModel implements PodiumDisplayable {
     String? stadiumName,
     int? scoreEquipeDomicile,
     int? scoreEquipeExterieur,
+    int? penaltyEquipeDomicile,
+    int? penaltyEquipeExterieur,
+    bool? prolongations,
     List<But>? butsEquipeDomicile,
     List<But>? butsEquipeExterieur,
     List<MatchJoueur>? joueursEquipeDomicile,
@@ -111,6 +139,11 @@ class MatchModel implements PodiumDisplayable {
       stadiumName: stadiumName ?? this.stadiumName,
       scoreEquipeDomicile: scoreEquipeDomicile ?? this.scoreEquipeDomicile,
       scoreEquipeExterieur: scoreEquipeExterieur ?? this.scoreEquipeExterieur,
+      penaltyEquipeDomicile:
+          penaltyEquipeDomicile ?? this.penaltyEquipeDomicile,
+      penaltyEquipeExterieur:
+          penaltyEquipeExterieur ?? this.penaltyEquipeExterieur,
+      prolongations: prolongations ?? this.prolongations,
       butsEquipeDomicile: butsEquipeDomicile ?? this.butsEquipeDomicile,
       butsEquipeExterieur: butsEquipeExterieur ?? this.butsEquipeExterieur,
       joueursEquipeDomicile:
@@ -139,7 +172,7 @@ class MatchModel implements PodiumDisplayable {
     };
   }
 
-  Widget compactMatchDisplay(
+  Widget compactMatchDisplay(BuildContext context,
       {num? value, double logoSize = 32, TextStyle? textStyle}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -195,9 +228,20 @@ class MatchModel implements PodiumDisplayable {
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                '$scoreEquipeDomicile - $scoreEquipeExterieur',
-                style: textStyle,
+              Column(
+                children: [
+                  Text(
+                    '$scoreEquipeDomicile - $scoreEquipeExterieur',
+                    style: textStyle,
+                  ),
+                  ...displayProlongationsPenaltys(
+                    match: this,
+                    context: context,
+                    fontSize: textStyle?.fontSize != null
+                        ? textStyle!.fontSize! - 2
+                        : 14,
+                  ),
+                ],
               ),
             ],
           ),
@@ -264,8 +308,21 @@ class MatchModel implements PodiumDisplayable {
                     color: ColorPalette.textPrimary(context),
                   ),
                 ),
-          Text('$scoreEquipeDomicile - $scoreEquipeExterieur',
-              style: scoreStyle),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$scoreEquipeDomicile - $scoreEquipeExterieur',
+                style: scoreStyle,
+              ),
+              ...displayProlongationsPenaltys(
+                match: this,
+                context: context,
+                fontSize:
+                    scoreStyle.fontSize != null ? scoreStyle.fontSize! - 2 : 14,
+              ),
+            ],
+          ),
           equipeExterieur.logoPath != null
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -344,7 +401,21 @@ class MatchModel implements PodiumDisplayable {
                           ),
                         ),
                   const SizedBox(width: 4),
-                  Text('$scoreEquipeDomicile - $scoreEquipeExterieur'),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$scoreEquipeDomicile - $scoreEquipeExterieur',
+                        style: TextStyle(
+                            fontSize: (hasPenaltys || prolongations) ? 10 : 14),
+                      ),
+                      ...displayProlongationsPenaltys(
+                        match: this,
+                        context: context,
+                        fontSize: 8,
+                      ),
+                    ],
+                  ),
                   const SizedBox(width: 4),
                   equipeExterieur.logoPath != null
                       ? CachedNetworkImage(
@@ -419,9 +490,19 @@ class MatchModel implements PodiumDisplayable {
                   ),
                 ),
           const SizedBox(width: 6),
-          Text(
-            '$scoreEquipeDomicile - $scoreEquipeExterieur',
-            style: textStyle,
+          Column(
+            children: [
+              Text(
+                '$scoreEquipeDomicile - $scoreEquipeExterieur',
+                style: textStyle,
+              ),
+              ...displayProlongationsPenaltys(
+                match: this,
+                context: context,
+                fontSize:
+                    textStyle.fontSize != null ? textStyle.fontSize! - 2 : 14,
+              ),
+            ],
           ),
           const SizedBox(width: 6),
           equipeExterieur.logoPath != null
@@ -463,6 +544,7 @@ class MatchModel implements PodiumDisplayable {
       );
     } else {
       return compactMatchDisplay(
+        context,
         value: podium.value,
         logoSize: logoSize,
         textStyle: textStyle,
@@ -506,9 +588,19 @@ class MatchModel implements PodiumDisplayable {
             clickable: false,
           ),
           const SizedBox(width: 6),
-          Text(
-            '$scoreEquipeDomicile - $scoreEquipeExterieur',
-            style: textStyle,
+          Column(
+            children: [
+              Text(
+                '$scoreEquipeDomicile - $scoreEquipeExterieur',
+                style: textStyle,
+              ),
+              ...displayProlongationsPenaltys(
+                match: this,
+                context: context,
+                fontSize:
+                    textStyle.fontSize != null ? textStyle.fontSize! - 2 : 14,
+              ),
+            ],
           ),
           const SizedBox(width: 6),
           buildTeamLogo(
@@ -533,6 +625,7 @@ class MatchModel implements PodiumDisplayable {
       );
     } else {
       return compactMatchDisplay(
+        context,
         logoSize: logoSize,
         textStyle: textStyle,
       );
@@ -680,6 +773,11 @@ class MatchModel implements PodiumDisplayable {
         'stadiumName': stadiumName,
         'scoreEquipeDomicile': scoreEquipeDomicile,
         'scoreEquipeExterieur': scoreEquipeExterieur,
+        if (penaltyEquipeDomicile != null)
+          'penaltyEquipeDomicile': penaltyEquipeDomicile,
+        if (penaltyEquipeExterieur != null)
+          'penaltyEquipeExterieur': penaltyEquipeExterieur,
+        'prolongations': prolongations,
         'equipeDomicileId': equipeDomicile.id,
         'equipeExterieurId': equipeExterieur.id,
         'saison': saison,
@@ -709,6 +807,11 @@ class MatchModel implements PodiumDisplayable {
         'stadiumName': stadiumName,
         'scoreEquipeDomicile': scoreEquipeDomicile,
         'scoreEquipeExterieur': scoreEquipeExterieur,
+        if (penaltyEquipeDomicile != null)
+          'penaltyEquipeDomicile': penaltyEquipeDomicile,
+        if (penaltyEquipeExterieur != null)
+          'penaltyEquipeExterieur': penaltyEquipeExterieur,
+        'prolongations': prolongations,
         'joueursEquipeDomicile':
             joueursEquipeDomicile.map((j) => j.toJson()).toList(),
         'joueursEquipeExterieur':
@@ -747,6 +850,9 @@ class MatchModel implements PodiumDisplayable {
       stadiumName: json['stadiumName'] as String?,
       scoreEquipeDomicile: json['scoreEquipeDomicile'] as int? ?? 0,
       scoreEquipeExterieur: json['scoreEquipeExterieur'] as int? ?? 0,
+      penaltyEquipeDomicile: json['penaltyEquipeDomicile'] as int?,
+      penaltyEquipeExterieur: json['penaltyEquipeExterieur'] as int?,
+      prolongations: json['prolongations'] as bool? ?? false,
       joueursEquipeDomicile: (json['joueursEquipeDomicile'] as List? ?? [])
           .map((j) => MatchJoueur.fromJson(j as Map<String, dynamic>))
           .toList(),
@@ -806,6 +912,9 @@ class MatchModel implements PodiumDisplayable {
       stadiumName: data.stadiumName,
       scoreEquipeDomicile: data.scoreEquipeDomicile,
       scoreEquipeExterieur: data.scoreEquipeExterieur,
+      penaltyEquipeDomicile: data.penaltyEquipeDomicile,
+      penaltyEquipeExterieur: data.penaltyEquipeExterieur,
+      prolongations: data.prolongations,
       joueursEquipeDomicile: joueursDom,
       joueursEquipeExterieur: joueursExt,
       butsEquipeDomicile: butsDom,
@@ -816,8 +925,12 @@ class MatchModel implements PodiumDisplayable {
   }
 
   @override
-  String toString() =>
-      '$competition : ${equipeDomicile.nom} $scoreEquipeDomicile-$scoreEquipeExterieur ${equipeExterieur.nom} [${status.name}]';
+  String toString() {
+    final pen = hasPenaltys
+        ? ' ($penaltyEquipeDomicile-$penaltyEquipeExterieur ${translate.tab})'
+        : (prolongations ? ' (${translate.ap})' : '');
+    return '$competition : ${equipeDomicile.nom} $scoreEquipeDomicile-$scoreEquipeExterieur${pen} ${equipeExterieur.nom} [${status.name}]';
+  }
 }
 
 class MatchModelId {
@@ -834,6 +947,9 @@ class MatchModelId {
   String? stadiumName;
   final int scoreEquipeDomicile;
   final int scoreEquipeExterieur;
+  final int? penaltyEquipeDomicile;
+  final int? penaltyEquipeExterieur;
+  final bool prolongations;
   final List<ButId> butsEquipeDomicileId;
   final List<ButId> butsEquipeExterieurId;
   final List<MatchJoueurId> joueursEquipeDomicileId;
@@ -855,6 +971,9 @@ class MatchModelId {
     this.stadiumName,
     required this.scoreEquipeDomicile,
     required this.scoreEquipeExterieur,
+    this.penaltyEquipeDomicile,
+    this.penaltyEquipeExterieur,
+    this.prolongations = false,
     required this.joueursEquipeDomicileId,
     required this.joueursEquipeExterieurId,
     List<ButId>? butsEquipeDomicileId,
@@ -877,6 +996,11 @@ class MatchModelId {
         'stadiumName': stadiumName,
         'scoreEquipeDomicile': scoreEquipeDomicile,
         'scoreEquipeExterieur': scoreEquipeExterieur,
+        if (penaltyEquipeDomicile != null)
+          'penaltyEquipeDomicile': penaltyEquipeDomicile,
+        if (penaltyEquipeExterieur != null)
+          'penaltyEquipeExterieur': penaltyEquipeExterieur,
+        'prolongations': prolongations,
         'equipeDomicileId': equipeDomicileId,
         'equipeExterieurId': equipeExterieurId,
         'joueursEquipeDomicile':
@@ -919,6 +1043,9 @@ class MatchModelId {
       stadiumName: json['stadiumName'],
       scoreEquipeDomicile: json['scoreEquipeDomicile'] ?? 0,
       scoreEquipeExterieur: json['scoreEquipeExterieur'] ?? 0,
+      penaltyEquipeDomicile: json['penaltyEquipeDomicile'] as int?,
+      penaltyEquipeExterieur: json['penaltyEquipeExterieur'] as int?,
+      prolongations: json['prolongations'] as bool? ?? false,
       liveMinute: json['liveMinute'] as int?,
       extraTime: json['extraTime'] as int?,
       saison: json['saison'] as int?,

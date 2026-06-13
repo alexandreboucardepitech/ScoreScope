@@ -390,6 +390,9 @@ class WebMatchRepository implements IMatchRepository {
     String? stadiumName,
     int? scoreEquipeDomicile,
     int? scoreEquipeExterieur,
+    int? penaltyEquipeDomicile,
+    int? penaltyEquipeExterieur,
+    bool? prolongations,
     List<ButId>? butsEquipeDomicileId,
     List<ButId>? butsEquipeExterieurId,
     List<MatchJoueurId>? joueursEquipeDomicileId,
@@ -412,6 +415,12 @@ class WebMatchRepository implements IMatchRepository {
         'scoreEquipeDomicile': scoreEquipeDomicile,
       if (scoreEquipeExterieur != null)
         'scoreEquipeExterieur': scoreEquipeExterieur,
+      if (penaltyEquipeDomicile != null)
+        'penaltyEquipeDomicile': penaltyEquipeDomicile,
+      if (penaltyEquipeExterieur != null)
+        'penaltyEquipeExterieur': penaltyEquipeExterieur,
+      if (prolongations != null)
+        'prolongations': prolongations,
       if (butsEquipeDomicileId != null)
         'butsEquipeDomicile':
             butsEquipeDomicileId.map((b) => b.toJson()).toList(),

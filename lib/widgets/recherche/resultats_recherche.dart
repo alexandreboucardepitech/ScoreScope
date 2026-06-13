@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/models/joueur.dart';
@@ -12,6 +13,7 @@ import 'package:scorescope/utils/string/build_adaptative_team_name.dart';
 import 'package:scorescope/utils/string/display_score_or_match_date.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
 import 'package:scorescope/views/details/player_details_page.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
@@ -325,8 +327,7 @@ class _MatchSearchTileState extends State<_MatchSearchTile>
                                     context,
                                     nomComplet: match.equipeDomicile.nom,
                                     nomCourt: match.equipeDomicile.nomCourt,
-                                    isWinner: match.scoreEquipeDomicile >
-                                        match.scoreEquipeExterieur,
+                                    isWinner: match.domicileWinner,
                                     isLive: match.isLive,
                                     align: TextAlign.end,
                                   ),
@@ -350,13 +351,35 @@ class _MatchSearchTileState extends State<_MatchSearchTile>
                               child: Center(
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    displayScoreOrMatchDate(match),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w900,
-                                      color: ColorPalette.textPrimary(context),
-                                    ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        displayScoreOrMatchDate(match),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w900,
+                                          color:
+                                              ColorPalette.textPrimary(context),
+                                        ),
+                                      ),
+                                      ...displayProlongationsPenaltys(
+                                        match: match,
+                                        context: context,
+                                        fontSize: 12,
+                                      ),
+                                      if (match.isScheduled)
+                                        Text(
+                                          DateFormat('d MMMM', 'fr_FR')
+                                              .format(match.date),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: ColorPalette.textPrimary(
+                                                context),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -380,8 +403,7 @@ class _MatchSearchTileState extends State<_MatchSearchTile>
                                     context,
                                     nomComplet: match.equipeExterieur.nom,
                                     nomCourt: match.equipeExterieur.nomCourt,
-                                    isWinner: match.scoreEquipeExterieur >
-                                        match.scoreEquipeDomicile,
+                                    isWinner: match.exterieurWinner,
                                     isLive: match.isLive,
                                     align: TextAlign.start,
                                   ),

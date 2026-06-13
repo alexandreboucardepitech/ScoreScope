@@ -3386,6 +3386,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Prêt'**
   String get pret;
+
+  /// No description provided for @tab.
+  ///
+  /// In fr, this message translates to:
+  /// **'TAB'**
+  String get tab;
+
+  /// No description provided for @ap.
+  ///
+  /// In fr, this message translates to:
+  /// **'AP'**
+  String get ap;
 }
 
 class _AppLocalizationsDelegate

@@ -985,5 +985,7 @@
   },
   "chargementDesEquipesEtDesJoueurs": "Chargement des équipes et joueurs...",
   "preparationDesStatistiques": "Préparation des statistiques...",
-  "pret": "Prêt"
+  "pret": "Prêt",
+  "tab": "TAB",
+  "ap": "AP"
 }
