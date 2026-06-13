@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
+import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/enum/language_options.dart';
+import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
@@ -471,11 +473,209 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                   //   }
                   //   count++;
                   // }
-                  FillDatabase.manualUpdateMatchInfo(
-                    "1489373",
-                    stadiumName: "San Francisco Bay Area Stadium",
-                    refereeName: "Héctor Saíd Martínez Sorto",
-                  );
+
+                  // List<MatchJoueurId> domicile = [
+                  //   MatchJoueurId(
+                  //       joueurId: "280",
+                  //       pos: "G",
+                  //       grid: "1:1",
+                  //       number: 1,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "24866",
+                  //       pos: "D",
+                  //       grid: "2:1",
+                  //       number: 6,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "22224",
+                  //       pos: "D",
+                  //       grid: "2:2",
+                  //       number: 3,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "257",
+                  //       pos: "D",
+                  //       grid: "2:3",
+                  //       number: 4,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "30424",
+                  //       pos: "D",
+                  //       grid: "2:4",
+                  //       number: 13,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "10135",
+                  //       pos: "M",
+                  //       grid: "3:1",
+                  //       number: 8,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "747",
+                  //       pos: "M",
+                  //       grid: "3:2",
+                  //       number: 5,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "762",
+                  //       pos: "A",
+                  //       grid: "4:1",
+                  //       number: 7,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "1646",
+                  //       pos: "A",
+                  //       grid: "4:2",
+                  //       number: 20,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "1496",
+                  //       pos: "A",
+                  //       grid: "4:3",
+                  //       number: 11,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "196156",
+                  //       pos: "A",
+                  //       grid: "5:1",
+                  //       number: 25,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+
+                  //   // MatchJoueurId(
+                  //   //     joueurId: "2542",
+                  //   //     pos: "A",
+                  //   //     grid: "4:3",
+                  //   //     number: 7,
+                  //   //     isStarter: false,
+                  //   //     hasPlayed: true),
+                  //   // MatchJoueurId(
+                  //   //     joueurId: "2537",
+                  //   //     pos: "M",
+                  //   //     number: 12,
+                  //   //     isStarter: false,
+                  //   //     hasPlayed: true),
+                  //   // MatchJoueurId(
+                  //   //     joueurId: "2539",
+                  //   //     pos: "M",
+                  //   //     number: 20,
+                  //   //     isStarter: false,
+                  //   //     hasPlayed: true),
+                  // ];
+
+                  // List<MatchJoueurId> exterieur = [
+                  //   MatchJoueurId(
+                  //       joueurId: "2701",
+                  //       pos: "G",
+                  //       grid: "1:1",
+                  //       number: 1,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "545",
+                  //       pos: "D",
+                  //       grid: "2:1",
+                  //       number: 3,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "278898",
+                  //       pos: "D",
+                  //       grid: "2:2",
+                  //       number: 18,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "18814",
+                  //       pos: "D",
+                  //       grid: "2:3",
+                  //       number: 14,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "9",
+                  //       pos: "D",
+                  //       grid: "2:4",
+                  //       number: 2,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "438688",
+                  //       pos: "M",
+                  //       grid: "3:1",
+                  //       number: 6,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "277003",
+                  //       pos: "M",
+                  //       grid: "3:2",
+                  //       number: 24,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "340573",
+                  //       pos: "A",
+                  //       grid: "4:1",
+                  //       number: 23,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "129678",
+                  //       pos: "A",
+                  //       grid: "4:2",
+                  //       number: 8,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "744",
+                  //       pos: "A",
+                  //       grid: "4:3",
+                  //       number: 10,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+                  //   MatchJoueurId(
+                  //       joueurId: "161897",
+                  //       pos: "A",
+                  //       grid: "5:1",
+                  //       number: 11,
+                  //       isStarter: true,
+                  //       hasPlayed: true),
+
+                  //   // MatchJoueurId(
+                  //   //     joueurId: "406244",
+                  //   //     pos: "M",
+                  //   //     number: 9,
+                  //   //     isStarter: false,
+                  //   //     hasPlayed: true),
+                  //   // MatchJoueurId(
+                  //   //     joueurId: "163032",
+                  //   //     pos: "M",
+                  //   //     number: 22,
+                  //   //     isStarter: false,
+                  //   //     hasPlayed: true),
+                  // ];
+
+                  // await FillDatabase.manualUpdateLineup("1489371",
+                  //     domicile: domicile, exterieur: exterieur);
+
+                  await FillDatabase.manualUpdateScore("1489371", scoreD: 1, scoreE: 1, liveMinute: 36);
+
+                  ButId butSaibari = ButId(buteurId: "161897", minute: "21", passeurId: "744", typeBut: TypeBut.normal);
+                  ButId butVini = ButId(buteurId: "762", minute: "32", passeurId: "10135", typeBut: TypeBut.normal);
+
+                  await FillDatabase.manualUpdateGoals("1489371", butsD: [butVini], butsE: [butSaibari]);
                 },
                 child: Text("test pour développeur"),
               ),

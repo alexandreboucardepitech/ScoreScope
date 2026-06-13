@@ -28,6 +28,11 @@ class MatchDetailsPage extends StatefulWidget {
 
 class _MatchDetailsPageState extends State<MatchDetailsPage>
     with SingleTickerProviderStateMixin {
+  final GlobalKey<InfosTabState> _infosTabKey = GlobalKey<InfosTabState>();
+
+  bool _pageHasUnsavedRating = false;
+  int? _pagePendingRating;
+
   late TabController _tabController;
   bool _isFavori = false;
   bool _isUpdatingFavori = false;
@@ -139,6 +144,44 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
             .erreurLorsDuChargementDesDonneesUtilisateurDuMatchX(e.toString()),
       );
     }
+  }
+
+  Future<String?> _showUnsavedDialog() {
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ColorPalette.surface(context),
+        title: Text(
+          translate.modificationsEnAttente,
+          style: TextStyle(
+              color: ColorPalette.textAccent(context),
+              fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          _pagePendingRating != null
+              ? translate.laNoteXSur10SeraPerdueSiTuQuittesMaintenant(_pagePendingRating.toString())
+              : translate.taNoteSeraPerdueSiTuQuittesMaintenant,
+          style: TextStyle(color: ColorPalette.textPrimary(context)),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, 'continue'),
+              child: Text(translate.continuerAModifier,
+                  style: TextStyle(color: ColorPalette.textPrimary(context)))),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, 'leave'),
+              child: Text(translate.quitterSansEnregistrer,
+                  style: TextStyle(color: Colors.red))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: ColorPalette.accent(context)),
+            onPressed: () => Navigator.pop(ctx, 'save'),
+            child: Text(translate.enregistrerEtQuitter,
+                style: TextStyle(color: ColorPalette.textPrimary(context))),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _toggleFavori() async {
@@ -501,307 +544,256 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
     final statusBarHeight = MediaQuery.of(context).padding.top;
     const double toolbarHeight = 50;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        toolbarHeight: toolbarHeight,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: ColorPalette.opposite(context)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          if (widget.match.isLive)
-            IconButton(
-              icon: Icon(
-                userData?.notifications ?? false
-                    ? Icons.notifications_active
-                    : Icons.notifications_outlined,
-                color: ColorPalette.accent(context),
+    return PopScope(
+      canPop: !_pageHasUnsavedRating,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        final action = await _showUnsavedDialog();
+        if (action == 'save') {
+          await _infosTabKey.currentState?.savePendingRating();
+          if (mounted) Navigator.pop(context, result);
+        } else if (action == 'leave') {
+          if (mounted) Navigator.pop(context, result);
+        }
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          toolbarHeight: toolbarHeight,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: ColorPalette.opposite(context)),
+            onPressed: () => Navigator.maybePop(context),
+          ),
+          actions: [
+            if (widget.match.isLive)
+              IconButton(
+                icon: Icon(
+                  userData?.notifications ?? false
+                      ? Icons.notifications_active
+                      : Icons.notifications_outlined,
+                  color: ColorPalette.accent(context),
+                ),
+                onPressed: () => _toggleNotifications(
+                  !(userData?.notifications ?? false),
+                ),
               ),
-              onPressed: () => _toggleNotifications(
-                !(userData?.notifications ?? false),
-              ),
-            ),
-          if (widget.match.isScheduled == false) ...[
-            IconButton(
-              icon: _isUpdatingFavori
-                  ? SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: ColorPalette.accent(context),
-                      ),
-                    )
-                  : Icon(
-                      _isFavori ? Icons.favorite : Icons.favorite_border,
-                      color: ColorPalette.accent(context),
-                    ),
-              onPressed: _toggleFavori,
-            ),
-            _isProcessingPrivacy
-                ? SizedBox(
-                    width: 48,
-                    child: Center(
-                      child: SizedBox(
+            if (widget.match.isScheduled == false) ...[
+              IconButton(
+                icon: _isUpdatingFavori
+                    ? SizedBox(
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
-                          strokeWidth: 2.2,
+                          strokeWidth: 2,
                           color: ColorPalette.accent(context),
                         ),
+                      )
+                    : Icon(
+                        _isFavori ? Icons.favorite : Icons.favorite_border,
+                        color: ColorPalette.accent(context),
                       ),
-                    ),
-                  )
-                : PopupMenuButton<String>(
-                    tooltip: _isPrivate
-                        ? translate.matchPrive
-                        : translate.matchPublic,
-                    icon: Icon(
-                      _isPrivate ? Icons.lock : Icons.public,
-                      color: ColorPalette.accent(context),
-                    ),
-                    onSelected: (value) => _onPrivacyMenuSelected(value),
-                    itemBuilder: (context) {
-                      if (_isPrivate) {
-                        return [
-                          PopupMenuItem(
-                            value: 'publish',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.public, size: 18),
-                                const SizedBox(width: 10),
-                                Text(
-                                  translate.rendreLeMatchPublic,
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete, size: 18),
-                                const SizedBox(width: 10),
-                                Text(
-                                  translate.supprimerLeMatch,
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ];
-                      } else {
-                        return [
-                          PopupMenuItem(
-                            value: 'makePrivate',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.lock, size: 18),
-                                const SizedBox(width: 10),
-                                Text(
-                                  translate.rendreLeMatchPrive,
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete, size: 18),
-                                const SizedBox(width: 10),
-                                Text(
-                                  translate.supprimerLeMatch,
-                                  style: TextStyle(
-                                    color: ColorPalette.textPrimary(context),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ];
-                      }
-                    },
-                  ),
-          ],
-          if (widget.match.isFinished &&
-              userData != null &&
-              userData?.watchedAt != null)
-            IconButton(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              constraints: const BoxConstraints(),
-              icon: Icon(Icons.share_rounded,
-                  color: ColorPalette.accent(context)),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => MatchShareView(
-                    match: _currentMatch,
-                    matchUserData: userData,
-                    user: RepositoryProvider.userRepository.currentUser!,
-                  ),
-                ),
+                onPressed: _toggleFavori,
               ),
-            ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            color: ColorPalette.background(context),
-            padding:
-                EdgeInsets.fromLTRB(16, statusBarHeight + toolbarHeight, 16, 0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TeamDetailsPage(
-                                      teamId: _currentMatch.equipeDomicile.id,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
+              _isProcessingPrivacy
+                  ? SizedBox(
+                      width: 48,
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.2,
+                            color: ColorPalette.accent(context),
+                          ),
+                        ),
+                      ),
+                    )
+                  : PopupMenuButton<String>(
+                      tooltip: _isPrivate
+                          ? translate.matchPrive
+                          : translate.matchPublic,
+                      icon: Icon(
+                        _isPrivate ? Icons.lock : Icons.public,
+                        color: ColorPalette.accent(context),
+                      ),
+                      onSelected: (value) => _onPrivacyMenuSelected(value),
+                      itemBuilder: (context) {
+                        if (_isPrivate) {
+                          return [
+                            PopupMenuItem(
+                              value: 'publish',
+                              child: Row(
                                 children: [
-                                  SizedBox(
-                                    width: 48,
-                                    height: 48,
-                                    child: CachedNetworkImage(
-                                      imageUrl: _currentMatch
-                                          .equipeDomicile.logoPath!,
-                                      fit: BoxFit.contain,
-                                      errorWidget:
-                                          (context, error, stackTrace) => Icon(
-                                        Icons.shield,
-                                        color:
-                                            ColorPalette.textPrimary(context),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      _currentMatch.equipeDomicile.nom,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            ColorPalette.textPrimary(context),
-                                      ),
+                                  const Icon(Icons.public, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    translate.rendreLeMatchPublic,
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Text(
-                                  displayScoreOrMatchDate(_currentMatch),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: ColorPalette.textPrimary(context),
-                                  ),
-                                ),
-                                if (_currentMatch.isScheduled)
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.delete, size: 18),
+                                  const SizedBox(width: 10),
                                   Text(
-                                    DateFormat('d MMMM', 'fr_FR')
-                                        .format(_currentMatch.date),
+                                    translate.supprimerLeMatch,
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ];
+                        } else {
+                          return [
+                            PopupMenuItem(
+                              value: 'makePrivate',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.lock, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    translate.rendreLeMatchPrive,
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.delete, size: 18),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    translate.supprimerLeMatch,
+                                    style: TextStyle(
+                                      color: ColorPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ];
+                        }
+                      },
+                    ),
+            ],
+            if (widget.match.isFinished &&
+                userData != null &&
+                userData?.watchedAt != null)
+              IconButton(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                constraints: const BoxConstraints(),
+                icon: Icon(Icons.share_rounded,
+                    color: ColorPalette.accent(context)),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MatchShareView(
+                      match: _currentMatch,
+                      matchUserData: userData,
+                      user: RepositoryProvider.userRepository.currentUser!,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Container(
+              color: ColorPalette.background(context),
+              padding: EdgeInsets.fromLTRB(
+                  16, statusBarHeight + toolbarHeight, 16, 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => TeamDetailsPage(
+                                        teamId: _currentMatch.equipeDomicile.id,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: 48,
+                                      height: 48,
+                                      child: CachedNetworkImage(
+                                        imageUrl: _currentMatch
+                                            .equipeDomicile.logoPath!,
+                                        fit: BoxFit.contain,
+                                        errorWidget:
+                                            (context, error, stackTrace) =>
+                                                Icon(
+                                          Icons.shield,
+                                          color:
+                                              ColorPalette.textPrimary(context),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        _currentMatch.equipeDomicile.nom,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              ColorPalette.textPrimary(context),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    displayScoreOrMatchDate(_currentMatch),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 24,
                                       fontWeight: FontWeight.bold,
                                       color: ColorPalette.textPrimary(context),
                                     ),
                                   ),
-                                if (_currentMatch.isLive &&
-                                    _currentMatch.liveMinute != null)
-                                  Text(
-                                    _currentMatch.isHalftime
-                                        ? translate.miTemps
-                                        : _currentMatch.extraTime != null
-                                            ? "${_currentMatch.liveMinute!}+${_currentMatch.extraTime!}'"
-                                            : "${_currentMatch.liveMinute}'",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: ColorPalette.textAccent(context),
-                                    ),
-                                  ),
-                                ...displayProlongationsPenaltys(
-                                  match: _currentMatch,
-                                  context: context,
-                                  fontSize: 16,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TeamDetailsPage(
-                                      teamId: _currentMatch.equipeExterieur.id,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    width: 48,
-                                    height: 48,
-                                    child: CachedNetworkImage(
-                                      imageUrl: _currentMatch
-                                          .equipeExterieur.logoPath!,
-                                      fit: BoxFit.contain,
-                                      errorWidget:
-                                          (context, error, stackTrace) => Icon(
-                                        Icons.shield,
-                                        color:
-                                            ColorPalette.textPrimary(context),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      _currentMatch.equipeExterieur.nom,
+                                  if (_currentMatch.isScheduled)
+                                    Text(
+                                      DateFormat('d MMMM', 'fr_FR')
+                                          .format(_currentMatch.date),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 16,
@@ -810,141 +802,216 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                             ColorPalette.textPrimary(context),
                                       ),
                                     ),
+                                  if (_currentMatch.isLive &&
+                                      _currentMatch.liveMinute != null)
+                                    Text(
+                                      _currentMatch.isHalftime
+                                          ? translate.miTemps
+                                          : _currentMatch.extraTime != null
+                                              ? "${_currentMatch.liveMinute!}+${_currentMatch.extraTime!}'"
+                                              : "${_currentMatch.liveMinute}'",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: ColorPalette.textAccent(context),
+                                      ),
+                                    ),
+                                  ...displayProlongationsPenaltys(
+                                    match: _currentMatch,
+                                    context: context,
+                                    fontSize: 16,
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 160,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: getLignesButeurs(
-                                buts: _currentMatch.butsEquipeDomicile,
-                                domicile: true,
-                                fullName: true,
-                              )
-                                  .map(
-                                    (line) => InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                PlayerDetailsPage(
-                                              playerId: line.joueur.id,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Text(
-                                        line.nomJoueur,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: ColorPalette.textSecondary(
-                                              context),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => TeamDetailsPage(
+                                        teamId:
+                                            _currentMatch.equipeExterieur.id,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: 48,
+                                      height: 48,
+                                      child: CachedNetworkImage(
+                                        imageUrl: _currentMatch
+                                            .equipeExterieur.logoPath!,
+                                        fit: BoxFit.contain,
+                                        errorWidget:
+                                            (context, error, stackTrace) =>
+                                                Icon(
+                                          Icons.shield,
+                                          color:
+                                              ColorPalette.textPrimary(context),
                                         ),
                                       ),
                                     ),
-                                  )
-                                  .toList(),
-                            ),
-                          ),
-                          if (_currentMatch.scoreEquipeDomicile > 0 ||
-                              _currentMatch.scoreEquipeExterieur > 0)
-                            SizedBox(
-                              width: 40,
-                              child: Column(
-                                children: const [
-                                  Icon(Icons.sports_soccer, size: 14),
-                                  SizedBox(height: 4),
-                                ],
+                                    const SizedBox(height: 6),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        _currentMatch.equipeExterieur.nom,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              ColorPalette.textPrimary(context),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          SizedBox(
-                            width: 160,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: getLignesButeurs(
-                                buts: _currentMatch.butsEquipeExterieur,
-                                domicile: false,
-                                fullName: true,
-                              )
-                                  .map(
-                                    (line) => InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                PlayerDetailsPage(
-                                              playerId: line.joueur.id,
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 160,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: getLignesButeurs(
+                                  buts: _currentMatch.butsEquipeDomicile,
+                                  domicile: true,
+                                  fullName: true,
+                                )
+                                    .map(
+                                      (line) => InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PlayerDetailsPage(
+                                                playerId: line.joueur.id,
+                                              ),
                                             ),
+                                          );
+                                        },
+                                        child: Text(
+                                          line.nomJoueur,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: ColorPalette.textSecondary(
+                                                context),
                                           ),
-                                        );
-                                      },
-                                      child: Text(
-                                        line.nomJoueur,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: ColorPalette.textSecondary(
-                                              context),
                                         ),
                                       ),
-                                    ),
-                                  )
-                                  .toList(),
+                                    )
+                                    .toList(),
+                              ),
                             ),
-                          ),
-                        ],
-                      )
+                            if (_currentMatch.scoreEquipeDomicile > 0 ||
+                                _currentMatch.scoreEquipeExterieur > 0)
+                              SizedBox(
+                                width: 40,
+                                child: Column(
+                                  children: const [
+                                    Icon(Icons.sports_soccer, size: 14),
+                                    SizedBox(height: 4),
+                                  ],
+                                ),
+                              ),
+                            SizedBox(
+                              width: 160,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: getLignesButeurs(
+                                  buts: _currentMatch.butsEquipeExterieur,
+                                  domicile: false,
+                                  fullName: true,
+                                )
+                                    .map(
+                                      (line) => InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PlayerDetailsPage(
+                                                playerId: line.joueur.id,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(
+                                          line.nomJoueur,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: ColorPalette.textSecondary(
+                                                context),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TabBar(
+                    controller: _tabController,
+                    indicatorColor: ColorPalette.accent(context),
+                    labelColor: ColorPalette.textAccent(context),
+                    unselectedLabelColor: ColorPalette.textPrimary(context),
+                    tabs: [
+                      Tab(text: translate.infos),
+                      Tab(text: translate.compositions),
+                      Tab(text: translate.mesAmis),
                     ],
                   ),
-                ),
-                const SizedBox(height: 12),
-                TabBar(
-                  controller: _tabController,
-                  indicatorColor: ColorPalette.accent(context),
-                  labelColor: ColorPalette.textAccent(context),
-                  unselectedLabelColor: ColorPalette.textPrimary(context),
-                  tabs: [
-                    Tab(text: translate.infos),
-                    Tab(text: translate.compositions),
-                    Tab(text: translate.mesAmis),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                InfosTab(
-                  key: ValueKey('${_currentMatch.id}_$_userDataVersion'),
-                  match: _currentMatch,
-                  userDataVersion: _userDataVersion,
-                  onRefresh: _refresh,
-                ),
-                CompositionsTab(
-                  match: _currentMatch,
-                  onRefresh: _refresh,
-                ),
-                MesAmisTab(
-                  matchId: _currentMatch.id,
-                  onRefresh: _refresh,
-                ),
-              ],
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  InfosTab(
+                    key: _infosTabKey,
+                    match: _currentMatch,
+                    userDataVersion: _userDataVersion,
+                    onRefresh: _refresh,
+                    onUnsavedRatingChanged: (hasUnsaved, pending) {
+                      setState(() {
+                        _pageHasUnsavedRating = hasUnsaved;
+                        _pagePendingRating = pending;
+                      });
+                    },
+                  ),
+                  CompositionsTab(
+                    match: _currentMatch,
+                    onRefresh: _refresh,
+                  ),
+                  MesAmisTab(
+                    matchId: _currentMatch.id,
+                    onRefresh: _refresh,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

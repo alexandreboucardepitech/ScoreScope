@@ -987,5 +987,18 @@
   "preparationDesStatistiques": "Préparation des statistiques...",
   "pret": "Prêt",
   "tab": "TAB",
-  "ap": "AP"
+  "ap": "AP",
+  "modificationsEnAttente": "Modifications en attente",
+  "laNoteXSur10SeraPerdueSiTuQuittesMaintenant": "La note {note}/10 sera perdue si tu quittes maintenant.",
+  "@laNoteXSur10SeraPerdueSiTuQuittesMaintenant": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "taNoteSeraPerdueSiTuQuittesMaintenant": "Ta note sera perdue si tu quittes maintenant.",
+  "continuerAModifier": "Continuer à modifier",
+  "quitterSansEnregistrer": "Quitter sans enregistrer",
+  "enregistrerEtQuitter": "Enregistrer et quitter"
 }

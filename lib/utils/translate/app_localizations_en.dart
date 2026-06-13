@@ -1833,4 +1833,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ap => 'AET';
+
+  @override
+  String get modificationsEnAttente => 'Pending modifications';
+
+  @override
+  String laNoteXSur10SeraPerdueSiTuQuittesMaintenant(String note) {
+    return 'The rating $note/10 will be lost if you leave this page now';
+  }
+
+  @override
+  String get taNoteSeraPerdueSiTuQuittesMaintenant =>
+      'Your rating will be lost if you leave this page now.';
+
+  @override
+  String get continuerAModifier => 'Continue editing';
+
+  @override
+  String get quitterSansEnregistrer => 'Leave without saving';
+
+  @override
+  String get enregistrerEtQuitter => 'Save and leave';
 }

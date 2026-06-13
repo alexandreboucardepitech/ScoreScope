@@ -3398,6 +3398,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'AP'**
   String get ap;
+
+  /// No description provided for @modificationsEnAttente.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifications en attente'**
+  String get modificationsEnAttente;
+
+  /// No description provided for @laNoteXSur10SeraPerdueSiTuQuittesMaintenant.
+  ///
+  /// In fr, this message translates to:
+  /// **'La note {note}/10 sera perdue si tu quittes maintenant.'**
+  String laNoteXSur10SeraPerdueSiTuQuittesMaintenant(String note);
+
+  /// No description provided for @taNoteSeraPerdueSiTuQuittesMaintenant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta note sera perdue si tu quittes maintenant.'**
+  String get taNoteSeraPerdueSiTuQuittesMaintenant;
+
+  /// No description provided for @continuerAModifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer à modifier'**
+  String get continuerAModifier;
+
+  /// No description provided for @quitterSansEnregistrer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter sans enregistrer'**
+  String get quitterSansEnregistrer;
+
+  /// No description provided for @enregistrerEtQuitter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer et quitter'**
+  String get enregistrerEtQuitter;
 }
 
 class _AppLocalizationsDelegate

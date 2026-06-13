@@ -97,6 +97,7 @@ class MatchRatingCard extends StatefulWidget {
   final int? noteMax;
   final ValueChanged<bool>? onCancelled;
   final ValueChanged<int?>? onConfirm;
+  final void Function(bool hasUnsaved, int? currentRating)? onUnsavedChanged;
 
   const MatchRatingCard({
     super.key,
@@ -107,6 +108,7 @@ class MatchRatingCard extends StatefulWidget {
     this.noteMax,
     this.onCancelled,
     this.onConfirm,
+    this.onUnsavedChanged,
   });
 
   @override
@@ -145,6 +147,7 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
 
   void _updateFromDouble(double value) {
     setState(() => _rating = value.round());
+    widget.onUnsavedChanged?.call(_hasUnsavedChange, _rating);
   }
 
   @override
@@ -346,7 +349,10 @@ class _MatchRatingCardState extends State<MatchRatingCard> {
                 else
                   GradientButton(
                     onPressed: _canConfirm
-                        ? () => widget.onConfirm?.call(_rating)
+                        ? () {
+                            widget.onConfirm?.call(_rating);
+                            widget.onUnsavedChanged?.call(false, _rating);
+                          }
                         : null,
                     icon: _isAlreadyVoted ? Icons.refresh : Icons.check_rounded,
                     label: translate.valider,

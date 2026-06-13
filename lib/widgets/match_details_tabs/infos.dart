@@ -22,18 +22,22 @@ class InfosTab extends StatefulWidget {
   final MatchModel match;
   final int userDataVersion;
   final Future<void> Function()? onRefresh;
+  final void Function(bool hasUnsaved, int? pendingRating)?
+      onUnsavedRatingChanged;
 
-  const InfosTab(
-      {super.key,
-      required this.match,
-      this.userDataVersion = 0,
-      this.onRefresh});
+  const InfosTab({
+    super.key,
+    required this.match,
+    this.userDataVersion = 0,
+    this.onRefresh,
+    this.onUnsavedRatingChanged,
+  });
 
   @override
-  State<InfosTab> createState() => _InfosTabState();
+  State<InfosTab> createState() => InfosTabState();
 }
 
-class _InfosTabState extends State<InfosTab> {
+class InfosTabState extends State<InfosTab> {
   List<MvpVoteEntry> _mvpTopPlayers = [];
   Joueur? userVoteMVP;
 
@@ -46,6 +50,8 @@ class _InfosTabState extends State<InfosTab> {
   bool _noteInitialLoadDone = false;
 
   bool loadingNote = false;
+
+  int? _pendingRating;
 
   final user = RepositoryProvider.userRepository.currentUser;
   List<WatchFriend> _watchFriends = [];
@@ -71,6 +77,14 @@ class _InfosTabState extends State<InfosTab> {
       });
       _loadMvpEtNote();
     }
+  }
+
+  Future<void> savePendingRating() async {
+    if (_pendingRating == null) return;
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    setState(() => userVoteNoteMatch = _pendingRating);
+    widget.match.noterMatch(userId: uid, note: _pendingRating!);
+    await _reloadAll();
   }
 
   Future<void> _loadMvpEtNote() async {
@@ -418,6 +432,11 @@ class _InfosTabState extends State<InfosTab> {
                               noteCount: _noteCount,
                               noteMin: _noteMin,
                               noteMax: _noteMax,
+                              onUnsavedChanged: (hasUnsaved, currentRating) {
+                                _pendingRating = currentRating;
+                                widget.onUnsavedRatingChanged
+                                    ?.call(hasUnsaved, currentRating);
+                              },
                               onCancelled: (cancelled) async {
                                 if (!cancelled) return;
                                 final uid =

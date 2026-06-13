@@ -194,6 +194,11 @@ function getStatusFromCode(code) {
       return "live"; // MatchStatus.live
     case "PST":
       return "postponed"; // MatchStatus.postponed
+    case "CANC":
+    case "ABD":
+    case "AWD":
+    case "WO":
+      return "cancelled"; // jamais stocké en base → suppression
     case "NS":
     case "TBD":
     default:
@@ -284,6 +289,19 @@ exports.fetchNextTwoWeeksMatches = onSchedule(
 
               if (!homeOk || !awayOk) {
                 console.log(`⚠️ Match ${id} ignoré (équipe manquante)`);
+                continue;
+              }
+
+              const apiStatus = getStatusFromCode(
+                  matchData.fixture.status.short);
+
+              // Match annulé/abandonné → on supprime s'il existait et on passe
+              if (apiStatus === "cancelled" || apiStatus === "postponed") {
+                if (matchDoc.exists) {
+                  await matchDocRef.delete();
+                  console.log(`🗑️ Match ${id} supprimé ` +
+                    `(${matchData.fixture.status.short})`);
+                }
                 continue;
               }
 
@@ -994,6 +1012,190 @@ exports.updateLiveMatches = onSchedule(
         console.error("🔥 Erreur globale :", error);
       }
     // console.log("en pause : limite quotidienne atteinte");
+    },
+);
+
+exports.cleanupStaleMatches = onSchedule(
+    {
+      schedule: "45 0 * * *",
+      timeZone: "Europe/Paris",
+    },
+    async () => {
+      console.log("🧹 Nettoyage des matchs stale...");
+
+      try {
+        const now = new Date();
+        const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+
+        const snapshot = await db
+            .collection("matchs")
+            .where("status", "==", "scheduled")
+            .where("date", ">=", threeDaysAgo)
+            .where("date", "<", now)
+            .get();
+
+        console.log(`📋 ${snapshot.docs.length} matchs stale à traiter`);
+
+        for (const doc of snapshot.docs) {
+          const matchId = doc.id;
+          const data = doc.data();
+
+          try {
+            const result = await getDataFromApi("fixtures", {id: matchId});
+
+            // Aucune donnée API → suppression
+            if (!result || result.length === 0) {
+              await db.collection("matchs").doc(matchId).delete();
+              console.log(`🗑️ Match ${matchId} ` +
+                `supprimé (introuvable sur l'API)`);
+              continue;
+            }
+
+            const matchData = result[0];
+            const statusCode = matchData.fixture.status.short;
+            const finalStatus = getStatusFromCode(statusCode);
+
+            // Annulé, reporté ou toujours scheduled → suppression
+            if (
+              finalStatus === "cancelled" ||
+              finalStatus === "postponed" ||
+              finalStatus === "scheduled"
+            ) {
+              await db.collection("matchs").doc(matchId).delete();
+              console.log(`🗑️ Match ${matchId} supprimé (${statusCode})`);
+              continue;
+            }
+
+            // Toujours en live → on laisse updateLiveMatches gérer
+            if (finalStatus === "live" || finalStatus === "halftime") {
+              console.log(`⏳ Match ${matchId} encore en cours, ignoré`);
+              continue;
+            }
+
+            // Match terminé → update complet
+            console.log(`🏁 Match stale terminé, mise à jour : ${matchId}`);
+
+            const events = await getDataFromApi("fixtures/events", {
+              fixture: matchId,
+            });
+
+            const butsEquipeDomicile = [];
+            const butsEquipeExterieur = [];
+
+            const joueursDomicile = data.joueursEquipeDomicile || [];
+            const joueursExterieur = data.joueursEquipeExterieur || [];
+
+            const mapDomicile = Object.fromEntries(
+                joueursDomicile.map((j) => [j.joueurId, j]),
+            );
+            const mapExterieur = Object.fromEntries(
+                joueursExterieur.map((j) => [j.joueurId, j]),
+            );
+
+            for (const event of events || []) {
+              if (event.comments === "Penalty Shootout") continue;
+
+              const eventType = event.type;
+
+              if (eventType === "subst") {
+                const joueurEntrantId = event.assist?.id?.toString();
+                if (!joueurEntrantId) continue;
+                if (mapDomicile[joueurEntrantId]) {
+                  mapDomicile[joueurEntrantId].hasPlayed = true;
+                } else if (mapExterieur[joueurEntrantId]) {
+                  mapExterieur[joueurEntrantId].hasPlayed = true;
+                }
+              }
+
+              if (eventType === "Var") {
+                const detail = event.detail || "";
+                if (detail.includes("Goal Disallowed")) {
+                  const playerId = event.player?.id?.toString();
+                  const teamId = event.team?.id?.toString();
+                  const minute = event.time?.elapsed?.toString();
+                  if (!playerId || !teamId) continue;
+
+                  const removeDisallowed = (goalsArray) =>
+                    goalsArray.filter((goal) =>
+                      goal.buteurId !== playerId || goal.minute !== minute,
+                    );
+
+                  if (teamId === data.equipeDomicileId) {
+                    butsEquipeDomicile.splice(
+                        0, butsEquipeDomicile.length,
+                        ...removeDisallowed(butsEquipeDomicile),
+                    );
+                  } else if (teamId === data.equipeExterieurId) {
+                    butsEquipeExterieur.splice(
+                        0, butsEquipeExterieur.length,
+                        ...removeDisallowed(butsEquipeExterieur),
+                    );
+                  }
+                }
+              }
+
+              if (eventType === "Goal") {
+                const buteurId = event.player?.id?.toString();
+                const passeurId = event.assist?.id?.toString() || null;
+                let minute = event.time?.elapsed?.toString();
+                const extra = event.time?.extra?.toString();
+                const teamId = event.team?.id?.toString();
+
+                if (!buteurId || !minute || !teamId) continue;
+
+                if (extra != null && extra !== "") {
+                  minute = minute + "+" + extra.toString();
+                }
+
+                let typeBut = "normal";
+                let missed = false;
+
+                switch (event.detail) {
+                  case "Normal Goal": typeBut = "normal"; break;
+                  case "Own Goal": typeBut = "owngoal"; break;
+                  case "Penalty": typeBut = "penalty"; break;
+                  case "Missed Penalty": missed = true; break;
+                }
+
+                if (missed) continue;
+
+                const but = {buteurId, minute, passeurId, typeBut};
+
+                if (teamId === data.equipeDomicileId) {
+                  butsEquipeDomicile.push(but);
+                } else if (teamId === data.equipeExterieurId) {
+                  butsEquipeExterieur.push(but);
+                }
+              }
+            }
+
+            const prolongations = statusCode === "AET" || statusCode === "PEN";
+
+            await db.collection("matchs").doc(matchId).update({
+              status: finalStatus,
+              liveMinute: matchData.fixture.status.elapsed ?? null,
+              extraTime: matchData.fixture.status.extra ?? null,
+              scoreEquipeDomicile: matchData.goals.home ?? 0,
+              scoreEquipeExterieur: matchData.goals.away ?? 0,
+              penaltyEquipeDomicile: matchData.score?.penalty?.home ?? null,
+              penaltyEquipeExterieur: matchData.score?.penalty?.away ?? null,
+              prolongations,
+              butsEquipeDomicile,
+              butsEquipeExterieur,
+              joueursEquipeDomicile: Object.values(mapDomicile),
+              joueursEquipeExterieur: Object.values(mapExterieur),
+            });
+
+            console.log(`✅ Match stale mis à jour : ${matchId}`);
+          } catch (error) {
+            console.error(`🔥 Erreur cleanup match ${matchId}:`, error);
+          }
+        }
+
+        console.log("✅ Nettoyage terminé");
+      } catch (error) {
+        console.error("🔥 Erreur globale cleanupStaleMatches :", error);
+      }
     },
 );
 

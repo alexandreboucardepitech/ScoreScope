@@ -1852,4 +1852,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ap => 'AP';
+
+  @override
+  String get modificationsEnAttente => 'Modifications en attente';
+
+  @override
+  String laNoteXSur10SeraPerdueSiTuQuittesMaintenant(String note) {
+    return 'La note $note/10 sera perdue si tu quittes maintenant.';
+  }
+
+  @override
+  String get taNoteSeraPerdueSiTuQuittesMaintenant =>
+      'Ta note sera perdue si tu quittes maintenant.';
+
+  @override
+  String get continuerAModifier => 'Continuer à modifier';
+
+  @override
+  String get quitterSansEnregistrer => 'Quitter sans enregistrer';
+
+  @override
+  String get enregistrerEtQuitter => 'Enregistrer et quitter';
 }

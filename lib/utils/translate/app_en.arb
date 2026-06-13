@@ -987,5 +987,18 @@
   "preparationDesStatistiques": "Preparing statistics...",
   "pret": "Ready",
   "tab": "PSO",
-  "ap": "AET"
+  "ap": "AET",
+  "modificationsEnAttente": "Pending modifications",
+  "laNoteXSur10SeraPerdueSiTuQuittesMaintenant": "The rating {note}/10 will be lost if you leave this page now",
+  "@laNoteXSur10SeraPerdueSiTuQuittesMaintenant": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "taNoteSeraPerdueSiTuQuittesMaintenant": "Your rating will be lost if you leave this page now.",
+  "continuerAModifier": "Continue editing",
+  "quitterSansEnregistrer": "Leave without saving",
+  "enregistrerEtQuitter": "Save and leave"
 }

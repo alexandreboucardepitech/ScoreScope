@@ -1075,17 +1075,15 @@ class FillDatabase {
     String matchId, {
     required int scoreD,
     required int scoreE,
-    required MatchStatus status,
     int? liveMinute,
   }) async {
     await RepositoryProvider.matchRepository.updateField(
       matchId: matchId,
       scoreEquipeDomicile: scoreD,
       scoreEquipeExterieur: scoreE,
-      status: status,
       liveMinute: liveMinute,
     );
-    print('✅ Score mis à jour : $scoreD - $scoreE ($status)');
+    print('✅ Score mis à jour : $scoreD - $scoreE');
   }
 
   static Future<void> manualUpdateMatchInfo(
