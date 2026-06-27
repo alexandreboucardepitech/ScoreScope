@@ -14,7 +14,7 @@ import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:scorescope/views/details/match_details_page.dart';
-
+import 'package:collection/collection.dart';
 import 'equipe.dart';
 import 'but.dart';
 
@@ -706,10 +706,11 @@ class MatchModel implements PodiumDisplayable {
     return mvpId;
   }
 
-  Future<Joueur?> getMvp() async {
+  Joueur? getMvp() {
     if (mvpVotes.isEmpty) return null;
 
-    Map<String, int> voteCounts = getAllVoteCounts();
+    final voteCounts = getAllVoteCounts();
+    if (voteCounts.isEmpty) return null;
 
     String? mvpId;
     int maxVotes = -1;
@@ -722,7 +723,12 @@ class MatchModel implements PodiumDisplayable {
 
     if (mvpId == null) return null;
 
-    return await RepositoryProvider.joueurRepository.fetchJoueurById(mvpId!);
+    final allPlayers = [
+      ...joueursEquipeDomicile,
+      ...joueursEquipeExterieur,
+    ];
+
+    return allPlayers.firstWhereOrNull((mj) => mj.joueur?.id == mvpId)?.joueur;
   }
 
   int getNbVotesById(String id) {

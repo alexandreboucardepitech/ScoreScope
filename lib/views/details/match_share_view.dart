@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scorescope/models/enum/visionnage_match.dart';
+import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
 import 'package:share_plus/share_plus.dart';
@@ -61,6 +62,17 @@ class _MatchShareViewState extends State<MatchShareView> {
   }
 
   Future<void> _share() async {
+    try {
+      final logoHome = widget.match.equipeDomicile.logoPath;
+      final logoAway = widget.match.equipeExterieur.logoPath;
+      await Future.wait([
+        if (logoHome != null)
+          precacheImage(CachedNetworkImageProvider(logoHome), context),
+        if (logoAway != null)
+          precacheImage(CachedNetworkImageProvider(logoAway), context),
+      ]);
+    } catch (_) {}
+
     setState(() => _isSharing = true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -89,6 +101,13 @@ class _MatchShareViewState extends State<MatchShareView> {
         );
       } catch (e) {
         debugPrint('Erreur partage match : $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(translate.erreurLorsDuPartageDuMatch(e.toString())),
+            ),
+          );
+        }
       } finally {
         if (mounted) setState(() => _isSharing = false);
       }
@@ -103,18 +122,24 @@ class _MatchShareViewState extends State<MatchShareView> {
         backgroundColor: ColorPalette.background(context),
         elevation: 0,
         scrolledUnderElevation: 0,
+        titleSpacing: 0,
         leading: IconButton(
           icon:
               Icon(Icons.arrow_back, color: ColorPalette.textPrimary(context)),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: true,
-        title: Text(
-          translate.partagerCeMatch,
-          style: TextStyle(
-            color: ColorPalette.textPrimary(context),
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          children: [
+            AppLogos.logoTransparent(context, size: 32),
+            const SizedBox(width: 8),
+            Text(
+              translate.partagerCeMatch,
+              style: TextStyle(
+                color: ColorPalette.textPrimary(context),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
       body: _loadingMvp
@@ -190,7 +215,7 @@ class _ShareCard extends StatelessWidget {
   });
 
   String get _matchDateLabel {
-    return DateFormat('EEEE d MMMM yyyy', 'fr_FR').format(match.date);
+    return DateFormat('EEEE d MMMM yyyy', getDateFormat()).format(match.date);
   }
 
   String _noteEmoji(int note) => getReactionEmoji(note);

@@ -7,5 +7,17 @@ abstract class IJoueurRepository {
   Future<void> addJoueursList(List<Joueur> joueurs);
   Future<void> updateJoueur(Joueur e);
   Future<void> deleteJoueur(Joueur e);
-  Future<List<Joueur>> searchJoueurs(String query, {String? equipeId, int limit = 8});
+  Future<List<Joueur>> searchJoueurs(String query,
+      {String? equipeId, int limit = 8});
+  Future<void> updateField({
+    required String joueurId,
+    String? prenom,
+    String? nom,
+    String? fullName,
+    String? equipeId,
+    String? equipeNationaleId,
+    DateTime? dateNaissance,
+    String? nationalite,
+    String? picture,
+  });
 }

@@ -1209,4 +1209,30 @@ class MockAppUserRepository implements IAppUserRepository {
 
     _users[userIdx] = newUser;
   }
+
+  @override
+  Future<void> markCdmRecapAsSeen(String userId) async {
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      private: user.private,
+      matchsUserData: user.matchsUserData,
+      options: user.options,
+      lastRecapSeenWeek: user.lastRecapSeenWeek,
+      cdmRecapSeen: true,
+    );
+
+    _users[userIdx] = newUser;
+  }
 }

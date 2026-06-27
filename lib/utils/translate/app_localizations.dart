@@ -791,7 +791,7 @@ abstract class AppLocalizations {
   /// No description provided for @votesMvp.
   ///
   /// In fr, this message translates to:
-  /// **'Votes MVP'**
+  /// **'votes\nMVP'**
   String get votesMvp;
 
   /// No description provided for @eluMvp.
@@ -3191,7 +3191,7 @@ abstract class AppLocalizations {
   /// No description provided for @mvpLesPlusVotes.
   ///
   /// In fr, this message translates to:
-  /// **'MVP les plus votés'**
+  /// **'⭐ MVP LES PLUS VOTÉS'**
   String get mvpLesPlusVotes;
 
   /// No description provided for @aucunMvp.
@@ -3434,6 +3434,578 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Enregistrer et quitter'**
   String get enregistrerEtQuitter;
+
+  /// No description provided for @erreurLorsDuPartageDuMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du partage du match : {erreur}'**
+  String erreurLorsDuPartageDuMatch(String erreur);
+
+  /// No description provided for @leMarathonien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Marathonien'**
+  String get leMarathonien;
+
+  /// No description provided for @xMatchsRegardesSurX.
+  ///
+  /// In fr, this message translates to:
+  /// **'{matchCount} matchs regardés sur {totalMatchs}'**
+  String xMatchsRegardesSurX(String matchCount, String totalMatchs);
+
+  /// No description provided for @lInsomniaque.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'insomniaque'**
+  String get lInsomniaque;
+
+  /// No description provided for @xMatchsRegardesApresMinuit.
+  ///
+  /// In fr, this message translates to:
+  /// **'{matchCount} matchs regardés après minuit.'**
+  String xMatchsRegardesApresMinuit(String matchCount);
+
+  /// No description provided for @jourDeFolie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour de Folie'**
+  String get jourDeFolie;
+
+  /// No description provided for @xMatchsVusEnUneSeuleJournee.
+  ///
+  /// In fr, this message translates to:
+  /// **'{matchCount} matchs vus en une seule journée'**
+  String xMatchsVusEnUneSeuleJournee(String matchCount);
+
+  /// No description provided for @leFestin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Festin'**
+  String get leFestin;
+
+  /// No description provided for @xButsEnMoyenneParMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'{x} buts en moyenne par match'**
+  String xButsEnMoyenneParMatch(String x);
+
+  /// No description provided for @ennuyant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ennuyant'**
+  String get ennuyant;
+
+  /// No description provided for @lePorteBonheur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Porte-Bonheur'**
+  String get lePorteBonheur;
+
+  /// No description provided for @tonEquipe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton équipe'**
+  String get tonEquipe;
+
+  /// No description provided for @xGagneDansXPourcentDesMatchsQueTuRegardes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{equipe} gagne dans {pourcent}% des matchs que tu regardes'**
+  String xGagneDansXPourcentDesMatchsQueTuRegardes(
+      String equipe, String pourcent);
+
+  /// No description provided for @leCorbeau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Corbeau'**
+  String get leCorbeau;
+
+  /// No description provided for @xNeGagneQueDansXPourcentDesMatchsQueTuRegardes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{equipe} ne gagne que dans {pourcent}% des matchs que tu regardes'**
+  String xNeGagneQueDansXPourcentDesMatchsQueTuRegardes(
+      String equipe, String pourcent);
+
+  /// No description provided for @leJugeSevere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Juge Sévère'**
+  String get leJugeSevere;
+
+  /// No description provided for @noteMoyenneDeXSur10.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note moyenne de {note}/10'**
+  String noteMoyenneDeXSur10(String note);
+
+  /// No description provided for @lEnthousiaste.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'Enthousiaste'**
+  String get lEnthousiaste;
+
+  /// No description provided for @leRituel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Rituel'**
+  String get leRituel;
+
+  /// No description provided for @xPourcentDesTesMatchsRegardesALaMemeHeure.
+  ///
+  /// In fr, this message translates to:
+  /// **'{pourcent}% de tes matchs regardés à la même heure'**
+  String xPourcentDesTesMatchsRegardesALaMemeHeure(String pourcent);
+
+  /// No description provided for @leCitoyenDuMonde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Citoyen du Monde'**
+  String get leCitoyenDuMonde;
+
+  /// No description provided for @xEquipesDifferentesSuiviesSur48.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} équipes différentes suivies sur 48'**
+  String xEquipesDifferentesSuiviesSur48(String count);
+
+  /// No description provided for @lInarretable.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'Inarrêtable'**
+  String get lInarretable;
+
+  /// No description provided for @xJoursConsecutifsAvecAuMoinsUnMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'{jours} jours consécutifs avec au moins un match'**
+  String xJoursConsecutifsAvecAuMoinsUnMatch(String jours);
+
+  /// No description provided for @lUltra.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'Ultra'**
+  String get lUltra;
+
+  /// No description provided for @xMatchsSuivisPourEquipe.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} matchs suivis pour {equipe}'**
+  String xMatchsSuivisPourEquipe(String count, String equipe);
+
+  /// No description provided for @lePuriste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Puriste'**
+  String get lePuriste;
+
+  /// No description provided for @xPourcentDesMatchsEliminationDirecteSuivis.
+  ///
+  /// In fr, this message translates to:
+  /// **'{pourcent}% des matchs à élimination directe suivis'**
+  String xPourcentDesMatchsEliminationDirecteSuivis(String pourcent);
+
+  /// No description provided for @leSansPause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Sans-Pause'**
+  String get leSansPause;
+
+  /// No description provided for @lExplorateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'Explorateur'**
+  String get lExplorateur;
+
+  /// No description provided for @leBoulimique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Boulimique'**
+  String get leBoulimique;
+
+  /// No description provided for @xMatchsRegardesSurY.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} matchs regardés sur {total}'**
+  String xMatchsRegardesSurY(String count, String total);
+
+  /// No description provided for @leCoucheTard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Couche-Tard'**
+  String get leCoucheTard;
+
+  /// No description provided for @lAssidu.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'Assidu'**
+  String get lAssidu;
+
+  /// No description provided for @lePartisan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Partisan'**
+  String get lePartisan;
+
+  /// No description provided for @leSupporter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Supporter'**
+  String get leSupporter;
+
+  /// No description provided for @lesSupporterDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'{matchCount} matchs regardés sur {total}'**
+  String lesSupporterDescription(String matchCount, String total);
+
+  /// No description provided for @tuAsSuiviXNationsSurX.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as suivi {nationsSuivies} nations sur {nationsTotal}'**
+  String tuAsSuiviXNationsSurX(String nationsSuivies, String nationsTotal);
+
+  /// No description provided for @recuperationDesMatchsCDM.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupération des matchs CdM...'**
+  String get recuperationDesMatchsCDM;
+
+  /// No description provided for @chargementDesDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des détails...'**
+  String get chargementDesDetails;
+
+  /// No description provided for @donneesSocialesEtMvp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données sociales & MVP...'**
+  String get donneesSocialesEtMvp;
+
+  /// No description provided for @chargementDuParcoursComplet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement du parcours complet...'**
+  String get chargementDuParcoursComplet;
+
+  /// No description provided for @chargementDesStatsScoreScope.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des stats ScoreScope...'**
+  String get chargementDesStatsScoreScope;
+
+  /// No description provided for @joueurInconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Joueur inconnu'**
+  String get joueurInconnu;
+
+  /// No description provided for @maCoupeDuMonde2026AvecScoreScope.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma Coupe du Monde 2026 avec @ScoreScopeApp ⚽🏆'**
+  String get maCoupeDuMonde2026AvecScoreScope;
+
+  /// No description provided for @aucunMatchCDMEnregistre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun match CdM enregistré'**
+  String get aucunMatchCDMEnregistre;
+
+  /// No description provided for @ajouteLesMatchsQueTuRegardesPourVoirTonRecap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute les matchs que tu regardes\npour voir ton récap !'**
+  String get ajouteLesMatchsQueTuRegardesPourVoirTonRecap;
+
+  /// No description provided for @partager.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager'**
+  String get partager;
+
+  /// No description provided for @taCoupeDuMonde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta Coupe du Monde'**
+  String get taCoupeDuMonde;
+
+  /// No description provided for @avecScoreScope.
+  ///
+  /// In fr, this message translates to:
+  /// **'avec ScoreScope.'**
+  String get avecScoreScope;
+
+  /// No description provided for @swipePourDecouvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Swipe pour découvrir'**
+  String get swipePourDecouvrir;
+
+  /// No description provided for @taCoupeDuMonde2026.
+  ///
+  /// In fr, this message translates to:
+  /// **'📊 TA COUPE DU MONDE 2026'**
+  String get taCoupeDuMonde2026;
+
+  /// No description provided for @noteMoy.
+  ///
+  /// In fr, this message translates to:
+  /// **'note moy.'**
+  String get noteMoy;
+
+  /// No description provided for @pourcentDesMatchsRegardes.
+  ///
+  /// In fr, this message translates to:
+  /// **'% des matchs regardés'**
+  String get pourcentDesMatchsRegardes;
+
+  /// No description provided for @equipesLesPlusSuivies.
+  ///
+  /// In fr, this message translates to:
+  /// **'🌍 ÉQUIPES LES PLUS SUIVIES'**
+  String get equipesLesPlusSuivies;
+
+  /// No description provided for @aucunMatchAAfficher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun match à afficher'**
+  String get aucunMatchAAfficher;
+
+  /// No description provided for @tonParcours.
+  ///
+  /// In fr, this message translates to:
+  /// **'🗺️ TON PARCOURS'**
+  String get tonParcours;
+
+  /// No description provided for @xMatchsVus.
+  ///
+  /// In fr, this message translates to:
+  /// **'{matchCount} matchs vus'**
+  String xMatchsVus(String matchCount);
+
+  /// No description provided for @xMatchsDePoules.
+  ///
+  /// In fr, this message translates to:
+  /// **'{matchCount} matchs poules'**
+  String xMatchsDePoules(String matchCount);
+
+  /// No description provided for @xPhaseFinale.
+  ///
+  /// In fr, this message translates to:
+  /// **'{matchCount} phase finale'**
+  String xPhaseFinale(String matchCount);
+
+  /// No description provided for @pasAssezDeDonneesPourLEquipeDeCoeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas assez de données pour l\'équipe de cœur.'**
+  String get pasAssezDeDonneesPourLEquipeDeCoeur;
+
+  /// No description provided for @tonEquipeMaj.
+  ///
+  /// In fr, this message translates to:
+  /// **'TON ÉQUIPE'**
+  String get tonEquipeMaj;
+
+  /// No description provided for @repartitionDesNotes.
+  ///
+  /// In fr, this message translates to:
+  /// **'RÉPARTITION DES NOTES'**
+  String get repartitionDesNotes;
+
+  /// No description provided for @tesMatchs.
+  ///
+  /// In fr, this message translates to:
+  /// **'⚽ TES MATCHS'**
+  String get tesMatchs;
+
+  /// No description provided for @matchsDePoules.
+  ///
+  /// In fr, this message translates to:
+  /// **'matchs de poules'**
+  String get matchsDePoules;
+
+  /// No description provided for @phaseFinale.
+  ///
+  /// In fr, this message translates to:
+  /// **'phaseFinale'**
+  String get phaseFinale;
+
+  /// No description provided for @butsParMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'buts/match'**
+  String get butsParMatch;
+
+  /// No description provided for @tonMeilleurMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'🏆 TON MEILLEUR MATCH'**
+  String get tonMeilleurMatch;
+
+  /// No description provided for @tonPireMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'😴 TON PIRE MATCH'**
+  String get tonPireMatch;
+
+  /// No description provided for @favori.
+  ///
+  /// In fr, this message translates to:
+  /// **'⭐ Favori'**
+  String get favori;
+
+  /// No description provided for @tonMvp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton MVP'**
+  String get tonMvp;
+
+  /// No description provided for @mvpGlobal.
+  ///
+  /// In fr, this message translates to:
+  /// **'MVP global'**
+  String get mvpGlobal;
+
+  /// No description provided for @noteGlobale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note globale :'**
+  String get noteGlobale;
+
+  /// No description provided for @funStats.
+  ///
+  /// In fr, this message translates to:
+  /// **'✨ FUN STATS'**
+  String get funStats;
+
+  /// No description provided for @nationsDifferentesSuivies.
+  ///
+  /// In fr, this message translates to:
+  /// **'nations différentes\nsuivies'**
+  String get nationsDifferentesSuivies;
+
+  /// No description provided for @matchsRegardesLaNuit.
+  ///
+  /// In fr, this message translates to:
+  /// **'matchs regardés la nuit\n(0h - 6h)'**
+  String get matchsRegardesLaNuit;
+
+  /// No description provided for @desMatchsRegardes.
+  ///
+  /// In fr, this message translates to:
+  /// **'des matchs regardés ({valeur})'**
+  String desMatchsRegardes(String valeur);
+
+  /// No description provided for @matchsRegardesParJour.
+  ///
+  /// In fr, this message translates to:
+  /// **'MATCHS REGARDÉS PAR JOUR'**
+  String get matchsRegardesParJour;
+
+  /// No description provided for @tonProfil.
+  ///
+  /// In fr, this message translates to:
+  /// **'TON PROFIL'**
+  String get tonProfil;
+
+  /// No description provided for @serieMaj.
+  ///
+  /// In fr, this message translates to:
+  /// **'SÉRIE'**
+  String get serieMaj;
+
+  /// No description provided for @joursConsecutifs.
+  ///
+  /// In fr, this message translates to:
+  /// **'jours\nconsécutifs'**
+  String get joursConsecutifs;
+
+  /// No description provided for @avecAuMoinsUnMatchSuivi.
+  ///
+  /// In fr, this message translates to:
+  /// **'avec au moins un match suivi'**
+  String get avecAuMoinsUnMatchSuivi;
+
+  /// No description provided for @coupeDuMonde2026.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coupe du Monde 2026'**
+  String get coupeDuMonde2026;
+
+  /// No description provided for @meilleurMatchMaj.
+  ///
+  /// In fr, this message translates to:
+  /// **'🏆 MEILLEUR MATCH'**
+  String get meilleurMatchMaj;
+
+  /// No description provided for @mvpDuTournoi.
+  ///
+  /// In fr, this message translates to:
+  /// **'MVP DU TOURNOI'**
+  String get mvpDuTournoi;
+
+  /// No description provided for @statsCommunauteIndisponibles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stats communauté indisponibles.'**
+  String get statsCommunauteIndisponibles;
+
+  /// No description provided for @scorescopeRecapDeLaCommunaute.
+  ///
+  /// In fr, this message translates to:
+  /// **'SCORESCOPE - RÉCAP DE LA COMMUNAUTÉ'**
+  String get scorescopeRecapDeLaCommunaute;
+
+  /// No description provided for @noteMoyGlobale.
+  ///
+  /// In fr, this message translates to:
+  /// **'note moy.\nglobale'**
+  String get noteMoyGlobale;
+
+  /// No description provided for @fans.
+  ///
+  /// In fr, this message translates to:
+  /// **'fans'**
+  String get fans;
+
+  /// No description provided for @notesDonnees.
+  ///
+  /// In fr, this message translates to:
+  /// **'notes\ndonnées'**
+  String get notesDonnees;
+
+  /// No description provided for @topSpectateurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'👑 TOP SPECTATEURS'**
+  String get topSpectateurs;
+
+  /// No description provided for @v.
+  ///
+  /// In fr, this message translates to:
+  /// **'V'**
+  String get v;
+
+  /// No description provided for @n.
+  ///
+  /// In fr, this message translates to:
+  /// **'N'**
+  String get n;
+
+  /// No description provided for @d.
+  ///
+  /// In fr, this message translates to:
+  /// **'D'**
+  String get d;
+
+  /// No description provided for @vuAvecX.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vu avec {displayName}'**
+  String vuAvecX(String displayName);
 }
 
 class _AppLocalizationsDelegate

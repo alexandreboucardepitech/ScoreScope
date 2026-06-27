@@ -106,7 +106,13 @@ class _MatchRegardeAmiCardState extends State<MatchRegardeAmiCard>
       return;
     }
     try {
-      MatchModel? match = AppCache.getMatch(matchId);
+      MatchModel? match = null;
+
+      if (RepositoryProvider
+              .userRepository.currentUser?.options.utiliserCache ??
+          true) {
+        match = AppCache.getMatch(matchId);
+      }
       if (match == null) {
         match =
             await RepositoryProvider.matchRepository.fetchMatchById(matchId);

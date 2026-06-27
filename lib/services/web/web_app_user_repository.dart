@@ -1008,4 +1008,14 @@ class WebAppUserRepository implements IAppUserRepository {
 
     currentUser = await getCurrentUser();
   }
+
+  @override
+  Future<void> markCdmRecapAsSeen(String userId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .update({'cdmRecapSeen': true});
+
+    currentUser = await getCurrentUser();
+  }
 }

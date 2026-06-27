@@ -92,6 +92,7 @@ class InfosTabState extends State<InfosTab> {
 
     final isInitialLoad = !_noteInitialLoadDone;
 
+    // On n'affiche le Shimmer (chargement) que lors du TOUT PREMIER chargement de l'écran
     if (isInitialLoad) {
       setState(() => loadingNote = true);
     }
@@ -108,20 +109,22 @@ class InfosTabState extends State<InfosTab> {
             .fetchMatchById(widget.match.id);
 
         if (match != null) {
+          // 1. Récupération du vote MVP de l'utilisateur connecté
           final userVoteId = match.mvpVotes[firebaseUser.uid];
           if (userVoteId != null) {
             loadedUserVoteMVP = await RepositoryProvider.joueurRepository
                 .fetchJoueurById(userVoteId);
           }
 
-          if (isInitialLoad) {
-            loadedUserNote = match.notes[firebaseUser.uid];
+          // MODIFICATION ICI : On enlève le "if (isInitialLoad)" pour que la note
+          // et le commentaire soient re-téléchargés à CHAQUE rafraîchissement.
+          loadedUserNote = match.notes[firebaseUser.uid];
 
-            final matchUserData = await RepositoryProvider.userRepository
-                .fetchUserMatchUserData(firebaseUser.uid, widget.match.id);
-            loadedUserCommentaire = matchUserData?.commentaire;
-          }
+          final matchUserData = await RepositoryProvider.userRepository
+              .fetchUserMatchUserData(firebaseUser.uid, widget.match.id);
+          loadedUserCommentaire = matchUserData?.commentaire;
 
+          // 2. Calcul des tops joueurs pour le MVP (inchangé)
           final voteCountMap = <String, int>{};
           for (final joueurId in match.mvpVotes.values) {
             voteCountMap[joueurId] = (voteCountMap[joueurId] ?? 0) + 1;
@@ -157,14 +160,16 @@ class InfosTabState extends State<InfosTab> {
 
       if (!mounted) return;
 
+      // MODIFICATION ICI : On applique les valeurs à CHAQUE exécution.
       setState(() {
         userVoteMVP = loadedUserVoteMVP;
-        if (isInitialLoad) {
-          userVoteNoteMatch = loadedUserNote;
-          _userCommentaire = loadedUserCommentaire;
-          _noteInitialLoadDone = true;
-          _commentaireInitialLoadDone = true;
-        }
+        userVoteNoteMatch = loadedUserNote;
+        _userCommentaire = loadedUserCommentaire;
+
+        // Une fois passé ici au moins une fois, les structures de cartes peuvent s'afficher
+        _noteInitialLoadDone = true;
+        _commentaireInitialLoadDone = true;
+
         _mvpTopPlayers = loadedTopPlayers;
         loadingNote = false;
       });
@@ -173,12 +178,12 @@ class InfosTabState extends State<InfosTab> {
       if (!mounted) return;
       setState(() {
         userVoteMVP = null;
-        if (isInitialLoad) {
-          userVoteNoteMatch = null;
-          _userCommentaire = null;
-          _noteInitialLoadDone = true;
-          _commentaireInitialLoadDone = true;
-        }
+        userVoteNoteMatch = null;
+        _userCommentaire = null;
+
+        _noteInitialLoadDone = true;
+        _commentaireInitialLoadDone = true;
+
         _mvpTopPlayers = [];
         loadingNote = false;
       });
@@ -395,7 +400,12 @@ class InfosTabState extends State<InfosTab> {
       child: RefreshIndicator(
         color: ColorPalette.accent(context),
         backgroundColor: ColorPalette.background(context),
-        onRefresh: widget.onRefresh ?? () async {},
+        onRefresh: () async {
+          if (widget.onRefresh != null) {
+            await widget.onRefresh!();
+          }
+          await _loadMvpEtNote();
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: ConstrainedBox(

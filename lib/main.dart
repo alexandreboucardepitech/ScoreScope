@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import 'package:scorescope/models/enum/theme_options.dart';
 import 'package:scorescope/services/cache/local_cache.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/services/web/auth_service.dart';
+import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/translate/app_localizations.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/app_theme.dart';
@@ -25,10 +27,12 @@ import 'firebase_options.dart';
 import 'views/all_matches/all_matches.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 VoidCallback? onLogout;
+bool _notificationsInitialized = false;
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -40,6 +44,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider:
+        kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
   );
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -64,7 +74,7 @@ void main() async {
   final authService = AuthService();
   await authService.initialize();
 
-  await initializeDateFormatting('fr_FR', null);
+  await initializeDateFormatting(getDateFormat(), null);
 
   await LocalCache.init();
 
@@ -300,6 +310,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _initNotifications() async {
+    if (_notificationsInitialized) return;
+    _notificationsInitialized = true;
+
     final messaging = FirebaseMessaging.instance;
 
     final settings = await messaging.requestPermission();

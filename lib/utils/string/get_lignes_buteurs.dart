@@ -15,7 +15,6 @@ class ButeurLine {
 List<ButeurLine> getLignesButeurs({
   required List<But> buts,
   required bool domicile,
-  bool fullName = true,
 }) {
   Map<Joueur, List<String>> butsMap = {};
 
@@ -46,10 +45,10 @@ List<ButeurLine> getLignesButeurs({
     String display;
 
     if (minutesList.isEmpty) {
-      display = fullName ? joueur.fullName : joueur.shortName;
+      display = joueur.fullName;
     } else {
       final minutes = minutesList.join(", ");
-      final name = fullName ? joueur.fullName : joueur.shortName;
+      final name = joueur.fullName;
 
       display = domicile ? "$name $minutes" : "$minutes $name";
     }

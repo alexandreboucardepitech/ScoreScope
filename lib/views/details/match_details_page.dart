@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/string/display_score_or_match_date.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/display_prolongations_penaltys.dart';
@@ -71,9 +72,9 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
   }
 
   Future<void> _refresh() async {
-    _reloadMatch();
-    _loadFavoriStatus();
-    _loadPrivateStatus();
+    await _reloadMatch();
+    await _loadFavoriStatus();
+    await _loadPrivateStatus();
     setState(() {});
   }
 
@@ -159,7 +160,8 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
         ),
         content: Text(
           _pagePendingRating != null
-              ? translate.laNoteXSur10SeraPerdueSiTuQuittesMaintenant(_pagePendingRating.toString())
+              ? translate.laNoteXSur10SeraPerdueSiTuQuittesMaintenant(
+                  _pagePendingRating.toString())
               : translate.taNoteSeraPerdueSiTuQuittesMaintenant,
           style: TextStyle(color: ColorPalette.textPrimary(context)),
         ),
@@ -792,7 +794,7 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                   ),
                                   if (_currentMatch.isScheduled)
                                     Text(
-                                      DateFormat('d MMMM', 'fr_FR')
+                                      DateFormat('d MMMM', getDateFormat())
                                           .format(_currentMatch.date),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
@@ -889,7 +891,6 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 children: getLignesButeurs(
                                   buts: _currentMatch.butsEquipeDomicile,
                                   domicile: true,
-                                  fullName: true,
                                 )
                                     .map(
                                       (line) => InkWell(
@@ -935,7 +936,6 @@ class _MatchDetailsPageState extends State<MatchDetailsPage>
                                 children: getLignesButeurs(
                                   buts: _currentMatch.butsEquipeExterieur,
                                   domicile: false,
-                                  fullName: true,
                                 )
                                     .map(
                                       (line) => InkWell(

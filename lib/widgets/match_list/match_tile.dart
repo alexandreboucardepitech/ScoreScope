@@ -20,12 +20,14 @@ class MatchTile extends StatefulWidget {
   final MatchUserData? userData;
   final AppUser? user;
   final bool displayUserData;
+  final VoidCallback? onRefresh;
 
   const MatchTile({
     required this.match,
     this.userData,
     this.user,
     this.displayUserData = false,
+    this.onRefresh,
     super.key,
   });
 
@@ -145,13 +147,17 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     }
   }
 
-  void _navigateToDetails() {
-    Navigator.push(
+  void _navigateToDetails() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MatchDetailsPage(match: widget.match),
       ),
     );
+
+    if (widget.onRefresh != null) {
+      widget.onRefresh!();
+    }
   }
 
   List<Widget> _buildClickableButeurs(List<ButeurLine> lines,
@@ -462,7 +468,6 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                           getLignesButeurs(
                             buts: match.butsEquipeDomicile,
                             domicile: true,
-                            fullName: false,
                           ),
                           alignRight: true,
                         ),
@@ -481,7 +486,6 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
                           getLignesButeurs(
                             buts: match.butsEquipeExterieur,
                             domicile: false,
-                            fullName: false,
                           ),
                           alignRight: false,
                         ),

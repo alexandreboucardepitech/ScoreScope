@@ -967,13 +967,13 @@ class FillDatabase {
     if (seulementUpdateCompos) {
       await RepositoryProvider.matchRepository.updateField(
         matchId: newMatch.id,
-        // joueursEquipeDomicileId: newMatch.joueursEquipeDomicileId,
-        // joueursEquipeExterieurId: newMatch.joueursEquipeExterieurId,
-        penaltyEquipeDomicile: newMatch.penaltyEquipeDomicile,
-        penaltyEquipeExterieur: newMatch.penaltyEquipeExterieur,
-        prolongations: newMatch.prolongations,
-        refereeName: newMatch.refereeName,
-        stadiumName: newMatch.stadiumName,
+        joueursEquipeDomicileId: newMatch.joueursEquipeDomicileId,
+        joueursEquipeExterieurId: newMatch.joueursEquipeExterieurId,
+        // penaltyEquipeDomicile: newMatch.penaltyEquipeDomicile,
+        // penaltyEquipeExterieur: newMatch.penaltyEquipeExterieur,
+        // prolongations: newMatch.prolongations,
+        // refereeName: newMatch.refereeName,
+        // stadiumName: newMatch.stadiumName,
       );
       return newMatch;
     }

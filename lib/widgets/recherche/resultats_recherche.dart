@@ -7,6 +7,7 @@ import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/resultats_recherche_model.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/images/build_team_logo.dart';
 import 'package:scorescope/utils/search/search_page_state.dart';
 import 'package:scorescope/utils/string/build_adaptative_team_name.dart';
@@ -173,7 +174,7 @@ class _MatchSearchTileState extends State<_MatchSearchTile>
 
     setState(() => _mvpLoading = true);
     try {
-      final mvp = await widget.match.getMvp();
+      Joueur? mvp = widget.match.getMvp();
       if (mounted) {
         setState(() {
           _mvpName = mvp?.fullName;
@@ -369,7 +370,7 @@ class _MatchSearchTileState extends State<_MatchSearchTile>
                                       ),
                                       if (match.isScheduled)
                                         Text(
-                                          DateFormat('d MMMM', 'fr_FR')
+                                          DateFormat('d MMMM', getDateFormat())
                                               .format(match.date),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(

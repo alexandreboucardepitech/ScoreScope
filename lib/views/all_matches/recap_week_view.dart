@@ -8,6 +8,7 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/string/round_smart.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
@@ -107,8 +108,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
   void _initDates() {
     final now = DateTime.now();
     final thisMonday = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1))
-        .subtract(Duration(days: 6));
+        .subtract(Duration(days: now.weekday - 1));
     _lastMonday = thisMonday.subtract(const Duration(days: 7));
     _lastSunday = thisMonday.subtract(const Duration(seconds: 1));
     _prevMonday = _lastMonday.subtract(const Duration(days: 7));
@@ -167,6 +167,8 @@ class _RecapWeekViewState extends State<RecapWeekView> {
       setState(() => _loadingLabel = translate.calculDesStatistiques);
       final totalNbGoalsAllTime =
           await RepositoryProvider.userRepository.getUserNbButs(uid, true);
+
+      if (!mounted) return;
 
       setState(() {
         _data = _compute(
@@ -597,7 +599,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
   }
 
   String get _weekLabel {
-    final fmt = DateFormat('d MMM', 'fr_FR');
+    final fmt = DateFormat('d MMM', getDateFormat());
     return '${fmt.format(_lastMonday)} - ${fmt.format(_lastSunday)}';
   }
 

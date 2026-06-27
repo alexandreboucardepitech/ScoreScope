@@ -9,6 +9,7 @@ const NOTIF_TYPES = {
   COMMENT: "comment",
   FAVORITE_TEAM_MATCH_END: "favoriteTeamMatch",
   WEEKLY_RECAP: "weeklyRecap",
+  CDM_RECAP: "cdmRecap",
 };
 
 function buildNotificationContent(type, payload) {
@@ -52,6 +53,12 @@ function buildNotificationContent(type, payload) {
       return {
         title: "Ton récap de la semaine est disponible 📊",
         body: `Viens découvrir tes statistiques de visionnage de la semaine !`,
+      };
+    case NOTIF_TYPES.CDM_RECAP:
+      return {
+        title: "🏆 Le récap de ta Coupe du Monde est disponible !",
+        body: "Ça y est, la Coupe du Monde est terminée. " +
+        "Découvre le récap de la CdM 2026 avec ScoreScope !",
       };
     default:
       return null;

@@ -1000,5 +1000,271 @@
   "taNoteSeraPerdueSiTuQuittesMaintenant": "Ta note sera perdue si tu quittes maintenant.",
   "continuerAModifier": "Continuer à modifier",
   "quitterSansEnregistrer": "Quitter sans enregistrer",
-  "enregistrerEtQuitter": "Enregistrer et quitter"
+  "enregistrerEtQuitter": "Enregistrer et quitter",
+  "erreurLorsDuPartageDuMatch": "Erreur lors du partage du match : {erreur}",
+  "@erreurLorsDuPartageDuMatch": {
+    "placeholders": {
+      "erreur": {
+        "type": "String"
+      }
+    }
+  },
+  "leMarathonien": "Le Marathonien",
+  "xMatchsRegardesSurX": "{matchCount} matchs regardés sur {totalMatchs}",
+  "@xMatchsRegardesSurX": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      },
+      "totalMatchs": {
+        "type": "String"
+      }
+    }
+  },
+  "lInsomniaque": "L'insomniaque",
+  "xMatchsRegardesApresMinuit": "{matchCount} matchs regardés après minuit.",
+  "@xMatchsRegardesApresMinuit": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "jourDeFolie": "Jour de Folie",
+  "xMatchsVusEnUneSeuleJournee": "{matchCount} matchs vus en une seule journée",
+  "@xMatchsVusEnUneSeuleJournee": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "leFestin": "Le Festin",
+  "xButsEnMoyenneParMatch": "{x} buts en moyenne par match",
+  "@xButsEnMoyenneParMatch": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      }
+    }
+  },
+  "ennuyant": "Ennuyant",
+  "lePorteBonheur": "Le Porte-Bonheur",
+  "tonEquipe": "Ton équipe",
+  "xGagneDansXPourcentDesMatchsQueTuRegardes": "{equipe} gagne dans {pourcent}% des matchs que tu regardes",
+  "@xGagneDansXPourcentDesMatchsQueTuRegardes": {
+    "placeholders": {
+      "equipe": {
+        "type": "String"
+      },
+      "pourcent": {
+        "type": "String"
+      }
+    }
+  },
+  "leCorbeau": "Le Corbeau",
+  "xNeGagneQueDansXPourcentDesMatchsQueTuRegardes": "{equipe} ne gagne que dans {pourcent}% des matchs que tu regardes",
+  "@xNeGagneQueDansXPourcentDesMatchsQueTuRegardes": {
+    "placeholders": {
+      "equipe": {
+        "type": "String"
+      },
+      "pourcent": {
+        "type": "String"
+      }
+    }
+  },
+  "leJugeSevere": "Le Juge Sévère",
+  "noteMoyenneDeXSur10": "Note moyenne de {note}/10",
+  "@noteMoyenneDeXSur10": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "lEnthousiaste": "L'Enthousiaste",
+  "leRituel": "Le Rituel",
+  "xPourcentDesTesMatchsRegardesALaMemeHeure": "{pourcent}% de tes matchs regardés à la même heure",
+  "@xPourcentDesTesMatchsRegardesALaMemeHeure": {
+    "placeholders": {
+      "pourcent": {
+        "type": "String"
+      }
+    }
+  },
+  "leCitoyenDuMonde": "Le Citoyen du Monde",
+  "xEquipesDifferentesSuiviesSur48": "{count} équipes différentes suivies sur 48",
+  "@xEquipesDifferentesSuiviesSur48": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lInarretable": "L'Inarrêtable",
+  "xJoursConsecutifsAvecAuMoinsUnMatch": "{jours} jours consécutifs avec au moins un match",
+  "@xJoursConsecutifsAvecAuMoinsUnMatch": {
+    "placeholders": {
+      "jours": {
+        "type": "String"
+      }
+    }
+  },
+  "lUltra": "L'Ultra",
+  "xMatchsSuivisPourEquipe": "{count} matchs suivis pour {equipe}",
+  "@xMatchsSuivisPourEquipe": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "equipe": {
+        "type": "String"
+      }
+    }
+  },
+  "lePuriste": "Le Puriste",
+  "xPourcentDesMatchsEliminationDirecteSuivis": "{pourcent}% des matchs à élimination directe suivis",
+  "@xPourcentDesMatchsEliminationDirecteSuivis": {
+    "placeholders": {
+      "pourcent": {
+        "type": "String"
+      }
+    }
+  },
+  "leSansPause": "Le Sans-Pause",
+  "lExplorateur": "L'Explorateur",
+  "leBoulimique": "Le Boulimique",
+  "xMatchsRegardesSurY": "{count} matchs regardés sur {total}",
+  "@xMatchsRegardesSurY": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "leCoucheTard": "Le Couche-Tard",
+  "lAssidu": "L'Assidu",
+  "lePartisan": "Le Partisan",
+  "leSupporter": "Le Supporter",
+  "lesSupporterDescription": "{matchCount} matchs regardés sur {total}",
+  "@lesSupporterDescription": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "tuAsSuiviXNationsSurX": "Tu as suivi {nationsSuivies} nations sur {nationsTotal}",
+   "@tuAsSuiviXNationsSurX": {
+    "placeholders": {
+      "nationsSuivies": {
+        "type": "String"
+      },
+      "nationsTotal": {
+        "type": "String"
+      }
+    }
+  },
+  "recuperationDesMatchsCDM": "Récupération des matchs CdM...",
+  "chargementDesDetails": "Chargement des détails...",
+  "donneesSocialesEtMvp": "Données sociales & MVP...",
+  "chargementDuParcoursComplet": "Chargement du parcours complet...",
+  "chargementDesStatsScoreScope": "Chargement des stats ScoreScope...",
+  "joueurInconnu": "Joueur inconnu",
+  "maCoupeDuMonde2026AvecScoreScope": "Ma Coupe du Monde 2026 avec @ScoreScopeApp ⚽🏆",
+  "aucunMatchCDMEnregistre": "Aucun match CdM enregistré",
+  "ajouteLesMatchsQueTuRegardesPourVoirTonRecap": "Ajoute les matchs que tu regardes\npour voir ton récap !",
+  "partager": "Partager",
+  "taCoupeDuMonde": "Ta Coupe du Monde",
+  "avecScoreScope": "avec ScoreScope.",
+  "swipePourDecouvrir": "Swipe pour découvrir",
+  "taCoupeDuMonde2026": "📊 TA COUPE DU MONDE 2026",
+  "noteMoy": "note moy.",
+  "pourcentDesMatchsRegardes": "% des matchs regardés",
+  "equipesLesPlusSuivies": "🌍 ÉQUIPES LES PLUS SUIVIES",
+  "mvpLesPlusVotes": "⭐ MVP LES PLUS VOTÉS",
+  "aucunMatchAAfficher": "Aucun match à afficher",
+  "tonParcours": "🗺️ TON PARCOURS",
+  "xMatchsVus": "{matchCount} matchs vus",
+  "@xMatchsVus": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "xMatchsDePoules": "{matchCount} matchs poules",
+  "@xMatchsDePoules": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "xPhaseFinale": "{matchCount} phase finale",
+  "@xPhaseFinale": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "pasAssezDeDonneesPourLEquipeDeCoeur": "Pas assez de données pour l'équipe de cœur.",
+  "tonEquipeMaj": "TON ÉQUIPE",
+  "repartitionDesNotes": "RÉPARTITION DES NOTES",
+  "tesMatchs": "⚽ TES MATCHS",
+  "matchsDePoules": "matchs de poules",
+  "phaseFinale": "phaseFinale",
+  "butsParMatch": "buts/match",
+  "tonMeilleurMatch": "🏆 TON MEILLEUR MATCH",
+  "tonPireMatch": "😴 TON PIRE MATCH",
+  "favori": "⭐ Favori",
+  "tonMvp": "Ton MVP",
+  "mvpGlobal": "MVP global",
+  "noteGlobale": "Note globale :",
+  "funStats": "✨ FUN STATS",
+  "nationsDifferentesSuivies": "nations différentes\nsuivies",
+  "matchsRegardesLaNuit": "matchs regardés la nuit\n(0h - 6h)",
+  "desMatchsRegardes": "des matchs regardés ({valeur})",
+  "@desMatchsRegardes": {
+    "placeholders": {
+      "valeur": {
+        "type": "String"
+      }
+    }
+  },
+  "matchsRegardesParJour": "MATCHS REGARDÉS PAR JOUR",
+  "tonProfil": "TON PROFIL",
+  "serieMaj": "SÉRIE",
+  "joursConsecutifs": "jours\nconsécutifs",
+  "avecAuMoinsUnMatchSuivi": "avec au moins un match suivi",
+  "coupeDuMonde2026": "Coupe du Monde 2026",
+  "meilleurMatchMaj": "🏆 MEILLEUR MATCH",
+  "mvpDuTournoi": "MVP DU TOURNOI",
+  "statsCommunauteIndisponibles": "Stats communauté indisponibles.",
+  "scorescopeRecapDeLaCommunaute": "SCORESCOPE - RÉCAP DE LA COMMUNAUTÉ",
+  "noteMoyGlobale": "note moy.\nglobale",
+  "fans": "fans",
+  "notesDonnees": "notes\ndonnées",
+  "votesMvp": "votes\nMVP",
+  "topSpectateurs": "👑 TOP SPECTATEURS",
+  "mvpDuMatch": "MVP du match",
+  "v": "V",
+  "n": "N",
+  "d": "D",
+  "vuAvecX": "Vu avec {displayName}",
+  "@vuAvecX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  }
 }

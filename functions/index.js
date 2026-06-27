@@ -428,6 +428,17 @@ exports.fetchLineups = onSchedule(
             const teamIdDom = data.equipeDomicileId;
             const teamIdExt = data.equipeExterieurId;
 
+            const [teamDomDoc, teamExtDoc] = await Promise.all([
+              db.collection("equipes").doc(teamIdDom).get(),
+              db.collection("equipes").doc(teamIdExt).get(),
+            ]);
+
+            const teamDomData = teamDomDoc.data();
+            const teamExtData = teamExtDoc.data();
+
+            const isNationalDom = teamDomData?.national === true;
+            const isNationalExt = teamExtData?.national === true;
+
             const mapPlayer = (playerObj, isFromStartXI = true) => {
               if (!playerObj?.player?.id) return null;
 
@@ -462,10 +473,12 @@ exports.fetchLineups = onSchedule(
               ...joueursDom.map((j) => ({
                 id: j.joueurId,
                 equipeId: teamIdDom,
+                isNational: isNationalDom,
               })),
               ...joueursExt.map((j) => ({
                 id: j.joueurId,
                 equipeId: teamIdExt,
+                isNational: isNationalExt,
               })),
             ];
 
@@ -480,9 +493,89 @@ exports.fetchLineups = onSchedule(
             );
 
             const existingIds = new Set(
-                playerDocs.filter((doc) => doc.exists).map((doc) => doc.id),
+                playerDocs
+                    .filter((doc) => doc.exists)
+                    .map((doc) => doc.id),
             );
 
+            const batch = db.batch();
+            let hasUpdates = false;
+
+            for (let i = 0; i < uniquePlayers.length; i++) {
+              const playerInfo = uniquePlayers[i];
+              const playerDoc = playerDocs[i];
+
+              if (!playerDoc.exists) continue;
+
+              const joueurData = playerDoc.data();
+
+              const updates = {};
+
+              if (playerInfo.isNational) {
+                const currentNationalId =
+                  joueurData?.equipeNationaleId?.toString();
+
+                const currentEquipeId =
+                  joueurData?.equipeId?.toString();
+
+                const newNationalId =
+                  playerInfo.equipeId?.toString();
+
+                if (
+                  newNationalId &&
+                  currentNationalId !== newNationalId
+                ) {
+                  updates.equipeNationaleId = newNationalId;
+
+                  console.log(
+                      `🌍 Joueur ${playerInfo.id} : sélection mise à jour ` +
+                    `${currentNationalId} → ${newNationalId}`,
+                  );
+                }
+
+                // 🔹 Fallback obligatoire si equipeId absent
+                if (newNationalId && currentEquipeId !== newNationalId) {
+                  updates.equipeId = newNationalId;
+                  console.log(
+                      `Joueur ${playerInfo.id} : fallback → ${newNationalId}`,
+                  );
+                }
+              } else {
+                const currentClubId =
+                joueurData?.equipeId?.toString();
+
+                const newClubId =
+                playerInfo.equipeId?.toString();
+
+                if (
+                  newClubId &&
+                currentClubId !== newClubId
+                ) {
+                  updates.equipeId = newClubId;
+
+                  console.log(
+                      `🏟️ Joueur ${playerInfo.id} : club mis à jour ` +
+                  `${currentClubId} → ${newClubId}`,
+                  );
+                }
+              }
+
+              if (Object.keys(updates).length > 0) {
+                batch.update(
+                    db.collection("joueurs").doc(playerInfo.id),
+                    updates,
+                );
+
+                hasUpdates = true;
+              }
+            }
+
+            if (hasUpdates) {
+              await batch.commit();
+              console.log("🔄 Équipes joueurs mises à jour");
+            }
+
+            // 🔹 Joueurs à créer
             const playersToCreate = uniquePlayers.filter(
                 (p) => !existingIds.has(p.id),
             );
@@ -493,10 +586,14 @@ exports.fetchLineups = onSchedule(
               try {
                 const joueurId = playerInfo.id;
                 const equipeId = playerInfo.equipeId;
+                const isNational = playerInfo.isNational;
 
-                const apiData = await getDataFromApi("players/profiles", {
-                  player: joueurId,
-                });
+                const apiData = await getDataFromApi(
+                    "players/profiles",
+                    {
+                      player: joueurId,
+                    },
+                );
 
                 if (!apiData || apiData.length === 0) continue;
 
@@ -509,6 +606,7 @@ exports.fetchLineups = onSchedule(
                   nom: player.lastname || "",
                   fullName: (player.name || "").replaceAll("&apos;", "'"),
                   equipeId: equipeId,
+                  equipeNationaleId: isNational ? equipeId : null,
                   dateNaissance: player.birth?.date || null,
                   nationalite: player.nationality || null,
                   picture: player.photo || null,
@@ -522,6 +620,7 @@ exports.fetchLineups = onSchedule(
               }
             }
 
+            // 🔹 Mise à jour du match
             await db.collection("matchs").doc(matchId).update({
               joueursEquipeDomicile: joueursDom,
               joueursEquipeExterieur: joueursExt,
@@ -1244,6 +1343,51 @@ exports.sendWeeklyRecapNotifications = onSchedule(
       }
     },
 );
+
+exports.sendCdmRecapNotification = onSchedule(
+    {
+      schedule: "15 23 19 7 *", // 19 juillet à 23h15
+      timeZone: "Europe/Paris",
+    },
+    async () => {
+      console.log("🏆 Envoi des notifications récap CdM 2026...");
+
+      try {
+        const usersSnapshot = await db.collection("users").get();
+
+        const usersToNotify = usersSnapshot.docs
+            .map((doc) => ({...doc.data(), uid: doc.id}))
+            .filter(
+                (user) =>
+                  user.notificationToken != null &&
+                  user.options?.allNotifications !== false,
+            );
+
+        console.log(
+            usersToNotify.length,
+            "utilisateurs à notifier pour le récap CdM",
+        );
+
+        for (const user of usersToNotify) {
+          try {
+            await sendNotificationToUser(
+                user.uid,
+                NOTIF_TYPES.CDM_RECAP,
+                {},
+            );
+            console.log("✅ récap CdM envoyée à :", user.uid);
+          } catch (error) {
+            console.error("🔥 Erreur notif CdM recap :", user.uid, error);
+          }
+        }
+
+        console.log("✅ CdM recap terminé");
+      } catch (error) {
+        console.error("🔥 Erreur globale CdM recap :", error);
+      }
+    },
+);
+
 exports.updatePopulariteCompetitions = onSchedule(
     {
       schedule: "0 0 * * *",

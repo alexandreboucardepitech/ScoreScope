@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/competition.dart';
 import 'package:scorescope/services/cache/local_cache.dart';
 import 'package:scorescope/services/repositories/i_competition_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/handle_data/app_cache.dart';
 
 class WebCompetitionRepository implements ICompetitionRepository {
@@ -21,15 +22,18 @@ class WebCompetitionRepository implements ICompetitionRepository {
 
   @override
   Future<Competition?> fetchCompetitionById(String id) async {
-    // L1 — mémoire
-    final l1 = AppCache.getCompetition(id);
-    if (l1 != null) return l1;
+    if (RepositoryProvider.userRepository.currentUser?.options.utiliserCache ??
+        true) {
+      // L1 — mémoire
+      final l1 = AppCache.getCompetition(id);
+      if (l1 != null) return l1;
 
-    // L2 — disque
-    final l2 = LocalCache.getCompetition(id);
-    if (l2 != null) {
-      AppCache.setCompetition(id, l2); // remonte en L1
-      return l2;
+      // L2 — disque
+      final l2 = LocalCache.getCompetition(id);
+      if (l2 != null) {
+        AppCache.setCompetition(id, l2); // remonte en L1
+        return l2;
+      }
     }
 
     // Firestore

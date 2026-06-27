@@ -13,6 +13,10 @@ import 'package:scorescope/utils/stats/stats_loading_state.dart';
 class StatsDataLoader {
   static const int _batchSize = 20;
 
+  static const int _entityBatchSize = 10;
+
+  static const int _assemblyBatchSize = 30;
+
   final void Function(StatsLoadingState) onStateChanged;
 
   StatsLoadingState _state;
@@ -85,6 +89,9 @@ class StatsDataLoader {
     final joueurIds =
         _extractUniqueJoueurIds(_state.matchModelIds, _state.matchUserData);
 
+    final total = equipeIds.length + competitionIds.length + joueurIds.length;
+    _emit(_state.copyWith(entitiesTotal: total, entitiesLoaded: 0));
+
     debugPrint(
       '[StatsDataLoader] Entités à charger : '
       '${equipeIds.length} équipes, '
@@ -93,15 +100,15 @@ class StatsDataLoader {
     );
 
     final caches = await Future.wait([
-      _fetchEquipes(equipeIds),
-      _fetchCompetitions(competitionIds),
-      _fetchJoueurs(joueurIds),
+      _fetchEquipesBatched(equipeIds),
+      _fetchCompetitionsBatched(competitionIds),
     ]);
+    final joueurCache = await _fetchJoueursBatched(joueurIds);
 
     _emit(_state.copyWith(
       equipeCache: caches[0] as Map<String, Equipe>,
       competitionCache: caches[1] as Map<String, Competition>,
-      joueurCache: caches[2] as Map<String, Joueur>,
+      joueurCache: joueurCache,
     ));
   }
 
@@ -145,37 +152,74 @@ class StatsDataLoader {
     return results;
   }
 
-  Future<Map<String, Equipe>> _fetchEquipes(Set<String> ids) async {
-    final entries = await Future.wait(
-      ids.map((id) async {
-        final equipe =
-            await RepositoryProvider.equipeRepository.fetchEquipeById(id);
-        return equipe != null ? MapEntry(id, equipe) : null;
-      }),
-    );
-    return Map.fromEntries(entries.whereType<MapEntry<String, Equipe>>());
+  Future<Map<String, Equipe>> _fetchEquipesBatched(Set<String> ids) async {
+    final result = <String, Equipe>{};
+    final idList = ids.toList();
+
+    for (int i = 0; i < idList.length; i += _entityBatchSize) {
+      final batch = idList.skip(i).take(_entityBatchSize).toList();
+      final entries = await Future.wait(
+        batch.map((id) async {
+          final equipe =
+              await RepositoryProvider.equipeRepository.fetchEquipeById(id);
+          return equipe != null ? MapEntry(id, equipe) : null;
+        }),
+      );
+      result.addEntries(entries.whereType<MapEntry<String, Equipe>>());
+
+      _emit(_state.copyWith(
+        entitiesLoaded: _state.entitiesLoaded + batch.length,
+      ));
+    }
+
+    return result;
   }
 
-  Future<Map<String, Competition>> _fetchCompetitions(Set<String> ids) async {
-    final entries = await Future.wait(
-      ids.map((id) async {
-        final competition = await RepositoryProvider.competitionRepository
-            .fetchCompetitionById(id);
-        return competition != null ? MapEntry(id, competition) : null;
-      }),
-    );
-    return Map.fromEntries(entries.whereType<MapEntry<String, Competition>>());
+  Future<Map<String, Competition>> _fetchCompetitionsBatched(
+      Set<String> ids) async {
+    final result = <String, Competition>{};
+    final idList = ids.toList();
+
+    for (int i = 0; i < idList.length; i += _entityBatchSize) {
+      final batch = idList.skip(i).take(_entityBatchSize).toList();
+      final entries = await Future.wait(
+        batch.map((id) async {
+          final competition = await RepositoryProvider.competitionRepository
+              .fetchCompetitionById(id);
+          return competition != null ? MapEntry(id, competition) : null;
+        }),
+      );
+      result.addEntries(entries.whereType<MapEntry<String, Competition>>());
+
+      _emit(_state.copyWith(
+        entitiesLoaded: _state.entitiesLoaded + batch.length,
+      ));
+    }
+
+    return result;
   }
 
-  Future<Map<String, Joueur>> _fetchJoueurs(Set<String> ids) async {
-    final entries = await Future.wait(
-      ids.map((id) async {
-        final joueur =
-            await RepositoryProvider.joueurRepository.fetchJoueurById(id);
-        return joueur != null ? MapEntry(id, joueur) : null;
-      }),
-    );
-    return Map.fromEntries(entries.whereType<MapEntry<String, Joueur>>());
+  Future<Map<String, Joueur>> _fetchJoueursBatched(Set<String> ids) async {
+    final result = <String, Joueur>{};
+    final idList = ids.toList();
+
+    for (int i = 0; i < idList.length; i += _entityBatchSize) {
+      final batch = idList.skip(i).take(_entityBatchSize).toList();
+      final entries = await Future.wait(
+        batch.map((id) async {
+          final joueur =
+              await RepositoryProvider.joueurRepository.fetchJoueurById(id);
+          return joueur != null ? MapEntry(id, joueur) : null;
+        }),
+      );
+      result.addEntries(entries.whereType<MapEntry<String, Joueur>>());
+
+      _emit(_state.copyWith(
+        entitiesLoaded: _state.entitiesLoaded + batch.length,
+      ));
+    }
+
+    return result;
   }
 
   Set<String> _extractUniqueEquipeIds(List<MatchModelId> matchModelIds) {
@@ -227,87 +271,90 @@ class StatsDataLoader {
     required Map<String, Competition> competitionCache,
     required Map<String, Joueur> joueurCache,
   }) async {
-    final futures = matchModelIds.map((matchId) async {
-      final equipeDomicile = equipeCache[matchId.equipeDomicileId];
-      final equipeExterieur = equipeCache[matchId.equipeExterieurId];
-      final competition = competitionCache[matchId.competitionId];
+    final assembled = <MatchModel>[];
 
-      if (equipeDomicile == null ||
-          equipeExterieur == null ||
-          competition == null) {
-        debugPrint(
-            '[StatsDataLoader] Match ${matchId.id} ignoré : entité manquante');
-        return null;
-      }
+    for (int i = 0; i < matchModelIds.length; i += _assemblyBatchSize) {
+      final batch = matchModelIds.skip(i).take(_assemblyBatchSize).toList();
+      final batchResults = await Future.wait(batch.map((matchId) async {
+        final equipeDomicile = equipeCache[matchId.equipeDomicileId];
+        final equipeExterieur = equipeCache[matchId.equipeExterieurId];
+        final competition = competitionCache[matchId.competitionId];
 
-      // Future.wait résout tous les buts et joueurs en parallèle pour ce match.
-      final results = await Future.wait([
-        Future.wait(
-          matchId.butsEquipeDomicileId.map((butId) async {
-            final buteur = joueurCache[butId.buteurId];
-            if (buteur == null) return null;
-            return await But.fromButId(butId, buteurDejaCharge: buteur);
-          }),
-        ),
-        Future.wait(
-          matchId.butsEquipeExterieurId.map((butId) async {
-            final buteur = joueurCache[butId.buteurId];
-            if (buteur == null) return null;
-            return await But.fromButId(butId, buteurDejaCharge: buteur);
-          }),
-        ),
-        Future.wait(
-          matchId.joueursEquipeDomicileId.map((joueurMatchId) async {
-            final joueur = joueurCache[joueurMatchId.joueurId];
-            return await MatchJoueur.fromMatchJoueurId(joueurMatchId,
-                joueurDejaCharge: joueur);
-          }),
-        ),
-        Future.wait(
-          matchId.joueursEquipeExterieurId.map((joueurMatchId) async {
-            final joueur = joueurCache[joueurMatchId.joueurId];
-            return await MatchJoueur.fromMatchJoueurId(joueurMatchId,
-                joueurDejaCharge: joueur);
-          }),
-        ),
-      ]);
+        if (equipeDomicile == null ||
+            equipeExterieur == null ||
+            competition == null) {
+          debugPrint(
+              '[StatsDataLoader] Match ${matchId.id} ignoré : entité manquante');
+          return null;
+        }
 
-      final butsEquipeDomicile = (results[0] as List).whereType<But>().toList();
-      final butsEquipeExterieur =
-          (results[1] as List).whereType<But>().toList();
-      final joueursEquipeDomicile =
-          (results[2] as List).whereType<MatchJoueur>().toList();
-      final joueursEquipeExterieur =
-          (results[3] as List).whereType<MatchJoueur>().toList();
+        final results = await Future.wait([
+          Future.wait(
+            matchId.butsEquipeDomicileId.map((butId) async {
+              final buteur = joueurCache[butId.buteurId];
+              if (buteur == null) return null;
+              return await But.fromButId(butId, buteurDejaCharge: buteur);
+            }),
+          ),
+          Future.wait(
+            matchId.butsEquipeExterieurId.map((butId) async {
+              final buteur = joueurCache[butId.buteurId];
+              if (buteur == null) return null;
+              return await But.fromButId(butId, buteurDejaCharge: buteur);
+            }),
+          ),
+          Future.wait(
+            matchId.joueursEquipeDomicileId.map((joueurMatchId) async {
+              final joueur = joueurCache[joueurMatchId.joueurId];
+              return await MatchJoueur.fromMatchJoueurId(joueurMatchId,
+                  joueurDejaCharge: joueur);
+            }),
+          ),
+          Future.wait(
+            matchId.joueursEquipeExterieurId.map((joueurMatchId) async {
+              final joueur = joueurCache[joueurMatchId.joueurId];
+              return await MatchJoueur.fromMatchJoueurId(joueurMatchId,
+                  joueurDejaCharge: joueur);
+            }),
+          ),
+        ]);
 
-      return MatchModel(
-        id: matchId.id,
-        status: matchId.status,
-        liveMinute: matchId.liveMinute,
-        extraTime: matchId.extraTime,
-        saison: matchId.saison,
-        equipeDomicile: equipeDomicile,
-        equipeExterieur: equipeExterieur,
-        competition: competition,
-        date: matchId.date,
-        refereeName: matchId.refereeName,
-        stadiumName: matchId.stadiumName,
-        scoreEquipeDomicile: matchId.scoreEquipeDomicile,
-        scoreEquipeExterieur: matchId.scoreEquipeExterieur,
-        penaltyEquipeDomicile: matchId.penaltyEquipeDomicile,
-        penaltyEquipeExterieur: matchId.penaltyEquipeExterieur,
-        prolongations: matchId.prolongations,
-        butsEquipeDomicile: butsEquipeDomicile,
-        butsEquipeExterieur: butsEquipeExterieur,
-        joueursEquipeDomicile: joueursEquipeDomicile,
-        joueursEquipeExterieur: joueursEquipeExterieur,
-        mvpVotes: matchId.mvpVotes,
-        notes: matchId.notes,
-      );
-    });
+        final butsEquipeDomicile =
+            (results[0] as List).whereType<But>().toList();
+        final butsEquipeExterieur =
+            (results[1] as List).whereType<But>().toList();
+        final joueursEquipeDomicile =
+            (results[2] as List).whereType<MatchJoueur>().toList();
+        final joueursEquipeExterieur =
+            (results[3] as List).whereType<MatchJoueur>().toList();
 
-    final assembled =
-        (await Future.wait(futures)).whereType<MatchModel>().toList();
+        return MatchModel(
+          id: matchId.id,
+          status: matchId.status,
+          liveMinute: matchId.liveMinute,
+          extraTime: matchId.extraTime,
+          saison: matchId.saison,
+          equipeDomicile: equipeDomicile,
+          equipeExterieur: equipeExterieur,
+          competition: competition,
+          date: matchId.date,
+          refereeName: matchId.refereeName,
+          stadiumName: matchId.stadiumName,
+          scoreEquipeDomicile: matchId.scoreEquipeDomicile,
+          scoreEquipeExterieur: matchId.scoreEquipeExterieur,
+          penaltyEquipeDomicile: matchId.penaltyEquipeDomicile,
+          penaltyEquipeExterieur: matchId.penaltyEquipeExterieur,
+          prolongations: matchId.prolongations,
+          butsEquipeDomicile: butsEquipeDomicile,
+          butsEquipeExterieur: butsEquipeExterieur,
+          joueursEquipeDomicile: joueursEquipeDomicile,
+          joueursEquipeExterieur: joueursEquipeExterieur,
+          mvpVotes: matchId.mvpVotes,
+          notes: matchId.notes,
+        );
+      }));
+      assembled.addAll(batchResults.whereType<MatchModel>());
+    }
 
     debugPrint(
       '[StatsDataLoader] Assemblage terminé : '

@@ -21,6 +21,8 @@ class StatsLoadingState {
   final String? errorMessage;
   final List<String> matchIds;
   final int matchModelIdsLoaded;
+  final int entitiesLoaded;
+  final int entitiesTotal;
   final List<MatchModelId> matchModelIds;
   final List<MatchUserData> matchUserData;
   final Map<String, Equipe> equipeCache;
@@ -39,6 +41,8 @@ class StatsLoadingState {
     this.errorMessage,
     this.matchIds = const [],
     this.matchModelIdsLoaded = 0,
+    this.entitiesLoaded = 0,
+    this.entitiesTotal = 0,
     this.matchModelIds = const [],
     this.matchUserData = const [],
     this.equipeCache = const {},
@@ -76,7 +80,8 @@ class StatsLoadingState {
       case StatsLoadingPhase.fetchingMatchIds:
         return translate.recuperationDesMatchs;
       case StatsLoadingPhase.fetchingMatchData:
-        return translate.chargementDesMatchsXSurX(matchModelIdsLoaded.toString(), matchIdsTotal.toString());
+        return translate.chargementDesMatchsXSurX(
+            matchModelIdsLoaded.toString(), matchIdsTotal.toString());
       case StatsLoadingPhase.fetchingEntities:
         return translate.chargementDesEquipesEtDesJoueurs;
       case StatsLoadingPhase.assemblingModels:
@@ -84,7 +89,8 @@ class StatsLoadingState {
       case StatsLoadingPhase.ready:
         return translate.pret;
       case StatsLoadingPhase.error:
-        return translate.erreur + " : " +
+        return translate.erreur +
+            " : " +
             (errorMessage ?? 'Une erreur inconnue est survenue');
     }
   }
@@ -97,6 +103,8 @@ class StatsLoadingState {
     DateTimeRange? dateRange,
     List<String>? matchIds,
     int? matchModelIdsLoaded,
+    int? entitiesLoaded,
+    int? entitiesTotal,
     List<MatchModelId>? matchModelIds,
     List<MatchUserData>? matchUserData,
     Map<String, Equipe>? equipeCache,
@@ -112,6 +120,8 @@ class StatsLoadingState {
       dateRange: dateRange ?? this.dateRange,
       matchIds: matchIds ?? this.matchIds,
       matchModelIdsLoaded: matchModelIdsLoaded ?? this.matchModelIdsLoaded,
+      entitiesLoaded: entitiesLoaded ?? this.entitiesLoaded,
+      entitiesTotal: entitiesTotal ?? this.entitiesTotal,
       matchModelIds: matchModelIds ?? this.matchModelIds,
       matchUserData: matchUserData ?? this.matchUserData,
       equipeCache: equipeCache ?? this.equipeCache,

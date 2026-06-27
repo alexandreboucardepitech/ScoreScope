@@ -378,6 +378,13 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
     final loaded = state?.matchModelIdsLoaded ?? 0;
     final progress = (total > 0 && isMatchDataPhase) ? loaded / total : null;
 
+    final isEntitiesPhase = phase == StatsLoadingPhase.fetchingEntities;
+    final entitiesTotal = state?.entitiesTotal ?? 0;
+    final entitiesLoaded = state?.entitiesLoaded ?? 0;
+    final entitiesProgress = (entitiesTotal > 0 && isEntitiesPhase)
+        ? entitiesLoaded / entitiesTotal
+        : null;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -422,6 +429,29 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
                   color: ColorPalette.textPrimary(context),
                   fontWeight: FontWeight.w500,
                 ),
+              ),
+            ],
+            if (isEntitiesPhase && entitiesTotal > 0) ...[
+              const SizedBox(height: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: entitiesProgress,
+                  minHeight: 4,
+                  color: Theme.of(context).colorScheme.primary,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '$entitiesLoaded / $entitiesTotal',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.5),
+                    ),
               ),
             ],
           ],

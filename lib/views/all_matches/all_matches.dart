@@ -1,15 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
-import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/enum/language_options.dart';
-import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
+import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
+import 'package:scorescope/views/all_matches/recap_cdm_view.dart';
 import 'package:scorescope/views/all_matches/recap_week_view.dart';
 import 'package:scorescope/views/all_matches/recherche_view.dart';
 import 'package:scorescope/widgets/all_matches/recap_banner.dart';
@@ -33,11 +33,24 @@ class _AllMatchesViewState extends State<AllMatchesView> {
 
   final double _dateCardWidth = 70.0;
 
-  late Future<List<MatchModel>> _futureMatches;
-  late Future<AppUser?> _futureCurrentUser;
+  List<MatchModel>? _matches;
+  AppUser? _currentUser;
+  String? _errorMessage;
+
+  bool _isInitialLoading = true;
+  bool _isBackgroundRefreshing = false;
 
   bool _showRecapBanner = false;
   bool _recapChecked = false;
+  bool _cdmPopupShownThisSession = false;
+
+  static final DateTime _cdmRecapStart = DateTime(2026, 7, 19, 23, 0);
+  static final DateTime _cdmRecapEnd = DateTime(2026, 8, 15);
+
+  bool get _isCdmRecapAvailable {
+    final now = DateTime.now();
+    return now.isAfter(_cdmRecapStart) && now.isBefore(_cdmRecapEnd);
+  }
 
   @override
   void initState() {
@@ -51,8 +64,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
   }
 
   Future<void> _refresh() async {
-    _loadData();
-    setState(() {});
+    await _loadData(isRefresh: true);
   }
 
   void _scrollToCenter({bool animated = false}) {
@@ -94,19 +106,70 @@ class _AllMatchesViewState extends State<AllMatchesView> {
 
   List<DateTime> _generateDatesAround(DateTime pivot, {int range = 7}) {
     final List<DateTime> newDates = [];
-    final cleanPivot = DateTime(pivot.year, pivot.month, pivot.day,
-        5); //5h du matin pour éviter les bugs au changement d'heure
+    final cleanPivot = DateTime(
+      pivot.year,
+      pivot.month,
+      pivot.day,
+      5,
+    ); //5h du matin pour éviter les bugs au changement d'heure
     for (int i = -range; i <= range; i++) {
       newDates.add(cleanPivot.add(Duration(days: i)));
     }
     return newDates;
   }
 
-  void _loadData() {
-    setState(() {
-      _futureMatches = widget.matchRepository.fetchMatchesByDate(_selectedDate);
-      _futureCurrentUser = _fetchCurrentUser();
-    });
+  Future<void> _loadData({bool isRefresh = false}) async {
+    if (isRefresh) {
+      setState(() {
+        _isBackgroundRefreshing = true;
+        _errorMessage = null;
+      });
+    } else {
+      setState(() {
+        _isInitialLoading = true;
+        _matches = null;
+        _errorMessage = null;
+      });
+    }
+
+    try {
+      final results = await Future.wait([
+        widget.matchRepository.fetchMatchesByDate(_selectedDate),
+        _fetchCurrentUser(),
+      ]);
+
+      if (mounted) {
+        setState(() {
+          _matches = results[0] as List<MatchModel>;
+          _currentUser = results[1] as AppUser?;
+          _isInitialLoading = false;
+          _isBackgroundRefreshing = false;
+
+          if (!_recapChecked && _currentUser != null) {
+            _recapChecked = true;
+            final lastSeen = _currentUser!.lastRecapSeenWeek;
+            _showRecapBanner = lastSeen != _recapWeekId;
+          }
+          if (_isCdmRecapAvailable &&
+              !_cdmPopupShownThisSession &&
+              _currentUser != null &&
+              !(_currentUser!.cdmRecapSeen)) {
+            _cdmPopupShownThisSession = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _showCdmRecapPopup();
+            });
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isInitialLoading = false;
+          _isBackgroundRefreshing = false;
+        });
+      }
+    }
   }
 
   Future<AppUser?> _fetchCurrentUser() async {
@@ -142,7 +205,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     if (DateUtils.isSameDay(_selectedDate, date)) return;
     setState(() {
       _selectedDate = date;
-      _loadData();
+      _loadData(isRefresh: false);
       _availableDates = _generateDatesAround(_selectedDate);
       _scrollToCenter(animated: true);
     });
@@ -167,12 +230,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     )) {
       return translate.demain;
     }
-    String dateLanguage = 'fr_FR';
-    AppUser? currentUser = RepositoryProvider.userRepository.currentUser;
-    if (currentUser != null &&
-        currentUser.options.language == LanguageOptions.english)
-      dateLanguage = 'en_US';
-    return DateFormat('EEE', dateLanguage)
+    return DateFormat('EEE', getDateFormat())
         .format(date)
         .toUpperCase()
         .replaceAll('.', '');
@@ -192,7 +250,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
         .subtract(Duration(days: now.weekday - 1));
     final lastMonday = thisMonday.subtract(const Duration(days: 7));
     final lastSunday = lastMonday.add(const Duration(days: 6));
-    final fmt = DateFormat('d MMM', 'fr_FR');
+    final fmt = DateFormat('d MMM', getDateFormat());
     return 'Du ${fmt.format(lastMonday)} au ${fmt.format(lastSunday)}';
   }
 
@@ -265,7 +323,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               Icons.emoji_events_outlined,
               color: ColorPalette.textPrimary(context),
             ),
-            onPressed: () => _showCompetitionsSelector(context, _loadData),
+            onPressed: () => _showCompetitionsSelector(
+                context, () => _loadData(isRefresh: true)),
           ),
           IconButton(
             icon: Icon(
@@ -322,365 +381,161 @@ class _AllMatchesViewState extends State<AllMatchesView> {
           children: [
             _buildDateSelector(),
             Expanded(
-              child: FutureBuilder<List<dynamic>>(
-                future: Future.wait([
-                  _futureMatches,
-                  _futureCurrentUser,
-                ]),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+              child: Builder(
+                builder: (context) {
+                  if (_isInitialLoading) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Erreur: ${snapshot.error}'));
-                  } else {
-                    final allMatches = snapshot.data![0] as List<MatchModel>;
-                    final currentUser = snapshot.data![1] as AppUser?;
+                  }
 
-                    if (!_recapChecked && currentUser != null) {
-                      _recapChecked = true;
-                      final lastSeen = currentUser.lastRecapSeenWeek;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted)
-                          setState(
-                            () => _showRecapBanner = lastSeen != _recapWeekId,
-                          );
-                      });
-                    }
+                  if (_errorMessage != null && _matches == null) {
+                    return Center(child: Text('Erreur: $_errorMessage'));
+                  }
 
-                    final favoriteTeamsIds =
-                        currentUser?.equipesPrefereesId ?? [];
-                    final favoriteCompetitionsIds =
-                        currentUser?.competitionsPrefereesId ?? [];
+                  final allMatches = _matches ?? [];
+                  final currentUser = _currentUser;
 
-                    if (allMatches.isEmpty) {
-                      return Center(
-                        child: Text(
-                          translate.aucunMatchCeJourLa,
-                          style: TextStyle(
-                            color: ColorPalette.textPrimary(context),
-                          ),
+                  final favoriteTeamsIds =
+                      currentUser?.equipesPrefereesId ?? [];
+                  final favoriteCompetitionsIds =
+                      currentUser?.competitionsPrefereesId ?? [];
+
+                  if (allMatches.isEmpty) {
+                    return Center(
+                      child: Text(
+                        translate.aucunMatchCeJourLa,
+                        style: TextStyle(
+                          color: ColorPalette.textPrimary(context),
                         ),
-                      );
-                    }
-
-                    List<MatchModel> followedMatches = allMatches
-                        .where((m) =>
-                            favoriteTeamsIds.contains(m.equipeDomicile.id) ||
-                            favoriteTeamsIds.contains(m.equipeExterieur.id) ||
-                            favoriteCompetitionsIds.contains(m.competition.id))
-                        .toList();
-
-                    List<MatchModel> otherMatches = allMatches
-                        .where((m) => !followedMatches.contains(m))
-                        .toList();
-
-                    followedMatches = sortMatchsCompetition(
-                      matchs: followedMatches,
-                      triDate: true,
-                    );
-                    otherMatches = sortMatchsCompetition(
-                      matchs: otherMatches,
-                      triDate: false,
-                    );
-
-                    return RefreshIndicator(
-                      color: ColorPalette.accent(context),
-                      backgroundColor: ColorPalette.background(context),
-                      onRefresh: _refresh,
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 80),
-                        children: [
-                          if (_showRecapBanner) ...[
-                            RecapBanner(
-                              onTap: () {
-                                _markRecapAsSeen();
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => RecapWeekView(),
-                                  ),
-                                );
-                              },
-                              onDismiss: _markRecapAsSeen,
-                              recapDateLabel: _recapDateLabel,
-                            ),
-                            SizedBox(height: 12),
-                          ],
-                          if (followedMatches.isNotEmpty)
-                            MatchList(
-                              matches: followedMatches,
-                              header: _buildSectionHeader(
-                                translate.favoris,
-                                Icons.star_rounded,
-                              ),
-                              user: currentUser,
-                              displayUserData: false,
-                            ),
-                          if (otherMatches.isNotEmpty)
-                            MatchList(
-                              matches: otherMatches,
-                              header: _buildSectionHeader(
-                                followedMatches.isEmpty
-                                    ? translate.matchsDuJour
-                                    : translate.autresMatchs,
-                                Icons.sports_soccer,
-                              ),
-                              user: currentUser,
-                              displayUserData: false,
-                            ),
-                        ],
                       ),
                     );
                   }
+
+                  List<MatchModel> followedMatches = allMatches
+                      .where((m) =>
+                          favoriteTeamsIds.contains(m.equipeDomicile.id) ||
+                          favoriteTeamsIds.contains(m.equipeExterieur.id) ||
+                          favoriteCompetitionsIds.contains(m.competition.id))
+                      .toList();
+
+                  List<MatchModel> otherMatches = allMatches
+                      .where((m) => !followedMatches.contains(m))
+                      .toList();
+
+                  followedMatches = sortMatchsCompetition(
+                    matchs: followedMatches,
+                    triDate: true,
+                  );
+                  otherMatches = sortMatchsCompetition(
+                    matchs: otherMatches,
+                    triDate: false,
+                  );
+
+                  return RefreshIndicator(
+                    color: ColorPalette.accent(context),
+                    backgroundColor: ColorPalette.background(context),
+                    onRefresh: _refresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 80),
+                      children: [
+                        if (_isCdmRecapAvailable) ...[
+                          _CdmRecapBanner(
+                            onTap: () {
+                              if (_currentUser != null &&
+                                  !_currentUser!.cdmRecapSeen) {
+                                RepositoryProvider.userRepository
+                                    .markCdmRecapAsSeen(_currentUser!.uid);
+                              }
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => RecapCdmView()),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                        if (_showRecapBanner) ...[
+                          RecapBanner(
+                            onTap: () {
+                              _markRecapAsSeen();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => RecapWeekView(),
+                                ),
+                              );
+                            },
+                            onDismiss: _markRecapAsSeen,
+                            recapDateLabel: _recapDateLabel,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        if (followedMatches.isNotEmpty)
+                          MatchList(
+                            matches: followedMatches,
+                            header: _buildSectionHeader(
+                              translate.favoris,
+                              Icons.star_rounded,
+                            ),
+                            user: currentUser,
+                            displayUserData: false,
+                            onRefresh: () => _loadData(isRefresh: true),
+                          ),
+                        if (otherMatches.isNotEmpty)
+                          MatchList(
+                            matches: otherMatches,
+                            header: _buildSectionHeader(
+                              followedMatches.isEmpty
+                                  ? translate.matchsDuJour
+                                  : translate.autresMatchs,
+                              Icons.sports_soccer,
+                            ),
+                            user: currentUser,
+                            displayUserData: false,
+                            onRefresh: () => _loadData(isRefresh: true),
+                          ),
+                      ],
+                    ),
+                  );
                 },
               ),
             ),
-            if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
-                RepositoryProvider.userRepository.currentUser?.uid ==
-                    "UwigeExwFMfDrCk4x8AbODha3il1" ||
-                RepositoryProvider.userRepository.currentUser?.uid ==
-                    "Elv7ujUkfRYKfrIJsDySorXRYuh1")
-              ElevatedButton(
-                onPressed: () async {
-                  // List<MatchModelId> allMatches = await RepositoryProvider
-                  //     .matchRepository
-                  //     .fetchAllMatchesId(loadVotesAndNotes: false);
-                  // List<String> competitionsIdACheck = [
-                  //   "10",
-                  //   "137",
-                  //   "143",
-                  //   "2",
-                  //   "3",
-                  //   "45",
-                  //   "48",
-                  //   "526",
-                  //   "528",
-                  //   "529",
-                  //   "547",
-                  //   "556",
-                  //   "66",
-                  //   "81",
-                  //   "848",
-                  // ];
-                  // int count = 0;
-                  // for (MatchModelId match in allMatches) {
-                  //   print("match $count / ${allMatches.length}");
-                  //   if (competitionsIdACheck.contains(match.competitionId) && count >= 4750) {
-                  //     print("mise à jour du match ${match.id}");
-                  //     await FillDatabase.createMatchFromFixtureId(match.id,
-                  //         seulementUpdateCompos: true);
-                  //   }
-                  //   count++;
-                  // }
-
-                  // List<MatchJoueurId> domicile = [
-                  //   MatchJoueurId(
-                  //       joueurId: "280",
-                  //       pos: "G",
-                  //       grid: "1:1",
-                  //       number: 1,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "24866",
-                  //       pos: "D",
-                  //       grid: "2:1",
-                  //       number: 6,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "22224",
-                  //       pos: "D",
-                  //       grid: "2:2",
-                  //       number: 3,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "257",
-                  //       pos: "D",
-                  //       grid: "2:3",
-                  //       number: 4,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "30424",
-                  //       pos: "D",
-                  //       grid: "2:4",
-                  //       number: 13,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "10135",
-                  //       pos: "M",
-                  //       grid: "3:1",
-                  //       number: 8,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "747",
-                  //       pos: "M",
-                  //       grid: "3:2",
-                  //       number: 5,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "762",
-                  //       pos: "A",
-                  //       grid: "4:1",
-                  //       number: 7,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "1646",
-                  //       pos: "A",
-                  //       grid: "4:2",
-                  //       number: 20,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "1496",
-                  //       pos: "A",
-                  //       grid: "4:3",
-                  //       number: 11,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "196156",
-                  //       pos: "A",
-                  //       grid: "5:1",
-                  //       number: 25,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-
-                  //   // MatchJoueurId(
-                  //   //     joueurId: "2542",
-                  //   //     pos: "A",
-                  //   //     grid: "4:3",
-                  //   //     number: 7,
-                  //   //     isStarter: false,
-                  //   //     hasPlayed: true),
-                  //   // MatchJoueurId(
-                  //   //     joueurId: "2537",
-                  //   //     pos: "M",
-                  //   //     number: 12,
-                  //   //     isStarter: false,
-                  //   //     hasPlayed: true),
-                  //   // MatchJoueurId(
-                  //   //     joueurId: "2539",
-                  //   //     pos: "M",
-                  //   //     number: 20,
-                  //   //     isStarter: false,
-                  //   //     hasPlayed: true),
-                  // ];
-
-                  // List<MatchJoueurId> exterieur = [
-                  //   MatchJoueurId(
-                  //       joueurId: "2701",
-                  //       pos: "G",
-                  //       grid: "1:1",
-                  //       number: 1,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "545",
-                  //       pos: "D",
-                  //       grid: "2:1",
-                  //       number: 3,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "278898",
-                  //       pos: "D",
-                  //       grid: "2:2",
-                  //       number: 18,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "18814",
-                  //       pos: "D",
-                  //       grid: "2:3",
-                  //       number: 14,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "9",
-                  //       pos: "D",
-                  //       grid: "2:4",
-                  //       number: 2,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "438688",
-                  //       pos: "M",
-                  //       grid: "3:1",
-                  //       number: 6,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "277003",
-                  //       pos: "M",
-                  //       grid: "3:2",
-                  //       number: 24,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "340573",
-                  //       pos: "A",
-                  //       grid: "4:1",
-                  //       number: 23,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "129678",
-                  //       pos: "A",
-                  //       grid: "4:2",
-                  //       number: 8,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "744",
-                  //       pos: "A",
-                  //       grid: "4:3",
-                  //       number: 10,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-                  //   MatchJoueurId(
-                  //       joueurId: "161897",
-                  //       pos: "A",
-                  //       grid: "5:1",
-                  //       number: 11,
-                  //       isStarter: true,
-                  //       hasPlayed: true),
-
-                  //   // MatchJoueurId(
-                  //   //     joueurId: "406244",
-                  //   //     pos: "M",
-                  //   //     number: 9,
-                  //   //     isStarter: false,
-                  //   //     hasPlayed: true),
-                  //   // MatchJoueurId(
-                  //   //     joueurId: "163032",
-                  //   //     pos: "M",
-                  //   //     number: 22,
-                  //   //     isStarter: false,
-                  //   //     hasPlayed: true),
-                  // ];
-
-                  // await FillDatabase.manualUpdateLineup("1489371",
-                  //     domicile: domicile, exterieur: exterieur);
-
-                  await FillDatabase.manualUpdateScore("1489371", scoreD: 1, scoreE: 1, liveMinute: 36);
-
-                  ButId butSaibari = ButId(buteurId: "161897", minute: "21", passeurId: "744", typeBut: TypeBut.normal);
-                  ButId butVini = ButId(buteurId: "762", minute: "32", passeurId: "10135", typeBut: TypeBut.normal);
-
-                  await FillDatabase.manualUpdateGoals("1489371", butsD: [butVini], butsE: [butSaibari]);
-                },
-                child: Text("test pour développeur"),
-              ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showCdmRecapPopup() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.85),
+      builder: (_) => _CdmRecapDialog(
+        onOpen: () {
+          Navigator.of(context).pop();
+          if (_currentUser != null && !_currentUser!.cdmRecapSeen) {
+            RepositoryProvider.userRepository
+                .markCdmRecapAsSeen(_currentUser!.uid);
+            setState(() {
+              _currentUser = RepositoryProvider.userRepository.currentUser;
+            });
+          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => RecapCdmView()),
+          );
+        },
+        onDismiss: () {
+          Navigator.of(context).pop();
+          if (_currentUser != null && !_currentUser!.cdmRecapSeen) {
+            RepositoryProvider.userRepository
+                .markCdmRecapAsSeen(_currentUser!.uid);
+            setState(() {
+              _currentUser = RepositoryProvider.userRepository.currentUser;
+            });
+          }
+        },
       ),
     );
   }
@@ -733,7 +588,9 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                     ),
                   ),
                   Text(
-                    DateFormat('MMM', 'fr_FR').format(date).toUpperCase(),
+                    DateFormat('MMM', getDateFormat())
+                        .format(date)
+                        .toUpperCase(),
                     style: TextStyle(
                       fontSize: 10,
                       color: isSelected
@@ -768,7 +625,339 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             fontSize: 14,
           ),
         ),
+        // Si une actualisation discrète est en cours, on pousse le spinner tout à droite
+        if (_isBackgroundRefreshing) ...[
+          const Spacer(),
+          SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                ColorPalette.accent(context),
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+        ],
       ],
+    );
+  }
+}
+
+class _CdmRecapBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  const _CdmRecapBanner({required this.onTap});
+
+  static const _logoUrl =
+      'https://firebasestorage.googleapis.com/v0/b/scorescope-5a12b.firebasestorage.app/o/competitions%2F2026_FIFA_World_Cup.png?alt=media&token=c76f3094-2aa0-4e09-8e17-0ecbe89ab027';
+
+  static const _gold = Color(0xFFFFD700);
+  static const _yellow = Color(0xFFE8FF00);
+  static const _bg1 = Color(0xFF060A14);
+  static const _bg2 = Color(0xFF0D1628);
+  static const _text = Color(0xFFF8F4FF);
+  static const _textDim = Color(0x99F8F4FF);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+        height: 82,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [_bg1, _bg2],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _gold.withValues(alpha: 0.35), width: 1.5),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(children: [
+          // Orbe gold haut-droite
+          Positioned(
+            top: -28,
+            right: -20,
+            child: IgnorePointer(
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _gold.withValues(alpha: 0.09)),
+              ),
+            ),
+          ),
+          // Orbe yellow bas-gauche
+          Positioned(
+            bottom: -30,
+            left: 60,
+            child: IgnorePointer(
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _yellow.withValues(alpha: 0.06)),
+              ),
+            ),
+          ),
+          // Contenu
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Logo CdM
+                CachedNetworkImage(
+                  imageUrl: _logoUrl,
+                  width: 52,
+                  height: 52,
+                  fit: BoxFit.contain,
+                  errorWidget: (_, __, ___) =>
+                      const Text('🏆', style: TextStyle(fontSize: 36)),
+                ),
+                const SizedBox(width: 14),
+                // Texte
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (b) =>
+                            const LinearGradient(colors: [_gold, _yellow])
+                                .createShader(b),
+                        child: const Text(
+                          'COUPE DU MONDE 2026',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.1),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      const Text(
+                        'Ton récap est disponible !',
+                        style: TextStyle(
+                            color: _text,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Découvrir mon récap 👀',
+                        style: TextStyle(
+                            color: _gold.withValues(alpha: 0.7),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AppLogos.logoAccent(context, size: 30),
+                    const SizedBox(height: 4),
+                    Text(
+                      'scorescope',
+                      style: TextStyle(
+                          color: _textDim.withValues(alpha: 0.5),
+                          fontSize: 8,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.4),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _CdmRecapDialog extends StatelessWidget {
+  final VoidCallback onOpen;
+  final VoidCallback onDismiss;
+  const _CdmRecapDialog({required this.onOpen, required this.onDismiss});
+
+  static const _logoUrl =
+      'https://firebasestorage.googleapis.com/v0/b/scorescope-5a12b.firebasestorage.app/o/competitions%2F2026_FIFA_World_Cup.png?alt=media&token=c76f3094-2aa0-4e09-8e17-0ecbe89ab027';
+
+  static const _gold = Color(0xFFFFD700);
+  static const _yellow = Color(0xFFE8FF00);
+  static const _teal = Color(0xFF00CC88);
+  static const _bg1 = Color(0xFF060A14);
+  static const _bg2 = Color(0xFF0D1628);
+  static const _text = Color(0xFFF8F4FF);
+  static const _textDim = Color(0x99F8F4FF);
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 52),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [_bg1, _bg2],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: _gold.withValues(alpha: 0.35), width: 1.5),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(children: [
+          // Orbe gold grand — haut droite
+          Positioned(
+            top: -60,
+            right: -50,
+            child: IgnorePointer(
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _gold.withValues(alpha: 0.08)),
+              ),
+            ),
+          ),
+          // Orbe yellow — milieu gauche
+          Positioned(
+            top: 100,
+            left: -40,
+            child: IgnorePointer(
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _yellow.withValues(alpha: 0.06)),
+              ),
+            ),
+          ),
+          // Orbe teal — bas droite
+          Positioned(
+            bottom: -30,
+            right: 20,
+            child: IgnorePointer(
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _teal.withValues(alpha: 0.05)),
+              ),
+            ),
+          ),
+          // Contenu
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 40, 28, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Duo logos — identique à la card 1 du récap
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  CachedNetworkImage(
+                    imageUrl: _logoUrl,
+                    width: 64,
+                    height: 64,
+                    fit: BoxFit.contain,
+                    errorWidget: (_, __, ___) =>
+                        const Text('🏆', style: TextStyle(fontSize: 48)),
+                  ),
+                  Container(
+                    width: 1.5,
+                    height: 56,
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    color: _text.withValues(alpha: 0.15),
+                  ),
+                  AppLogos.logoAccent(context, size: 64),
+                ]),
+                const SizedBox(height: 30),
+                // Titre gradient gold
+                ShaderMask(
+                  shaderCallback: (b) =>
+                      const LinearGradient(colors: [_gold, _yellow])
+                          .createShader(b),
+                  child: const Text(
+                    'La Coupe du Monde\nest terminée.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Séparateur gold
+                Container(
+                  height: 1,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(colors: [
+                      Colors.transparent,
+                      _gold,
+                      Colors.transparent
+                    ]),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Ton récap ScoreScope est disponible.\nReviens sur tous tes matchs, tes notes,\net des dizaines de statistiques !',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: _textDim,
+                    fontSize: 14,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                // Bouton principal — fond gold, texte noir
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: onOpen,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _gold,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: const Text(
+                      'Voir mon récap',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: onDismiss,
+                  child: Text(
+                    'Plus tard',
+                    style: TextStyle(
+                        color: _text.withValues(alpha: 0.3), fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/cache/local_cache.dart';
@@ -74,6 +75,31 @@ class WebMatchRepository implements IMatchRepository {
     return results.whereType<MatchModel>().toList();
   }
 
+  Future<List<MatchModel>> fetchMatchesByCompetition(
+    String competitionId,
+    DateTimeRange? dateRange,
+  ) async {
+    QuerySnapshot<Map<String, dynamic>> snapshot;
+
+    if (dateRange == null) {
+      snapshot = await _collection
+          .where('competitionId', isEqualTo: competitionId)
+          .get();
+    } else {
+      snapshot = await _collection
+          .where('date',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(dateRange.start))
+          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(dateRange.end))
+          .where('competitionId', isEqualTo: competitionId)
+          .get();
+    }
+
+    final futures = snapshot.docs.map((doc) => fetchMatchById(doc.id)).toList();
+
+    final results = await Future.wait(futures);
+    return results.whereType<MatchModel>().toList();
+  }
+
   @override
   Future<List<MatchModel>> fetchMatchesListById(List<String> ids) async {
     final futures = ids.map((id) => fetchMatchById(id)).toList();
@@ -100,12 +126,28 @@ class WebMatchRepository implements IMatchRepository {
 
   @override
   Future<List<MatchModel>> fetchAllMatches() async {
-    final snapshot = await _collection.get();
-    final futures = snapshot.docs.map((doc) async {
-      final matchModelId = MatchModelId.fromJson(doc.data(), doc.id);
-      return await MatchModel.fromMatchId(matchModelId);
-    }).toList();
-    return await Future.wait(futures);
+    List<MatchModel> matches = [];
+    DocumentSnapshot? lastDoc;
+
+    while (true) {
+      Query<Map<String, dynamic>> query = lastDoc != null
+          ? _collection.startAfterDocument(lastDoc).limit(50)
+          : _collection.limit(50);
+
+      final snapshot = await query.get();
+      if (snapshot.docs.isEmpty) break;
+
+      final futures = snapshot.docs.map((doc) async {
+        final matchModelId = MatchModelId.fromJson(doc.data(), doc.id);
+        return await MatchModel.fromMatchId(matchModelId);
+      }).toList();
+
+      final batch = await Future.wait(futures);
+      matches.addAll(batch);
+      lastDoc = snapshot.docs.last;
+    }
+
+    return matches;
   }
 
   @override
@@ -419,8 +461,7 @@ class WebMatchRepository implements IMatchRepository {
         'penaltyEquipeDomicile': penaltyEquipeDomicile,
       if (penaltyEquipeExterieur != null)
         'penaltyEquipeExterieur': penaltyEquipeExterieur,
-      if (prolongations != null)
-        'prolongations': prolongations,
+      if (prolongations != null) 'prolongations': prolongations,
       if (butsEquipeDomicileId != null)
         'butsEquipeDomicile':
             butsEquipeDomicileId.map((b) => b.toJson()).toList(),

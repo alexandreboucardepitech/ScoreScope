@@ -166,4 +166,32 @@ class MockJoueurRepository implements IJoueurRepository {
     result.addAll(contains);
     return result.take(limit).toList();
   }
+
+  @override
+  Future<void> updateField({
+    required String joueurId,
+    String? prenom,
+    String? nom,
+    String? fullName,
+    String? equipeId,
+    String? equipeNationaleId,
+    DateTime? dateNaissance,
+    String? nationalite,
+    String? picture,
+  }) async {
+    int? index = _joueurs.indexWhere((x) => x.id == joueurId);
+    Joueur baseJoueur = _joueurs[index];
+
+    Joueur newJoueur = Joueur(
+        id: baseJoueur.id,
+        equipeId: equipeId ?? baseJoueur.equipeId,
+        nom: nom ?? baseJoueur.nom,
+        prenom: prenom ?? baseJoueur.prenom,
+        dateNaissance: dateNaissance ?? baseJoueur.dateNaissance,
+        equipeNationaleId: equipeNationaleId ?? baseJoueur.equipeNationaleId,
+        fullName: fullName ?? baseJoueur.fullName,
+        nationalite: nationalite ?? baseJoueur.nationalite,
+        picture: picture ?? baseJoueur.picture);
+    _joueurs[index] = newJoueur;
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/services/cache/local_cache.dart';
 import 'package:scorescope/services/repositories/i_joueur_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/handle_data/app_cache.dart';
 import '../../../models/joueur.dart';
 
@@ -18,15 +19,18 @@ class WebJoueurRepository implements IJoueurRepository {
 
   @override
   Future<Joueur?> fetchJoueurById(String id) async {
-    // L1 — mémoire
-    final l1 = AppCache.getJoueur(id);
-    if (l1 != null) return l1;
+    if (RepositoryProvider.userRepository.currentUser?.options.utiliserCache ??
+        true) {
+      // L1 — mémoire
+      final l1 = AppCache.getJoueur(id);
+      if (l1 != null) return l1;
 
-    // L2 — disque
-    final l2 = LocalCache.getJoueur(id);
-    if (l2 != null) {
-      AppCache.setJoueur(id, l2); // remonte en L1 (met aussi le nom en index)
-      return l2;
+      // L2 — disque
+      final l2 = LocalCache.getJoueur(id);
+      if (l2 != null) {
+        AppCache.setJoueur(id, l2); // remonte en L1 (met aussi le nom en index)
+        return l2;
+      }
     }
 
     // Firestore
@@ -105,5 +109,29 @@ class WebJoueurRepository implements IJoueurRepository {
     }
 
     return filtered.take(limit).toList();
+  }
+
+  @override
+  Future<void> updateField({
+    required String joueurId,
+    String? prenom,
+    String? nom,
+    String? fullName,
+    String? equipeId,
+    String? equipeNationaleId,
+    DateTime? dateNaissance,
+    String? nationalite,
+    String? picture,
+  }) async {
+    await _collection.doc(joueurId).update({
+      if (prenom != null) 'prenom': prenom,
+      if (nom != null) 'nom': nom,
+      if (fullName != null) 'fullName': fullName,
+      if (equipeId != null) 'equipeId': equipeId,
+      if (equipeNationaleId != null) 'equipeNationaleId': equipeNationaleId,
+      if (dateNaissance != null) 'dateNaissance': dateNaissance,
+      if (nationalite != null) 'nationalite': nationalite,
+      if (picture != null) 'picture': picture,
+    });
   }
 }

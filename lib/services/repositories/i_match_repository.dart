@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/but.dart';
 import 'package:scorescope/models/match_joueur.dart';
 
@@ -10,6 +11,10 @@ abstract class IMatchRepository {
   Future<MatchModelId?> fetchMatchModelIdById(String id);
   Future<List<MatchModel>> fetchMatchesListById(List<String> ids);
   Future<List<MatchModel>> fetchMatchesByDate(DateTime date);
+  Future<List<MatchModel>> fetchMatchesByCompetition(
+    String competitionId,
+    DateTimeRange? dateRange,
+  );
   Future<void> addMatch(MatchModel match);
   Future<void> addMatchModelId(MatchModelId matchId);
   Future<void> addMatchModelIdList(List<MatchModelId> matchs);

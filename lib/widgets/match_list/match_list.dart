@@ -15,6 +15,7 @@ class MatchList extends StatefulWidget {
   final AppUser? user;
   final bool displayUserData;
   final bool hidePostponedMatches;
+  final VoidCallback? onRefresh;
 
   const MatchList({
     super.key,
@@ -24,6 +25,7 @@ class MatchList extends StatefulWidget {
     this.user,
     this.displayUserData = false,
     this.hidePostponedMatches = true,
+    this.onRefresh,
   }) : assert(matches != null || ids != null, 'Provide either matches or ids');
 
   @override
@@ -147,14 +149,15 @@ class _MatchListState extends State<MatchList> {
       content = const Center(child: CircularProgressIndicator());
     } else if (_error != null) {
       content = Center(
-          child: Text(
-        '${translate.erreur}: $_error',
-        style: TextStyle(
-          color: ColorPalette.textPrimary(
-            context,
+        child: Text(
+          '${translate.erreur}: $_error',
+          style: TextStyle(
+            color: ColorPalette.textPrimary(
+              context,
+            ),
           ),
         ),
-      ),);
+      );
     } else if (items == null || items.isEmpty) {
       content = Center(
         child: Text(
@@ -177,6 +180,7 @@ class _MatchListState extends State<MatchList> {
                 userData: widget.user?.getMatchUserDataByMatch(match: items[i]),
                 user: widget.user,
                 displayUserData: widget.displayUserData,
+                onRefresh: widget.onRefresh,
               ),
               if (i != items.length - 1)
                 Divider(color: ColorPalette.border(context), height: 1),

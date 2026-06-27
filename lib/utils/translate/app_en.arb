@@ -1000,5 +1000,271 @@
   "taNoteSeraPerdueSiTuQuittesMaintenant": "Your rating will be lost if you leave this page now.",
   "continuerAModifier": "Continue editing",
   "quitterSansEnregistrer": "Leave without saving",
-  "enregistrerEtQuitter": "Save and leave"
+  "enregistrerEtQuitter": "Save and leave",
+  "erreurLorsDuPartageDuMatch": "Error during match sharing : {erreur}",
+  "@erreurLorsDuPartageDuMatch": {
+    "placeholders": {
+      "erreur": {
+        "type": "String"
+      }
+    }
+  },
+  "leMarathonien": "The Marathoner",
+  "xMatchsRegardesSurX": "{matchCount} matches watched out of {totalMatchs}",
+  "@xMatchsRegardesSurX": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      },
+      "totalMatchs": {
+        "type": "String"
+      }
+    }
+  },
+  "lInsomniaque": "The Insomniac",
+  "xMatchsRegardesApresMinuit": "{matchCount} matches watched after midnight.",
+  "@xMatchsRegardesApresMinuit": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "jourDeFolie": "Crazy Day",
+  "xMatchsVusEnUneSeuleJournee": "{matchCount} matches watched in a single day",
+  "@xMatchsVusEnUneSeuleJournee": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "leFestin": "The Feast",
+  "xButsEnMoyenneParMatch": "{x} goals on average per match",
+  "@xButsEnMoyenneParMatch": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      }
+    }
+  },
+  "ennuyant": "Boring",
+  "lePorteBonheur": "The Lucky Charm",
+  "tonEquipe": "Your team",
+  "xGagneDansXPourcentDesMatchsQueTuRegardes": "{equipe} wins in {pourcent}% of the matches you watch",
+  "@xGagneDansXPourcentDesMatchsQueTuRegardes": {
+    "placeholders": {
+      "equipe": {
+        "type": "String"
+      },
+      "pourcent": {
+        "type": "String"
+      }
+    }
+  },
+  "leCorbeau": "The Crow",
+  "xNeGagneQueDansXPourcentDesMatchsQueTuRegardes": "{equipe} only wins in {pourcent}% of the matches you watch",
+  "@xNeGagneQueDansXPourcentDesMatchsQueTuRegardes": {
+    "placeholders": {
+      "equipe": {
+        "type": "String"
+      },
+      "pourcent": {
+        "type": "String"
+      }
+    }
+  },
+  "leJugeSevere": "The Harsh Judge",
+  "noteMoyenneDeXSur10": "Average rating of {note}/10",
+  "@noteMoyenneDeXSur10": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "leRituel": "The Ritual",
+  "xPourcentDesTesMatchsRegardesALaMemeHeure": "{pourcent}% of your matches watched at the same time",
+  "@xPourcentDesTesMatchsRegardesALaMemeHeure": {
+    "placeholders": {
+      "pourcent": {
+        "type": "String"
+      }
+    }
+  },
+  "lEnthousiaste": "The Enthusiast",
+  "leCitoyenDuMonde": "The World Citizen",
+  "xEquipesDifferentesSuiviesSur48": "{count} different teams followed out of 48",
+  "@xEquipesDifferentesSuiviesSur48": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lInarretable": "The Unstoppable",
+  "xJoursConsecutifsAvecAuMoinsUnMatch": "{jours} consecutive days with at least one match",
+  "@xJoursConsecutifsAvecAuMoinsUnMatch": {
+    "placeholders": {
+      "jours": {
+        "type": "String"
+      }
+    }
+  },
+  "lUltra": "The Ultra",
+  "xMatchsSuivisPourEquipe": "{count} matches followed for {equipe}",
+  "@xMatchsSuivisPourEquipe": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "equipe": {
+        "type": "String"
+      }
+    }
+  },
+  "lePuriste": "The Purist",
+  "xPourcentDesMatchsEliminationDirecteSuivis": "{pourcent}% of knockout stage matches followed",
+  "@xPourcentDesMatchsEliminationDirecteSuivis": {
+    "placeholders": {
+      "pourcent": {
+        "type": "String"
+      }
+    }
+  },
+  "leSansPause": "The Nonstop",
+  "lExplorateur": "The Explorer",
+  "leBoulimique": "The Binge-Watcher",
+  "xMatchsRegardesSurY": "{count} matches watched out of {total}",
+  "@xMatchsRegardesSurY": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "leCoucheTard": "The Night Owl",
+  "lAssidu": "The Regular",
+  "lePartisan": "The Die-Hard",
+  "leSupporter": "The Supporter",
+  "lesSupporterDescription": "{matchCount} matches watched out of {total}",
+  "@lesSupporterDescription": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "tuAsSuiviXNationsSurX": "You followed {nationsSuivies} nations out of {nationsTotal}",
+  "@tuAsSuiviXNationsSurX": {
+    "placeholders": {
+      "nationsSuivies": {
+        "type": "String"
+      },
+      "nationsTotal": {
+        "type": "String"
+      }
+    }
+  },
+  "recuperationDesMatchsCDM": "Fetching World Cup matches...",
+  "chargementDesDetails": "Loading details...",
+  "donneesSocialesEtMvp": "Social data & MVP...",
+  "chargementDuParcoursComplet": "Loading full journey...",
+  "chargementDesStatsScoreScope": "Loading ScoreScope stats...",
+  "joueurInconnu": "Unknown player",
+  "maCoupeDuMonde2026AvecScoreScope": "My 2026 World Cup with @ScoreScopeApp ⚽🏆",
+  "aucunMatchCDMEnregistre": "No World Cup match recorded",
+  "ajouteLesMatchsQueTuRegardesPourVoirTonRecap": "Add the matches you watch\nto see your recap!",
+  "partager": "Share",
+  "taCoupeDuMonde": "Your World Cup",
+  "avecScoreScope": "with ScoreScope.",
+  "swipePourDecouvrir": "Swipe to discover",
+  "taCoupeDuMonde2026": "📊 YOUR WORLD CUP 2026",
+  "noteMoy": "avg. rating",
+  "pourcentDesMatchsRegardes": "% of matches watched",
+  "equipesLesPlusSuivies": "🌍 MOST FOLLOWED TEAMS",
+  "mvpLesPlusVotes": "⭐ MOST VOTED MVPs",
+  "aucunMatchAAfficher": "No match to display",
+  "tonParcours": "🗺️ YOUR JOURNEY",
+  "xMatchsVus": "{matchCount} matches watched",
+  "@xMatchsVus": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "xMatchsDePoules": "{matchCount} group stage matches",
+  "@xMatchsDePoules": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "xPhaseFinale": "{matchCount} knockout stage",
+  "@xPhaseFinale": {
+    "placeholders": {
+      "matchCount": {
+        "type": "String"
+      }
+    }
+  },
+  "pasAssezDeDonneesPourLEquipeDeCoeur": "Not enough data for your favourite team.",
+  "tonEquipeMaj": "YOUR TEAM",
+  "repartitionDesNotes": "RATING BREAKDOWN",
+  "tesMatchs": "⚽ YOUR MATCHES",
+  "matchsDePoules": "group stage matches",
+  "phaseFinale": "knockout stage",
+  "butsParMatch": "goals/match",
+  "tonMeilleurMatch": "🏆 YOUR BEST MATCH",
+  "tonPireMatch": "😴 YOUR WORST MATCH",
+  "favori": "⭐ Favourite",
+  "tonMvp": "Your MVP",
+  "mvpGlobal": "Global MVP",
+  "noteGlobale": "Global rating:",
+  "funStats": "✨ FUN STATS",
+  "nationsDifferentesSuivies": "different nations\nfollowed",
+  "matchsRegardesLaNuit": "matches watched at night\n(12am - 6am)",
+  "desMatchsRegardes": "of matches watched ({valeur})",
+  "@desMatchsRegardes": {
+    "placeholders": {
+      "valeur": {
+        "type": "String"
+      }
+    }
+  },
+  "matchsRegardesParJour": "MATCHES WATCHED PER DAY",
+  "tonProfil": "YOUR PROFILE",
+  "serieMaj": "STREAK",
+  "joursConsecutifs": "consecutive\ndays",
+  "avecAuMoinsUnMatchSuivi": "with at least one match followed",
+  "coupeDuMonde2026": "World Cup 2026",
+  "meilleurMatchMaj": "🏆 BEST MATCH",
+  "mvpDuTournoi": "TOURNAMENT MVP",
+  "statsCommunauteIndisponibles": "Community stats unavailable.",
+  "scorescopeRecapDeLaCommunaute": "SCORESCOPE - COMMUNITY RECAP",
+  "noteMoyGlobale": "global avg.\nrating",
+  "fans": "fans",
+  "notesDonnees": "ratings\ngiven",
+  "votesMvp": "MVP\nvotes",
+  "topSpectateurs": "👑 TOP VIEWERS",
+  "mvpDuMatch": "Match MVP",
+  "v": "W",
+  "n": "D",
+  "d": "L",
+  "vuAvecX": "Watched with {displayName}",
+  "@vuAvecX": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -923,14 +923,14 @@ class StatsLoader {
         .length;
     int eluMvp = 0;
     for (MatchModel match in matchsJoueur) {
-      Joueur? mvp = await match.getMvp();
+      Joueur? mvp = match.getMvp();
       if (mvp?.id == joueur.id) {
         eluMvp++;
       }
     }
     int eluMvpVu = 0;
     for (MatchModel match in matchsJoueurVusUser) {
-      Joueur? mvp = await match.getMvp();
+      Joueur? mvp = match.getMvp();
       if (mvp?.id == joueur.id) {
         eluMvpVu++;
       }
@@ -1082,7 +1082,7 @@ class StatsLoader {
     Map<String, int> mvpsCount = {};
 
     for (final matchData in matchs) {
-      final mvp = await matchData.getMvp();
+      Joueur? mvp = matchData.getMvp();
       if (mvp != null) {
         mvpsCount[mvp.id] = (mvpsCount[mvp.id] ?? 0) + 1;
       }

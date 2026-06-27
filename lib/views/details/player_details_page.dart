@@ -6,6 +6,7 @@ import 'package:scorescope/models/joueur.dart';
 import 'package:scorescope/models/stats/player_stats.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/date/calculate_age.dart';
+import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/stats/stats_loader.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
 import 'package:scorescope/views/details/team_details_page.dart';
@@ -434,7 +435,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          DateFormat('dd MMMM yyyy', 'fr_FR')
+                          DateFormat('dd MMMM yyyy', getDateFormat())
                               .format(_joueur!.dateNaissance!),
                           style: TextStyle(
                             color: ColorPalette.textPrimary(context),

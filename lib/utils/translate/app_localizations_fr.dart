@@ -419,7 +419,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mesVotesMvp => 'Mes votes MVP';
 
   @override
-  String get votesMvp => 'Votes MVP';
+  String get votesMvp => 'votes\nMVP';
 
   @override
   String get eluMvp => 'Élu MVP';
@@ -1743,7 +1743,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get moyDesNotesDonnees => 'Moy. des notes données';
 
   @override
-  String get mvpLesPlusVotes => 'MVP les plus votés';
+  String get mvpLesPlusVotes => '⭐ MVP LES PLUS VOTÉS';
 
   @override
   String get aucunMvp => 'Aucun MVP';
@@ -1873,4 +1873,338 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get enregistrerEtQuitter => 'Enregistrer et quitter';
+
+  @override
+  String erreurLorsDuPartageDuMatch(String erreur) {
+    return 'Erreur lors du partage du match : $erreur';
+  }
+
+  @override
+  String get leMarathonien => 'Le Marathonien';
+
+  @override
+  String xMatchsRegardesSurX(String matchCount, String totalMatchs) {
+    return '$matchCount matchs regardés sur $totalMatchs';
+  }
+
+  @override
+  String get lInsomniaque => 'L\'insomniaque';
+
+  @override
+  String xMatchsRegardesApresMinuit(String matchCount) {
+    return '$matchCount matchs regardés après minuit.';
+  }
+
+  @override
+  String get jourDeFolie => 'Jour de Folie';
+
+  @override
+  String xMatchsVusEnUneSeuleJournee(String matchCount) {
+    return '$matchCount matchs vus en une seule journée';
+  }
+
+  @override
+  String get leFestin => 'Le Festin';
+
+  @override
+  String xButsEnMoyenneParMatch(String x) {
+    return '$x buts en moyenne par match';
+  }
+
+  @override
+  String get ennuyant => 'Ennuyant';
+
+  @override
+  String get lePorteBonheur => 'Le Porte-Bonheur';
+
+  @override
+  String get tonEquipe => 'Ton équipe';
+
+  @override
+  String xGagneDansXPourcentDesMatchsQueTuRegardes(
+      String equipe, String pourcent) {
+    return '$equipe gagne dans $pourcent% des matchs que tu regardes';
+  }
+
+  @override
+  String get leCorbeau => 'Le Corbeau';
+
+  @override
+  String xNeGagneQueDansXPourcentDesMatchsQueTuRegardes(
+      String equipe, String pourcent) {
+    return '$equipe ne gagne que dans $pourcent% des matchs que tu regardes';
+  }
+
+  @override
+  String get leJugeSevere => 'Le Juge Sévère';
+
+  @override
+  String noteMoyenneDeXSur10(String note) {
+    return 'Note moyenne de $note/10';
+  }
+
+  @override
+  String get lEnthousiaste => 'L\'Enthousiaste';
+
+  @override
+  String get leRituel => 'Le Rituel';
+
+  @override
+  String xPourcentDesTesMatchsRegardesALaMemeHeure(String pourcent) {
+    return '$pourcent% de tes matchs regardés à la même heure';
+  }
+
+  @override
+  String get leCitoyenDuMonde => 'Le Citoyen du Monde';
+
+  @override
+  String xEquipesDifferentesSuiviesSur48(String count) {
+    return '$count équipes différentes suivies sur 48';
+  }
+
+  @override
+  String get lInarretable => 'L\'Inarrêtable';
+
+  @override
+  String xJoursConsecutifsAvecAuMoinsUnMatch(String jours) {
+    return '$jours jours consécutifs avec au moins un match';
+  }
+
+  @override
+  String get lUltra => 'L\'Ultra';
+
+  @override
+  String xMatchsSuivisPourEquipe(String count, String equipe) {
+    return '$count matchs suivis pour $equipe';
+  }
+
+  @override
+  String get lePuriste => 'Le Puriste';
+
+  @override
+  String xPourcentDesMatchsEliminationDirecteSuivis(String pourcent) {
+    return '$pourcent% des matchs à élimination directe suivis';
+  }
+
+  @override
+  String get leSansPause => 'Le Sans-Pause';
+
+  @override
+  String get lExplorateur => 'L\'Explorateur';
+
+  @override
+  String get leBoulimique => 'Le Boulimique';
+
+  @override
+  String xMatchsRegardesSurY(String count, String total) {
+    return '$count matchs regardés sur $total';
+  }
+
+  @override
+  String get leCoucheTard => 'Le Couche-Tard';
+
+  @override
+  String get lAssidu => 'L\'Assidu';
+
+  @override
+  String get lePartisan => 'Le Partisan';
+
+  @override
+  String get leSupporter => 'Le Supporter';
+
+  @override
+  String lesSupporterDescription(String matchCount, String total) {
+    return '$matchCount matchs regardés sur $total';
+  }
+
+  @override
+  String tuAsSuiviXNationsSurX(String nationsSuivies, String nationsTotal) {
+    return 'Tu as suivi $nationsSuivies nations sur $nationsTotal';
+  }
+
+  @override
+  String get recuperationDesMatchsCDM => 'Récupération des matchs CdM...';
+
+  @override
+  String get chargementDesDetails => 'Chargement des détails...';
+
+  @override
+  String get donneesSocialesEtMvp => 'Données sociales & MVP...';
+
+  @override
+  String get chargementDuParcoursComplet => 'Chargement du parcours complet...';
+
+  @override
+  String get chargementDesStatsScoreScope =>
+      'Chargement des stats ScoreScope...';
+
+  @override
+  String get joueurInconnu => 'Joueur inconnu';
+
+  @override
+  String get maCoupeDuMonde2026AvecScoreScope =>
+      'Ma Coupe du Monde 2026 avec @ScoreScopeApp ⚽🏆';
+
+  @override
+  String get aucunMatchCDMEnregistre => 'Aucun match CdM enregistré';
+
+  @override
+  String get ajouteLesMatchsQueTuRegardesPourVoirTonRecap =>
+      'Ajoute les matchs que tu regardes\npour voir ton récap !';
+
+  @override
+  String get partager => 'Partager';
+
+  @override
+  String get taCoupeDuMonde => 'Ta Coupe du Monde';
+
+  @override
+  String get avecScoreScope => 'avec ScoreScope.';
+
+  @override
+  String get swipePourDecouvrir => 'Swipe pour découvrir';
+
+  @override
+  String get taCoupeDuMonde2026 => '📊 TA COUPE DU MONDE 2026';
+
+  @override
+  String get noteMoy => 'note moy.';
+
+  @override
+  String get pourcentDesMatchsRegardes => '% des matchs regardés';
+
+  @override
+  String get equipesLesPlusSuivies => '🌍 ÉQUIPES LES PLUS SUIVIES';
+
+  @override
+  String get aucunMatchAAfficher => 'Aucun match à afficher';
+
+  @override
+  String get tonParcours => '🗺️ TON PARCOURS';
+
+  @override
+  String xMatchsVus(String matchCount) {
+    return '$matchCount matchs vus';
+  }
+
+  @override
+  String xMatchsDePoules(String matchCount) {
+    return '$matchCount matchs poules';
+  }
+
+  @override
+  String xPhaseFinale(String matchCount) {
+    return '$matchCount phase finale';
+  }
+
+  @override
+  String get pasAssezDeDonneesPourLEquipeDeCoeur =>
+      'Pas assez de données pour l\'équipe de cœur.';
+
+  @override
+  String get tonEquipeMaj => 'TON ÉQUIPE';
+
+  @override
+  String get repartitionDesNotes => 'RÉPARTITION DES NOTES';
+
+  @override
+  String get tesMatchs => '⚽ TES MATCHS';
+
+  @override
+  String get matchsDePoules => 'matchs de poules';
+
+  @override
+  String get phaseFinale => 'phaseFinale';
+
+  @override
+  String get butsParMatch => 'buts/match';
+
+  @override
+  String get tonMeilleurMatch => '🏆 TON MEILLEUR MATCH';
+
+  @override
+  String get tonPireMatch => '😴 TON PIRE MATCH';
+
+  @override
+  String get favori => '⭐ Favori';
+
+  @override
+  String get tonMvp => 'Ton MVP';
+
+  @override
+  String get mvpGlobal => 'MVP global';
+
+  @override
+  String get noteGlobale => 'Note globale :';
+
+  @override
+  String get funStats => '✨ FUN STATS';
+
+  @override
+  String get nationsDifferentesSuivies => 'nations différentes\nsuivies';
+
+  @override
+  String get matchsRegardesLaNuit => 'matchs regardés la nuit\n(0h - 6h)';
+
+  @override
+  String desMatchsRegardes(String valeur) {
+    return 'des matchs regardés ($valeur)';
+  }
+
+  @override
+  String get matchsRegardesParJour => 'MATCHS REGARDÉS PAR JOUR';
+
+  @override
+  String get tonProfil => 'TON PROFIL';
+
+  @override
+  String get serieMaj => 'SÉRIE';
+
+  @override
+  String get joursConsecutifs => 'jours\nconsécutifs';
+
+  @override
+  String get avecAuMoinsUnMatchSuivi => 'avec au moins un match suivi';
+
+  @override
+  String get coupeDuMonde2026 => 'Coupe du Monde 2026';
+
+  @override
+  String get meilleurMatchMaj => '🏆 MEILLEUR MATCH';
+
+  @override
+  String get mvpDuTournoi => 'MVP DU TOURNOI';
+
+  @override
+  String get statsCommunauteIndisponibles => 'Stats communauté indisponibles.';
+
+  @override
+  String get scorescopeRecapDeLaCommunaute =>
+      'SCORESCOPE - RÉCAP DE LA COMMUNAUTÉ';
+
+  @override
+  String get noteMoyGlobale => 'note moy.\nglobale';
+
+  @override
+  String get fans => 'fans';
+
+  @override
+  String get notesDonnees => 'notes\ndonnées';
+
+  @override
+  String get topSpectateurs => '👑 TOP SPECTATEURS';
+
+  @override
+  String get v => 'V';
+
+  @override
+  String get n => 'N';
+
+  @override
+  String get d => 'D';
+
+  @override
+  String vuAvecX(String displayName) {
+    return 'Vu avec $displayName';
+  }
 }

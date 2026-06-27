@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/services/mock/mock_app_user_repository.dart';
 import 'package:scorescope/services/mock/mock_competition_repository.dart';
@@ -260,6 +261,23 @@ class MockMatchRepository implements IMatchRepository {
           match.date.month == date.month &&
           match.date.day == date.day;
     }).toList();
+  }
+
+  @override
+  Future<List<MatchModel>> fetchMatchesByCompetition(
+    String competitionId,
+    DateTimeRange? dateRange,
+  ) async {
+    await _seedingFuture;
+    // Simule un léger délai réseau
+    await Future.delayed(const Duration(milliseconds: 200));
+    return _matches
+        .where((match) =>
+            match.competition.id == competitionId &&
+            (dateRange == null ||
+                (match.date.compareTo(dateRange.start) >= 0 &&
+                    match.date.compareTo(dateRange.end) <= 0)))
+        .toList();
   }
 
   @override

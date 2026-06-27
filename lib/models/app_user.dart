@@ -16,6 +16,7 @@ class AppUser {
   final List<MatchUserData> matchsUserData;
   final Options options;
   final String? lastRecapSeenWeek;
+  final bool cdmRecapSeen;
   final bool deleted;
 
   AppUser({
@@ -31,6 +32,7 @@ class AppUser {
     this.matchsUserData = const [],
     Options? options,
     this.lastRecapSeenWeek,
+    this.cdmRecapSeen = false,
     this.deleted = false,
   }) : options = options ?? Options();
 
@@ -77,6 +79,7 @@ class AppUser {
           ? Options.fromJson(json['options'] as Map<String, dynamic>)
           : Options(),
       lastRecapSeenWeek: json['lastRecapSeenWeek'] as String?,
+      cdmRecapSeen: json['cdmRecapSeen'] as bool? ?? false,
       deleted: json['deleted'] as bool? ?? false,
     );
   }
@@ -95,6 +98,7 @@ class AppUser {
       'matchsUserData': matchsUserData,
       'options': options.toJson(),
       'lastRecapSeenWeek': lastRecapSeenWeek,
+      'cdmRecapSeen': cdmRecapSeen,
       'deleted': deleted,
     };
   }
