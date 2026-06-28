@@ -125,6 +125,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     try {
       final stats = await StatsLoader.getPlayerStats(_joueur!);
 
+      if (!mounted) return;
       setState(() {
         _playerStats = stats;
         _isLoadingPlayerStats = false;

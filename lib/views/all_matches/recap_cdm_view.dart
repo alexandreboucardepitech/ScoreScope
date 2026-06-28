@@ -952,80 +952,80 @@ class _RecapCdmViewState extends State<RecapCdmView>
         translate.lesSupporterDescription('${d.matchCount}', '$_totalMatches'));
   }
 
-  Future<void> _debugBadgeDistribution() async {
-    debugPrint('═══════════════════════════════════════');
-    debugPrint('🔍 BADGE DISTRIBUTION — DÉBUT');
-    debugPrint('═══════════════════════════════════════');
+  // Future<void> _debugBadgeDistribution() async {
+  //   debugPrint('═══════════════════════════════════════');
+  //   debugPrint('🔍 BADGE DISTRIBUTION — DÉBUT');
+  //   debugPrint('═══════════════════════════════════════');
 
-    final users = await RepositoryProvider.userRepository.fetchAllUsers();
-    debugPrint('👥 ${users.length} utilisateurs trouvés\n');
+  //   final users = await RepositoryProvider.userRepository.fetchAllUsers();
+  //   debugPrint('👥 ${users.length} utilisateurs trouvés\n');
 
-    final badgeCount = <String, int>{};
-    int skipped = 0;
+  //   final badgeCount = <String, int>{};
+  //   int skipped = 0;
 
-    for (final user in users) {
-      try {
-        final muds =
-            await RepositoryProvider.userRepository.fetchUserAllMatchUserData(
-          userId: user.uid,
-          dateRange: DateTimeRange(start: _cdmStart, end: _cdmEnd),
-        );
+  //   for (final user in users) {
+  //     try {
+  //       final muds =
+  //           await RepositoryProvider.userRepository.fetchUserAllMatchUserData(
+  //         userId: user.uid,
+  //         dateRange: DateTimeRange(start: _cdmStart, end: _cdmEnd),
+  //       );
 
-        final matchDetails = await Future.wait(
-          muds.map(
-            (m) => RepositoryProvider.matchRepository.fetchMatchById(m.matchId),
-          ),
-        );
+  //       final matchDetails = await Future.wait(
+  //         muds.map(
+  //           (m) => RepositoryProvider.matchRepository.fetchMatchById(m.matchId),
+  //         ),
+  //       );
 
-        final pairs = <({MatchUserData mud, MatchModel match})>[];
-        for (int i = 0; i < muds.length; i++) {
-          final m = matchDetails[i];
-          if (m != null && m.competition.id == '1') {
-            pairs.add(
-              (mud: muds[i], match: m),
-            );
-          }
-        }
+  //       final pairs = <({MatchUserData mud, MatchModel match})>[];
+  //       for (int i = 0; i < muds.length; i++) {
+  //         final m = matchDetails[i];
+  //         if (m != null && m.competition.id == '1') {
+  //           pairs.add(
+  //             (mud: muds[i], match: m),
+  //           );
+  //         }
+  //       }
 
-        if (pairs.isEmpty) {
-          skipped++;
-          debugPrint('⚪ ${user.displayName} — aucun match CdM');
-          continue;
-        }
+  //       if (pairs.isEmpty) {
+  //         skipped++;
+  //         debugPrint('⚪ ${user.displayName} — aucun match CdM');
+  //         continue;
+  //       }
 
-        final data = _compute(pairs, user);
-        final badge = _computeBadge(data);
+  //       final data = _compute(pairs, user);
+  //       final badge = _computeBadge(data);
 
-        badgeCount[badge.name] = (badgeCount[badge.name] ?? 0) + 1;
+  //       badgeCount[badge.name] = (badgeCount[badge.name] ?? 0) + 1;
 
-        debugPrint('${badge.emoji} ${user.displayName} → ${badge.name} '
-            '(${data.matchCount} matchs)');
-      } catch (e) {
-        skipped++;
-        debugPrint('❌ ${user.displayName} — erreur : $e');
-      }
-    }
+  //       debugPrint('${badge.emoji} ${user.displayName} → ${badge.name} '
+  //           '(${data.matchCount} matchs)');
+  //     } catch (e) {
+  //       skipped++;
+  //       debugPrint('❌ ${user.displayName} — erreur : $e');
+  //     }
+  //   }
 
-    // Résumé final
-    final total = users.length - skipped;
-    debugPrint('\n═══════════════════════════════════════');
-    debugPrint('📊 RÉSUMÉ ($total users avec données CdM, $skipped ignorés)');
-    debugPrint('═══════════════════════════════════════');
+  //   // Résumé final
+  //   final total = users.length - skipped;
+  //   debugPrint('\n═══════════════════════════════════════');
+  //   debugPrint('📊 RÉSUMÉ ($total users avec données CdM, $skipped ignorés)');
+  //   debugPrint('═══════════════════════════════════════');
 
-    final sorted = badgeCount.entries.toList()
-      ..sort(
-        (a, b) => b.value.compareTo(a.value),
-      );
+  //   final sorted = badgeCount.entries.toList()
+  //     ..sort(
+  //       (a, b) => b.value.compareTo(a.value),
+  //     );
 
-    for (final entry in sorted) {
-      final pct =
-          total > 0 ? (entry.value / total * 100).toStringAsFixed(1) : '0.0';
-      final bar = '█' * (entry.value * 20 ~/ (total > 0 ? total : 1));
-      debugPrint('${entry.key.padRight(22)} $bar  ${entry.value} ($pct%)');
-    }
+  //   for (final entry in sorted) {
+  //     final pct =
+  //         total > 0 ? (entry.value / total * 100).toStringAsFixed(1) : '0.0';
+  //     final bar = '█' * (entry.value * 20 ~/ (total > 0 ? total : 1));
+  //     debugPrint('${entry.key.padRight(22)} $bar  ${entry.value} ($pct%)');
+  //   }
 
-    debugPrint('═══════════════════════════════════════\n');
-  }
+  //   debugPrint('═══════════════════════════════════════\n');
+  // }
 
   _CdmData _compute(
       List<({MatchUserData mud, MatchModel match})> pairs, AppUser user) {

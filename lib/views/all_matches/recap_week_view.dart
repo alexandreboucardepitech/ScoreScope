@@ -125,6 +125,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
       final uid = RepositoryProvider.userRepository.currentUser?.uid;
       if (uid == null) throw Exception(translate.utilisateurNonConnecte);
 
+      if (!mounted) return;
       setState(() => _loadingLabel = translate.recuperationDesMatchs);
       final results = await Future.wait([
         RepositoryProvider.userRepository.fetchUserAllMatchUserData(
@@ -143,6 +144,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
       final prevWeek = results[1];
       final allMuds = results[2];
 
+      if (!mounted) return;
       setState(() => _loadingLabel = translate.chargementDesDetailsDesMatchs);
       final matchDetails = await Future.wait(
         thisWeek.map((m) =>
@@ -164,6 +166,7 @@ class _RecapWeekViewState extends State<RecapWeekView> {
           matchMap[prevWeek[i].matchId] = matchLastWeekDetails[i]!;
       }
 
+      if (!mounted) return;
       setState(() => _loadingLabel = translate.calculDesStatistiques);
       final totalNbGoalsAllTime =
           await RepositoryProvider.userRepository.getUserNbButs(uid, true);
