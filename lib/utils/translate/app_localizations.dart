@@ -791,7 +791,7 @@ abstract class AppLocalizations {
   /// No description provided for @votesMvp.
   ///
   /// In fr, this message translates to:
-  /// **'votes\nMVP'**
+  /// **'Votes MVP'**
   String get votesMvp;
 
   /// No description provided for @eluMvp.
@@ -3191,7 +3191,7 @@ abstract class AppLocalizations {
   /// No description provided for @mvpLesPlusVotes.
   ///
   /// In fr, this message translates to:
-  /// **'⭐ MVP LES PLUS VOTÉS'**
+  /// **'MVP les plus votés'**
   String get mvpLesPlusVotes;
 
   /// No description provided for @aucunMvp.
@@ -3767,6 +3767,12 @@ abstract class AppLocalizations {
   /// **'🌍 ÉQUIPES LES PLUS SUIVIES'**
   String get equipesLesPlusSuivies;
 
+  /// No description provided for @mvpLesPlusVotesMaj.
+  ///
+  /// In fr, this message translates to:
+  /// **'⭐ MVP LES PLUS VOTÉS'**
+  String get mvpLesPlusVotesMaj;
+
   /// No description provided for @aucunMatchAAfficher.
   ///
   /// In fr, this message translates to:
@@ -3976,6 +3982,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'notes\ndonnées'**
   String get notesDonnees;
+
+  /// No description provided for @votesMvp2Lignes.
+  ///
+  /// In fr, this message translates to:
+  /// **'votes\nMVP'**
+  String get votesMvp2Lignes;
 
   /// No description provided for @topSpectateurs.
   ///

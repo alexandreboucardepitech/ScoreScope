@@ -1877,7 +1877,7 @@ class _RecapCdmViewState extends State<RecapCdmView>
                       }),
                       if (d.top3Mvp.isNotEmpty) ...[
                         const SizedBox(height: 20),
-                        _label(translate.mvpLesPlusVotes, t.accent),
+                        _label(translate.mvpLesPlusVotesMaj, t.accent),
                         const SizedBox(height: 12),
                         _mvpPodium(d.top3Mvp),
                       ],
@@ -3386,7 +3386,7 @@ class _RecapCdmViewState extends State<RecapCdmView>
                               height: 36,
                               color: t.accent.withValues(alpha: 0.2),
                             ),
-                            _communauteStat('$votes', translate.votesMvp, t.accent2),
+                            _communauteStat('$votes', translate.votesMvp2Lignes, t.accent2),
                           ],
                         );
                       }),

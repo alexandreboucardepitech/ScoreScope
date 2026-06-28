@@ -419,7 +419,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mesVotesMvp => 'Mes votes MVP';
 
   @override
-  String get votesMvp => 'votes\nMVP';
+  String get votesMvp => 'Votes MVP';
 
   @override
   String get eluMvp => 'Élu MVP';
@@ -1743,7 +1743,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get moyDesNotesDonnees => 'Moy. des notes données';
 
   @override
-  String get mvpLesPlusVotes => '⭐ MVP LES PLUS VOTÉS';
+  String get mvpLesPlusVotes => 'MVP les plus votés';
 
   @override
   String get aucunMvp => 'Aucun MVP';
@@ -2077,6 +2077,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get equipesLesPlusSuivies => '🌍 ÉQUIPES LES PLUS SUIVIES';
 
   @override
+  String get mvpLesPlusVotesMaj => '⭐ MVP LES PLUS VOTÉS';
+
+  @override
   String get aucunMatchAAfficher => 'Aucun match à afficher';
 
   @override
@@ -2190,6 +2193,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get notesDonnees => 'notes\ndonnées';
+
+  @override
+  String get votesMvp2Lignes => 'votes\nMVP';
 
   @override
   String get topSpectateurs => '👑 TOP SPECTATEURS';
