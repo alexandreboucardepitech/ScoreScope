@@ -1320,9 +1320,15 @@ class _RecapCdmViewState extends State<RecapCdmView>
         final tempDir = await getTemporaryDirectory();
         final file = File('${tempDir.path}/scorescope_cdm_card$pageIndex.png');
         await file.writeAsBytes(pngBytes);
+
+        final box = context.findRenderObject() as RenderBox?;
+        final sharePositionOrigin =
+            box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+
         await Share.shareXFiles(
           [XFile(file.path)],
           text: translate.maCoupeDuMonde2026AvecScoreScope,
+          sharePositionOrigin: sharePositionOrigin,
         );
       } catch (e) {
         debugPrint('Erreur partage : $e');

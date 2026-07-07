@@ -208,7 +208,6 @@ class _RecapSeasonViewState extends State<RecapSeasonView> {
         matchIdsCompleter.complete(state.matchIds);
       } else if (state.phase == StatsLoadingPhase.ready ||
           state.phase == StatsLoadingPhase.error) {
-
         matchIdsCompleter.complete(<String>[]);
       }
     }
@@ -1071,7 +1070,6 @@ class _RecapSeasonViewState extends State<RecapSeasonView> {
                   color: ColorPalette.textAccent(context),
                   fontWeight: FontWeight.w600,
                   fontSize: 11)),
-
           TimeLineChart(
             values: d.monthlySeries,
             showHeader: false,
@@ -1303,6 +1301,10 @@ class _RecapSeasonViewState extends State<RecapSeasonView> {
         final file = File('${tempDir.path}/scorescope_recap_saison.png');
         await file.writeAsBytes(pngBytes);
 
+        final box = context.findRenderObject() as RenderBox?;
+        final sharePositionOrigin =
+            box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+
         await Share.shareXFiles(
           [XFile(file.path)],
           text: '''
@@ -1310,6 +1312,7 @@ Voici mon récap foot de la saison ${_saisonLabel} !⚽📊
 
 Découvrez le votre, téléchargez @ScoreScopeApp !
 ''',
+          sharePositionOrigin: sharePositionOrigin,
         );
       } catch (e) {
         debugPrint('Erreur partage recap saison : $e');

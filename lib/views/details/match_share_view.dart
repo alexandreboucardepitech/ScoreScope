@@ -95,9 +95,14 @@ class _MatchShareViewState extends State<MatchShareView> {
         final away = widget.match.equipeExterieur.nomCourt ??
             widget.match.equipeExterieur.nom;
 
+        final box = context.findRenderObject() as RenderBox?;
+        final sharePositionOrigin =
+            box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+
         await Share.shareXFiles(
           [XFile(file.path)],
           text: translate.jAiNoteXXSurScorescopeapp(home, away),
+          sharePositionOrigin: sharePositionOrigin,
         );
       } catch (e) {
         debugPrint('Erreur partage match : $e');

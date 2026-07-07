@@ -1583,6 +1583,10 @@ class _RecapWeekViewState extends State<RecapWeekView> {
         final file = File('${tempDir.path}/scorescope_recap.png');
         await file.writeAsBytes(pngBytes);
 
+        final box = context.findRenderObject() as RenderBox?;
+        final sharePositionOrigin =
+            box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+
         await Share.shareXFiles(
           [XFile(file.path)],
           text: '''
@@ -1590,6 +1594,7 @@ Voici mon récap foot de la semaine !⚽📊
 
 Découvrez le votre, téléchargez @ScoreScopeApp !
 ''',
+          sharePositionOrigin: sharePositionOrigin,
         );
       } catch (e) {
         debugPrint('Erreur partage recap : $e');
