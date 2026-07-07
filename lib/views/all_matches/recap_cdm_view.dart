@@ -10,6 +10,7 @@ import 'package:scorescope/models/equipe.dart';
 import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/color_palette.dart';
+import 'package:scorescope/utils/widgets/rich_match_card.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/joueur.dart';
@@ -2281,29 +2282,37 @@ class _RecapCdmViewState extends State<RecapCdmView>
                         const SizedBox(height: 20),
                         _label(translate.tonMeilleurMatch, t.accent),
                         const SizedBox(height: 8),
-                        _richMatchCard(
-                            match: d.bestMatch!,
-                            rating: d.bestMatchRating,
-                            mvpVoted: d.bestMatchMvpVoted,
-                            globalMvp: d.bestMatchGlobalMvp,
-                            globalRating: d.bestMatchGlobalRating,
-                            favourite: d.bestMatchFavourite,
-                            accent: t.accent,
-                            isBest: true),
+                        RichMatchCard(
+                          match: d.bestMatch!,
+                          rating: d.bestMatchRating,
+                          mvpVoted: d.bestMatchMvpVoted,
+                          globalMvp: d.bestMatchGlobalMvp,
+                          globalRating: d.bestMatchGlobalRating,
+                          favourite: d.bestMatchFavourite,
+                          accent: t.accent,
+                          isBest: true,
+                          goldColor: _WorldCupColorPalette.gold,
+                          textColor: _WorldCupColorPalette.text,
+                          textDimColor: _WorldCupColorPalette.textDim,
+                        ),
                       ],
                       if (d.worstMatch != null) ...[
                         const SizedBox(height: 12),
                         _label(translate.tonPireMatch, Colors.white38),
                         const SizedBox(height: 8),
-                        _richMatchCard(
-                            match: d.worstMatch!,
-                            rating: d.worstMatchRating,
-                            mvpVoted: d.worstMatchMvpVoted,
-                            globalMvp: d.worstMatchGlobalMvp,
-                            globalRating: d.worstMatchGlobalRating,
-                            favourite: d.worstMatchFavourite,
-                            accent: Colors.white38,
-                            isBest: false),
+                        RichMatchCard(
+                          match: d.worstMatch!,
+                          rating: d.worstMatchRating,
+                          mvpVoted: d.worstMatchMvpVoted,
+                          globalMvp: d.worstMatchGlobalMvp,
+                          globalRating: d.worstMatchGlobalRating,
+                          favourite: d.worstMatchFavourite,
+                          accent: Colors.white38,
+                          isBest: false,
+                          goldColor: _WorldCupColorPalette.gold,
+                          textColor: _WorldCupColorPalette.text,
+                          textDimColor: _WorldCupColorPalette.textDim,
+                        ),
                       ],
                       const SizedBox(height: 10),
                       _ratingBarsBlock(d, t.accent, anim),
@@ -2312,200 +2321,6 @@ class _RecapCdmViewState extends State<RecapCdmView>
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _richMatchCard({
-    required MatchModel match,
-    required int? rating,
-    required Joueur? mvpVoted,
-    required Joueur? globalMvp,
-    required double? globalRating,
-    required bool favourite,
-    required Color accent,
-    required bool isBest,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: accent.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              _teamCol(
-                  match.equipeDomicile.logoPath,
-                  match.equipeDomicile.code ?? match.equipeDomicile.nom,
-                  match.scoreEquipeDomicile > match.scoreEquipeExterieur,
-                  accent),
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(
-                      '${match.scoreEquipeDomicile} - ${match.scoreEquipeExterieur}',
-                      style: TextStyle(
-                          color: _WorldCupColorPalette.text,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (rating != null) _ratingBadge('$rating/10', accent),
-                        if (favourite) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: _WorldCupColorPalette.gold
-                                  .withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(translate.favori,
-                                style: TextStyle(
-                                    color: _WorldCupColorPalette.gold,
-                                    fontSize: 11)),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              _teamCol(
-                  match.equipeExterieur.logoPath,
-                  match.equipeExterieur.code ?? match.equipeExterieur.nom,
-                  match.scoreEquipeExterieur > match.scoreEquipeDomicile,
-                  accent),
-            ],
-          ),
-          if (mvpVoted != null || globalMvp != null) ...[
-            const SizedBox(height: 10),
-            Divider(color: accent.withValues(alpha: 0.2), height: 1),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                if (mvpVoted != null)
-                  Expanded(
-                    child: _mvpMiniLine(mvpVoted, translate.tonMvp, accent),
-                  ),
-                if (mvpVoted != null && globalMvp != null)
-                  Container(
-                    width: 1,
-                    height: 36,
-                    color: accent.withValues(alpha: 0.2),
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                if (globalMvp != null)
-                  Expanded(
-                    child: _mvpMiniLine(
-                      globalMvp,
-                      translate.mvpGlobal,
-                      _WorldCupColorPalette.gold,
-                    ),
-                  ),
-              ],
-            ),
-          ],
-          if (globalRating != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  translate.noteGlobale + ' : ',
-                  style: TextStyle(
-                      color: _WorldCupColorPalette.textDim, fontSize: 11),
-                ),
-                Text(
-                  globalRating.toStringAsFixed(1),
-                  style: TextStyle(
-                      color: accent, fontWeight: FontWeight.bold, fontSize: 13),
-                ),
-                Text(
-                  '/10',
-                  style: TextStyle(
-                      color: _WorldCupColorPalette.textDim, fontSize: 11),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _mvpMiniLine(Joueur joueur, String label, Color color) {
-    return Row(
-      children: [
-        if (joueur.picture.isNotEmpty)
-          ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                  imageUrl: joueur.picture,
-                  width: 24,
-                  height: 24,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) =>
-                      _initialsCircle(joueur.fullName, 24, color)))
-        else
-          _initialsCircle(joueur.fullName, 24, color),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                    color: _WorldCupColorPalette.textDim, fontSize: 10),
-              ),
-              Text(_shortName(joueur.fullName),
-                  style: TextStyle(
-                      color: color, fontWeight: FontWeight.w600, fontSize: 12),
-                  overflow: TextOverflow.ellipsis),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _ratingBadge(String text, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(text,
-            style: TextStyle(
-                color: color, fontWeight: FontWeight.bold, fontSize: 14)),
-      );
-
-  Widget _teamCol(String? logoPath, String code, bool wins, Color accent) {
-    return SizedBox(
-      width: 52,
-      child: Column(
-        children: [
-          _teamLogo(logoPath, 34),
-          const SizedBox(height: 4),
-          Text(
-            code,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                color: wins ? accent : _WorldCupColorPalette.textDim,
-                fontWeight: wins ? FontWeight.bold : FontWeight.normal,
-                fontSize: 11),
           ),
         ],
       ),
@@ -3072,7 +2887,7 @@ class _RecapCdmViewState extends State<RecapCdmView>
                         ],
                       ),
                       const SizedBox(height: 8),
-                      _richMatchCard(
+                      RichMatchCard(
                         match: d.bestMatches[_finaleMatchIndex],
                         rating: d.bestMatchRatings.isNotEmpty
                             ? d.bestMatchRatings[math.min(_finaleMatchIndex,
@@ -3097,6 +2912,9 @@ class _RecapCdmViewState extends State<RecapCdmView>
                             : false,
                         accent: t.accent,
                         isBest: true,
+                        goldColor: _WorldCupColorPalette.gold,
+                        textColor: _WorldCupColorPalette.text,
+                        textDimColor: _WorldCupColorPalette.textDim,
                       ),
                     ],
                   ),
@@ -3320,8 +3138,8 @@ class _RecapCdmViewState extends State<RecapCdmView>
                                     translate.noteMoyGlobale, t.accent2),
                               if (g.avgRating != null)
                                 const SizedBox(width: 16),
-                              _finStat(
-                                  '$users', translate.fans, _WorldCupColorPalette.text),
+                              _finStat('$users', translate.fans,
+                                  _WorldCupColorPalette.text),
                             ],
                           );
                         }),
@@ -3386,7 +3204,8 @@ class _RecapCdmViewState extends State<RecapCdmView>
                               height: 36,
                               color: t.accent.withValues(alpha: 0.2),
                             ),
-                            _communauteStat('$votes', translate.votesMvp2Lignes, t.accent2),
+                            _communauteStat(
+                                '$votes', translate.votesMvp2Lignes, t.accent2),
                           ],
                         );
                       }),
@@ -3473,6 +3292,80 @@ class _RecapCdmViewState extends State<RecapCdmView>
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _mvpMiniLine(Joueur joueur, String label, Color color) {
+    return Row(
+      children: [
+        if (joueur.picture.isNotEmpty)
+          ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                  imageUrl: joueur.picture,
+                  width: 24,
+                  height: 24,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, __, ___) =>
+                      _initialsCircle(joueur.fullName, 24, color)))
+        else
+          _initialsCircle(joueur.fullName, 24, color),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: _WorldCupColorPalette.textDim,
+                  fontSize: 10,
+                ),
+              ),
+              Text(_shortName(joueur.fullName),
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                  overflow: TextOverflow.ellipsis),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _ratingBadge(String text, Color color) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(text,
+            style: TextStyle(
+                color: color, fontWeight: FontWeight.bold, fontSize: 14)),
+      );
+
+  Widget _teamCol(String? logoPath, String code, bool wins, Color accent) {
+    return SizedBox(
+      width: 52,
+      child: Column(
+        children: [
+          _teamLogo(logoPath, 34),
+          const SizedBox(height: 4),
+          Text(
+            code,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                color: wins ? accent : _WorldCupColorPalette.textDim,
+                fontWeight: wins ? FontWeight.bold : FontWeight.normal,
+                fontSize: 11),
           ),
         ],
       ),
@@ -3574,7 +3467,8 @@ class _RecapCdmViewState extends State<RecapCdmView>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  translate.xVoteX(mvp.votes.toString(), mvp.votes > 1 ? 's' : ''),
+                  translate.xVoteX(
+                      mvp.votes.toString(), mvp.votes > 1 ? 's' : ''),
                   style: TextStyle(
                       color: color, fontWeight: FontWeight.bold, fontSize: 11),
                 ),

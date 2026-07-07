@@ -533,11 +533,12 @@ exports.fetchLineups = onSchedule(
                   );
                 }
 
-                // 🔹 Fallback obligatoire si equipeId absent
-                if (newNationalId && currentEquipeId !== newNationalId) {
+                // 🔹 Fallback si le joueur n'a vraiment aucun club en base
+                if (newNationalId && !currentEquipeId) {
                   updates.equipeId = newNationalId;
                   console.log(
-                      `Joueur ${playerInfo.id} : fallback → ${newNationalId}`,
+                      `Joueur ${playerInfo.id} : pas de club connu → ` +
+                      `fallback ${newNationalId}`,
                   );
                 }
               } else {
@@ -861,13 +862,13 @@ exports.updateLiveMatches = onSchedule(
             }
           }
 
-          const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
+          const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
 
           const now = new Date();
 
           const snapshot = await db
               .collection("matchs")
-              .where("date", ">=", threeHoursAgo)
+              .where("date", ">=", fourHoursAgo)
               .where("date", "<=", now)
               .get();
 

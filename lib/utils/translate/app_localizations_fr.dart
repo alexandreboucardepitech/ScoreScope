@@ -2138,7 +2138,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mvpGlobal => 'MVP global';
 
   @override
-  String get noteGlobale => 'Note globale :';
+  String get noteGlobale => 'Note globale';
 
   @override
   String get funStats => '✨ FUN STATS';
@@ -2212,5 +2212,114 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String vuAvecX(String displayName) {
     return 'Vu avec $displayName';
+  }
+
+  @override
+  String get recuperationDesMatchsDeLaSaison =>
+      'Récupération des matchs de la saison...';
+
+  @override
+  String get chargementDesEquipesEtCompetitions =>
+      'Chargement des équipes et compétitions...';
+
+  @override
+  String recapDeLaSaisonX(String saisonLabel) {
+    return 'Récap de la saison $saisonLabel';
+  }
+
+  @override
+  String get recapDeLaSaison => 'Récap de la saison';
+
+  @override
+  String aucunMatchCetteSaisonX(String saisonLabel) {
+    return 'Aucun match regardé pour la saison $saisonLabel';
+  }
+
+  @override
+  String get competitionsSuivies => 'Compétitions suivies';
+
+  @override
+  String get equipesSuivies => 'Équipes suivies';
+
+  @override
+  String get meilleurMatchDeLaSaison => 'Meilleur match de la saison';
+
+  @override
+  String get toi => 'Toi';
+
+  @override
+  String get communaute => 'Communauté';
+
+  @override
+  String get top3MvpDeLaSaison => 'Top 3 MVP de la saison';
+
+  @override
+  String get moisLePlusActif => 'Mois le plus actif';
+
+  @override
+  String get entreAmis => 'Entre amis';
+
+  @override
+  String get inviteTesAmisPourPartagerTesMatchs =>
+      'Invite tes amis pour partager tes matchs !';
+
+  @override
+  String xMatchsAvecXAmis(String matchCount, String friendCount) {
+    return '$matchCount matchs avec $friendCount amis';
+  }
+
+  @override
+  String get matchsVusParMois => 'Matchs vus par mois';
+
+  @override
+  String get coupeDuMonde => 'COUPE DU MONDE';
+
+  @override
+  String get voirMonRecapEmoji => 'Voir mon récap 👀';
+
+  @override
+  String get coupeDuMonde2026Maj => 'COUPE DU MONDE 2026';
+
+  @override
+  String get tonRecapEstDisponible => 'Ton récap est disponible !';
+
+  @override
+  String get decouvrirMonRecapEmoji => 'Découvrir mon récap 👀';
+
+  @override
+  String saisonX(String seasonLabel) {
+    return 'SAISON $seasonLabel';
+  }
+
+  @override
+  String recapDeSaisonX(String seasonLabel) {
+    return 'RÉCAP DE SAISON $seasonLabel';
+  }
+
+  @override
+  String get laCoupeDuMondeEstTerminee => 'La Coupe du Monde\nest terminée.';
+
+  @override
+  String get descriptionRecapCdm =>
+      'Ton récap ScoreScope est disponible.\nReviens sur tous tes matchs, tes notes,\net des dizaines de statistiques !';
+
+  @override
+  String get voirMonRecap => 'Voir mon récap';
+
+  @override
+  String get plusTard => 'Plus tard';
+
+  @override
+  String laSaisonXEstTerminee(String seasonLabel) {
+    return 'La saison $seasonLabel\nest terminée.';
+  }
+
+  @override
+  String get descriptionRecapSaison =>
+      'Ton récap ScoreScope est disponible.\nRetrouve tes matchs, tes tops de la saison,\net toutes tes statistiques !';
+
+  @override
+  String duXAuX(String dateDebut, String dateFin) {
+    return 'Du $dateDebut au $dateFin';
   }
 }

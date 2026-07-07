@@ -9,9 +9,24 @@ import 'package:scorescope/utils/ui/color_palette.dart';
 class TimeLineChart extends StatefulWidget {
   final List<TimeStatValue> values;
 
+  // Affiche ou non le bandeau "Mois : X matchs regardés (+delta)" en haut.
+  // Par défaut à true pour ne rien changer à l'usage existant (onglet
+  // stats).
+  final bool showHeader;
+
+  // Version resserrée : police plus petite, trait plus fin, et un label de
+  // mois sur trois (on garde toujours le premier et le dernier). Toutes les
+  // valeurs restent affichées dans les deux modes — seule la taille change.
+  // Pensé pour un affichage sur une portion de largeur (ex: 2/3 d'une carte)
+  // plutôt que pleine largeur. Déclaratif plutôt que mesuré au runtime, pour
+  // rester compatible avec IntrinsicHeight côté appelant.
+  final bool compact;
+
   const TimeLineChart({
     super.key,
     required this.values,
+    this.showHeader = true,
+    this.compact = false,
   });
 
   @override
@@ -52,59 +67,84 @@ class _TimeLineChartState extends State<TimeLineChart> {
       short: false,
     );
 
+    final compact = widget.compact;
+    final monthLabelFontSize = compact ? 9.0 : 10.0;
+    final dotValueFontSize = compact ? 11.0 : 18.0;
+    final selectedDotRadius = compact ? 5.0 : 7.0;
+    final normalDotRadius = compact ? 3.5 : 5.0;
+    final barWidth = compact ? 2.0 : 3.0;
+    final labelInterval = compact ? 3 : 1;
+
+    // Marge de respiration au-dessus du point le plus haut : sans ça, le
+    // pic touche le bord supérieur du graphique (et son étiquette de valeur,
+    // dessinée au-dessus du point, peut être coupée).
+    final maxValue = widget.values
+        .map((v) => v.value)
+        .fold<num>(0, (a, b) => a > b ? a : b);
+    final chartMaxY = maxValue <= 0 ? 1.0 : maxValue.toDouble() * 1.25;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '$monthLabel : ',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: ColorPalette.textPrimary(context),
-                ),
-              ),
-              Text(
-                '${selected.value}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: ColorPalette.textAccent(context),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                translate.matchsRegardes,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: ColorPalette.textAccent(context),
-                ),
-              ),
-              const SizedBox(width: 6),
-              if (delta != null)
-                Text(
-                  delta > 0 ? '+$delta' : '$delta',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: deltaColor,
+          if (widget.showHeader) ...[
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '$monthLabel : ',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: ColorPalette.textPrimary(context),
+                    ),
                   ),
-                ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
+                  Text(
+                    '${selected.value}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: ColorPalette.textAccent(context),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    translate.matchsRegardes,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: ColorPalette.textAccent(context),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  if (delta != null)
+                    Text(
+                      delta > 0 ? '+$delta' : '$delta',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: deltaColor,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ] else
+            // Marge de respiration en haut quand le bandeau est masqué,
+            // pour que le point le plus haut ne touche pas le bord.
+            SizedBox(height: compact ? 14 : 20),
 
           // 🔹 Graphique
           SizedBox(
-            height: 140,
+            height: compact ? 110 : 140,
             child: LineChart(
               LineChartData(
                 minY: 0,
+                maxY: chartMaxY,
                 gridData: FlGridData(show: false),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
@@ -124,6 +164,14 @@ class _TimeLineChartState extends State<TimeLineChart> {
                           return const SizedBox.shrink();
                         }
 
+                        final isFirstOrLast =
+                            index == 0 || index == widget.values.length - 1;
+                        if (labelInterval > 1 &&
+                            index % labelInterval != 0 &&
+                            !isFirstOrLast) {
+                          return const SizedBox.shrink();
+                        }
+
                         final date = widget.values[index].period;
                         String label = _monthLabel(date.month, true);
 
@@ -140,7 +188,7 @@ class _TimeLineChartState extends State<TimeLineChart> {
                           child: Text(
                             label,
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: monthLabelFontSize,
                               color: ColorPalette.textPrimary(context),
                             ),
                           ),
@@ -167,7 +215,7 @@ class _TimeLineChartState extends State<TimeLineChart> {
                 lineBarsData: [
                   LineChartBarData(
                     isCurved: true,
-                    barWidth: 3,
+                    barWidth: barWidth,
                     color: ColorPalette.accent(context),
                     dotData: FlDotData(
                       show: true,
@@ -180,6 +228,9 @@ class _TimeLineChartState extends State<TimeLineChart> {
                           value: value,
                           color: ColorPalette.accent(context),
                           textColor: ColorPalette.textAccent(context),
+                          fontSize: dotValueFontSize,
+                          selectedRadius: selectedDotRadius,
+                          normalRadius: normalDotRadius,
                         );
                       },
                     ),
@@ -257,12 +308,18 @@ class MatchCountDotPainter extends FlDotPainter {
   final num value;
   final Color color;
   final Color textColor;
+  final double fontSize;
+  final double selectedRadius;
+  final double normalRadius;
 
   MatchCountDotPainter({
     required this.isSelected,
     required this.value,
     required this.color,
     required this.textColor,
+    this.fontSize = 18,
+    this.selectedRadius = 7.0,
+    this.normalRadius = 5.0,
   });
 
   @override
@@ -271,7 +328,7 @@ class MatchCountDotPainter extends FlDotPainter {
     FlSpot spot,
     Offset offsetInCanvas,
   ) {
-    final dotRadius = isSelected ? 7.0 : 5.0;
+    final dotRadius = isSelected ? selectedRadius : normalRadius;
 
     final paint = Paint()..color = color;
     canvas.drawCircle(offsetInCanvas, dotRadius, paint);
@@ -280,7 +337,7 @@ class MatchCountDotPainter extends FlDotPainter {
       text: TextSpan(
         text: value.toString(),
         style: TextStyle(
-          fontSize: 18,
+          fontSize: isSelected ? fontSize : fontSize * 0.85,
           fontWeight: FontWeight.w600,
           color: textColor,
         ),
@@ -309,5 +366,13 @@ class MatchCountDotPainter extends FlDotPainter {
   Color get mainColor => color;
 
   @override
-  List<Object?> get props => [isSelected, value, color, textColor];
+  List<Object?> get props => [
+        isSelected,
+        value,
+        color,
+        textColor,
+        fontSize,
+        selectedRadius,
+        normalRadius,
+      ];
 }

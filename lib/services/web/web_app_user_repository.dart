@@ -1010,6 +1010,16 @@ class WebAppUserRepository implements IAppUserRepository {
   }
 
   @override
+  Future<void> markSeasonRecapAsSeen(String userId, String seasonLabel) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .update({'lastSeasonRecapSeen': seasonLabel});
+
+    currentUser = await getCurrentUser();
+  }
+
+  @override
   Future<void> markCdmRecapAsSeen(String userId) async {
     await FirebaseFirestore.instance
         .collection('users')

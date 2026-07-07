@@ -9,11 +9,17 @@ import 'package:scorescope/utils/ui/Color_palette.dart';
 class PieStatGraph extends StatefulWidget {
   final List<StatValue> values;
   final bool pourcentage;
+  // Version compacte : pas de légende à côté, donut plus petit avec le %
+  // de la catégorie dominante au centre, et son libellé en dessous.
+  // Pensée pour tenir dans une case ~1/3 de largeur (ex: rangée de 3
+  // stats dans le récap de saison).
+  final bool compact;
 
   const PieStatGraph({
     super.key,
     required this.values,
     this.pourcentage = false,
+    this.compact = false,
   });
 
   @override
@@ -40,6 +46,10 @@ class _PieStatGraphState extends State<PieStatGraph> {
     final values = aggregateSmallValues(widget.values);
 
     double countSmallValues = getCountSmallValues(widget.values, values);
+
+    if (widget.compact) {
+      return _buildCompact(context, values, countSmallValues);
+    }
 
     final legendItems = values.take(3).toList();
 
@@ -153,6 +163,66 @@ class _PieStatGraphState extends State<PieStatGraph> {
           ),
         ],
       ),
+    );
+  }
+  Widget _buildCompact(
+      BuildContext context, List<StatValue> values, double countSmallValues) {
+    if (values.isEmpty || total == 0) return const SizedBox.shrink();
+
+    // Pas d'interaction tactile en mode compact (tooltip inutile sur un
+    // donut de cette taille).
+    final dominant = values.reduce((a, b) => a.value > b.value ? a : b);
+    final dominantPercent = (dominant.value / total * 100).round();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 64,
+          width: 64,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              PieChart(
+                PieChartData(
+                  startDegreeOffset: -90,
+                  centerSpaceRadius: 16,
+                  sectionsSpace: 1,
+                  sections: List.generate(values.length, (i) {
+                    final v = values[i];
+                    return PieChartSectionData(
+                      value: v.label == 'Autres'
+                          ? countSmallValues
+                          : v.value.toDouble(),
+                      color: _getColor(i, v),
+                      radius: 14,
+                      showTitle: false,
+                    );
+                  }),
+                ),
+              ),
+              Text(
+                '$dominantPercent%',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: ColorPalette.textPrimary(context),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          dominant.label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 10,
+            color: ColorPalette.textSecondary(context),
+          ),
+        ),
+      ],
     );
   }
 }

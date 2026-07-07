@@ -1228,7 +1228,7 @@
   "favori": "⭐ Favourite",
   "tonMvp": "Your MVP",
   "mvpGlobal": "Global MVP",
-  "noteGlobale": "Global rating:",
+  "noteGlobale": "Global rating",
   "funStats": "✨ FUN STATS",
   "nationsDifferentesSuivies": "different nations\nfollowed",
   "matchsRegardesLaNuit": "matches watched at night\n(12am - 6am)",
@@ -1255,7 +1255,6 @@
   "notesDonnees": "ratings\ngiven",
   "votesMvp2Lignes": "MVP\nvotes",
   "topSpectateurs": "👑 TOP VIEWERS",
-  "mvpDuMatch": "Match MVP",
   "v": "W",
   "n": "D",
   "d": "L",
@@ -1265,6 +1264,73 @@
       "displayName": {
         "type": "String"
       }
+    }
+  },
+  "recuperationDesMatchsDeLaSaison": "Fetching season matches...",
+  "chargementDesEquipesEtCompetitions": "Loading teams and competitions...",
+  "recapDeLaSaisonX": "Season recap {saisonLabel}",
+  "@recapDeLaSaisonX": {
+    "placeholders": {
+      "saisonLabel": { "type": "String" }
+    }
+  },
+  "recapDeLaSaison": "Season recap",
+  "aucunMatchCetteSaisonX": "No matches watched for the {saisonLabel} season",
+  "@aucunMatchCetteSaisonX": {
+    "placeholders": {
+      "saisonLabel": { "type": "String" }
+    }
+  },
+  "competitionsSuivies": "Competitions followed",
+  "equipesSuivies": "Teams followed",
+  "meilleurMatchDeLaSaison": "Best match of the season",
+  "toi": "You",
+  "communaute": "Community",
+  "top3MvpDeLaSaison": "Top 3 MVPs of the season",
+  "moisLePlusActif": "Most active month",
+  "entreAmis": "With friends",
+  "inviteTesAmisPourPartagerTesMatchs": "Invite your friends to share your matches!",
+  "xMatchsAvecXAmis": "{matchCount} matches with {friendCount} friends",
+  "@xMatchsAvecXAmis": {
+    "placeholders": {
+      "matchCount": { "type": "String" },
+      "friendCount": { "type": "String" }
+    }
+  },
+  "matchsVusParMois": "Matches watched per month",
+  "coupeDuMonde": "WORLD CUP",
+  "voirMonRecapEmoji": "View my recap 👀",
+  "coupeDuMonde2026Maj": "WORLD CUP 2026",
+  "tonRecapEstDisponible": "Your recap is available!",
+  "decouvrirMonRecapEmoji": "Discover my recap 👀",
+  "saisonX": "SEASON {seasonLabel}",
+  "@saisonX": {
+    "placeholders": {
+      "seasonLabel": { "type": "String" }
+    }
+  },
+  "recapDeSaisonX": "SEASON RECAP {seasonLabel}",
+  "@recapDeSaisonX": {
+    "placeholders": {
+      "seasonLabel": { "type": "String" }
+    }
+  },
+  "laCoupeDuMondeEstTerminee": "The World Cup\nis over.",
+  "descriptionRecapCdm": "Your ScoreScope recap is available.\nRelive all your matches, your ratings,\nand dozens of stats!",
+  "voirMonRecap": "View my recap",
+  "plusTard": "Later",
+  "laSaisonXEstTerminee": "Your {seasonLabel} season\nis over.",
+  "@laSaisonXEstTerminee": {
+    "placeholders": {
+      "seasonLabel": { "type": "String" }
+    }
+  },
+  "descriptionRecapSaison": "Your ScoreScope recap is available.\nRelive your matches, your season highlights,\nand all your stats!",
+  "duXAuX": "From {dateDebut} to {dateFin}",
+  "@duXAuX": {
+    "placeholders": {
+      "dateDebut": { "type": "String" },
+      "dateFin": { "type": "String" }
     }
   }
 }

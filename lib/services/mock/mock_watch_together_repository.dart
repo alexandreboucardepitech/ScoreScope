@@ -1,4 +1,5 @@
 import 'package:scorescope/models/watch_together.dart';
+import 'package:scorescope/models/watch_together/watch_together_season_summary.dart';
 import 'package:scorescope/services/repositories/i_watch_together_repository.dart';
 
 class MockWatchTogetherRepository implements IWatchTogetherRepository {
@@ -105,5 +106,46 @@ class MockWatchTogetherRepository implements IWatchTogetherRepository {
 
     _watchTogether
         .removeWhere((wt) => wt.ownerId == userId || wt.friendId == userId);
+  }
+
+  @override
+  Future<WatchTogetherSeasonSummary> fetchUserWatchTogetherSummary({
+    required String userId,
+    required List<String> matchIds,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final filtered = _watchTogether.where((wt) =>
+        (wt.ownerId == userId || wt.friendId == userId) &&
+        matchIds.contains(wt.matchId));
+
+    final totalMatchesWithFriends = filtered.length;
+
+    final friendStatsMap = <String, WatchTogetherFriendStat>{};
+
+    for (var wt in filtered) {
+      final friendId = wt.ownerId == userId ? wt.friendId : wt.ownerId;
+      if (!friendStatsMap.containsKey(friendId)) {
+        friendStatsMap[friendId] = WatchTogetherFriendStat(
+          friendId: friendId,
+          friendName: 'Friend $friendId', // Placeholder name
+          matchesTogether: 0,
+        );
+      }
+      friendStatsMap[friendId] = WatchTogetherFriendStat(
+        friendId: friendStatsMap[friendId]!.friendId,
+        friendName: friendStatsMap[friendId]!.friendName,
+        matchesTogether: friendStatsMap[friendId]!.matchesTogether + 1,
+      );
+    }
+
+    final topFriends = friendStatsMap.values.toList()
+      ..sort((a, b) => b.matchesTogether.compareTo(a.matchesTogether));
+
+    return WatchTogetherSeasonSummary(
+      totalMatchesWithFriends: totalMatchesWithFriends,
+      distinctFriendsCount: friendStatsMap.length,
+      topFriends: topFriends,
+    );
   }
 }

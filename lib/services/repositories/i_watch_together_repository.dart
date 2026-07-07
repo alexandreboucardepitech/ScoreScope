@@ -1,4 +1,5 @@
 import 'package:scorescope/models/watch_together.dart';
+import 'package:scorescope/models/watch_together/watch_together_season_summary.dart';
 
 abstract class IWatchTogetherRepository {
   Future<List<WatchTogether>> getFriendsWatchedWith(
@@ -26,5 +27,10 @@ abstract class IWatchTogetherRepository {
 
   Future<void> removeAllWatchTogetherForUser({
     required String userId,
+  });
+
+  Future<WatchTogetherSeasonSummary> fetchUserWatchTogetherSummary({
+    required String userId,
+    required List<String> matchIds,
   });
 }

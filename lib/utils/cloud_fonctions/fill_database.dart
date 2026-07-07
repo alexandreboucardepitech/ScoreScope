@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/but.dart';
@@ -967,11 +968,11 @@ class FillDatabase {
     if (seulementUpdateCompos) {
       await RepositoryProvider.matchRepository.updateField(
         matchId: newMatch.id,
-        joueursEquipeDomicileId: newMatch.joueursEquipeDomicileId,
-        joueursEquipeExterieurId: newMatch.joueursEquipeExterieurId,
-        // penaltyEquipeDomicile: newMatch.penaltyEquipeDomicile,
-        // penaltyEquipeExterieur: newMatch.penaltyEquipeExterieur,
-        // prolongations: newMatch.prolongations,
+        // joueursEquipeDomicileId: newMatch.joueursEquipeDomicileId,
+        // joueursEquipeExterieurId: newMatch.joueursEquipeExterieurId,
+        penaltyEquipeDomicile: newMatch.penaltyEquipeDomicile,
+        penaltyEquipeExterieur: newMatch.penaltyEquipeExterieur,
+        prolongations: newMatch.prolongations,
         // refereeName: newMatch.refereeName,
         // stadiumName: newMatch.stadiumName,
       );
@@ -981,6 +982,50 @@ class FillDatabase {
     print("Match créé depuis fixture $fixtureId : "
         "${newMatch.equipeDomicileId} vs ${newMatch.equipeExterieurId}");
     return newMatch;
+  }
+
+  static Future<void> mettreAJourInfosMatchs(
+    List<String> competitionsId,
+  ) async {
+    for (String competitionId in competitionsId) {
+      List<dynamic> data = await getDataFromApi(
+        "fixtures",
+        params: {"league": competitionId, "season": "2025"},
+      );
+      int i = 0;
+      print(data);
+
+      for (Map<String, dynamic> match in data) {
+        print("$i / ${data.length}");
+        Map<String, dynamic>? fixture = match["fixture"];
+        if (fixture == null) {
+          print("FIXTURE NULL !!!!!!");
+        }
+        int? matchId = fixture?['id'];
+        String? refereeName = fixture?['referee'];
+        String? stadiumName = fixture?['venue']?['name'];
+        if (refereeName == null) {
+          print("REFEREE NAME NULL !!!");
+          refereeName = "";
+        }
+        if (stadiumName == null) {
+          print("STADIUM NAME NULL !!!");
+          stadiumName = "";
+        }
+        MatchModelId? matchExistant = await RepositoryProvider.matchRepository
+            .fetchMatchModelIdById(matchId.toString());
+        if (matchId != null && matchExistant != null) {
+          await RepositoryProvider.matchRepository.updateField(
+            matchId: matchId.toString(),
+            refereeName: refereeName,
+            stadiumName: stadiumName,
+          );
+        } else {
+          print("oula");
+        }
+        i++;
+      }
+    }
   }
 
   static Future<void> updateEquipeCouleurs({
@@ -1027,6 +1072,96 @@ class FillDatabase {
     await RepositoryProvider.joueurRepository.updateJoueur(updated);
     print("Joueur ${joueur.fullName} (${joueur.id}) : équipe mise à jour "
         "${joueur.equipeId} → $newEquipeId");
+  }
+
+  static Future<void> updateEquipesDeTousLesJoueurs() async {
+    List<MatchModelId> allMatches =
+        await RepositoryProvider.matchRepository.fetchAllMatchesId();
+    allMatches.sort((a, b) => a.date.compareTo(b.date));
+
+    // joueurId -> {equipeId?, equipeNationaleId?}
+    final Map<String, Map<String, String?>> playerUpdates = {};
+
+    void applyClub(String joueurId, String equipeId) {
+      playerUpdates.putIfAbsent(joueurId, () => {});
+      playerUpdates[joueurId]!['equipeId'] = equipeId;
+    }
+
+    void applyNational(String joueurId, String equipeNationaleId) {
+      playerUpdates.putIfAbsent(joueurId, () => {});
+      playerUpdates[joueurId]!['equipeNationaleId'] = equipeNationaleId;
+    }
+
+    int i = 0;
+
+    for (MatchModelId match in allMatches) {
+      print("première boucle : $i / ${allMatches.length}");
+      bool national = match.competitionId == "1" || match.competitionId == "10";
+
+      for (MatchJoueurId matchJoueur in match.joueursEquipeDomicileId) {
+        if (matchJoueur.joueurId == "null") continue;
+        if (national) {
+          applyNational(matchJoueur.joueurId, match.equipeDomicileId);
+        } else {
+          applyClub(matchJoueur.joueurId, match.equipeDomicileId);
+        }
+      }
+
+      for (MatchJoueurId matchJoueur in match.joueursEquipeExterieurId) {
+        if (matchJoueur.joueurId == "null") continue;
+        if (national) {
+          applyNational(matchJoueur.joueurId, match.equipeExterieurId);
+        } else {
+          applyClub(matchJoueur.joueurId, match.equipeExterieurId);
+        }
+      }
+      i++;
+    }
+
+    print("Joueurs à mettre à jour : ${playerUpdates.length}");
+
+    // 🔹 Une seule requête pour connaître tous les joueurs qui existent réellement
+    final existingSnapshot =
+        await FirebaseFirestore.instance.collection('joueurs').get();
+    final existingIds = existingSnapshot.docs.map((d) => d.id).toSet();
+
+    // 🔹 On sépare ce qui peut être écrit de ce qui doit être ignoré
+    final missingIds = <String>[];
+    playerUpdates.removeWhere((joueurId, _) {
+      final exists = existingIds.contains(joueurId);
+      if (!exists) missingIds.add(joueurId);
+      return !exists;
+    });
+
+    print("Joueurs ignorés (absents en base) : ${missingIds.length}");
+    if (missingIds.isNotEmpty) {
+      print(missingIds.join(', '));
+    }
+
+    // 🔹 Écriture en batches de 500 (limite Firestore)
+    final entries = playerUpdates.entries.toList();
+    const batchSize = 500;
+
+    for (int start = 0; start < entries.length; start += batchSize) {
+      final chunk = entries.skip(start).take(batchSize);
+      final batch = FirebaseFirestore.instance.batch();
+
+      for (final entry in chunk) {
+        final joueurId = entry.key;
+        final updates = entry.value;
+
+        batch.update(
+          FirebaseFirestore.instance.collection('joueurs').doc(joueurId),
+          updates,
+        );
+      }
+
+      await batch.commit();
+      print("Batch ${(start / batchSize).floor() + 1} committed "
+          "(${chunk.length} joueurs)");
+    }
+
+    print("✅ Correction terminée");
   }
 
   static Future<void> deleteMatch(String matchId) async {

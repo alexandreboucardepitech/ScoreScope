@@ -3878,7 +3878,7 @@ abstract class AppLocalizations {
   /// No description provided for @noteGlobale.
   ///
   /// In fr, this message translates to:
-  /// **'Note globale :'**
+  /// **'Note globale'**
   String get noteGlobale;
 
   /// No description provided for @funStats.
@@ -4018,6 +4018,186 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Vu avec {displayName}'**
   String vuAvecX(String displayName);
+
+  /// No description provided for @recuperationDesMatchsDeLaSaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupération des matchs de la saison...'**
+  String get recuperationDesMatchsDeLaSaison;
+
+  /// No description provided for @chargementDesEquipesEtCompetitions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des équipes et compétitions...'**
+  String get chargementDesEquipesEtCompetitions;
+
+  /// No description provided for @recapDeLaSaisonX.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récap de la saison {saisonLabel}'**
+  String recapDeLaSaisonX(String saisonLabel);
+
+  /// No description provided for @recapDeLaSaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récap de la saison'**
+  String get recapDeLaSaison;
+
+  /// No description provided for @aucunMatchCetteSaisonX.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun match regardé pour la saison {saisonLabel}'**
+  String aucunMatchCetteSaisonX(String saisonLabel);
+
+  /// No description provided for @competitionsSuivies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compétitions suivies'**
+  String get competitionsSuivies;
+
+  /// No description provided for @equipesSuivies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équipes suivies'**
+  String get equipesSuivies;
+
+  /// No description provided for @meilleurMatchDeLaSaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleur match de la saison'**
+  String get meilleurMatchDeLaSaison;
+
+  /// No description provided for @toi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toi'**
+  String get toi;
+
+  /// No description provided for @communaute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Communauté'**
+  String get communaute;
+
+  /// No description provided for @top3MvpDeLaSaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Top 3 MVP de la saison'**
+  String get top3MvpDeLaSaison;
+
+  /// No description provided for @moisLePlusActif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois le plus actif'**
+  String get moisLePlusActif;
+
+  /// No description provided for @entreAmis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre amis'**
+  String get entreAmis;
+
+  /// No description provided for @inviteTesAmisPourPartagerTesMatchs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invite tes amis pour partager tes matchs !'**
+  String get inviteTesAmisPourPartagerTesMatchs;
+
+  /// No description provided for @xMatchsAvecXAmis.
+  ///
+  /// In fr, this message translates to:
+  /// **'{matchCount} matchs avec {friendCount} amis'**
+  String xMatchsAvecXAmis(String matchCount, String friendCount);
+
+  /// No description provided for @matchsVusParMois.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matchs vus par mois'**
+  String get matchsVusParMois;
+
+  /// No description provided for @coupeDuMonde.
+  ///
+  /// In fr, this message translates to:
+  /// **'COUPE DU MONDE'**
+  String get coupeDuMonde;
+
+  /// No description provided for @voirMonRecapEmoji.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon récap 👀'**
+  String get voirMonRecapEmoji;
+
+  /// No description provided for @coupeDuMonde2026Maj.
+  ///
+  /// In fr, this message translates to:
+  /// **'COUPE DU MONDE 2026'**
+  String get coupeDuMonde2026Maj;
+
+  /// No description provided for @tonRecapEstDisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton récap est disponible !'**
+  String get tonRecapEstDisponible;
+
+  /// No description provided for @decouvrirMonRecapEmoji.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir mon récap 👀'**
+  String get decouvrirMonRecapEmoji;
+
+  /// No description provided for @saisonX.
+  ///
+  /// In fr, this message translates to:
+  /// **'SAISON {seasonLabel}'**
+  String saisonX(String seasonLabel);
+
+  /// No description provided for @recapDeSaisonX.
+  ///
+  /// In fr, this message translates to:
+  /// **'RÉCAP DE SAISON {seasonLabel}'**
+  String recapDeSaisonX(String seasonLabel);
+
+  /// No description provided for @laCoupeDuMondeEstTerminee.
+  ///
+  /// In fr, this message translates to:
+  /// **'La Coupe du Monde\nest terminée.'**
+  String get laCoupeDuMondeEstTerminee;
+
+  /// No description provided for @descriptionRecapCdm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton récap ScoreScope est disponible.\nReviens sur tous tes matchs, tes notes,\net des dizaines de statistiques !'**
+  String get descriptionRecapCdm;
+
+  /// No description provided for @voirMonRecap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon récap'**
+  String get voirMonRecap;
+
+  /// No description provided for @plusTard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get plusTard;
+
+  /// No description provided for @laSaisonXEstTerminee.
+  ///
+  /// In fr, this message translates to:
+  /// **'La saison {seasonLabel}\nest terminée.'**
+  String laSaisonXEstTerminee(String seasonLabel);
+
+  /// No description provided for @descriptionRecapSaison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton récap ScoreScope est disponible.\nRetrouve tes matchs, tes tops de la saison,\net toutes tes statistiques !'**
+  String get descriptionRecapSaison;
+
+  /// No description provided for @duXAuX.
+  ///
+  /// In fr, this message translates to:
+  /// **'Du {dateDebut} au {dateFin}'**
+  String duXAuX(String dateDebut, String dateFin);
 }
 
 class _AppLocalizationsDelegate

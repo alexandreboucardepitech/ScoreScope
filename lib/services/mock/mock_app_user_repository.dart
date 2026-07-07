@@ -1205,6 +1205,34 @@ class MockAppUserRepository implements IAppUserRepository {
       matchsUserData: user.matchsUserData,
       options: user.options,
       lastRecapSeenWeek: recapWeekId,
+      cdmRecapSeen: user.cdmRecapSeen,
+      lastSeasonRecapSeen: user.lastSeasonRecapSeen,
+    );
+
+    _users[userIdx] = newUser;
+  }
+
+  Future<void> markSeasonRecapAsSeen(String userId, String seasonLabel) async {
+    final userIdx = _users.indexWhere((u) => u.uid == userId);
+    if (userIdx < 0) return;
+
+    final user = _users[userIdx];
+
+    final newUser = AppUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      bio: user.bio,
+      photoUrl: user.photoUrl,
+      createdAt: user.createdAt,
+      equipesPrefereesId: user.equipesPrefereesId,
+      competitionsPrefereesId: user.competitionsPrefereesId,
+      private: user.private,
+      matchsUserData: user.matchsUserData,
+      options: user.options,
+      lastRecapSeenWeek: user.lastRecapSeenWeek,
+      cdmRecapSeen: user.cdmRecapSeen,
+      lastSeasonRecapSeen: seasonLabel,
     );
 
     _users[userIdx] = newUser;
@@ -1231,6 +1259,7 @@ class MockAppUserRepository implements IAppUserRepository {
       options: user.options,
       lastRecapSeenWeek: user.lastRecapSeenWeek,
       cdmRecapSeen: true,
+      lastSeasonRecapSeen: user.lastSeasonRecapSeen,
     );
 
     _users[userIdx] = newUser;

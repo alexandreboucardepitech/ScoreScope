@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/language_options.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
@@ -11,6 +12,7 @@ import 'package:scorescope/utils/ui/Color_palette.dart';
 import 'package:scorescope/utils/ui/app_logos.dart';
 import 'package:scorescope/views/all_matches/recap_cdm_view.dart';
 import 'package:scorescope/views/all_matches/recap_week_view.dart';
+import 'package:scorescope/views/all_matches/recap_season_view.dart';
 import 'package:scorescope/views/all_matches/recherche_view.dart';
 import 'package:scorescope/widgets/all_matches/recap_banner.dart';
 import 'package:scorescope/widgets/util/competitions_bottom_sheet.dart';
@@ -43,6 +45,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
   bool _showRecapBanner = false;
   bool _recapChecked = false;
   bool _cdmPopupShownThisSession = false;
+  bool _seasonPopupShownThisSession = false;
 
   static final DateTime _cdmRecapStart = DateTime(2026, 7, 19, 23, 0);
   static final DateTime _cdmRecapEnd = DateTime(2026, 8, 15);
@@ -50,6 +53,15 @@ class _AllMatchesViewState extends State<AllMatchesView> {
   bool get _isCdmRecapAvailable {
     final now = DateTime.now();
     return now.isAfter(_cdmRecapStart) && now.isBefore(_cdmRecapEnd);
+  }
+
+  bool get _isSeasonRecapAvailable => DateTime.now().month == 8;
+
+  String get _seasonRecapLabel {
+    final now = DateTime.now();
+    final currentSaison = now.month >= 7 ? now.year : now.year - 1;
+    final saisonAnnee = currentSaison - 1;
+    return '$saisonAnnee/${saisonAnnee + 1}';
   }
 
   @override
@@ -156,7 +168,15 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               !(_currentUser!.cdmRecapSeen)) {
             _cdmPopupShownThisSession = true;
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) _showCdmRecapPopup();
+              if (mounted) {
+                _showCdmRecapPopup(
+                  onClosed: _maybeShowSeasonRecapPopup,
+                );
+              }
+            });
+          } else {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _maybeShowSeasonRecapPopup();
             });
           }
         });
@@ -251,7 +271,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
     final lastMonday = thisMonday.subtract(const Duration(days: 7));
     final lastSunday = lastMonday.add(const Duration(days: 6));
     final fmt = DateFormat('d MMM', getDateFormat());
-    return 'Du ${fmt.format(lastMonday)} au ${fmt.format(lastSunday)}';
+    return translate.duXAuX(fmt.format(lastMonday), fmt.format(lastSunday));
   }
 
   Future<void> _markRecapAsSeen() async {
@@ -298,7 +318,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => RecapWeekView(),
+                      builder: (_) => RecapSeasonView(),
                     ),
                   );
                 },
@@ -388,7 +408,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                   }
 
                   if (_errorMessage != null && _matches == null) {
-                    return Center(child: Text('Erreur: $_errorMessage'));
+                    return Center(
+                        child: Text(translate.erreur + ': $_errorMessage'));
                   }
 
                   final allMatches = _matches ?? [];
@@ -438,22 +459,85 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 80),
                       children: [
-                        if (_isCdmRecapAvailable) ...[
-                          _CdmRecapBanner(
-                            onTap: () {
-                              if (_currentUser != null &&
-                                  !_currentUser!.cdmRecapSeen) {
-                                RepositoryProvider.userRepository
-                                    .markCdmRecapAsSeen(_currentUser!.uid);
-                              }
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => RecapCdmView()),
-                              );
-                            },
+                        if (_isCdmRecapAvailable &&
+                            _isSeasonRecapAvailable) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(
+                                    child: _CdmRecapBanner(
+                                      compact: true,
+                                      onTap: () {
+                                        if (_currentUser != null &&
+                                            !_currentUser!.cdmRecapSeen) {
+                                          RepositoryProvider.userRepository
+                                              .markCdmRecapAsSeen(
+                                                  _currentUser!.uid);
+                                        }
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => RecapCdmView()),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _SeasonRecapBanner(
+                                      compact: true,
+                                      seasonLabel: _seasonRecapLabel,
+                                      onTap: () {
+                                        _markSeasonRecapAsSeen();
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  RecapSeasonView()),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 10),
+                        ] else ...[
+                          if (_isCdmRecapAvailable) ...[
+                            _CdmRecapBanner(
+                              onTap: () {
+                                if (_currentUser != null &&
+                                    !_currentUser!.cdmRecapSeen) {
+                                  RepositoryProvider.userRepository
+                                      .markCdmRecapAsSeen(_currentUser!.uid);
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => RecapCdmView()),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                          if (_isSeasonRecapAvailable) ...[
+                            _SeasonRecapBanner(
+                              seasonLabel: _seasonRecapLabel,
+                              onTap: () {
+                                _markSeasonRecapAsSeen();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => RecapSeasonView()),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 10),
+                          ],
                         ],
                         if (_showRecapBanner) ...[
                           RecapBanner(
@@ -501,13 +585,24 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                 },
               ),
             ),
+            if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+                RepositoryProvider.userRepository.currentUser?.uid ==
+                    "UwigeExwFMfDrCk4x8AbODha3il1" ||
+                RepositoryProvider.userRepository.currentUser?.uid ==
+                    "Elv7ujUkfRYKfrIJsDySorXRYuh1")
+              ElevatedButton(
+                onPressed: () async {
+                  await FillDatabase.updateEquipesDeTousLesJoueurs();
+                },
+                child: Text("test pour développeur"),
+              ),
           ],
         ),
       ),
     );
   }
 
-  void _showCdmRecapPopup() {
+  void _showCdmRecapPopup({VoidCallback? onClosed}) {
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.85),
@@ -521,6 +616,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               _currentUser = RepositoryProvider.userRepository.currentUser;
             });
           }
+          onClosed?.call();
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => RecapCdmView()),
@@ -535,9 +631,55 @@ class _AllMatchesViewState extends State<AllMatchesView> {
               _currentUser = RepositoryProvider.userRepository.currentUser;
             });
           }
+          onClosed?.call();
         },
       ),
     );
+  }
+
+  void _maybeShowSeasonRecapPopup() {
+    if (!mounted) return;
+    if (!_isSeasonRecapAvailable) return;
+    if (_seasonPopupShownThisSession) return;
+    if (_currentUser == null) return;
+    if (_currentUser!.lastSeasonRecapSeen == _seasonRecapLabel) return;
+
+    _seasonPopupShownThisSession = true;
+    _showSeasonRecapPopup();
+  }
+
+  void _showSeasonRecapPopup() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.85),
+      builder: (_) => _SeasonRecapDialog(
+        seasonLabel: _seasonRecapLabel,
+        onOpen: () {
+          Navigator.of(context).pop();
+          _markSeasonRecapAsSeen();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => RecapSeasonView()),
+          );
+        },
+        onDismiss: () {
+          Navigator.of(context).pop();
+          _markSeasonRecapAsSeen();
+        },
+      ),
+    );
+  }
+
+  Future<void> _markSeasonRecapAsSeen() async {
+    if (_currentUser == null) return;
+    if (_currentUser!.lastSeasonRecapSeen == _seasonRecapLabel) return;
+    await RepositoryProvider.userRepository
+        .markSeasonRecapAsSeen(_currentUser!.uid, _seasonRecapLabel);
+    if (mounted) {
+      setState(() {
+        _currentUser = RepositoryProvider.userRepository.currentUser;
+      });
+    }
   }
 
   Widget _buildDateSelector() {
@@ -625,7 +767,6 @@ class _AllMatchesViewState extends State<AllMatchesView> {
             fontSize: 14,
           ),
         ),
-        // Si une actualisation discrète est en cours, on pousse le spinner tout à droite
         if (_isBackgroundRefreshing) ...[
           const Spacer(),
           SizedBox(
@@ -647,7 +788,8 @@ class _AllMatchesViewState extends State<AllMatchesView> {
 
 class _CdmRecapBanner extends StatelessWidget {
   final VoidCallback onTap;
-  const _CdmRecapBanner({required this.onTap});
+  final bool compact;
+  const _CdmRecapBanner({required this.onTap, this.compact = false});
 
   static const _logoUrl =
       'https://firebasestorage.googleapis.com/v0/b/scorescope-5a12b.firebasestorage.app/o/competitions%2F2026_FIFA_World_Cup.png?alt=media&token=c76f3094-2aa0-4e09-8e17-0ecbe89ab027';
@@ -664,8 +806,10 @@ class _CdmRecapBanner extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12),
-        height: 82,
+        margin: compact
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(horizontal: 12),
+        height: compact ? 92 : 82,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [_bg1, _bg2],
@@ -677,7 +821,6 @@ class _CdmRecapBanner extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(children: [
-          // Orbe gold haut-droite
           Positioned(
             top: -28,
             right: -20,
@@ -691,7 +834,6 @@ class _CdmRecapBanner extends StatelessWidget {
               ),
             ),
           ),
-          // Orbe yellow bas-gauche
           Positioned(
             bottom: -30,
             left: 60,
@@ -705,75 +847,231 @@ class _CdmRecapBanner extends StatelessWidget {
               ),
             ),
           ),
-          // Contenu
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 14),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Logo CdM
                 CachedNetworkImage(
                   imageUrl: _logoUrl,
-                  width: 52,
-                  height: 52,
+                  width: compact ? 34 : 52,
+                  height: compact ? 34 : 52,
                   fit: BoxFit.contain,
                   errorWidget: (_, __, ___) =>
-                      const Text('🏆', style: TextStyle(fontSize: 36)),
+                      Text('🏆', style: TextStyle(fontSize: compact ? 24 : 36)),
                 ),
-                const SizedBox(width: 14),
-                // Texte
+                SizedBox(width: compact ? 8 : 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
+                    children: compact
+                        ? [
+                            ShaderMask(
+                              shaderCallback: (b) =>
+                                  const LinearGradient(colors: [_gold, _yellow])
+                                      .createShader(b),
+                              child: Text(
+                                translate.coupeDuMonde,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8),
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              translate.voirMonRecapEmoji,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: _text,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2),
+                            ),
+                          ]
+                        : [
+                            ShaderMask(
+                              shaderCallback: (b) =>
+                                  const LinearGradient(colors: [_gold, _yellow])
+                                      .createShader(b),
+                              child: Text(
+                                translate.coupeDuMonde2026Maj,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1.1),
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              translate.tonRecapEstDisponible,
+                              style: TextStyle(
+                                  color: _text,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              translate.decouvrirMonRecapEmoji,
+                              style: TextStyle(
+                                  color: _gold.withValues(alpha: 0.7),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                  ),
+                ),
+                if (!compact) ...[
+                  const SizedBox(width: 10),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ShaderMask(
-                        shaderCallback: (b) =>
-                            const LinearGradient(colors: [_gold, _yellow])
-                                .createShader(b),
-                        child: const Text(
-                          'COUPE DU MONDE 2026',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.1),
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      const Text(
-                        'Ton récap est disponible !',
-                        style: TextStyle(
-                            color: _text,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 3),
+                      AppLogos.logoAccent(context, size: 30),
+                      const SizedBox(height: 4),
                       Text(
-                        'Découvrir mon récap 👀',
+                        'scorescope',
                         style: TextStyle(
-                            color: _gold.withValues(alpha: 0.7),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500),
+                            color: _textDim.withValues(alpha: 0.5),
+                            fontSize: 8,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.4),
                       ),
                     ],
                   ),
+                ],
+              ],
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _SeasonRecapBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  final String seasonLabel;
+  final bool compact;
+  const _SeasonRecapBanner({
+    required this.onTap,
+    required this.seasonLabel,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: compact
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(horizontal: 12),
+        height: compact ? 92 : 82,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [ColorPalette.accentLight, ColorPalette.accentVariantLight],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+              color: Colors.white.withValues(alpha: 0.25), width: 1.5),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(children: [
+          Positioned(
+            top: -28,
+            right: -20,
+            child: IgnorePointer(
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08)),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: compact ? 34 : 52,
+                  height: compact ? 34 : 52,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child:
+                        AppLogos.logoAccent(context, size: compact ? 20 : 30),
+                  ),
                 ),
-                const SizedBox(width: 10),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AppLogos.logoAccent(context, size: 30),
-                    const SizedBox(height: 4),
-                    Text(
-                      'scorescope',
-                      style: TextStyle(
-                          color: _textDim.withValues(alpha: 0.5),
-                          fontSize: 8,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.4),
-                    ),
-                  ],
+                SizedBox(width: compact ? 8 : 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: compact
+                        ? [
+                            Text(
+                              translate.saisonX(seasonLabel),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: ColorPalette.textPrimaryDark,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.8),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              translate.voirMonRecapEmoji,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: ColorPalette.textPrimaryDark,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2),
+                            ),
+                          ]
+                        : [
+                            Text(
+                              translate.recapDeSaisonX(seasonLabel),
+                              style: const TextStyle(
+                                  color: ColorPalette.textPrimaryDark,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.1),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              translate.tonRecapEstDisponible,
+                              style: TextStyle(
+                                  color: ColorPalette.textPrimaryDark,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              translate.decouvrirMonRecapEmoji,
+                              style: TextStyle(
+                                  color: ColorPalette.textPrimaryDark
+                                      .withValues(alpha: 0.7),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                  ),
                 ),
               ],
             ),
@@ -817,7 +1115,6 @@ class _CdmRecapDialog extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(children: [
-          // Orbe gold grand — haut droite
           Positioned(
             top: -60,
             right: -50,
@@ -831,7 +1128,6 @@ class _CdmRecapDialog extends StatelessWidget {
               ),
             ),
           ),
-          // Orbe yellow — milieu gauche
           Positioned(
             top: 100,
             left: -40,
@@ -845,7 +1141,6 @@ class _CdmRecapDialog extends StatelessWidget {
               ),
             ),
           ),
-          // Orbe teal — bas droite
           Positioned(
             bottom: -30,
             right: 20,
@@ -859,13 +1154,11 @@ class _CdmRecapDialog extends StatelessWidget {
               ),
             ),
           ),
-          // Contenu
           Padding(
             padding: const EdgeInsets.fromLTRB(28, 40, 28, 28),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Duo logos — identique à la card 1 du récap
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   CachedNetworkImage(
                     imageUrl: _logoUrl,
@@ -884,13 +1177,12 @@ class _CdmRecapDialog extends StatelessWidget {
                   AppLogos.logoAccent(context, size: 64),
                 ]),
                 const SizedBox(height: 30),
-                // Titre gradient gold
                 ShaderMask(
                   shaderCallback: (b) =>
                       const LinearGradient(colors: [_gold, _yellow])
                           .createShader(b),
-                  child: const Text(
-                    'La Coupe du Monde\nest terminée.',
+                  child: Text(
+                    translate.laCoupeDuMondeEstTerminee,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.white,
@@ -900,7 +1192,6 @@ class _CdmRecapDialog extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Séparateur gold
                 Container(
                   height: 1,
                   width: 60,
@@ -915,7 +1206,7 @@ class _CdmRecapDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Ton récap ScoreScope est disponible.\nReviens sur tous tes matchs, tes notes,\net des dizaines de statistiques !',
+                  translate.descriptionRecapCdm,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: _textDim,
@@ -924,7 +1215,6 @@ class _CdmRecapDialog extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Bouton principal — fond gold, texte noir
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -937,8 +1227,8 @@ class _CdmRecapDialog extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text(
-                      'Voir mon récap',
+                    child: Text(
+                      translate.voirMonRecap,
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
@@ -948,9 +1238,152 @@ class _CdmRecapDialog extends StatelessWidget {
                 TextButton(
                   onPressed: onDismiss,
                   child: Text(
-                    'Plus tard',
+                    translate.plusTard,
                     style: TextStyle(
                         color: _text.withValues(alpha: 0.3), fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _SeasonRecapDialog extends StatelessWidget {
+  final String seasonLabel;
+  final VoidCallback onOpen;
+  final VoidCallback onDismiss;
+  const _SeasonRecapDialog({
+    required this.seasonLabel,
+    required this.onOpen,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 52),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [ColorPalette.accentLight, ColorPalette.accentVariantLight],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+              color: Colors.white.withValues(alpha: 0.25), width: 1.5),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(children: [
+          Positioned(
+            top: -60,
+            right: -50,
+            child: IgnorePointer(
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08)),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -30,
+            left: -40,
+            child: IgnorePointer(
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.06)),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 40, 28, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: AppLogos.logoAccent(context, size: 44),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  translate.laSaisonXEstTerminee(seasonLabel),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      color: ColorPalette.textPrimaryDark,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  height: 1,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [
+                      Colors.transparent,
+                      Colors.white.withValues(alpha: 0.6),
+                      Colors.transparent,
+                    ]),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  translate.descriptionRecapSaison,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: ColorPalette.textPrimaryDark,
+                    fontSize: 14,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: onOpen,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: ColorPalette.accent(context),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: Text(
+                      translate.voirMonRecap,
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: onDismiss,
+                  child: Text(
+                    translate.plusTard,
+                    style: TextStyle(
+                        color:
+                            ColorPalette.textPrimaryDark.withValues(alpha: 0.6),
+                        fontSize: 13),
                   ),
                 ),
               ],

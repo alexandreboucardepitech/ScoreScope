@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scorescope/models/watch_together.dart';
+import 'package:scorescope/models/watch_together/watch_together_season_summary.dart';
 import 'package:scorescope/services/repositories/i_watch_together_repository.dart';
+import 'package:scorescope/services/repository_provider.dart';
 
 class WebWatchTogetherRepository implements IWatchTogetherRepository {
   final CollectionReference<Map<String, dynamic>> _watchTogetherCollection =
@@ -127,6 +129,64 @@ class WebWatchTogetherRepository implements IWatchTogetherRepository {
       }
     } catch (e) {
       throw Exception('Error removing watchTogether documents for user: $e');
+    }
+  }
+
+  @override
+  Future<WatchTogetherSeasonSummary> fetchUserWatchTogetherSummary({
+    required String userId,
+    required List<String> matchIds,
+  }) async {
+    if (matchIds.isEmpty) return WatchTogetherSeasonSummary.empty;
+
+    try {
+      final querySnapshot = await _watchTogetherCollection
+          .where('ownerId', isEqualTo: userId)
+          .where('status', isEqualTo: 'accepted')
+          .get();
+
+      final docs = querySnapshot.docs
+          .map((doc) => WatchTogether.fromJson(doc.data()))
+          .where((wt) => matchIds.contains(wt.matchId))
+          .toList();
+
+      if (docs.isEmpty) return WatchTogetherSeasonSummary.empty;
+
+      final distinctMatchIds = <String>{};
+      final matchesPerFriend = <String, int>{};
+
+      for (final wt in docs) {
+        distinctMatchIds.add(wt.matchId);
+        matchesPerFriend[wt.friendId] =
+            (matchesPerFriend[wt.friendId] ?? 0) + 1;
+      }
+
+      final sortedFriendIds = matchesPerFriend.keys.toList()
+        ..sort((a, b) => matchesPerFriend[b]!.compareTo(matchesPerFriend[a]!));
+
+      final topFriends = (await Future.wait(
+        sortedFriendIds.take(3).map((friendId) async {
+          final friend =
+              await RepositoryProvider.userRepository.fetchUserById(friendId);
+          if (friend == null) return null;
+          return WatchTogetherFriendStat(
+            friendId: friendId,
+            friendName: friend.displayName,
+            friendPhoto: friend.photoUrl,
+            matchesTogether: matchesPerFriend[friendId]!,
+          );
+        }),
+      ))
+          .whereType<WatchTogetherFriendStat>()
+          .toList();
+
+      return WatchTogetherSeasonSummary(
+        totalMatchesWithFriends: distinctMatchIds.length,
+        distinctFriendsCount: matchesPerFriend.keys.length,
+        topFriends: topFriends,
+      );
+    } catch (e) {
+      throw Exception('Error fetching watch together summary: $e');
     }
   }
 }

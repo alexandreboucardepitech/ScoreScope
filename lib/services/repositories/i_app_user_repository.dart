@@ -130,5 +130,7 @@ abstract class IAppUserRepository {
 
   Future<void> markRecapAsSeen(String userId, String recapWeekId);
 
+  Future<void> markSeasonRecapAsSeen(String userId, String seasonLabel);
+
   Future<void> markCdmRecapAsSeen(String userId);
 }
