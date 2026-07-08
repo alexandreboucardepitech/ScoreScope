@@ -1092,11 +1092,14 @@ class _RecapSeasonViewState extends State<RecapSeasonView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(translate.entreAmis,
-              style: TextStyle(
-                  color: ColorPalette.textAccent(context),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 11)),
+          Text(
+            translate.entreAmis,
+            style: TextStyle(
+              color: ColorPalette.textAccent(context),
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+            ),
+          ),
           const SizedBox(height: 6),
           if (f.totalMatchesWithFriends == 0)
             Text(

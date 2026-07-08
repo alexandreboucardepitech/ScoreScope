@@ -654,13 +654,13 @@ class MatchModel implements PodiumDisplayable {
   }) async {
     if (note != null) {
       notes[userId] = note;
-      RepositoryProvider.matchRepository.noterMatch(id, userId, date, note);
+      await RepositoryProvider.matchRepository.noterMatch(id, userId, date, note);
     }
   }
 
   Future<void> enleverNote({required String userId}) async {
     notes.remove(userId);
-    RepositoryProvider.matchRepository.enleverNote(id, userId, date);
+    await RepositoryProvider.matchRepository.enleverNote(id, userId, date);
   }
 
   ///////////////////////// MVP /////////////////////////

@@ -772,22 +772,25 @@ class _RecapWeekViewState extends State<RecapWeekView> {
                           _buildBestMatch(d),
                           const SizedBox(height: 8),
                         ],
-                        Row(
-                          children: [
-                            if (d.topCompetitionName != null) ...[
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (d.topCompetitionName != null) ...[
+                                Expanded(
+                                  child: _buildTopComp(
+                                    d,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
                               Expanded(
-                                child: _buildTopComp(
+                                child: _buildStreak(
                                   d,
                                 ),
                               ),
-                              const SizedBox(width: 8),
                             ],
-                            Expanded(
-                              child: _buildStreak(
-                                d,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                         if (d.weekMvpNames?.isNotEmpty ?? false) ...[
                           const SizedBox(height: 8),

@@ -461,7 +461,7 @@ class InfosTabState extends State<InfosTab> {
                                     FirebaseAuth.instance.currentUser!.uid;
                                 setState(
                                     () => userVoteNoteMatch = valeurConfirmee);
-                                widget.match.noterMatch(
+                                await widget.match.noterMatch(
                                   userId: uid,
                                   note: valeurConfirmee,
                                 );
