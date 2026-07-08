@@ -815,7 +815,7 @@ class _RecapCdmViewState extends State<RecapCdmView>
     );
   }
 
-  _FanBadge _computeBadge(_CdmData d) {
+  _FanBadge _computeBadge(_CdmData d, String userId) {
     final int maxMatchesInDay = d.matchesPerDay.isEmpty
         ? 0
         : d.matchesPerDay.map((e) => e.count).reduce(math.max);
@@ -836,119 +836,167 @@ class _RecapCdmViewState extends State<RecapCdmView>
       heartWinRate = wins / d.heartTeamMatches.length;
     }
 
-    // ── Bloc 1 : ultra-rares ─────────────────────────────────────────────────
-    if (d.matchCount >= 90) {
+    int hashPick(int count) {
+      if (count <= 0) return 0;
+      final lastChar = userId.isNotEmpty ? userId.characters.last : 'a';
+      final code = lastChar.codeUnitAt(0);
+      return code % count;
+    }
+
+    // ── Palier 0 : Le Marathonien — court-circuite tout ──────────────────────
+    if (d.matchCount >= 100) {
+      debugPrint('🏆 [Badge] Marathonien atteint (${d.matchCount} matchs) '
+          '→ court-circuit, aucun autre badge évalué');
       return _FanBadge('🏃', translate.leMarathonien,
           translate.xMatchsRegardesSurX('${d.matchCount}', '$_totalMatches'));
     }
-    if (d.nightMatchCount >= 30) {
-      return _FanBadge('🦉', translate.lInsomniaque,
-          translate.xMatchsRegardesApresMinuit('${d.nightMatchCount}'));
-    }
-    if (maxMatchesInDay >= 4) {
-      return _FanBadge('🤯', translate.jourDeFolie,
-          translate.xMatchsVusEnUneSeuleJournee('$maxMatchesInDay'));
-    }
 
-    // ── Bloc 2 : personnalité ────────────────────────────────────────────────
-    if ((d.avgGoalsPerMatch ?? 0) > 4) {
-      return _FanBadge(
-          '💥',
-          translate.leFestin,
-          translate.xButsEnMoyenneParMatch(
-              '${d.avgGoalsPerMatch!.toStringAsFixed(1)}'));
-    }
-    if ((d.avgGoalsPerMatch ?? 10) < 2 && d.matchCount >= 5) {
-      return _FanBadge(
-          '🥱',
-          translate.ennuyant,
-          translate.xButsEnMoyenneParMatch(
-              '${d.avgGoalsPerMatch!.toStringAsFixed(1)}'));
-    }
-    if (heartWinRate != null && heartWinRate >= 0.7) {
-      final pct = (heartWinRate * 100).round();
-      return _FanBadge(
-          '🍀',
-          translate.lePorteBonheur,
-          translate.xGagneDansXPourcentDesMatchsQueTuRegardes(
-              d.heartTeamName ?? translate.tonEquipe, '$pct'));
-    }
-    if (heartWinRate != null && heartWinRate <= 0.25) {
-      final pct = (heartWinRate * 100).round();
-      return _FanBadge(
-          '🐦‍⬛',
-          translate.leCorbeau,
-          translate.xNeGagneQueDansXPourcentDesMatchsQueTuRegardes(
-              d.heartTeamName ?? translate.tonEquipe, '$pct'));
-    }
-    if (d.avgRating != null && d.avgRating! < 5.5 && d.matchCount >= 5) {
-      return _FanBadge('⚖️', translate.leJugeSevere,
-          translate.noteMoyenneDeXSur10('${d.avgRating!.toStringAsFixed(1)}'));
-    }
-    if ((d.avgRating ?? 0) >= 7.5 && d.matchCount >= 5) {
-      return _FanBadge('🌟', translate.lEnthousiaste,
-          translate.noteMoyenneDeXSur10('${d.avgRating!.toStringAsFixed(1)}'));
-    }
-    if (d.rituelPercent >= 70 && d.matchCount >= 5) {
-      return _FanBadge(
-          '📅',
-          translate.leRituel,
-          translate
-              .xPourcentDesTesMatchsRegardesALaMemeHeure('${d.rituelPercent}'));
-    }
-
-    // ── Bloc 3 : volume / diversité ──────────────────────────────────────────
+    // ── Palier 1 : rares / prestigieux ───────────────────────────────────────
+    final tier1 = <_FanBadge>[];
     if (d.nationsCount >= 42) {
-      return _FanBadge('🌍', translate.leCitoyenDuMonde,
-          translate.xEquipesDifferentesSuiviesSur48('${d.nationsCount}'));
+      tier1.add(_FanBadge('🌍', translate.leCitoyenDuMonde,
+          translate.xEquipesDifferentesSuiviesSur48('${d.nationsCount}')));
     }
-    if (d.streakDays >= 14) {
-      return _FanBadge('⚡', translate.lInarretable,
-          translate.xJoursConsecutifsAvecAuMoinsUnMatch('${d.streakDays}'));
+    if (d.nightMatchCount >= 30) {
+      tier1.add(_FanBadge('🦉', translate.lInsomniaque,
+          translate.xMatchsRegardesApresMinuit('${d.nightMatchCount}')));
     }
-    if (d.heartTeamMatches.length >= 5) {
-      return _FanBadge(
+    if (d.streakDays >= 20) {
+      tier1.add(_FanBadge('⚡', translate.lInarretable,
+          translate.xJoursConsecutifsAvecAuMoinsUnMatch('${d.streakDays}')));
+    }
+    if (d.heartTeamMatches.length >= 6) {
+      tier1.add(_FanBadge(
           '❤️‍🔥',
           translate.lUltra,
           translate.xMatchsSuivisPourEquipe('${d.heartTeamMatches.length}',
-              d.heartTeamName ?? translate.tonEquipe));
+              d.heartTeamName ?? translate.tonEquipe)));
+    }
+    if (d.rituelPercent >= 70 && d.matchCount >= 5) {
+      tier1.add(_FanBadge(
+          '📅',
+          translate.leRituel,
+          translate.xPourcentDesTesMatchsRegardesALaMemeHeure(
+              '${d.rituelPercent}')));
+    }
+    if (heartWinRate != null && heartWinRate <= 0.25) {
+      final pct = (heartWinRate * 100).round();
+      tier1.add(_FanBadge(
+          '🐦‍⬛',
+          translate.leCorbeau,
+          translate.xNeGagneQueDansXPourcentDesMatchsQueTuRegardes(
+              d.heartTeamName ?? translate.tonEquipe, '$pct')));
+    }
+
+    debugPrint(
+        '🏆 [Badge] Palier 1 (rares) : ${tier1.length} badge(s) éligible(s) '
+        '→ ${tier1.map((b) => b.name).join(", ")}');
+
+    if (tier1.isNotEmpty) {
+      final pick = hashPick(tier1.length);
+      debugPrint(
+          '🏆 [Badge] Sélection palier 1 → index $pick → ${tier1[pick].name}');
+      return tier1[pick];
+    }
+
+    // ── Palier 2 : modérément rares ──────────────────────────────────────────
+    final tier2 = <_FanBadge>[];
+    if ((d.avgGoalsPerMatch ?? 0) > 4) {
+      tier2.add(_FanBadge(
+          '💥',
+          translate.leFestin,
+          translate.xButsEnMoyenneParMatch(
+              '${d.avgGoalsPerMatch!.toStringAsFixed(1)}')));
+    }
+    if ((d.avgGoalsPerMatch ?? 10) < 2 && d.matchCount >= 5) {
+      tier2.add(_FanBadge(
+          '🥱',
+          translate.ennuyant,
+          translate.xButsEnMoyenneParMatch(
+              '${d.avgGoalsPerMatch!.toStringAsFixed(1)}')));
+    }
+    if (d.avgRating != null && d.avgRating! < 5.5 && d.matchCount >= 5) {
+      tier2.add(_FanBadge('⚖️', translate.leJugeSevere,
+          translate.noteMoyenneDeXSur10('${d.avgRating!.toStringAsFixed(1)}')));
+    }
+    if ((d.avgRating ?? 0) >= 7.5 && d.matchCount >= 5) {
+      tier2.add(_FanBadge('🌟', translate.lEnthousiaste,
+          translate.noteMoyenneDeXSur10('${d.avgRating!.toStringAsFixed(1)}')));
     }
     if (d.percentKnockoutWatched >= 70) {
-      return _FanBadge(
+      tier2.add(_FanBadge(
           '💎',
           translate.lePuriste,
           translate.xPourcentDesMatchsEliminationDirecteSuivis(
-              '${d.percentKnockoutWatched}'));
+              '${d.percentKnockoutWatched}')));
     }
-    if (d.streakDays >= 7) {
-      return _FanBadge('🔥', translate.leSansPause,
-          translate.xJoursConsecutifsAvecAuMoinsUnMatch('${d.streakDays}'));
-    }
-    if (d.nationsCount >= 24) {
-      return _FanBadge('🔭', translate.lExplorateur,
-          translate.xEquipesDifferentesSuiviesSur48('${d.nationsCount}'));
+    if (d.streakDays >= 10) {
+      tier2.add(_FanBadge('🔥', translate.leSansPause,
+          translate.xJoursConsecutifsAvecAuMoinsUnMatch('${d.streakDays}')));
     }
     if (d.matchCount >= 40) {
-      return _FanBadge('📺', translate.leBoulimique,
-          translate.xMatchsRegardesSurY('${d.matchCount}', '$_totalMatches'));
+      tier2.add(_FanBadge('📺', translate.leBoulimique,
+          translate.xMatchsRegardesSurY('${d.matchCount}', '$_totalMatches')));
+    }
+
+    debugPrint(
+        '🥈 [Badge] Palier 2 (modérés) : ${tier2.length} badge(s) éligible(s) '
+        '→ ${tier2.map((b) => b.name).join(", ")}');
+
+    if (tier2.isNotEmpty) {
+      final pick = hashPick(tier2.length);
+      debugPrint(
+          '🥈 [Badge] Sélection palier 2 → index $pick → ${tier2[pick].name}');
+      return tier2[pick];
+    }
+
+    // ── Palier 3 : courants / signaux de base ────────────────────────────────
+    final tier3 = <_FanBadge>[];
+    if (d.nationsCount >= 24) {
+      tier3.add(_FanBadge('🔭', translate.lExplorateur,
+          translate.xEquipesDifferentesSuiviesSur48('${d.nationsCount}')));
     }
     if (d.nightMatchCount >= 10) {
-      return _FanBadge('🌙', translate.leCoucheTard,
-          translate.xMatchsRegardesApresMinuit('${d.nightMatchCount}'));
+      tier3.add(_FanBadge('🌙', translate.leCoucheTard,
+          translate.xMatchsRegardesApresMinuit('${d.nightMatchCount}')));
     }
     if (d.matchCount >= 20) {
-      return _FanBadge('📅', translate.lAssidu,
-          translate.xMatchsRegardesSurY('${d.matchCount}', '$_totalMatches'));
+      tier3.add(_FanBadge('📅', translate.lAssidu,
+          translate.xMatchsRegardesSurY('${d.matchCount}', '$_totalMatches')));
     }
     if (d.topTeams.isNotEmpty && d.topTeams.first.count >= 3) {
-      return _FanBadge(
+      tier3.add(_FanBadge(
           '🏴',
           translate.lePartisan,
           translate.xMatchsSuivisPourEquipe(
-              '${d.topTeams.first.count}', d.topTeams.first.name));
+              '${d.topTeams.first.count}', d.topTeams.first.name)));
+    }
+    if (maxMatchesInDay >= 4) {
+      tier3.add(_FanBadge('🤯', translate.jourDeFolie,
+          translate.xMatchsVusEnUneSeuleJournee('$maxMatchesInDay')));
+    }
+    if (heartWinRate != null && heartWinRate >= 0.7) {
+      final pct = (heartWinRate * 100).round();
+      tier3.add(_FanBadge(
+          '🍀',
+          translate.lePorteBonheur,
+          translate.xGagneDansXPourcentDesMatchsQueTuRegardes(
+              d.heartTeamName ?? translate.tonEquipe, '$pct')));
     }
 
-    // ── Bloc 4 : fallback ────────────────────────────────────────────────────
+    debugPrint(
+        '🥉 [Badge] Palier 3 (courants) : ${tier3.length} badge(s) éligible(s) '
+        '→ ${tier3.map((b) => b.name).join(", ")}');
+
+    if (tier3.isNotEmpty) {
+      final pick = hashPick(tier3.length);
+      debugPrint(
+          '🥉 [Badge] Sélection palier 3 → index $pick → ${tier3[pick].name}');
+      return tier3[pick];
+    }
+
+    // ── Fallback ──────────────────────────────────────────────────────────────
+    debugPrint('⚽ [Badge] Aucun badge éligible → fallback Le Supporter');
     return _FanBadge('⚽', translate.leSupporter,
         translate.lesSupporterDescription('${d.matchCount}', '$_totalMatches'));
   }
@@ -995,7 +1043,7 @@ class _RecapCdmViewState extends State<RecapCdmView>
   //       }
 
   //       final data = _compute(pairs, user);
-  //       final badge = _computeBadge(data);
+  //       final badge = _computeBadge(data, user.uid);
 
   //       badgeCount[badge.name] = (badgeCount[badge.name] ?? 0) + 1;
 
@@ -2615,7 +2663,9 @@ class _RecapCdmViewState extends State<RecapCdmView>
   }
 
   Widget _buildFinaleBadgeCard(_CdmData d, _CardTheme t) {
-    final badge = _computeBadge(d);
+    AppUser? user = RepositoryProvider.userRepository.currentUser;
+    if (user == null) throw Exception(translate.utilisateurNonConnecte);
+    final badge = _computeBadge(d, user.uid);
     final progress = (d.matchCount / _totalMatches).clamp(0.0, 1.0);
 
     return Container(

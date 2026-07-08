@@ -318,7 +318,7 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => RecapWeekView(),
+                      builder: (_) => RecapCdmView(),
                     ),
                   );
                 },
