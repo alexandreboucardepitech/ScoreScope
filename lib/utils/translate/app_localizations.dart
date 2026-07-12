@@ -4198,6 +4198,48 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Du {dateDebut} au {dateFin}'**
   String duXAuX(String dateDebut, String dateFin);
+
+  /// No description provided for @mesMatchs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes matchs'**
+  String get mesMatchs;
+
+  /// No description provided for @matchsDeXX.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matchs de {displayName}'**
+  String matchsDeXX(String displayName);
+
+  /// No description provided for @filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres'**
+  String get filtres;
+
+  /// No description provided for @reinitialiser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser'**
+  String get reinitialiser;
+
+  /// No description provided for @rechercherUneCompetition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une compétition'**
+  String get rechercherUneCompetition;
+
+  /// No description provided for @equipe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équipe'**
+  String get equipe;
+
+  /// No description provided for @favorisUniquement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Favoris uniquement'**
+  String get favorisUniquement;
 }
 
 class _AppLocalizationsDelegate

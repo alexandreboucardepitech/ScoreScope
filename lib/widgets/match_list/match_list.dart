@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/match.dart';
+import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
 import 'package:scorescope/utils/ui/Color_palette.dart';
@@ -12,20 +13,29 @@ class MatchList extends StatefulWidget {
   final List<MatchModel>? matches;
   final List<String>? ids;
   final Widget? header;
+  final Widget? footer;
+
   final AppUser? user;
   final bool displayUserData;
   final bool hidePostponedMatches;
   final VoidCallback? onRefresh;
+  final void Function(MatchModel match)? onMatchTap;
+  final Map<String, MatchUserData>? userDataByMatchId;
+  final bool lazy;
 
   const MatchList({
     super.key,
     this.matches,
     this.ids,
     this.header,
+    this.footer,
     this.user,
     this.displayUserData = false,
     this.hidePostponedMatches = true,
     this.onRefresh,
+    this.onMatchTap,
+    this.userDataByMatchId,
+    this.lazy = false,
   }) : assert(matches != null || ids != null, 'Provide either matches or ids');
 
   @override
@@ -132,9 +142,30 @@ class _MatchListState extends State<MatchList> {
     }
   }
 
+  Widget _buildTile(BuildContext context, MatchModel match, {required bool isLast}) {
+    return Column(
+      key: ValueKey(match.id),
+      children: [
+        MatchTile(
+          match: match,
+          userData: widget.userDataByMatchId?[match.id] ??
+              widget.user?.getMatchUserDataByMatch(match: match),
+          user: widget.user,
+          displayUserData: widget.displayUserData,
+          onRefresh: widget.onRefresh,
+          onTap: widget.onMatchTap != null
+              ? () => widget.onMatchTap!(match)
+              : null,
+        ),
+        if (!isLast) Divider(color: ColorPalette.border(context), height: 1),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasHeader = widget.header != null;
+    final hasFooter = widget.footer != null;
     List<MatchModel>? items = widget.matches ?? _loaded;
 
     if (widget.hidePostponedMatches && items != null) {
@@ -168,25 +199,34 @@ class _MatchListState extends State<MatchList> {
         ),
       );
     } else {
-      content = Padding(
+      final resolvedItems = items;
+      final itemCount =
+          resolvedItems.length + (hasHeader ? 1 : 0) + (hasFooter ? 1 : 0);
+
+      content = ListView.builder(
         padding: EdgeInsets.zero,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (hasHeader) _buildHeaderTile(context, child: widget.header),
-            for (int i = 0; i < items.length; i++) ...[
-              MatchTile(
-                match: items[i],
-                userData: widget.user?.getMatchUserDataByMatch(match: items[i]),
-                user: widget.user,
-                displayUserData: widget.displayUserData,
-                onRefresh: widget.onRefresh,
-              ),
-              if (i != items.length - 1)
-                Divider(color: ColorPalette.border(context), height: 1),
-            ],
-          ],
-        ),
+        shrinkWrap: !widget.lazy,
+        physics: widget.lazy
+            ? const AlwaysScrollableScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
+        itemCount: itemCount,
+        itemBuilder: (context, index) {
+          if (hasHeader && index == 0) {
+            return _buildHeaderTile(context, child: widget.header);
+          }
+          final adjustedIndex = index - (hasHeader ? 1 : 0);
+
+          if (hasFooter && adjustedIndex == resolvedItems.length) {
+            return widget.footer!;
+          }
+
+          final match = resolvedItems[adjustedIndex];
+          return _buildTile(
+            context,
+            match,
+            isLast: adjustedIndex == resolvedItems.length - 1,
+          );
+        },
       );
     }
 

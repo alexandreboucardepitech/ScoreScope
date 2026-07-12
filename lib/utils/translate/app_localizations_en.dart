@@ -2300,4 +2300,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String duXAuX(String dateDebut, String dateFin) {
     return 'From $dateDebut to $dateFin';
   }
+
+  @override
+  String get mesMatchs => 'My matches';
+
+  @override
+  String matchsDeXX(String displayName) {
+    return '$displayName\'s matches';
+  }
+
+  @override
+  String get filtres => 'Filters';
+
+  @override
+  String get reinitialiser => 'Reset';
+
+  @override
+  String get rechercherUneCompetition => 'Search a competition';
+
+  @override
+  String get equipe => 'Team';
+
+  @override
+  String get favorisUniquement => 'Favorites only';
 }

@@ -1332,5 +1332,17 @@
       "dateDebut": { "type": "String" },
       "dateFin": { "type": "String" }
     }
-  }
+  },
+  "mesMatchs": "My matches",
+  "matchsDeXX": "{displayName}'s matches",
+  "@matchsDeXX": {
+    "placeholders": {
+      "displayName": { "type": "String" }
+    }
+  },
+  "filtres": "Filters",
+  "reinitialiser": "Reset",
+  "rechercherUneCompetition": "Search a competition",
+  "equipe": "Team",
+  "favorisUniquement": "Favorites only"
 }

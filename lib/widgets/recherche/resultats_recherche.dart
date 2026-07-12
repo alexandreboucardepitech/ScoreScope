@@ -86,11 +86,18 @@ class ResultatsRecherche extends StatelessWidget {
           itemBuilder: (competition) => ListTile(
             contentPadding: EdgeInsets.zero,
             leading: competition.logoUrl != null
-                ? SizedBox(
+                ? Container(
                     width: 32,
                     height: 32,
+                    padding: EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: ColorPalette.logoBackground(context),
+                      shape: BoxShape.circle,
+                    ),
                     child: CachedNetworkImage(
                       imageUrl: competition.logoUrl!,
+                      width: 28,
+                      height: 28,
                       fit: BoxFit.contain,
                     ),
                   )

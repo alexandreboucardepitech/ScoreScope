@@ -17,6 +17,7 @@ import 'package:scorescope/widgets/profile/profile_scrolled_title.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/services/repositories/i_app_user_repository.dart';
 import 'package:scorescope/services/repository_provider.dart';
+import 'package:scorescope/views/profile/all_matches_history_view.dart';
 
 class ProfileView extends StatefulWidget {
   final AppUser user;
@@ -671,6 +672,15 @@ class _ProfileViewState extends State<ProfileView> {
                           matchesId: userMatchsRegardesId,
                           isLoading: matchsRegardesLoading,
                           user: userToUse,
+                          onVoirPlus: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AllMatchesHistoryView(
+                                  user: userToUse,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                         const Divider(height: 32),
                         MatchsFavoris(

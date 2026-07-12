@@ -22,12 +22,18 @@ class MatchTile extends StatefulWidget {
   final bool displayUserData;
   final VoidCallback? onRefresh;
 
+  /// Permet de remplacer la navigation par défaut (vers [MatchDetailsPage])
+  /// par un comportement personnalisé, ex : ouvrir [CommentsPage] depuis
+  /// l'historique des matchs. Si null, le comportement par défaut est conservé.
+  final VoidCallback? onTap;
+
   const MatchTile({
     required this.match,
     this.userData,
     this.user,
     this.displayUserData = false,
     this.onRefresh,
+    this.onTap,
     super.key,
   });
 
@@ -160,6 +166,14 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     }
   }
 
+  void _handleTap() {
+    if (widget.onTap != null) {
+      widget.onTap!();
+    } else {
+      _navigateToDetails();
+    }
+  }
+
   List<Widget> _buildClickableButeurs(List<ButeurLine> lines,
       {required bool alignRight}) {
     return lines.map((line) {
@@ -272,7 +286,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
     } else if (match.isLive && match.liveMinute != null) {
       content = InkWell(
         splashColor: Colors.transparent,
-        onTap: _navigateToDetails,
+        onTap: _handleTap,
         child: Text(
           match.isHalftime
               ? translate.mt
@@ -324,7 +338,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
               children: [
                 Expanded(
                   child: InkWell(
-                    onTap: _navigateToDetails,
+                    onTap: _handleTap,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12.0, vertical: 12.0),
@@ -458,7 +472,7 @@ class _MatchTileState extends State<MatchTile> with TickerProviderStateMixin {
               padding:
                   const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               child: InkWell(
-                onTap: _navigateToDetails,
+                onTap: _handleTap,
                 child: Row(
                   children: [
                     Expanded(

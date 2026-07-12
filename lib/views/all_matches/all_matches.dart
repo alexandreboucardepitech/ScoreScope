@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:scorescope/models/app_user.dart';
 import 'package:scorescope/models/enum/language_options.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/utils/cloud_fonctions/fill_database.dart';
 import 'package:scorescope/utils/date/get_date_format.dart';
 import 'package:scorescope/utils/sort/sort_matchs_competition.dart';
 import 'package:scorescope/utils/translate/language_controller.dart';
@@ -585,17 +584,17 @@ class _AllMatchesViewState extends State<AllMatchesView> {
                 },
               ),
             ),
-            if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
-                RepositoryProvider.userRepository.currentUser?.uid ==
-                    "UwigeExwFMfDrCk4x8AbODha3il1" ||
-                RepositoryProvider.userRepository.currentUser?.uid ==
-                    "Elv7ujUkfRYKfrIJsDySorXRYuh1")
-              ElevatedButton(
-                onPressed: () async {
-                  await FillDatabase.updateEquipesDeTousLesJoueurs();
-                },
-                child: Text("test pour développeur"),
-              ),
+            // if (RepositoryProvider.userRepository.currentUser?.uid == "jSHnJN1cVWTsDirfm1sEaA358jJ3" ||
+            //     RepositoryProvider.userRepository.currentUser?.uid ==
+            //         "UwigeExwFMfDrCk4x8AbODha3il1" ||
+            //     RepositoryProvider.userRepository.currentUser?.uid ==
+            //         "Elv7ujUkfRYKfrIJsDySorXRYuh1")
+            //   ElevatedButton(
+            //     onPressed: () async {
+            //       await FillDatabase.updateEquipesDeTousLesJoueurs();
+            //     },
+            //     child: Text("test pour développeur"),
+            //   ),
           ],
         ),
       ),
