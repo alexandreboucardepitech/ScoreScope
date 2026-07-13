@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -123,17 +122,29 @@ class AuthService {
         googleUser = await _googleSignIn.authenticate(
           scopeHint: ['email', 'openid', 'profile'],
         );
-      } on GoogleSignInException catch (_) {
-        return null;
+      } on GoogleSignInException catch (e, st) {
+        debugPrint(e.toString());
+        debugPrint(st.toString());
+        rethrow;
       } catch (e) {
         return null;
       }
 
       final authClient = _googleSignIn.authorizationClient;
-      final authorization = await authClient
-          .authorizationForScopes(['email', 'openid', 'profile']);
 
-      final String? accessToken = authorization?.accessToken;
+      var authorization = await authClient.authorizationForScopes([
+        'email',
+        'openid',
+        'profile',
+      ]);
+
+      authorization ??= await authClient.authorizeScopes([
+        'email',
+        'openid',
+        'profile',
+      ]);
+
+      final String? accessToken = authorization.accessToken;
       final googleAuth = await googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
@@ -159,13 +170,21 @@ class AuthService {
       }
 
       return userCredential.user;
-    } on GoogleSignInException catch (e) {
+    } on GoogleSignInException catch (e, st) {
+       debugPrint("GoogleSignInException");
+      debugPrint("Code : ${e.code}");
+      debugPrint("Description : ${e.description}");
+      debugPrint(e.toString());
+      debugPrint(st.toString());
       if (e.code == GoogleSignInExceptionCode.canceled) {
         return null;
       }
       print("Google Sign-In error: $e");
       return null;
     } on PlatformException catch (e) {
+      print(e.code);
+      print(e.message);
+      print(e.details);
       if (e.code == 'canceled' || e.code == 'sign_in_canceled') {
         return null;
       }
