@@ -1389,6 +1389,51 @@ exports.sendCdmRecapNotification = onSchedule(
     },
 );
 
+
+exports.sendSeasonRecapNotification = onSchedule(
+    {
+      schedule: "7 0 1 8 *", // 1 aout à 7h00
+      timeZone: "Europe/Paris",
+    },
+    async () => {
+      console.log("🏆 Envoi des notifications récap Saison 2026...");
+
+      try {
+        const usersSnapshot = await db.collection("users").get();
+
+        const usersToNotify = usersSnapshot.docs
+            .map((doc) => ({...doc.data(), uid: doc.id}))
+            .filter(
+                (user) =>
+                  user.notificationToken != null &&
+                  user.options?.allNotifications !== false,
+            );
+
+        console.log(
+            usersToNotify.length,
+            "utilisateurs à notifier pour le récap Saison",
+        );
+
+        for (const user of usersToNotify) {
+          try {
+            await sendNotificationToUser(
+                user.uid,
+                NOTIF_TYPES.SEASON_RECAP,
+                {},
+            );
+            console.log("✅ récap Saison envoyée à :", user.uid);
+          } catch (error) {
+            console.error("🔥 Erreur notif Saison recap :", user.uid, error);
+          }
+        }
+
+        console.log("✅ Saison recap terminé");
+      } catch (error) {
+        console.error("🔥 Erreur globale Saison recap :", error);
+      }
+    },
+);
+
 exports.updatePopulariteCompetitions = onSchedule(
     {
       schedule: "0 0 * * *",

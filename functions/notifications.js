@@ -10,6 +10,7 @@ const NOTIF_TYPES = {
   FAVORITE_TEAM_MATCH_END: "favoriteTeamMatch",
   WEEKLY_RECAP: "weeklyRecap",
   CDM_RECAP: "cdmRecap",
+  SEASON_RECAP: "seasonRecap",
 };
 
 function buildNotificationContent(type, payload) {
@@ -59,6 +60,12 @@ function buildNotificationContent(type, payload) {
         title: "🏆 Le récap de ta Coupe du Monde est disponible !",
         body: "Ça y est, la Coupe du Monde est terminée. " +
         "Découvre le récap de la CdM 2026 avec ScoreScope !",
+      };
+    case NOTIF_TYPES.SEASON_RECAP:
+      return {
+        title: "🏆 Le récap de ta saison est disponible !",
+        body: "La saison est terminée. " +
+        "Découvre le récap de la saison 2026 avec ScoreScope !",
       };
     default:
       return null;
