@@ -62,12 +62,11 @@ class StatsMatchsOnglet extends StatelessWidget {
         type: GraphType.splitBar,
         values: data.pourcentageVictoireDomExt,
       ),
-      // caché en attendant que ce soit vraiment implémenté
-      // GraphCard(
-      //   title: translate.clubsVsInternationaux,
-      //   type: GraphType.splitBar,
-      //   values: data.pourcentageClubsInternationaux,
-      // ),
+      GraphCard(
+        title: translate.clubsVsInternationaux,
+        type: GraphType.splitBar,
+        values: data.pourcentageClubsInternationaux,
+      ),
     ];
 
     return buildGridOrList(

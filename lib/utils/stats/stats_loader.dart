@@ -666,26 +666,26 @@ class StatsLoader {
   }
 
   static Future<List<PodiumEntry<MatchModel>>> getMatchsPlusReactions({
-  required List<MatchUserData> matchsVusUser,
-  required Map<String, MatchModel> matchCache,
-  required String userId,
-  Map<String, int>? reactionsCountByMatch,
-}) async {
-  final counts = reactionsCountByMatch ??
-      await RepositoryProvider.userRepository
-          .fetchReactionsCountByMatch(userId: userId);
+    required List<MatchUserData> matchsVusUser,
+    required Map<String, MatchModel> matchCache,
+    required String userId,
+    Map<String, int>? reactionsCountByMatch,
+  }) async {
+    final counts = reactionsCountByMatch ??
+        await RepositoryProvider.userRepository
+            .fetchReactionsCountByMatch(userId: userId);
 
-  final List<PodiumEntry<MatchModel>> podiumEntries = [];
-  for (final matchUserData in matchsVusUser) {
-    final count = counts[matchUserData.matchId];
-    if (count == null || count == 0) continue;
-    final match = matchCache[matchUserData.matchId];
-    if (match == null) continue;
-    podiumEntries.add(PodiumEntry<MatchModel>(item: match, value: count));
+    final List<PodiumEntry<MatchModel>> podiumEntries = [];
+    for (final matchUserData in matchsVusUser) {
+      final count = counts[matchUserData.matchId];
+      if (count == null || count == 0) continue;
+      final match = matchCache[matchUserData.matchId];
+      if (match == null) continue;
+      podiumEntries.add(PodiumEntry<MatchModel>(item: match, value: count));
+    }
+    podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+    return podiumEntries;
   }
-  podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-  return podiumEntries;
-}
 
   static Future<List<PodiumEntry<DayPodiumDisplayable>>>
       getJoursAvecLePlusDeMatchs(
@@ -1219,5 +1219,36 @@ class StatsLoader {
     result.sort((a, b) => b.valueX.compareTo(a.valueX));
 
     return result;
+  }
+
+  static List<StatValue> getPourcentageClubsInternationaux(
+      List<MatchModel> matchModels) {
+    final totalMatchs = matchModels.length;
+    if (totalMatchs == 0) {
+      return [
+        StatValue(label: translate.clubs, value: 0),
+        StatValue(label: translate.international, value: 0),
+      ];
+    }
+
+    int clubsCount = 0;
+    int internationalCount = 0;
+
+    for (final match in matchModels) {
+      if (match.equipeDomicile.national == true &&
+          match.equipeExterieur.national == true) {
+        internationalCount++;
+      } else {
+        clubsCount++;
+      }
+    }
+
+    return [
+      StatValue(
+          label: translate.clubs, value: (clubsCount / totalMatchs) * 100),
+      StatValue(
+          label: translate.international,
+          value: (internationalCount / totalMatchs) * 100),
+    ];
   }
 }

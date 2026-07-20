@@ -149,10 +149,8 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
           StatsLoader.getMoyenneDifferenceButsParMatch(matchModels),
       pourcentageVictoireDomExt:
           StatsLoader.getPourcentageVictoireDomExt(matchModels),
-      pourcentageClubsInternationaux: [
-        StatValue(label: translate.clubs, value: 50),
-        StatValue(label: translate.international, value: 50),
-      ],
+      pourcentageClubsInternationaux: 
+          StatsLoader.getPourcentageClubsInternationaux(matchModels),
     );
   }
 

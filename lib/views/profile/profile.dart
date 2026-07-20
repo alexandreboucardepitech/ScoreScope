@@ -156,8 +156,11 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> _loadFriendship() async {
     _setStateAndRemeasure(() => _isLoadingFriendship = true);
-    if (_displayedUser?.uid == currentUser?.uid) {
-      _setStateAndRemeasure(() => friendship = null);
+    if (currentUser == null || _displayedUser?.uid == currentUser?.uid) {
+      _setStateAndRemeasure(() {
+        friendship = null;
+        _isLoadingFriendship = false;
+      });
       return;
     }
 
