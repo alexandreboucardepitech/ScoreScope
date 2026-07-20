@@ -23,6 +23,10 @@ Future<List<PodiumEntry<T>>> loadOneStatForOneUser<T extends PodiumDisplayable>(
       .userRepository
       .fetchUserAllMatchUserData(userId: userId, onlyPublic: true);
 
+  final Map<String, MatchModel> matchCache = {
+    for (final m in matchsVusModels) m.id: m,
+  };
+
   if (statToLoad == translate.equipesLesPlusVues) {
     final map = await StatsLoader.getEquipesLesPlusVues(matchsVusModels);
     final result = await StatsLoader.getPodiumFromMap<Equipe>(map);
@@ -81,12 +85,18 @@ Future<List<PodiumEntry<T>>> loadOneStatForOneUser<T extends PodiumDisplayable>(
         await StatsLoader.getMatchsMieuxNotes(matchsVusUser: matchsVusUser);
     return result.map((e) => e as PodiumEntry<T>).toList();
   } else if (statToLoad == translate.matchsLesCommentes) {
-    final result =
-        await StatsLoader.getMatchsPlusCommentes(matchsVusUser: matchsVusUser);
+    final result = await StatsLoader.getMatchsPlusCommentes(
+      matchsVusUser: matchsVusUser,
+      matchCache: matchCache,
+      userId: userId,
+    );
     return result.map((e) => e as PodiumEntry<T>).toList();
   } else if (statToLoad == translate.matchsLesReactions) {
-    final result =
-        await StatsLoader.getMatchsPlusReactions(matchsVusUser: matchsVusUser);
+    final result = await StatsLoader.getMatchsPlusReactions(
+      matchsVusUser: matchsVusUser,
+      matchCache: matchCache,
+      userId: userId,
+    );
     return result.map((e) => e as PodiumEntry<T>).toList();
   } else if (statToLoad == translate.joursAvecLePlusDeMatchsVus) {
     final result = await StatsLoader.getJoursAvecLePlusDeMatchs(

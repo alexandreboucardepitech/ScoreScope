@@ -7,7 +7,6 @@ import 'package:scorescope/models/match.dart';
 import 'package:scorescope/models/match_joueur.dart';
 import 'package:scorescope/models/match_user_data.dart';
 import 'package:scorescope/services/repository_provider.dart';
-import 'package:scorescope/services/web/web_app_user_repository.dart';
 import 'package:scorescope/utils/stats/stats_loading_state.dart';
 
 class StatsDataLoader {
@@ -18,6 +17,9 @@ class StatsDataLoader {
   static const int _assemblyBatchSize = 30;
 
   final void Function(StatsLoadingState) onStateChanged;
+
+  late final Future<Map<String, int>> _commentsCountFuture;
+  late final Future<Map<String, int>> _reactionsCountFuture;
 
   StatsLoadingState _state;
 
@@ -30,7 +32,12 @@ class StatsDataLoader {
           userId: userId,
           onlyPublic: onlyPublic,
           dateRange: dateRange,
-        );
+        ) {
+    _commentsCountFuture = RepositoryProvider.userRepository
+        .fetchCommentsCountByMatch(userId: userId);
+    _reactionsCountFuture = RepositoryProvider.userRepository
+        .fetchReactionsCountByMatch(userId: userId);
+  }
 
   Future<void> load() async {
     try {
@@ -50,7 +57,8 @@ class StatsDataLoader {
   Future<void> _phase1FetchMatchIds() async {
     _emit(_state.copyWith(phase: StatsLoadingPhase.fetchingMatchIds));
 
-    final matchIds = await WebAppUserRepository().getUserMatchsRegardesId(
+    final matchIds =
+        await RepositoryProvider.userRepository.getUserMatchsRegardesId(
       userId: _state.userId,
       onlyPublic: _state.onlyPublic,
       dateRange: _state.dateRange,
@@ -62,22 +70,27 @@ class StatsDataLoader {
   Future<void> _phase2FetchMatchData() async {
     _emit(_state.copyWith(phase: StatsLoadingPhase.fetchingMatchData));
 
-    // Les deux fetchs sont lancés en parallèle.
     final results = await Future.wait([
       _fetchMatchModelIdsWithProgress(_state.matchIds),
-      WebAppUserRepository().fetchUserAllMatchUserData(
+      RepositoryProvider.userRepository.fetchUserAllMatchUserData(
         userId: _state.userId,
         onlyPublic: _state.onlyPublic,
         dateRange: _state.dateRange,
       ),
+      _commentsCountFuture,
+      _reactionsCountFuture,
     ]);
 
     final matchModelIds = results[0] as List<MatchModelId>;
     final matchUserData = results[1] as List<MatchUserData>;
+    final commentsCountByMatch = results[2] as Map<String, int>;
+    final reactionsCountByMatch = results[3] as Map<String, int>;
 
     _emit(_state.copyWith(
       matchModelIds: matchModelIds,
       matchUserData: matchUserData,
+      commentsCountByMatch: commentsCountByMatch,
+      reactionsCountByMatch: reactionsCountByMatch,
     ));
   }
 

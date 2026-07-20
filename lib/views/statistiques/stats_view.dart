@@ -37,7 +37,7 @@ class _StatsViewState extends State<StatsView> {
 
   Future<void> _loadCurrentUser() async {
     try {
-      final user = await RepositoryProvider.userRepository.getCurrentUser();
+      final user = RepositoryProvider.userRepository.currentUser;
       if (mounted) {
         setState(() {
           _currentUser = user;
@@ -86,14 +86,9 @@ class _StatsViewState extends State<StatsView> {
   }
 
   bool isCurrentUser() {
-    if (_currentUser == null) {
-      _loadCurrentUser();
+    if (_currentUser == null)
       return true;
-    } else if (widget.user.uid != _currentUser!.uid) {
-      return false;
-    } else {
-      return true;
-    }
+    return widget.user.uid == _currentUser!.uid;
   }
 
   Future<void> _pickPeriodOrSeason() async {
@@ -422,7 +417,8 @@ class _StatsViewState extends State<StatsView> {
                       Expanded(
                         child: Text(
                           _saison != null
-                              ? translate.saisonXX(_saison.toString(), (_saison! + 1).toString())
+                              ? translate.saisonXX(
+                                  _saison.toString(), (_saison! + 1).toString())
                               : translate.periodeXX(
                                   "${_dateRange!.start.day}/${_dateRange!.start.month}/${_dateRange!.start.year}",
                                   "${_dateRange!.end.day}/${_dateRange!.end.month}/${_dateRange!.end.year}"),

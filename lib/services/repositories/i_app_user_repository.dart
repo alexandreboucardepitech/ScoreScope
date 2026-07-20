@@ -60,6 +60,8 @@ abstract class IAppUserRepository {
     bool onlyPublic = false,
     DateTimeRange? dateRange,
   });
+  Future<Map<String, int>> fetchCommentsCountByMatch({required String userId});
+  Future<Map<String, int>> fetchReactionsCountByMatch({required String userId});
   Future<ProfileStats> loadProfileStats({
     required String userId,
     required bool onlyPublic,

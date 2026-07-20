@@ -356,10 +356,12 @@ class StatsLoader {
 
     return [
       StatValue(
-          label: translate.domicile, value: (victoiresDomicile / totalMatchs) * 100),
+          label: translate.domicile,
+          value: (victoiresDomicile / totalMatchs) * 100),
       StatValue(label: translate.nuls, value: (nuls / totalMatchs) * 100),
       StatValue(
-          label: translate.exterieur, value: (victoiresExterieur / totalMatchs) * 100),
+          label: translate.exterieur,
+          value: (victoiresExterieur / totalMatchs) * 100),
     ];
   }
 
@@ -643,51 +645,47 @@ class StatsLoader {
 
   static Future<List<PodiumEntry<MatchModel>>> getMatchsPlusCommentes({
     required List<MatchUserData> matchsVusUser,
-    Map<String, MatchModel>? matchCache,
+    required Map<String, MatchModel> matchCache,
+    required String userId,
+    Map<String, int>? commentsCountByMatch,
   }) async {
+    final counts = commentsCountByMatch ??
+        await RepositoryProvider.userRepository
+            .fetchCommentsCountByMatch(userId: userId);
+
     final List<PodiumEntry<MatchModel>> podiumEntries = [];
-
     for (final matchUserData in matchsVusUser) {
-      if (matchUserData.comments.isEmpty) continue;
-      final MatchModel? match = matchCache?[matchUserData.matchId] ??
-          await RepositoryProvider.matchRepository
-              .fetchMatchById(matchUserData.matchId);
+      final count = counts[matchUserData.matchId];
+      if (count == null || count == 0) continue;
+      final match = matchCache[matchUserData.matchId];
       if (match == null) continue;
-
-      podiumEntries.add(
-        PodiumEntry<MatchModel>(
-          item: match,
-          value: matchUserData.comments.length,
-        ),
-      );
+      podiumEntries.add(PodiumEntry<MatchModel>(item: match, value: count));
     }
     podiumEntries.sort((a, b) => b.value.compareTo(a.value));
     return podiumEntries;
   }
 
   static Future<List<PodiumEntry<MatchModel>>> getMatchsPlusReactions({
-    required List<MatchUserData> matchsVusUser,
-    Map<String, MatchModel>? matchCache,
-  }) async {
-    final List<PodiumEntry<MatchModel>> podiumEntries = [];
+  required List<MatchUserData> matchsVusUser,
+  required Map<String, MatchModel> matchCache,
+  required String userId,
+  Map<String, int>? reactionsCountByMatch,
+}) async {
+  final counts = reactionsCountByMatch ??
+      await RepositoryProvider.userRepository
+          .fetchReactionsCountByMatch(userId: userId);
 
-    for (final matchUserData in matchsVusUser) {
-      if (matchUserData.reactions.isEmpty) continue;
-      final MatchModel? match = matchCache?[matchUserData.matchId] ??
-          await RepositoryProvider.matchRepository
-              .fetchMatchById(matchUserData.matchId);
-      if (match == null) continue;
-
-      podiumEntries.add(
-        PodiumEntry<MatchModel>(
-          item: match,
-          value: matchUserData.reactions.length,
-        ),
-      );
-    }
-    podiumEntries.sort((a, b) => b.value.compareTo(a.value));
-    return podiumEntries;
+  final List<PodiumEntry<MatchModel>> podiumEntries = [];
+  for (final matchUserData in matchsVusUser) {
+    final count = counts[matchUserData.matchId];
+    if (count == null || count == 0) continue;
+    final match = matchCache[matchUserData.matchId];
+    if (match == null) continue;
+    podiumEntries.add(PodiumEntry<MatchModel>(item: match, value: count));
   }
+  podiumEntries.sort((a, b) => b.value.compareTo(a.value));
+  return podiumEntries;
+}
 
   static Future<List<PodiumEntry<DayPodiumDisplayable>>>
       getJoursAvecLePlusDeMatchs(
@@ -1143,9 +1141,11 @@ class StatsLoader {
     }
 
     return [
-      StatValue(label: translate.victoires, value: (victoires / totalMatchs) * 100),
+      StatValue(
+          label: translate.victoires, value: (victoires / totalMatchs) * 100),
       StatValue(label: translate.nuls, value: (nuls / totalMatchs) * 100),
-      StatValue(label: translate.defaites, value: (defaites / totalMatchs) * 100),
+      StatValue(
+          label: translate.defaites, value: (defaites / totalMatchs) * 100),
     ];
   }
 

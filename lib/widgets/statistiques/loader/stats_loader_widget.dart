@@ -267,10 +267,14 @@ class _StatsLoaderWidgetState extends State<StatsLoaderWidget> {
       matchsPlusCommentes: await StatsLoader.getMatchsPlusCommentes(
         matchsVusUser: matchUserData,
         matchCache: matchCache,
+        commentsCountByMatch: state.commentsCountByMatch,
+        userId: state.userId,
       ),
       matchsPlusReactions: await StatsLoader.getMatchsPlusReactions(
         matchsVusUser: matchUserData,
         matchCache: matchCache,
+        reactionsCountByMatch: state.reactionsCountByMatch,
+        userId: state.userId,
       ),
       joursLePlusDeMatchs: await StatsLoader.getJoursAvecLePlusDeMatchs(
         matchsVusUser: matchUserData,

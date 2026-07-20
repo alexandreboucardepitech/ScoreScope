@@ -28,6 +28,8 @@ class StatsLoadingState {
   final Map<String, Equipe> equipeCache;
   final Map<String, Competition> competitionCache;
   final Map<String, Joueur> joueurCache;
+  final Map<String, int> commentsCountByMatch;
+  final Map<String, int> reactionsCountByMatch;
   final List<MatchModel> matchModels;
   final String userId;
   final bool onlyPublic;
@@ -48,6 +50,8 @@ class StatsLoadingState {
     this.equipeCache = const {},
     this.competitionCache = const {},
     this.joueurCache = const {},
+    this.commentsCountByMatch = const {},
+    this.reactionsCountByMatch = const {},
     this.matchModels = const [],
   });
 
@@ -111,6 +115,8 @@ class StatsLoadingState {
     Map<String, Competition>? competitionCache,
     Map<String, Joueur>? joueurCache,
     List<MatchModel>? matchModels,
+    Map<String, int>? commentsCountByMatch,
+    Map<String, int>? reactionsCountByMatch,
   }) {
     return StatsLoadingState(
       phase: phase ?? this.phase,
@@ -128,6 +134,8 @@ class StatsLoadingState {
       competitionCache: competitionCache ?? this.competitionCache,
       joueurCache: joueurCache ?? this.joueurCache,
       matchModels: matchModels ?? this.matchModels,
+      commentsCountByMatch: commentsCountByMatch ?? this.commentsCountByMatch,
+      reactionsCountByMatch: reactionsCountByMatch ?? this.reactionsCountByMatch,
     );
   }
 }

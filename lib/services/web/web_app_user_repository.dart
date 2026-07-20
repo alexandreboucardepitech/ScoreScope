@@ -499,6 +499,40 @@ class WebAppUserRepository implements IAppUserRepository {
     return matchs;
   }
 
+  Future<Map<String, int>> _fetchSubcollectionCountByMatch({
+    required String userId,
+    required String subcollectionName,
+  }) async {
+    // final prefix = 'users/$userId';
+    final snapshot = await FirebaseFirestore.instance
+      .collectionGroup('comments')
+      .get();
+
+    final Map<String, int> countByMatch = {};
+    for (final doc in snapshot.docs) {
+      final matchId = doc.reference.parent.parent!.id;
+      countByMatch.update(matchId, (v) => v + 1, ifAbsent: () => 1);
+    }
+    return countByMatch;
+  }
+
+  @override
+  Future<Map<String, int>> fetchCommentsCountByMatch({required String userId}) {
+    return _fetchSubcollectionCountByMatch(
+      userId: userId,
+      subcollectionName: 'comments',
+    );
+  }
+
+  @override
+  Future<Map<String, int>> fetchReactionsCountByMatch(
+      {required String userId}) {
+    return _fetchSubcollectionCountByMatch(
+      userId: userId,
+      subcollectionName: 'reactions',
+    );
+  }
+
   @override
   Future<ProfileStats> loadProfileStats({
     required String userId,

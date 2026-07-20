@@ -811,6 +811,50 @@ class MockAppUserRepository implements IAppUserRepository {
   }
 
   @override
+  Future<Map<String, int>> fetchCommentsCountByMatch(
+      {required String userId}) async {
+    await _seedingFuture;
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
+    if (user.uid.isEmpty) return {};
+    final Map<String, int> commentsCountByMatch = {};
+    for (final matchData in user.matchsUserData) {
+      if (matchData.comments.isNotEmpty) {
+        commentsCountByMatch[matchData.matchId] = matchData.comments.length;
+      } else {
+        commentsCountByMatch[matchData.matchId] = 0;
+      }
+    }
+    return commentsCountByMatch;
+  }
+
+  @override
+  Future<Map<String, int>> fetchReactionsCountByMatch(
+      {required String userId}) async {
+    await _seedingFuture;
+    final user = _users.firstWhere(
+      (u) => u.uid == userId,
+      orElse: () => AppUser(
+        uid: '',
+        displayName: '',
+        createdAt: DateTime.now(),
+      ),
+    );
+    if (user.uid.isEmpty) return {};
+    final Map<String, int> reactionsCountByMatch = {};
+    for (final matchData in user.matchsUserData) {
+      reactionsCountByMatch[matchData.matchId] = matchData.reactions.length;
+    }
+    return reactionsCountByMatch;
+  }
+
+  @override
   Future<ProfileStats> loadProfileStats({
     required String userId,
     required bool onlyPublic,
